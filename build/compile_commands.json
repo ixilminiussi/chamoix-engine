@@ -1,0 +1,56 @@
+[
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/cmx_actor.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_actor.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_actor.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/cmx_actor.cpp.o"
+},
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/cmx_device.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_device.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_device.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/cmx_device.cpp.o"
+},
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/cmx_model.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_model.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_model.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/cmx_model.cpp.o"
+},
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/cmx_pipeline.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_pipeline.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_pipeline.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/cmx_pipeline.cpp.o"
+},
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/cmx_swap_chain.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_swap_chain.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_swap_chain.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/cmx_swap_chain.cpp.o"
+},
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/cmx_window.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_window.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_window.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/cmx_window.cpp.o"
+},
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/cmx_world.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_world.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/cmx_world.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/cmx_world.cpp.o"
+},
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/game.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/game.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/game.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/game.cpp.o"
+},
+{
+  "directory": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/build",
+  "command": "/usr/bin/c++  -I/home/ixilminiussi/Desktop/gamedev/vulkan-engine/include  -O2 -std=gnu++17 -o CMakeFiles/VulkanTest.dir/src/main.cpp.o -c /home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/main.cpp",
+  "file": "/home/ixilminiussi/Desktop/gamedev/vulkan-engine/src/main.cpp",
+  "output": "CMakeFiles/VulkanTest.dir/src/main.cpp.o"
+}
+]
