@@ -1,5 +1,0 @@
-/home/ixilminiussi/Desktop/gamedev/vulkan-engine/CMakeFiles/VulkanTest.dir
-/home/ixilminiussi/Desktop/gamedev/vulkan-engine/CMakeFiles/test.dir
-/home/ixilminiussi/Desktop/gamedev/vulkan-engine/CMakeFiles/clean_all.dir
-/home/ixilminiussi/Desktop/gamedev/vulkan-engine/CMakeFiles/edit_cache.dir
-/home/ixilminiussi/Desktop/gamedev/vulkan-engine/CMakeFiles/rebuild_cache.dir
