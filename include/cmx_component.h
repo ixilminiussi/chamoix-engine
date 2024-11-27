@@ -15,12 +15,8 @@ class Component
     Component() = default;
     ~Component() = default;
 
-    virtual void update()
-    {
-    }
-    virtual void render(VkCommandBuffer, VkPipelineLayout)
-    {
-    }
+    virtual void update() {};
+    virtual void render(VkCommandBuffer, VkPipelineLayout){};
 
     void despawn();
 

@@ -2,13 +2,12 @@
 
 #include "cmx_device.h"
 #include "cmx_pipeline.h"
-#include "cmx_swap_chain.h"
+#include "cmx_renderer.h"
 #include "cmx_window.h"
 #include "cmx_world.h"
 
 // std
 #include <memory>
-#include <vector>
 #include <vulkan/vulkan_core.h>
 
 namespace cmx
@@ -41,22 +40,12 @@ class Game
 
   private:
     virtual void load();
-    virtual void render(VkCommandBuffer commandBuffer);
-
-    void createPipelineLayout();
-    void createPipeline();
-    void createCommandBuffers();
-    void freeCommandBuffers();
-    void drawFrame();
-    void recreateSwapChain();
-    void recordCommandBuffer(int imageIndex);
 
     CmxWindow cmxWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
     CmxDevice cmxDevice{cmxWindow};
-    std::unique_ptr<CmxSwapChain> cmxSwapChain;
+    CmxRenderer cmxRenderer{cmxWindow, cmxDevice};
     std::unique_ptr<CmxPipeline> cmxPipeline;
     VkPipelineLayout pipelineLayout;
-    std::vector<VkCommandBuffer> commandBuffers;
 
     World mainWorld{"Main"};
     class World *activeWorld;

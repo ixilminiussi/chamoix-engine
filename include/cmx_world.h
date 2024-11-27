@@ -12,9 +12,7 @@ namespace cmx
 class World
 {
   public:
-    World(const std::string &name) : name(name)
-    {
-    }
+    World(const std::string &name) : name(name) {};
     ~World() = default;
 
     std::weak_ptr<class Actor> getActorByName(std::string &name);
