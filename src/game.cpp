@@ -5,15 +5,19 @@
 #include "cmx_render_component.h"
 #include "cmx_swap_chain.h"
 #include "cmx_world.h"
+#include "triangle_actor.h"
 
 // lib
 #include <GLFW/glfw3.h>
+#include <cstdlib>
+#include <glm/ext/scalar_constants.hpp>
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 // std
 #include <array>
@@ -48,6 +52,13 @@ void Game::run()
     while (!cmxWindow.shouldClose())
     {
         glfwPollEvents();
+        if (!getWorld())
+        {
+            spdlog::critical("Game requires does not have active world instance");
+            std::exit(EXIT_FAILURE);
+        }
+        getWorld()->updateActors(1);
+        getWorld()->updateComponents(1);
         drawFrame();
     }
 
@@ -63,12 +74,13 @@ void Game::load()
 
     setWorld(&mainWorld);
 
-    auto actor = Actor::spawn(&mainWorld, "triangle1");
-    actor->setPosition(glm::vec3{0.0f});
-    actor->setScale(glm::vec3{1.0f});
+    auto actor = Actor::spawn<TriangleActor>(&mainWorld, "triangle1");
 
-    auto renderComponent = std::make_shared<RenderComponent>(cmxModel);
-    actor->attachComponent(renderComponent);
+    std::weak_ptr<RenderComponent> renderComponent = actor->getComponentByType<RenderComponent>();
+    if (auto shared = renderComponent.lock())
+    {
+        shared->setModel(cmxModel);
+    }
 }
 
 void Game::createPipelineLayout()
@@ -205,10 +217,6 @@ void Game::recordCommandBuffer(int imageIndex)
 
 void Game::render(VkCommandBuffer commandBuffer)
 {
-    if (!getWorld())
-    {
-        spdlog::throw_spdlog_ex("forgot to set active world");
-    }
     cmxPipeline->bind(commandBuffer);
 
     std::vector<std::weak_ptr<Component>> &components = getWorld()->getAllComponents();
@@ -225,7 +233,9 @@ void Game::render(VkCommandBuffer commandBuffer)
 
         std::shared_ptr<Component> component = j->lock();
         if (component)
+        {
             component->render(commandBuffer, pipelineLayout);
+        }
 
         j++;
     }

@@ -40,8 +40,8 @@ class Game
     // getters and setters :: end
 
   private:
-    void load();
-    void render(VkCommandBuffer commandBuffer);
+    virtual void load();
+    virtual void render(VkCommandBuffer commandBuffer);
 
     void createPipelineLayout();
     void createPipeline();

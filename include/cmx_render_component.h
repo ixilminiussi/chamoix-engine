@@ -16,11 +16,12 @@ class RenderComponent : public Component
 {
   public:
     RenderComponent(std::shared_ptr<class CmxModel>);
+    RenderComponent() = default;
 
-    RenderComponent() = delete;
     ~RenderComponent() = default;
 
     void render(VkCommandBuffer, VkPipelineLayout) override;
+    void setModel(std::shared_ptr<class CmxModel>);
 
   private:
     std::shared_ptr<class CmxModel> cmxModel;

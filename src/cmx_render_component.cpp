@@ -29,15 +29,26 @@ struct SimplePushConstantData
 
 void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
 {
-    assert(getParent() != nullptr && "Error: RenderComponent parent is null");
+    if (!getParent())
+    {
+        spdlog::error("RenderComponent parent is null");
+        return;
+    };
 
     if (!getParent()->getVisible())
+    {
         return;
+    }
+
+    if (!cmxModel)
+    {
+        spdlog::error("RenderComponent is missing model");
+    }
 
     SimplePushConstantData push{};
 
-    push.transform = glm::mat2{1.f};
-    push.offset = glm::vec2{0.f};
+    push.transform = getParent()->transform.getMatrix();
+    push.offset = getParent()->transform.position;
     push.color = glm::vec3{1.0f, 0.0f, 1.0f};
 
     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
@@ -45,6 +56,11 @@ void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pip
 
     cmxModel->bind(commandBuffer);
     cmxModel->draw(commandBuffer);
+}
+
+void RenderComponent::setModel(std::shared_ptr<class CmxModel> newModel)
+{
+    cmxModel = newModel;
 }
 
 } // namespace cmx

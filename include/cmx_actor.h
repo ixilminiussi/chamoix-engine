@@ -4,7 +4,9 @@
 #include "cmx_world.h"
 
 // std
+#include <cstdlib>
 #include <memory>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <vector>
 
@@ -16,30 +18,42 @@
 namespace cmx
 {
 
-struct Transform
+struct Transform2D
 {
-    glm::vec3 position = glm::vec3{.0f};
-    glm::vec3 rotation = glm::vec3{1.f};
-    glm::vec3 scale = glm::vec3{1.f};
+    glm::vec2 position = glm::vec2{.0f};
+    float rotation = 0;
+    glm::vec2 scale = glm::vec2{1.f};
+
+    glm::mat2 getMatrix() const
+    {
+        float s = sin(rotation);
+        float c = cos(rotation);
+        glm::mat2 rotationMatrix{{c, s}, {-s, c}};
+        glm::mat2 scaleMatrix{{scale.x, 0.f}, {0.f, scale.y}};
+
+        return rotationMatrix * scaleMatrix;
+    }
 };
 
 class Actor
 {
   public:
-    static std::shared_ptr<Actor> spawn(World *, const std::string &name, const Transform &transform = Transform{});
+    template <typename T>
+    static std::shared_ptr<T> spawn(World *, const std::string &name, const Transform2D &transform = Transform2D{});
 
     void despawn();
     void move(World *);
 
     Actor() = delete;
-    ~Actor() = default;
+    virtual ~Actor() = default;
     Actor &operator=(const Actor &) = delete;
     Actor(const Actor &) = delete;
 
-    void update(float dt);
+    virtual void onBegin() {};
+    virtual void update(float dt) {};
 
     void attachComponent(std::shared_ptr<Component>);
-    template <typename T> std::weak_ptr<Component> getComponentByType();
+    template <typename T> std::weak_ptr<T> getComponentByType();
 
     // getters and setters :: begin
     World *getWorld()
@@ -47,7 +61,7 @@ class Actor
         return world;
     }
 
-    bool getVisible()
+    bool getVisible() const
     {
         return isVisible;
     }
@@ -55,21 +69,6 @@ class Actor
     void setVisible(bool newState)
     {
         isVisible = newState;
-    }
-
-    const Transform &getTransform()
-    {
-        return transform;
-    }
-
-    void setPosition(const glm::vec3 &position)
-    {
-        transform.position = position;
-    }
-
-    void setScale(const glm::vec3 &scale)
-    {
-        transform.scale = scale;
     }
     // getters and setters :: end
 
@@ -80,15 +79,54 @@ class Actor
 
     const std::string name;
 
+    Transform2D transform;
+
   protected:
-    Actor(World *, uint32_t id, const std::string &name, const Transform &);
+    Actor(World *, uint32_t id, const std::string &name, const Transform2D &);
 
     World *world;
     uint32_t id;
-    Transform transform;
     bool isVisible = true;
 
     std::vector<std::shared_ptr<Component>> components;
 };
+
+template <typename T>
+std::shared_ptr<T> Actor::spawn(World *world, const std::string &name, const Transform2D &transform)
+{
+    if constexpr (!std::is_base_of<Actor, T>::value)
+    {
+        spdlog::critical("'{0}' is not of base type 'Actor', cannot use with 'Actor::spawn'", typeid(T).name());
+        std::exit(EXIT_FAILURE);
+    }
+
+    static uint32_t currentID = 0;
+
+    Actor *actor = new T{world, currentID++, name, transform};
+    auto actorSharedPtr = std::shared_ptr<Actor>(actor);
+
+    world->addActor(actorSharedPtr);
+    return std::dynamic_pointer_cast<T>(actorSharedPtr);
+}
+
+template <typename T> std::weak_ptr<T> Actor::getComponentByType()
+{
+    if constexpr (!std::is_base_of<Component, T>::value)
+    {
+        spdlog::error("'{0}' is not of base type 'Component', 'getComponentByType<{1}>' call is pointless",
+                      typeid(T).name(), typeid(T).name());
+        return std::weak_ptr<T>();
+    }
+
+    for (const auto &component : components)
+    {
+        if (auto castedComponent = std::dynamic_pointer_cast<T>(component))
+        {
+            return castedComponent;
+        }
+    }
+
+    return std::weak_ptr<T>();
+}
 
 } // namespace cmx

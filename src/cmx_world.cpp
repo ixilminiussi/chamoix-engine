@@ -72,6 +72,7 @@ void World::addActor(std::shared_ptr<Actor> actor)
     }
 #endif
 
+    actor->onBegin();
     actors[actor->id] = actor;
     spdlog::info("World '{0}': Added new actor: '{1}'", name, actor->name);
 }
