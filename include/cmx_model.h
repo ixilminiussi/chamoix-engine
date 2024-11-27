@@ -22,17 +22,17 @@ class CmxModel
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
     };
 
-    CmxModel(CmxDevice &device, const std::vector<Vertex> &vertices);
+    CmxModel(CmxDevice &, const std::vector<Vertex> &);
     ~CmxModel();
 
     CmxModel(const CmxModel &) = delete;
     CmxModel &operator=(const CmxModel &) = delete;
 
-    void bind(VkCommandBuffer commandBuffer);
-    void draw(VkCommandBuffer commandBuffer);
+    void bind(VkCommandBuffer);
+    void draw(VkCommandBuffer);
 
   private:
-    void createVertexBuffers(const std::vector<Vertex> &vertices);
+    void createVertexBuffers(const std::vector<Vertex> &);
 
     CmxDevice &cmxDevice;
     VkBuffer vertexBuffer;

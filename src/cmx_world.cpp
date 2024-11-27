@@ -40,7 +40,29 @@ std::weak_ptr<Actor> World::getActorByID(uint32_t id)
     return actor;
 }
 
-void World::addActor(Actor *actor)
+template <typename T> void World::getAllActorsByType(std::vector<std::weak_ptr<Actor>> &actorList)
+{
+    for (auto pair : actors)
+    {
+        if (typeid(T) == typeid(pair.second))
+        {
+            actorList.push_back(pair.second);
+        }
+    }
+}
+
+template <typename T> void World::getAllComponentsByType(std::vector<std::weak_ptr<Component>> &componentList)
+{
+    for (auto component : components)
+    {
+        if (typeid(T) == typeid(component))
+        {
+            componentList.push_back(component);
+        }
+    }
+}
+
+void World::addActor(std::shared_ptr<Actor> actor)
 {
 #if DEBUG
     // expensive operation so we only use it in debug mode
@@ -50,7 +72,7 @@ void World::addActor(Actor *actor)
     }
 #endif
 
-    actors[actor->id] = std::shared_ptr<Actor>(actor);
+    actors[actor->id] = actor;
     spdlog::info("World '{0}': Added new actor: '{1}'", name, actor->name);
 }
 
@@ -75,6 +97,32 @@ void World::updateActors(float dt)
     for (auto pair : actors)
     {
         pair.second->update(dt);
+    }
+}
+
+void World::addComponent(std::shared_ptr<Component> component)
+{
+    components.push_back(component);
+    spdlog::info("World '{0}': Actor '{1}': Added new component: '{2}'", name, component->getParent()->name,
+                 typeid(*component.get()).name());
+}
+
+void World::updateComponents(float dt)
+{
+    for (auto i = components.begin(); i < components.end();)
+    {
+        // if component is deleted, remove it from our list
+        if (i->expired())
+        {
+            i = components.erase(i);
+            continue;
+        }
+
+        std::shared_ptr<Component> component = i->lock();
+        if (component)
+            component->update();
+
+        i++;
     }
 }
 

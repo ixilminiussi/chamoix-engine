@@ -36,7 +36,7 @@ class CmxDevice
     const bool enableValidationLayers = true;
 #endif
 
-    CmxDevice(CmxWindow &window);
+    CmxDevice(CmxWindow &);
     ~CmxDevice();
 
     CmxDevice(const CmxDevice &) = delete;
@@ -67,24 +67,21 @@ class CmxDevice
     {
         return querySwapChainSupport(physicalDevice);
     }
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags);
     QueueFamilyIndices findPhysicalQueueFamilies()
     {
         return findQueueFamilies(physicalDevice);
     }
-    VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling,
-                                 VkFormatFeatureFlags features);
+    VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling, VkFormatFeatureFlags);
 
     // Buffer Helper Functions
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
-                      VkDeviceMemory &bufferMemory);
+    void createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer &, VkDeviceMemory &);
     VkCommandBuffer beginSingleTimeCommands();
-    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount);
+    void endSingleTimeCommands(VkCommandBuffer);
+    void copyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize);
+    void copyBufferToImage(VkBuffer, VkImage, uint32_t width, uint32_t height, uint32_t layerCount);
 
-    void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image,
-                             VkDeviceMemory &imageMemory);
+    void createImageWithInfo(const VkImageCreateInfo &, VkMemoryPropertyFlags, VkImage &, VkDeviceMemory &);
 
     VkPhysicalDeviceProperties properties;
 
@@ -97,14 +94,14 @@ class CmxDevice
     void createCommandPool();
 
     // helper functions
-    bool isDeviceSuitable(VkPhysicalDevice device);
+    bool isDeviceSuitable(VkPhysicalDevice);
     std::vector<const char *> getRequiredExtensions();
     bool checkValidationLayerSupport();
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice);
+    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &);
     void hasGflwRequiredInstanceExtensions();
-    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    bool checkDeviceExtensionSupport(VkPhysicalDevice);
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice);
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;

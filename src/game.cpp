@@ -1,10 +1,15 @@
 #include "game.h"
+#include "cmx_actor.h"
 #include "cmx_model.h"
 #include "cmx_pipeline.h"
+#include "cmx_render_component.h"
 #include "cmx_swap_chain.h"
+#include "cmx_world.h"
 
 // lib
 #include <GLFW/glfw3.h>
+#include <spdlog/common.h>
+#include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -27,7 +32,7 @@ struct SimplePushConstantData
 
 Game::Game()
 {
-    loadModels();
+    load();
     createPipelineLayout();
     recreateSwapChain();
     createCommandBuffers();
@@ -49,12 +54,21 @@ void Game::run()
     vkDeviceWaitIdle(cmxDevice.device());
 }
 
-void Game::loadModels()
+void Game::load()
 {
     std::vector<CmxModel::Vertex> vertices = {
         {{0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}}, {{0.0f, -0.5f}, {0.0f, 1.0f, 0.0f}}, {{-0.5, 0.5}, {0.0f, 0.0f, 1.0f}}};
 
-    cmxModel = std::make_unique<CmxModel>(cmxDevice, vertices);
+    auto cmxModel = std::make_shared<CmxModel>(cmxDevice, vertices);
+
+    setWorld(&mainWorld);
+
+    auto actor = Actor::spawn(&mainWorld, "triangle1");
+    actor->setPosition(glm::vec3{0.0f});
+    actor->setScale(glm::vec3{1.0f});
+
+    auto renderComponent = std::make_shared<RenderComponent>(cmxModel);
+    actor->attachComponent(renderComponent);
 }
 
 void Game::createPipelineLayout()
@@ -180,26 +194,40 @@ void Game::recordCommandBuffer(int imageIndex)
     vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
     vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
-    cmxPipeline->bind(commandBuffers[imageIndex]);
-    cmxModel->bind(commandBuffers[imageIndex]);
-
-    for (int j = 0; j < 4; j++)
-    {
-        SimplePushConstantData push{};
-        push.offset = {0.0f, -0.4f + j * 0.25f};
-        push.color = {0.0f, 0.0f, 0.2f + 0.2f * j};
-
-        vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout,
-                           VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData),
-                           &push);
-
-        cmxModel->draw(commandBuffers[imageIndex]);
-    }
+    render(commandBuffers[imageIndex]);
 
     vkCmdEndRenderPass(commandBuffers[imageIndex]);
     if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to record command buffer!");
+    }
+}
+
+void Game::render(VkCommandBuffer commandBuffer)
+{
+    if (!getWorld())
+    {
+        spdlog::throw_spdlog_ex("forgot to set active world");
+    }
+    cmxPipeline->bind(commandBuffer);
+
+    std::vector<std::weak_ptr<Component>> &components = getWorld()->getAllComponents();
+
+    auto j = components.begin();
+
+    while (j < components.end())
+    {
+        if (j->expired())
+        {
+            j = components.erase(j);
+            continue;
+        }
+
+        std::shared_ptr<Component> component = j->lock();
+        if (component)
+            component->render(commandBuffer, pipelineLayout);
+
+        j++;
     }
 }
 

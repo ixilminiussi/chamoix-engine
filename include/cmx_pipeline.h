@@ -34,24 +34,24 @@ struct PipelineConfigInfo
 class CmxPipeline
 {
   public:
-    CmxPipeline(CmxDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
-                const PipelineConfigInfo &configInfo);
+    CmxPipeline(CmxDevice &, const std::string &vertFilepath, const std::string &fragFilepath,
+                const PipelineConfigInfo &);
     ~CmxPipeline();
 
     CmxPipeline(const CmxPipeline &) = delete;
     CmxPipeline &operator=(const CmxPipeline &) = delete;
 
-    void bind(VkCommandBuffer commandBuffer);
+    void bind(VkCommandBuffer);
 
-    static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
+    static void defaultPipelineConfigInfo(PipelineConfigInfo &);
 
   private:
     static std::vector<char> readFile(const std::string &filepath);
 
     void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
-                                const PipelineConfigInfo &configInfo);
+                                const PipelineConfigInfo &);
 
-    void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
+    void createShaderModule(const std::vector<char> &code, VkShaderModule *);
 
     CmxDevice &cmxDevice;
     VkPipeline graphicsPipeline;

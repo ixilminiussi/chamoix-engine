@@ -1,14 +1,15 @@
 #pragma once
 
 #include "cmx_device.h"
-#include "cmx_model.h"
 #include "cmx_pipeline.h"
 #include "cmx_swap_chain.h"
 #include "cmx_window.h"
+#include "cmx_world.h"
 
 // std
 #include <memory>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace cmx
 {
@@ -27,8 +28,21 @@ class Game
 
     void run();
 
+    // getters and setters :: begin
+    class World *getWorld()
+    {
+        return activeWorld;
+    }
+    void setWorld(class World *newWorld)
+    {
+        activeWorld = newWorld;
+    }
+    // getters and setters :: end
+
   private:
-    void loadModels();
+    void load();
+    void render(VkCommandBuffer commandBuffer);
+
     void createPipelineLayout();
     void createPipeline();
     void createCommandBuffers();
@@ -43,6 +57,8 @@ class Game
     std::unique_ptr<CmxPipeline> cmxPipeline;
     VkPipelineLayout pipelineLayout;
     std::vector<VkCommandBuffer> commandBuffers;
-    std::unique_ptr<CmxModel> cmxModel;
+
+    World mainWorld{"Main"};
+    class World *activeWorld;
 };
 } // namespace cmx
