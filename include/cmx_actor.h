@@ -35,6 +35,22 @@ struct Transform2D
     }
 };
 
+inline Transform2D operator+(const Transform2D &a, const Transform2D &b)
+{
+    Transform2D c{};
+    c.position = a.position + b.position;
+    c.rotation = a.rotation + b.rotation;
+    c.scale = a.scale + b.scale;
+
+    return c;
+}
+
+enum Positioning
+{
+    ABSOLUTE,
+    RELATIVE
+};
+
 class Actor
 {
   public:
@@ -70,6 +86,13 @@ class Actor
     {
         isVisible = newState;
     }
+
+    void reParent(std::shared_ptr<Actor> actor)
+    {
+        parent = actor;
+    }
+
+    Transform2D getAbsoluteTransform();
     // getters and setters :: end
 
     // friend functions
@@ -80,9 +103,11 @@ class Actor
     const std::string name;
 
     Transform2D transform;
+    Positioning positioning{Positioning::RELATIVE};
 
   protected:
     Actor(World *, uint32_t id, const std::string &name, const Transform2D &);
+    std::weak_ptr<Actor> parent;
 
     World *world;
     uint32_t id;

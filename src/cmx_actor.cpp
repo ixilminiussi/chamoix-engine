@@ -36,4 +36,17 @@ void Actor::attachComponent(std::shared_ptr<Component> component)
     getWorld()->addComponent(component);
 }
 
+Transform2D Actor::getAbsoluteTransform()
+{
+    if (positioning == Positioning::RELATIVE)
+    {
+        if (auto parentActor = parent.lock())
+        {
+            return transform + parentActor->getAbsoluteTransform();
+        }
+    }
+
+    return transform;
+}
+
 } // namespace cmx

@@ -48,8 +48,9 @@ void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pip
 
     SimplePushConstantData push{};
 
-    push.transform = getParent()->transform.getMatrix();
-    push.offset = getParent()->transform.position;
+    Transform2D transform = getParent()->getAbsoluteTransform();
+    push.transform = transform.getMatrix();
+    push.offset = transform.position;
     push.color = glm::vec3{1.0f, 0.0f, 1.0f};
 
     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
