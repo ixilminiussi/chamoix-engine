@@ -32,8 +32,20 @@ class World
     void addComponent(std::shared_ptr<class Component>);
     void updateComponents(float dt);
 
-  private:
+    void setCamera(std::shared_ptr<class CmxCameraComponent> camera)
+    {
+        activeCamera = camera;
+    }
+
+    std::weak_ptr<class CmxCameraComponent> getCamera()
+    {
+        return activeCamera;
+    }
+
     const std::string name;
+
+  private:
+    class std::shared_ptr<class CmxCameraComponent> activeCamera;
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> actors{};
     std::vector<std::weak_ptr<class Component>> components{};
 };

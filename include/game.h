@@ -6,9 +6,13 @@
 #include "cmx_window.h"
 #include "cmx_world.h"
 
-// std
-#include <memory>
+// lib
+#include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
+
+// std
+#include <cstdlib>
+#include <memory>
 
 namespace cmx
 {
@@ -30,6 +34,11 @@ class Game
     // getters and setters :: begin
     class World *getWorld()
     {
+        if (!activeWorld)
+        {
+            spdlog::critical("No active world! There MUST be an active world at all times");
+            std::exit(EXIT_FAILURE);
+        }
         return activeWorld;
     }
     void setWorld(class World *newWorld)
@@ -47,7 +56,9 @@ class Game
     std::unique_ptr<CmxPipeline> cmxPipeline;
     VkPipelineLayout pipelineLayout;
 
-    World mainWorld{"Main"};
     class World *activeWorld;
+
+    // game specific
+    World mainWorld{"Main"};
 };
 } // namespace cmx

@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <set>
+#include <spdlog/spdlog.h>
 #include <unordered_set>
 
 namespace cmx
@@ -15,7 +16,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
                                                     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                                                     void *pUserData)
 {
-    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+    spdlog::info("Validation layer: {0}", pCallbackData->pMessage);
 
     return VK_FALSE;
 }

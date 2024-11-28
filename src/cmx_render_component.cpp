@@ -1,6 +1,7 @@
 #include "cmx_render_component.h"
 
 #include "cmx_actor.h"
+#include "cmx_camera_component.h"
 #include "cmx_model.h"
 
 // lib
@@ -23,12 +24,12 @@ RenderComponent::RenderComponent(std::shared_ptr<CmxModel> cmxModel) : cmxModel(
 
 struct SimplePushConstantData
 {
-    glm::mat2 transform{1.f};
-    glm::vec2 offset;
+    glm::mat4 transform{1.f};
     alignas(16) glm::vec3 color;
 };
 
-void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
+void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout,
+                             const class CmxCameraComponent &camera)
 {
     if (!getParent())
     {
@@ -46,12 +47,12 @@ void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pip
         spdlog::error("RenderComponent is missing model");
     }
 
-    SimplePushConstantData push{};
+    auto projectionView = camera.getProjection() * camera.getView();
 
-    Transform2D transform = getParent()->getAbsoluteTransform();
-    push.transform = transform.getMatrix();
-    push.offset = transform.position;
+    SimplePushConstantData push{};
+    Transform transform = getParent()->getAbsoluteTransform();
     push.color = glm::vec3{1.0f, 0.0f, 1.0f};
+    push.transform = projectionView * transform.mat4();
 
     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                        sizeof(SimplePushConstantData), &push);

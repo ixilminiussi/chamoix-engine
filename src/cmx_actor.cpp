@@ -10,7 +10,7 @@
 namespace cmx
 {
 
-Actor::Actor(World *world, uint32_t id, const std::string &name, const Transform2D &transform)
+Actor::Actor(World *world, uint32_t id, const std::string &name, const Transform &transform)
     : world{world}, id{id}, name{name}, transform{transform}
 {
 }
@@ -36,7 +36,7 @@ void Actor::attachComponent(std::shared_ptr<Component> component)
     getWorld()->addComponent(component);
 }
 
-Transform2D Actor::getAbsoluteTransform()
+Transform Actor::getAbsoluteTransform()
 {
     if (positioning == Positioning::RELATIVE)
     {

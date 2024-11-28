@@ -27,6 +27,11 @@ class CmxRenderer
         return cmxSwapChain->getRenderPass();
     }
 
+    float getAspectRatio() const
+    {
+        return cmxSwapChain->extentAspectRatio();
+    }
+
     bool isFrameInProgress() const
     {
         return isFrameStarted;

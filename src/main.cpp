@@ -2,7 +2,6 @@
 
 // std
 #include <cstdlib>
-#include <iostream>
 
 int main()
 {
@@ -14,7 +13,7 @@ int main()
     }
     catch (const std::exception &e)
     {
-        std::cerr << e.what() << '\n';
+        spdlog::error("{0}", e.what());
         return EXIT_FAILURE;
     }
 

@@ -36,3 +36,15 @@ for shader in "${SHADERS[@]}"; do
 done
 
 echo "Shader compilation complete."
+
+# Copying assets to the build directory
+SOURCE_DIR="../assets"
+OUTPUT_DIR="./assets"
+
+# Ensure the ouput directory exists
+mkdir -p "$OUTPUT_DIR"
+
+# Copy over the files
+cp -r $SOURCE_DIR/* $OUTPUT_DIR/
+
+echo "Assets copied."

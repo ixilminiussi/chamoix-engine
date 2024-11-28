@@ -4,9 +4,9 @@
 #include <array>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <limits>
 #include <memory>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
@@ -403,19 +403,19 @@ VkPresentModeKHR CmxSwapChain::chooseSwapPresentMode(const std::vector<VkPresent
     {
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
         {
-            std::cout << "Present mode: Mailbox" << std::endl;
+            spdlog::info("Present mode: Mailbox");
             return availablePresentMode;
         }
     }
 
     // for (const auto &availablePresentMode : availablePresentModes) {
     //   if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-    //     std::cout << "Present mode: Immediate" << std::endl;
+    //     spdlog::info("Present mode: Immediate");
     //     return availablePresentMode;
     //   }
     // }
 
-    std::cout << "Present mode: V-Sync" << std::endl;
+    spdlog::info("present mode: V-sync");
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 

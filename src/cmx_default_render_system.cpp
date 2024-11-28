@@ -1,5 +1,6 @@
 #include "cmx_default_render_system.h"
 
+#include "cmx_camera_component.h"
 #include "cmx_component.h"
 #include "cmx_pipeline.h"
 #include "cmx_world.h"
@@ -25,8 +26,7 @@ namespace cmx
 
 struct SimplePushConstantData
 {
-    glm::mat2 transform{1.f};
-    glm::vec2 offset;
+    glm::mat4 transform{1.f};
     alignas(16) glm::vec3 color;
 };
 
@@ -72,7 +72,8 @@ void CmxDefaultRenderSystem::createPipeline(VkRenderPass renderPass)
         std::make_unique<CmxPipeline>(cmxDevice, "shaders/shader.vert.spv", "shaders/shader.frag.spv", pipelineConfig);
 }
 
-void CmxDefaultRenderSystem::render(VkCommandBuffer commandBuffer, std::vector<std::weak_ptr<Component>> &components)
+void CmxDefaultRenderSystem::render(VkCommandBuffer commandBuffer, std::vector<std::weak_ptr<Component>> &components,
+                                    const CmxCameraComponent &camera)
 {
     cmxPipeline->bind(commandBuffer);
 
@@ -89,7 +90,7 @@ void CmxDefaultRenderSystem::render(VkCommandBuffer commandBuffer, std::vector<s
         std::shared_ptr<Component> component = j->lock();
         if (component)
         {
-            component->render(commandBuffer, pipelineLayout);
+            component->render(commandBuffer, pipelineLayout, camera);
         }
 
         j++;

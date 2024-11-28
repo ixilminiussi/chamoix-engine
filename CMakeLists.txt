@@ -32,5 +32,3 @@ add_custom_target(clean_all
     COMMAND ${CMAKE_COMMAND} -E remove VulkanTest
     COMMENT "Cleaning up VulkanTest"
 )
-
-

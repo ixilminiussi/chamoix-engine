@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cmx_component.h"
+#include "cmx_transform.h"
 #include "cmx_world.h"
 
 // std
@@ -10,40 +11,8 @@
 #include <string>
 #include <vector>
 
-// lib
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-
 namespace cmx
 {
-
-struct Transform2D
-{
-    glm::vec2 position = glm::vec2{.0f};
-    float rotation = 0;
-    glm::vec2 scale = glm::vec2{1.f};
-
-    glm::mat2 getMatrix() const
-    {
-        float s = sin(rotation);
-        float c = cos(rotation);
-        glm::mat2 rotationMatrix{{c, s}, {-s, c}};
-        glm::mat2 scaleMatrix{{scale.x, 0.f}, {0.f, scale.y}};
-
-        return rotationMatrix * scaleMatrix;
-    }
-};
-
-inline Transform2D operator+(const Transform2D &a, const Transform2D &b)
-{
-    Transform2D c{};
-    c.position = a.position + b.position;
-    c.rotation = a.rotation + b.rotation;
-    c.scale = a.scale + b.scale;
-
-    return c;
-}
 
 enum Positioning
 {
@@ -54,8 +23,8 @@ enum Positioning
 class Actor
 {
   public:
-    template <typename T>
-    static std::shared_ptr<T> spawn(World *, const std::string &name, const Transform2D &transform = Transform2D{});
+    template <class T>
+    static std::shared_ptr<T> spawn(World *, const std::string &name, const Transform &transform = Transform{});
 
     void despawn();
     void move(World *);
@@ -92,7 +61,7 @@ class Actor
         parent = actor;
     }
 
-    Transform2D getAbsoluteTransform();
+    Transform getAbsoluteTransform();
     // getters and setters :: end
 
     // friend functions
@@ -102,11 +71,11 @@ class Actor
 
     const std::string name;
 
-    Transform2D transform;
+    Transform transform;
     Positioning positioning{Positioning::RELATIVE};
 
   protected:
-    Actor(World *, uint32_t id, const std::string &name, const Transform2D &);
+    Actor(World *, uint32_t id, const std::string &name, const Transform &);
     std::weak_ptr<Actor> parent;
 
     World *world;
@@ -116,8 +85,7 @@ class Actor
     std::vector<std::shared_ptr<Component>> components;
 };
 
-template <typename T>
-std::shared_ptr<T> Actor::spawn(World *world, const std::string &name, const Transform2D &transform)
+template <typename T> std::shared_ptr<T> Actor::spawn(World *world, const std::string &name, const Transform &transform)
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
@@ -138,8 +106,9 @@ template <typename T> std::weak_ptr<T> Actor::getComponentByType()
 {
     if constexpr (!std::is_base_of<Component, T>::value)
     {
-        spdlog::error("'{0}' is not of base type 'Component', 'getComponentByType<{1}>' call is pointless",
-                      typeid(T).name(), typeid(T).name());
+        spdlog::error(
+            "'{0}' is not of base type 'Component', 'getComponentByType<{1}>' will always return invalid pointer",
+            typeid(T).name(), typeid(T).name());
         return std::weak_ptr<T>();
     }
 
