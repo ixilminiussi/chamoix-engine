@@ -15,7 +15,7 @@ class Component
     Component() = default;
     ~Component() = default;
 
-    virtual void update() {};
+    virtual void update(float dt) {};
     virtual void render(VkCommandBuffer, VkPipelineLayout, const class CmxCameraComponent &) {};
 
     void despawn();

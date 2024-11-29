@@ -5,6 +5,7 @@
 #include "viewport_actor.h"
 
 // lib
+#include <functional>
 #include <spdlog/spdlog.h>
 
 // std
@@ -13,24 +14,26 @@
 void ViewportActor::onBegin()
 {
     camera = std::make_shared<cmx::CmxCameraComponent>();
-    camera->setViewDirection(glm::vec3{0.f}, glm::vec3{.5, 0.f, 1.f});
+    attachComponent(camera);
 
-    getWorld()->getGame()->getInputManager().bind(
-        "forward_move", std::bind(&ViewportActor::onForwardInputPressed, this, std::placeholders::_1));
+    getWorld()->getGame()->getInputManager().bindButton(
+        "jump", std::bind(&ViewportActor::onJumpInput, this, std::placeholders::_1));
+    getWorld()->getGame()->getInputManager().bindAxis(
+        "lateral movement",
+        std::bind(&ViewportActor::onMovementInput, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void ViewportActor::update(float dt)
 {
 }
 
-void ViewportActor::onForwardInputPressed(bool status)
+void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
 {
-    if (status)
-    {
-        spdlog::info("key was pressed");
-    }
-    else
-    {
-        spdlog::info("key was released");
-    }
+    spdlog::info("x: {0}, y: {1}", transform.position.x, transform.position.y);
+    transform.position += glm::vec3(movement * 100.f * dt, 0.f);
+}
+
+void ViewportActor::onJumpInput(float dt)
+{
+    spdlog::info("jumping");
 }

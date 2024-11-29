@@ -17,7 +17,16 @@ CmxInputManager::CmxInputManager(CmxWindow &window) : window{window}
     glfwSetInputMode(window.getGLFWwindow(), GLFW_STICKY_KEYS, GLFW_TRUE);
 }
 
-void CmxInputManager::bind(const std::string &name, std::function<void(glm::vec2)> callbackFunction)
+CmxInputManager::~CmxInputManager()
+{
+    for (auto &pair : inputDictionary)
+    {
+        delete pair.second;
+    }
+    inputDictionary.clear();
+}
+
+void CmxInputManager::bindAxis(const std::string &name, std::function<void(float, glm::vec2)> callbackFunction)
 {
     auto mappedInput = inputDictionary.find(name);
     if (mappedInput == inputDictionary.end())
@@ -27,17 +36,12 @@ void CmxInputManager::bind(const std::string &name, std::function<void(glm::vec2
     }
     else
     {
-        if (mappedInput->second.inputCategory != CmxInputCategory::AXIS)
-        {
-            spdlog::critical(
-                "InputManager: failed to bind, AXIS inputs must be bound to functions of shape 'void (glm::vec2);");
-            std::exit(EXIT_FAILURE);
-        }
-        mappedInput->second.bind(callbackFunction);
+        mappedInput->second->bind(callbackFunction);
+        spdlog::info("InputManager: '{0}' bound to new function", name);
     }
 }
 
-void CmxInputManager::bind(const std::string &name, std::function<void(bool)> callbackFunction)
+void CmxInputManager::bindButton(const std::string &name, std::function<void(float)> callbackFunction)
 {
     auto mappedInput = inputDictionary.find(name);
     if (mappedInput == inputDictionary.end())
@@ -47,23 +51,18 @@ void CmxInputManager::bind(const std::string &name, std::function<void(bool)> ca
     }
     else
     {
-        if (mappedInput->second.inputCategory != CmxInputCategory::BUTTON)
-        {
-            spdlog::critical(
-                "InputManager: failed to bind, BUTTON inputs must be bound to functions of shape 'void (bool);");
-            std::exit(EXIT_FAILURE);
-        }
-        mappedInput->second.bind(callbackFunction);
+        mappedInput->second->bind(callbackFunction);
+        spdlog::info("InputManager: '{0}' bound to new function", name);
     }
 }
 
-void CmxInputManager::pollEvents()
+void CmxInputManager::pollEvents(float dt)
 {
     glfwPollEvents();
 
-    for (auto actionPair : inputDictionary)
+    for (auto &[name, input] : inputDictionary)
     {
-        actionPair.second.poll(window);
+        input->poll(window, dt);
     }
 }
 

@@ -121,7 +121,7 @@ void World::updateComponents(float dt)
 
         std::shared_ptr<Component> component = i->lock();
         if (component)
-            component->update();
+            component->update(dt);
 
         i++;
     }

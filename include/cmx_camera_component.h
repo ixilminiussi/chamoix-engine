@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cmx_actor.h"
 #include "cmx_component.h"
 
 // lib
@@ -13,7 +14,7 @@
 namespace cmx
 {
 
-class CmxCameraComponent : Component
+class CmxCameraComponent : public Component
 {
   public:
     CmxCameraComponent() = default;
@@ -27,6 +28,11 @@ class CmxCameraComponent : Component
     void setViewYXZ(glm::vec3 position, glm::vec3 rotation);
 
     void updateAspectRatio(float aspectRatio);
+
+    void update(float dt) override
+    {
+        setViewDirection(getParent()->transform.position, getParent()->transform.rotation);
+    }
 
     // getters and setters :: begin
     const glm::mat4 &getProjection() const

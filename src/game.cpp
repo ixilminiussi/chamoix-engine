@@ -1,7 +1,6 @@
 #include "game.h"
 
 #include "cmx_actor.h"
-#include "cmx_camera_component.h"
 #include "cmx_default_render_system.h"
 #include "cmx_input_manager.h"
 #include "cmx_model.h"
@@ -47,7 +46,7 @@ void Game::run()
         float dt = glfwGetTime();
         glfwSetTime(0.);
 
-        cmxInputManager.pollEvents();
+        cmxInputManager.pollEvents(dt);
 
         getWorld()->updateActors(dt);
         getWorld()->updateComponents(dt);

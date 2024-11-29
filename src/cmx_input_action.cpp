@@ -1,101 +1,135 @@
 #include "cmx_input_action.h"
 #include "cmx_window.h"
+
+// lib
 #include <GLFW/glfw3.h>
-#include <cstdlib>
-#include <initializer_list>
 #include <spdlog/spdlog.h>
+
+// std
+#include <cstdlib>
 
 namespace cmx
 {
 
-void CmxInputAction::validateInputs()
+void CmxButtonAction::poll(const CmxWindow &window, float dt)
 {
-    switch (inputCategory)
+    int newStatus = 0;
+
+    for (CmxButton &button : buttons)
     {
-    case CmxInputCategory::BUTTON:
-        for (const CmxInput &input : inputs)
+        switch (button.source)
         {
-            if (input.type != CmxInputType::KEYBOARD && input.type != CmxInputType::GAMEPAD &&
-                input.type != CmxInputType::MOUSE)
-            {
-                spdlog::critical("InputAction: Input of type '{0}' and BUTTON inputs are incompatible",
-                                 (int)input.type);
-                std::exit(EXIT_FAILURE);
-            }
+        case CmxInputSource::KEYBOARD:
+            button.status = glfwGetKey(window.getGLFWwindow(), button.code);
+            newStatus |= button.status;
+            break;
+        case CmxInputSource::MOUSE:
+            button.status = glfwGetMouseButton(window.getGLFWwindow(), button.code);
+            newStatus |= button.status;
+            break;
+        case CmxInputSource::GAMEPAD:
+            // TODO: Gamepad support
+            break;
         }
-        break;
-    case cmx::CmxInputCategory::AXIS:
-        for (CmxInput input : inputs)
+    }
+
+    bool success{false};
+
+    switch (buttonType)
+    {
+    case Type::HELD:
+        if (newStatus == Type::HELD)
         {
-            if (input.type != CmxInputType::GAMEPAD_AXIS && input.type != CmxInputType::MOUSE_AXIS)
-            {
-                spdlog::critical("InputAction: Input of type '{0}' and AXIS inputs are incompatible", (int)input.type);
-                std::exit(EXIT_FAILURE);
-            }
-        }
-        break;
-    }
-}
-
-CmxInputAction::CmxInputAction(const CmxInputCategory inputCategory, std::initializer_list<CmxInput> inputs)
-    : inputCategory{inputCategory}, inputs{inputs}
-{
-    validateInputs();
-}
-
-void CmxInputAction::bind(std::function<void(bool)> callbackFunction)
-{
-    if (inputCategory != CmxInputCategory::BUTTON)
-    {
-        spdlog::critical("InputAction: function shape void(*)(bool) can only be bound to BUTTON inputs");
-        std::exit(EXIT_FAILURE);
-    }
-
-    buttonFunctions.push_back(callbackFunction);
-}
-
-void CmxInputAction::bind(std::function<void(glm::vec2)> callbackFunction)
-{
-    if (inputCategory != CmxInputCategory::AXIS)
-    {
-        spdlog::critical("InputAction: function shape void(*)(glm::vec2) can only be bound to AXIS inputs");
-        std::exit(EXIT_FAILURE);
-    }
-
-    axisFunctions.push_back(callbackFunction);
-}
-
-void CmxInputAction::poll(const CmxWindow &window)
-{
-    // TODO:
-    // Instead of this, make each cmxInput hold their value themselves, update the various states on a per cmxInput
-    // basis and then figure out which callback to call
-    switch (inputCategory)
-    {
-    case CmxInputCategory::BUTTON:
-        for (CmxInput &input : inputs)
-        {
-            if (input.type == CmxInputType::KEYBOARD)
-            {
-                int state = glfwGetKey(window.getGLFWwindow(), input.code);
-
-                if (state != input.status)
-                {
-                    input.status = state; // TODO: investigate why this doesn't do shit
-
-                    for (std::function<void(bool)> callbackFunction : buttonFunctions)
-                    {
-                        callbackFunction(state);
-                    }
-                }
-            }
-            // TODO: GAMEPAD SUPPORT
+            success = true;
         }
         break;
 
-    case CmxInputCategory::AXIS:
+    case Type::PRESSED:
+        if (newStatus == Type::PRESSED && status == Type::RELEASED)
+        {
+            status = newStatus;
+            success = true;
+        }
+
+        break;
+
+    case Type::RELEASED:
+        if (newStatus == Type::RELEASED && status == Type::PRESSED)
+        {
+            status = newStatus;
+            success = true;
+        }
         break;
     }
+
+    if (success)
+    {
+        for (std::function<void(float)> func : functions)
+        {
+            func(dt);
+        }
+    }
+}
+
+void CmxAxisAction::poll(const CmxWindow &window, float dt)
+{
+    switch (type)
+    {
+    case Type::BUTTONS:
+        for (int i = 0; i < 4; i++)
+        {
+            if (buttons[i].code == -1)
+            {
+                continue;
+            }
+
+            switch (buttons[i].source)
+            {
+            case CmxInputSource::KEYBOARD:
+                buttons[i].status = glfwGetKey(window.getGLFWwindow(), buttons[i].code);
+                break;
+            case CmxInputSource::MOUSE:
+                buttons[i].status = glfwGetMouseButton(window.getGLFWwindow(), buttons[i].code);
+                break;
+            case CmxInputSource::GAMEPAD:
+                // TODO: Gamepad support
+                break;
+            }
+        }
+
+        value = glm::vec2{float(buttons[0].status - buttons[1].status), float(buttons[2].status - buttons[3].status)};
+
+        break;
+    case Type::AXES:
+        break;
+    }
+
+    for (std::function<void(float, glm::vec2)> func : functions)
+    {
+        func(dt, value);
+    }
+}
+
+void CmxButtonAction::bind(std::function<void(float)> callbackFunction)
+{
+    functions.push_back(callbackFunction);
+}
+
+void CmxButtonAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
+{
+    spdlog::critical("ButtonAction: can only be bound to std::function<void(float)>");
+    std::exit(EXIT_FAILURE);
+}
+
+void CmxAxisAction::bind(std::function<void(float)> callbackFunction)
+{
+    spdlog::critical("AxisAction: can only be bound to std::function<void(float, glm::vec2)>");
+    std::exit(EXIT_FAILURE);
+}
+
+void CmxAxisAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
+{
+    functions.push_back(callbackFunction);
 }
 
 } // namespace cmx
