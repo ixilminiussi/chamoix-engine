@@ -12,7 +12,7 @@ namespace cmx
 class World
 {
   public:
-    World(const std::string &name) : name(name) {};
+    World(const std::string &name, class Game *game) : name(name), game{game} {};
     ~World() = default;
 
     std::weak_ptr<class Actor> getActorByName(std::string &name);
@@ -42,12 +42,19 @@ class World
         return activeCamera;
     }
 
+    class Game *getGame()
+    {
+        return game;
+    }
+
     const std::string name;
 
   private:
     class std::shared_ptr<class CmxCameraComponent> activeCamera;
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> actors{};
     std::vector<std::weak_ptr<class Component>> components{};
+
+    class Game *game;
 };
 
 } // namespace cmx

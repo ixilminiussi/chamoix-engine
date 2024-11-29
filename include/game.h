@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cmx_device.h"
+#include "cmx_input_manager.h"
 #include "cmx_pipeline.h"
 #include "cmx_renderer.h"
 #include "cmx_window.h"
@@ -45,6 +46,10 @@ class Game
     {
         activeWorld = newWorld;
     }
+    CmxInputManager &getInputManager()
+    {
+        return cmxInputManager;
+    }
     // getters and setters :: end
 
   private:
@@ -52,6 +57,7 @@ class Game
 
     CmxWindow cmxWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
     CmxDevice cmxDevice{cmxWindow};
+    CmxInputManager cmxInputManager{cmxWindow};
     CmxRenderer cmxRenderer{cmxWindow, cmxDevice};
     std::unique_ptr<CmxPipeline> cmxPipeline;
     VkPipelineLayout pipelineLayout;
@@ -59,6 +65,6 @@ class Game
     class World *activeWorld;
 
     // game specific
-    World mainWorld{"Main"};
+    World mainWorld{"Main", this};
 };
 } // namespace cmx

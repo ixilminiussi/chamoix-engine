@@ -19,21 +19,25 @@ class CmxWindow
     CmxWindow(const CmxWindow &) = delete;
     CmxWindow &operator=(const CmxWindow &) = delete;
 
-    bool shouldClose()
+    bool shouldClose() const
     {
         return glfwWindowShouldClose(window);
     }
-    VkExtent2D getExtent()
+    VkExtent2D getExtent() const
     {
         return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
     }
-    bool wasWindowResized()
+    bool wasWindowResized() const
     {
         return framebufferResized;
     }
     void resetWindowResizedFlag()
     {
         framebufferResized = false;
+    }
+    GLFWwindow *getGLFWwindow() const
+    {
+        return window;
     }
 
     void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);

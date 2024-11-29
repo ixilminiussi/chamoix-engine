@@ -14,8 +14,8 @@
 -[ ] font-loading / rendering
 
 ## 3D rendering
--[ ] 3D actor transforms
--[ ] projection matrices
+-[x] 3D actor transforms
+-[x] projection matrices
 -[ ] lighting
 -[ ] models
 
@@ -32,7 +32,7 @@
 -[ ] sound system
 
 ## Miscellaneous
--[ ] DeltaTime
+-[x] DeltaTime
 -[ ] Pause menu
 
 ## Demos

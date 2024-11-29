@@ -14,6 +14,8 @@ class ViewportActor : public cmx::Actor
     void onBegin() override;
     void update(float dt) override;
 
+    void onForwardInputPressed(bool);
+
     std::weak_ptr<cmx::CmxCameraComponent> getCamera()
     {
         return camera;
