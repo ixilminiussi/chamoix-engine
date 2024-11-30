@@ -20,7 +20,7 @@ class RenderComponent : public Component
 
     ~RenderComponent() = default;
 
-    void render(VkCommandBuffer, VkPipelineLayout, const class CmxCameraComponent &) override;
+    void render(VkCommandBuffer, VkPipelineLayout, const class CameraComponent &) override;
     void setModel(std::shared_ptr<class CmxModel>);
 
   private:

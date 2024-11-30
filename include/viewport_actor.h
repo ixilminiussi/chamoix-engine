@@ -16,12 +16,17 @@ class ViewportActor : public cmx::Actor
 
     void onMovementInput(float dt, glm::vec2);
     void onJumpInput(float dt);
+    void onMouseMovement(float dt, glm::vec2);
+    void select(float dt);
+    void deselect(float dt);
 
-    std::weak_ptr<cmx::CmxCameraComponent> getCamera()
+    std::weak_ptr<cmx::CameraComponent> getCamera()
     {
         return camera;
     }
 
   private:
-    class std::shared_ptr<cmx::CmxCameraComponent> camera;
+    class std::shared_ptr<cmx::CameraComponent> camera;
+    float moveSpeed = 2.f;
+    bool selected{false};
 };

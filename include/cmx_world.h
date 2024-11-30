@@ -32,12 +32,12 @@ class World
     void addComponent(std::shared_ptr<class Component>);
     void updateComponents(float dt);
 
-    void setCamera(std::shared_ptr<class CmxCameraComponent> camera)
+    void setCamera(std::shared_ptr<class CameraComponent> camera)
     {
         activeCamera = camera;
     }
 
-    std::weak_ptr<class CmxCameraComponent> getCamera()
+    std::weak_ptr<class CameraComponent> getCamera()
     {
         return activeCamera;
     }
@@ -50,7 +50,7 @@ class World
     const std::string name;
 
   private:
-    class std::shared_ptr<class CmxCameraComponent> activeCamera;
+    class std::shared_ptr<class CameraComponent> activeCamera;
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> actors{};
     std::vector<std::weak_ptr<class Component>> components{};
 

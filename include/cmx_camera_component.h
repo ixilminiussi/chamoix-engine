@@ -14,11 +14,11 @@
 namespace cmx
 {
 
-class CmxCameraComponent : public Component
+class CameraComponent : public Component
 {
   public:
-    CmxCameraComponent() = default;
-    ~CmxCameraComponent() = default;
+    CameraComponent() = default;
+    ~CameraComponent() = default;
 
     void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
     void setPerspectiveProjection(float fovY, float aspect, float near, float far);

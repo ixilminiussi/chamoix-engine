@@ -20,7 +20,7 @@ class CmxDefaultRenderSystem
     CmxDefaultRenderSystem(const CmxDefaultRenderSystem &) = delete;
     CmxDefaultRenderSystem &operator=(const CmxDefaultRenderSystem &) = delete;
 
-    virtual void render(VkCommandBuffer, std::vector<std::weak_ptr<Component>> &, const class CmxCameraComponent &);
+    virtual void render(VkCommandBuffer, std::vector<std::weak_ptr<Component>> &, const class CameraComponent &);
 
   private:
     void createPipelineLayout();

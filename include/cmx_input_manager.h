@@ -21,21 +21,17 @@ namespace cmx
 class CmxInputManager
 {
   public:
-    CmxInputManager(class CmxWindow &);
+    CmxInputManager(class CmxWindow &, const std::unordered_map<std::string, CmxInputAction *> &inputDictionary);
     ~CmxInputManager();
 
     void bindAxis(const std::string &, std::function<void(float, glm::vec2)>);
     void bindButton(const std::string &, std::function<void(float)>);
     void pollEvents(float dt);
+    void setMouseCapture(bool);
 
   private:
     bool gamepadDetected{false};
-    std::unordered_map<std::string, CmxInputAction *> inputDictionary = {
-        {
-            "jump",
-            new CmxButtonAction{CmxButtonAction::Type::PRESSED, {CMX_KEY_W, CMX_KEY_UP}},
-        },
-        {"lateral movement", new CmxAxisAction{CMX_KEY_W, CMX_KEY_S, CMX_KEY_A, CMX_KEY_D}}};
+    std::unordered_map<std::string, CmxInputAction *> inputDictionary;
     class CmxWindow &window;
 };
 

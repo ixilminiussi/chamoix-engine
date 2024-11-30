@@ -73,6 +73,22 @@ struct Transform
                          },
                          {position.x, position.y, position.z, 1.0f}};
     }
+
+    glm::vec3 forward()
+    {
+        return glm::normalize(glm::vec3{glm::sin(rotation.y) * glm::cos(rotation.x), glm::sin(rotation.x),
+                                        glm::cos(rotation.y) * glm::cos(rotation.x)});
+    }
+
+    glm::vec3 right()
+    {
+        return glm::normalize(glm::vec3{glm::cos(rotation.y), 0.0f, -glm::sin(rotation.y)});
+    }
+
+    glm::vec3 up()
+    {
+        return glm::normalize(glm::cross(right(), forward())); // Cross product of right and forward
+    }
 };
 
 inline Transform operator+(const Transform &a, const Transform &b)

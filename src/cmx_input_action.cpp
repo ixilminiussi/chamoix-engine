@@ -3,6 +3,8 @@
 
 // lib
 #include <GLFW/glfw3.h>
+#include <glm/geometric.hpp>
+#include <limits>
 #include <spdlog/spdlog.h>
 
 // std
@@ -33,7 +35,7 @@ void CmxButtonAction::poll(const CmxWindow &window, float dt)
         }
     }
 
-    bool success{false};
+    bool success = false;
 
     switch (buttonType)
     {
@@ -45,22 +47,20 @@ void CmxButtonAction::poll(const CmxWindow &window, float dt)
         break;
 
     case Type::PRESSED:
-        if (newStatus == Type::PRESSED && status == Type::RELEASED)
+        if (newStatus == 1 && status == 0)
         {
-            status = newStatus;
             success = true;
         }
-
         break;
 
     case Type::RELEASED:
         if (newStatus == Type::RELEASED && status == Type::PRESSED)
         {
-            status = newStatus;
             success = true;
         }
         break;
     }
+    status = newStatus;
 
     if (success)
     {
@@ -78,7 +78,7 @@ void CmxAxisAction::poll(const CmxWindow &window, float dt)
     case Type::BUTTONS:
         for (int i = 0; i < 4; i++)
         {
-            if (buttons[i].code == -1)
+            if (buttons[i] == CMX_BUTTON_VOID)
             {
                 continue;
             }
@@ -101,12 +101,51 @@ void CmxAxisAction::poll(const CmxWindow &window, float dt)
 
         break;
     case Type::AXES:
+        for (int i = 0; i < 2; i++)
+        {
+            if (axes[i] == CMX_AXIS_VOID)
+            {
+                continue;
+            }
+            if (axes[i] == CMX_MOUSE_AXIS_X_ABSOLUTE)
+            {
+                double x, y;
+                glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
+                axes[i].value = float(x);
+            }
+            if (axes[i] == CMX_MOUSE_AXIS_Y_ABSOLUTE)
+            {
+                double x, y;
+                glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
+                axes[i].value = float(y);
+            }
+            if (axes[i] == CMX_MOUSE_AXIS_X_RELATIVE)
+            {
+                double x, y;
+                glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
+                axes[i].value = float(x) - axes[i].absValue;
+                axes[i].absValue = float(x);
+            }
+            if (axes[i] == CMX_MOUSE_AXIS_Y_RELATIVE)
+            {
+                double x, y;
+                glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
+                axes[i].value = float(y) - axes[i].absValue;
+                axes[i].absValue = float(y);
+            }
+        }
+
+        value = glm::vec2{axes[0].value, axes[1].value};
+
         break;
     }
 
-    for (std::function<void(float, glm::vec2)> func : functions)
+    if (glm::length(value) > std::numeric_limits<float>::epsilon())
     {
-        func(dt, value);
+        for (std::function<void(float, glm::vec2)> func : functions)
+        {
+            func(dt, value);
+        }
     }
 }
 

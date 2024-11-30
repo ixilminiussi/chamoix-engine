@@ -30,15 +30,30 @@ struct CmxButton
     int status{0};
 };
 
+inline bool operator==(const CmxButton &a, const CmxButton &b)
+{
+    return (a.code == b.code && a.source == b.source);
+}
+
 struct CmxAxis
 {
     int code;
     CmxInputSource source;
     float value{0.f};
+    float absValue{0.f};
 };
+
+inline bool operator==(const CmxAxis &a, const CmxAxis &b)
+{
+    return (a.code == b.code && a.source == b.source);
+}
 
 inline CmxButton CMX_BUTTON_VOID{-1, CmxInputSource::KEYBOARD};
 inline CmxAxis CMX_AXIS_VOID{-1, CmxInputSource::KEYBOARD};
+inline CmxAxis CMX_MOUSE_AXIS_X_ABSOLUTE{0, CmxInputSource::MOUSE};
+inline CmxAxis CMX_MOUSE_AXIS_Y_ABSOLUTE{1, CmxInputSource::MOUSE};
+inline CmxAxis CMX_MOUSE_AXIS_X_RELATIVE{0, CmxInputSource::MOUSE};
+inline CmxAxis CMX_MOUSE_AXIS_Y_RELATIVE{1, CmxInputSource::MOUSE};
 
 class CmxInputAction
 {
@@ -85,8 +100,8 @@ class CmxAxisAction : public CmxInputAction
     };
 
   public:
-    CmxAxisAction(CmxButton up, CmxButton down, CmxButton left = CMX_BUTTON_VOID, CmxButton right = CMX_BUTTON_VOID)
-        : buttons{up, down, left, right}, type{BUTTONS} {};
+    CmxAxisAction(CmxButton right, CmxButton left, CmxButton up = CMX_BUTTON_VOID, CmxButton down = CMX_BUTTON_VOID)
+        : buttons{right, left, up, down}, type{BUTTONS} {};
     CmxAxisAction(CmxAxis vertical, CmxAxis horizontal = CMX_AXIS_VOID) : axes{vertical, horizontal}, type{AXES} {};
 
     void poll(const class CmxWindow &, float dt) override;

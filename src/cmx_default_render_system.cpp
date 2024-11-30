@@ -73,7 +73,7 @@ void CmxDefaultRenderSystem::createPipeline(VkRenderPass renderPass)
 }
 
 void CmxDefaultRenderSystem::render(VkCommandBuffer commandBuffer, std::vector<std::weak_ptr<Component>> &components,
-                                    const CmxCameraComponent &camera)
+                                    const CameraComponent &camera)
 {
     cmxPipeline->bind(commandBuffer);
 

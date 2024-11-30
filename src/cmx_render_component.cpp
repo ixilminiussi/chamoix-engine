@@ -29,7 +29,7 @@ struct SimplePushConstantData
 };
 
 void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout,
-                             const class CmxCameraComponent &camera)
+                             const class CameraComponent &camera)
 {
     if (!getParent())
     {

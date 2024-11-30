@@ -35,7 +35,10 @@ class Actor
     Actor(const Actor &) = delete;
 
     virtual void onBegin() {};
-    virtual void update(float dt) {};
+    virtual void update(float dt)
+    {
+        spdlog::info("default update");
+    };
 
     void attachComponent(std::shared_ptr<Component>);
     template <typename T> std::weak_ptr<T> getComponentByType();
@@ -83,7 +86,11 @@ class Actor
     bool isVisible = true;
 
     std::vector<std::shared_ptr<Component>> components;
+
+    static uint32_t currentID;
 };
+
+inline uint32_t Actor::currentID = 0;
 
 template <typename T> std::shared_ptr<T> Actor::spawn(World *world, const std::string &name, const Transform &transform)
 {
@@ -93,7 +100,7 @@ template <typename T> std::shared_ptr<T> Actor::spawn(World *world, const std::s
         std::exit(EXIT_FAILURE);
     }
 
-    static uint32_t currentID = 0;
+    currentID++;
 
     Actor *actor = new T{world, currentID++, name, transform};
     auto actorSharedPtr = std::shared_ptr<Actor>(actor);

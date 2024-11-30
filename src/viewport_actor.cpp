@@ -6,6 +6,10 @@
 
 // lib
 #include <functional>
+#include <glm/common.hpp>
+#include <glm/geometric.hpp>
+#include <glm/gtc/constants.hpp>
+#include <limits>
 #include <spdlog/spdlog.h>
 
 // std
@@ -13,14 +17,22 @@
 
 void ViewportActor::onBegin()
 {
-    camera = std::make_shared<cmx::CmxCameraComponent>();
+    transform.position = {0.f, 0.f, 0.f};
+    transform.scale = {1.f, 1.f, 1.f};
+    transform.rotation = {0.f, 0.f, 1.f};
+
+    camera = std::make_shared<cmx::CameraComponent>();
     attachComponent(camera);
 
-    getWorld()->getGame()->getInputManager().bindButton(
-        "jump", std::bind(&ViewportActor::onJumpInput, this, std::placeholders::_1));
-    getWorld()->getGame()->getInputManager().bindAxis(
-        "lateral movement",
-        std::bind(&ViewportActor::onMovementInput, this, std::placeholders::_1, std::placeholders::_2));
+    cmx::CmxInputManager &inputManager = getWorld()->getGame()->getInputManager();
+
+    inputManager.bindButton("jump", std::bind(&ViewportActor::onJumpInput, this, std::placeholders::_1));
+    inputManager.bindAxis("lateral movement", std::bind(&ViewportActor::onMovementInput, this, std::placeholders::_1,
+                                                        std::placeholders::_2));
+    inputManager.bindAxis("view rotation", std::bind(&ViewportActor::onMouseMovement, this, std::placeholders::_1,
+                                                     std::placeholders::_2));
+    inputManager.bindButton("select", std::bind(&ViewportActor::select, this, std::placeholders::_1));
+    inputManager.bindButton("deselect", std::bind(&ViewportActor::deselect, this, std::placeholders::_1));
 }
 
 void ViewportActor::update(float dt)
@@ -29,11 +41,45 @@ void ViewportActor::update(float dt)
 
 void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
 {
-    spdlog::info("x: {0}, y: {1}", transform.position.x, transform.position.y);
-    transform.position += glm::vec3(movement * 100.f * dt, 0.f);
+    if (!selected)
+        return;
+
+    if (glm::length(movement) <= std::numeric_limits<float>::epsilon())
+        return;
+
+    movement *= moveSpeed;
+
+    transform.position += transform.forward() * movement.y * dt;
+    transform.position += transform.right() * movement.x * dt;
 }
 
 void ViewportActor::onJumpInput(float dt)
 {
     spdlog::info("jumping");
+}
+
+void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
+{
+    if (!selected)
+        return;
+
+    transform.rotation.y += mousePosition.y * dt;
+    transform.rotation.x += mousePosition.x * dt;
+    spdlog::info("x: {0}, y: {1}, z: {2}", transform.rotation.x, transform.rotation.y, transform.rotation.z);
+
+    // limit pitch value to +/- 85 degrees
+    transform.rotation.x = glm::clamp(transform.rotation.x, -1.5f, 1.5f);
+    transform.rotation.y = glm::mod(transform.rotation.y, glm::two_pi<float>());
+}
+
+void ViewportActor::select(float dt)
+{
+    selected = true;
+    getWorld()->getGame()->getInputManager().setMouseCapture(true);
+}
+
+void ViewportActor::deselect(float dt)
+{
+    selected = false;
+    getWorld()->getGame()->getInputManager().setMouseCapture(false);
 }

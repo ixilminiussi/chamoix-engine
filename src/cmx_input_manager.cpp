@@ -5,13 +5,18 @@
 
 // lib
 #include <GLFW/glfw3.h>
+
+// std
 #include <cstdlib>
 #include <spdlog/spdlog.h>
+#include <unordered_map>
 
 namespace cmx
 {
 
-CmxInputManager::CmxInputManager(CmxWindow &window) : window{window}
+CmxInputManager::CmxInputManager(CmxWindow &window,
+                                 const std::unordered_map<std::string, CmxInputAction *> &inputDictionary)
+    : window{window}, inputDictionary{inputDictionary}
 {
     gamepadDetected = glfwJoystickPresent(GLFW_JOYSTICK_1);
     glfwSetInputMode(window.getGLFWwindow(), GLFW_STICKY_KEYS, GLFW_TRUE);
@@ -62,8 +67,21 @@ void CmxInputManager::pollEvents(float dt)
 
     for (auto &[name, input] : inputDictionary)
     {
-        input->poll(window, dt);
+        if (auto button = static_cast<CmxButtonAction *>(input))
+        {
+            button->poll(window, dt);
+        }
+        if (auto button = static_cast<CmxAxisAction *>(input))
+        {
+            button->poll(window, dt);
+        }
     }
+}
+
+void CmxInputManager::setMouseCapture(bool b)
+{
+    (b) ? glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED)
+        : glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 } // namespace cmx

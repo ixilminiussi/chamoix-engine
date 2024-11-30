@@ -138,10 +138,14 @@ std::unique_ptr<CmxModel> createCubeModel(CmxDevice &device, glm::vec3 offset)
 void Game::load()
 {
     setWorld(&mainWorld);
+    getInputManager().bindButton("exit", [](float val) { std::exit(EXIT_SUCCESS); });
 
     std::shared_ptr<ViewportActor> viewportActor = Actor::spawn<ViewportActor>(getWorld(), "Viewport Actor");
-
-    getWorld()->setCamera(viewportActor->getCamera().lock());
+    auto cameraWk = viewportActor->getComponentByType<CameraComponent>();
+    if (auto cameraComponent = cameraWk.lock())
+    {
+        getWorld()->setCamera(cameraComponent);
+    }
 
     std::shared_ptr<CubeActor> cubeActor = Actor::spawn<CubeActor>(getWorld(), "Cube Actor");
 

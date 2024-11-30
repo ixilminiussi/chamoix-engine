@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cmx_device.h"
+#include "cmx_input_action.h"
 #include "cmx_input_manager.h"
 #include "cmx_pipeline.h"
 #include "cmx_renderer.h"
@@ -57,7 +58,6 @@ class Game
 
     CmxWindow cmxWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
     CmxDevice cmxDevice{cmxWindow};
-    CmxInputManager cmxInputManager{cmxWindow};
     CmxRenderer cmxRenderer{cmxWindow, cmxDevice};
     std::unique_ptr<CmxPipeline> cmxPipeline;
     VkPipelineLayout pipelineLayout;
@@ -66,5 +66,22 @@ class Game
 
     // game specific
     World mainWorld{"Main", this};
+    CmxInputManager cmxInputManager{
+        cmxWindow,
+        {
+            {
+                "jump",
+                new CmxButtonAction{CmxButtonAction::Type::PRESSED, {CMX_KEY_SPACE, CMX_KEY_A}},
+            },
+            {
+                "exit",
+                new CmxButtonAction{CmxButtonAction::Type::PRESSED, {CMX_KEY_ESCAPE}},
+            },
+            {"lateral movement", new CmxAxisAction{CMX_KEY_D, CMX_KEY_A, CMX_KEY_W, CMX_KEY_S}},
+            {"view rotation", new CmxAxisAction{CMX_MOUSE_AXIS_X_RELATIVE, CMX_MOUSE_AXIS_Y_RELATIVE}},
+            {"select", new CmxButtonAction{CmxButtonAction::Type::PRESSED, {CMX_MOUSE_BUTTON_LEFT}}},
+            {"deselect", new CmxButtonAction{CmxButtonAction::Type::RELEASED, {CMX_MOUSE_BUTTON_LEFT}}},
+        }};
 };
+
 } // namespace cmx
