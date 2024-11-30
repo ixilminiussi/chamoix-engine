@@ -1,24 +1,26 @@
 cmake_minimum_required(VERSION 3.10)
 project(VulkanTest CXX)
 
-# Set the C++ standard and compiler flags
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 
+include_directories(${CMAKE_SOURCE_DIR})
 
-# Add the include directory
-include_directories(${CMAKE_SOURCE_DIR}/include)
+add_subdirectory(cmx)
+add_subdirectory(games)
 
-# Add the source files from the 'src' directory
-file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
+# Create the executable by linking all modules
+add_executable(VulkanTest main.cpp)  # Assuming main.cpp is at the root level
 
-# Add the executable target
-add_executable(VulkanTest ${SOURCES})
+# Link necessary libraries and internal modules
+target_link_libraries(VulkanTest PRIVATE
+    cmx
+    games
 
-# Link the necessary libraries
-target_link_libraries(VulkanTest PRIVATE spdlog glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi)
+    spdlog glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi
+)
 
 # Define custom targets for 'test' and 'clean'
 add_custom_target(test

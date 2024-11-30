@@ -17,7 +17,7 @@
 -[x] 3D actor transforms
 -[x] projection matrices
 -[ ] lighting
--[ ] models
+-[ ] models import
 
 ## Level editor
 -[x] viewport navigation
