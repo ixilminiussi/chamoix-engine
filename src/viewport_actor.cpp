@@ -7,6 +7,7 @@
 // lib
 #include <functional>
 #include <glm/common.hpp>
+#include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/constants.hpp>
 #include <limits>
@@ -44,7 +45,7 @@ void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
     if (!selected)
         return;
 
-    if (glm::length(movement) <= std::numeric_limits<float>::epsilon())
+    if (glm::length(movement) <= glm::epsilon<float>())
         return;
 
     movement *= moveSpeed;
@@ -63,9 +64,8 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     if (!selected)
         return;
 
-    transform.rotation.y += mousePosition.y * dt;
-    transform.rotation.x += mousePosition.x * dt;
-    spdlog::info("x: {0}, y: {1}, z: {2}", transform.rotation.x, transform.rotation.y, transform.rotation.z);
+    transform.rotation.y += mouseSensitivity * mousePosition.x * dt;
+    transform.rotation.x += mouseSensitivity * mousePosition.y * dt;
 
     // limit pitch value to +/- 85 degrees
     transform.rotation.x = glm::clamp(transform.rotation.x, -1.5f, 1.5f);

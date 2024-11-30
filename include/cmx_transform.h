@@ -76,8 +76,8 @@ struct Transform
 
     glm::vec3 forward()
     {
-        return glm::normalize(glm::vec3{glm::sin(rotation.y) * glm::cos(rotation.x), glm::sin(rotation.x),
-                                        glm::cos(rotation.y) * glm::cos(rotation.x)});
+        return (glm::vec3{glm::sin(rotation.y) * glm::cos(rotation.x), glm::sin(rotation.x),
+                          glm::cos(rotation.y) * glm::cos(rotation.x)});
     }
 
     glm::vec3 right()
@@ -87,7 +87,7 @@ struct Transform
 
     glm::vec3 up()
     {
-        return glm::normalize(glm::cross(right(), forward())); // Cross product of right and forward
+        return glm::normalize(glm::cross(right(), forward()));
     }
 };
 

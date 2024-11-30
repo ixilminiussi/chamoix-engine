@@ -29,10 +29,7 @@ class CameraComponent : public Component
 
     void updateAspectRatio(float aspectRatio);
 
-    void update(float dt) override
-    {
-        setViewDirection(getParent()->transform.position, getParent()->transform.rotation);
-    }
+    void update(float dt) override;
 
     // getters and setters :: begin
     const glm::mat4 &getProjection() const
@@ -52,7 +49,7 @@ class CameraComponent : public Component
 
     float screenAspectRatio{};
     float nearPlane{.1f};
-    float farPlane{100.f};
+    float farPlane{1000.f};
 };
 
 } // namespace cmx

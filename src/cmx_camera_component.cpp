@@ -3,6 +3,12 @@
 namespace cmx
 {
 
+void CameraComponent::update(float dt)
+{
+    setViewDirection(getParent()->getAbsoluteTransform().position, getParent()->getAbsoluteTransform().forward(),
+                     getParent()->getAbsoluteTransform().up());
+}
+
 void CameraComponent::setOrthographicProjection(float left, float right, float top, float bottom, float near, float far)
 {
     projectionMatrix = glm::mat4{1.0f};

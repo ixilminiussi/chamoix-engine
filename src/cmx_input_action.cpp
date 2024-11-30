@@ -3,6 +3,7 @@
 
 // lib
 #include <GLFW/glfw3.h>
+#include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
 #include <limits>
 #include <spdlog/spdlog.h>
@@ -54,7 +55,7 @@ void CmxButtonAction::poll(const CmxWindow &window, float dt)
         break;
 
     case Type::RELEASED:
-        if (newStatus == Type::RELEASED && status == Type::PRESSED)
+        if (newStatus == 0 && status == 1)
         {
             success = true;
         }
@@ -140,7 +141,7 @@ void CmxAxisAction::poll(const CmxWindow &window, float dt)
         break;
     }
 
-    if (glm::length(value) > std::numeric_limits<float>::epsilon())
+    if (glm::length(value) > glm::epsilon<float>())
     {
         for (std::function<void(float, glm::vec2)> func : functions)
         {

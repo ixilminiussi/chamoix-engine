@@ -2,7 +2,7 @@
 
 ## UI
 -[ ] default buttons classes
--[ ] user inputs system
+-[x] user inputs system
 
 ## Assets
 -[ ] textures
@@ -20,7 +20,7 @@
 -[ ] models
 
 ## Level editor
--[ ] viewport navigation
+-[x] viewport navigation
 -[ ] ImGUI implementation
 -[ ] <xml> import and export
 
