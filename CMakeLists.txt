@@ -10,6 +10,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(cmx)
 add_subdirectory(games)
+add_subdirectory(.external)
 
 # Create the executable by linking all modules
 add_executable(VulkanTest main.cpp)  # Assuming main.cpp is at the root level
@@ -18,6 +19,7 @@ add_executable(VulkanTest main.cpp)  # Assuming main.cpp is at the root level
 target_link_libraries(VulkanTest PRIVATE
     cmx
     games
+    external
 
     spdlog glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi
 )

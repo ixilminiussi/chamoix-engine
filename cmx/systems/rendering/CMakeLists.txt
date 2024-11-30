@@ -13,4 +13,4 @@ add_library(rendering
     cmx_window.cpp
 )
 
-target_link_libraries(rendering PRIVATE cmx spdlog glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi)
+target_link_libraries(rendering PRIVATE external cmx spdlog glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi)

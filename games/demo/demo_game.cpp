@@ -3,6 +3,7 @@
 #include "cmx_actor.h"
 #include "cmx_camera_component.h"
 #include "cmx_default_render_system.h"
+#include "cmx_input_action.h"
 #include "cmx_input_manager.h"
 #include "cmx_model.h"
 #include "cmx_render_component.h"
@@ -69,67 +70,16 @@ void Demo::run()
     vkDeviceWaitIdle(cmxDevice.device());
 }
 
-std::unique_ptr<cmx::CmxModel> createCubeModel(cmx::CmxDevice &device, glm::vec3 offset)
-{
-    CmxModel::Builder modelBuilder{};
-
-    modelBuilder.vertices = {
-        // left face (white)
-        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-        {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
-        {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
-        {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
-
-        // right face (yellow)
-        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-        {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
-        {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
-        {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
-
-        // top face (orange, remember y axis points down)
-        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-        {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-        {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-        {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-
-        // bottom face (red)
-        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-        {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
-        {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
-        {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-
-        // nose face (blue)
-        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-        {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-        {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-
-        // tail face (green)
-        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-        {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-        {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-    };
-    for (auto &v : modelBuilder.vertices)
-    {
-        v.position += offset;
-    }
-
-    modelBuilder.indices = {0,  1,  2,  0,  3,  1,  4,  5,  6,  4,  7,  5,  8,  9,  10, 8,  11, 9,
-                            12, 13, 14, 12, 15, 13, 16, 17, 18, 16, 19, 17, 20, 21, 22, 20, 23, 21};
-
-    return std::make_unique<CmxModel>(device, modelBuilder);
-}
-
 void Demo::load()
 {
-    createInputManager(cmxWindow, {});
+    createInputManager(cmxWindow,
+                       {{"exit", new cmx::ButtonAction{cmx::ButtonAction::Type::RELEASED, {cmx::CMX_KEY_ESCAPE}}}});
     setWorld(&mainWorld);
     getInputManager()->bindButton("exit", [](float val) { std::exit(EXIT_SUCCESS); });
 
     std::shared_ptr<CubeActor> cubeActor = cmx::Actor::spawn<CubeActor>(getWorld(), "Cube Actor");
 
-    std::shared_ptr<CmxModel> cubeModel = createCubeModel(cmxDevice, glm::vec3{0.f});
+    std::shared_ptr<CmxModel> cubeModel = CmxModel::createModelFromFile(cmxDevice, "assets/models/colored_cube.obj");
 
     auto cubeRendererWk = cubeActor->getComponentByType<cmx::RenderComponent>();
     if (auto cubeRendererComponent = cubeRendererWk.lock())
