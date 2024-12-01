@@ -71,9 +71,11 @@ class ButtonAction : public InputAction
   public:
     enum Type
     {
-        PRESSED,
-        HELD,
-        RELEASED,
+        PRESSED,  // sends when first pressed
+        HELD,     // sends as long as toggled
+        RELEASED, // sends when released
+        SHORTCUT, // TODO: sends when all are held for first time
+        TOGGLE,   // TODO: sends 1 when pressed, -1 when released
     };
 
     ButtonAction(Type buttonType, std::initializer_list<Button> buttons) : buttonType{buttonType}, buttons{buttons} {};
