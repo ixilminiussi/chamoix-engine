@@ -4,6 +4,7 @@
 #include "cmx_camera_component.h"
 #include "cmx_game.h"
 #include "cmx_input_manager.h"
+#include "cmx_viewport_ui_component.h"
 
 // lib
 #include <glm/common.hpp>
@@ -24,10 +25,11 @@ void ViewportActor::onBegin()
     transform.scale = {1.f, 1.f, 1.f};
     transform.rotation = {0.f, 0.f, 1.f};
 
-    camera = std::make_shared<cmx::CameraComponent>();
+    camera = std::make_shared<CameraComponent>();
     attachComponent(camera);
+    attachComponent(std::make_shared<ViewportUIComponent>());
 
-    std::shared_ptr<cmx::InputManager> inputManager = getWorld()->getGame()->getInputManager();
+    std::shared_ptr<InputManager> inputManager = getWorld()->getGame()->getInputManager();
 
     inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, this);
     inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, this);

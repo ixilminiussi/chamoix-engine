@@ -16,12 +16,15 @@
 ## 3D rendering
 -[x] 3D actor transforms
 -[x] projection matrices
--[ ] lighting
+-[x] lighting
+-[ ] point lighting
 -[x] models import
+-[ ] textures
 
 ## Level editor
 -[x] viewport navigation
--[ ] ImGUI implementation
+-[x] ImGUI implementation
+-[ ] Shortcut input support
 -[ ] <xml> import and export
 
 ## Post processing

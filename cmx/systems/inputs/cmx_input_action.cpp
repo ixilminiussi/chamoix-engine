@@ -2,6 +2,7 @@
 
 // cmx
 #include "cmx/systems/rendering/cmx_window.h"
+#include "imgui.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -24,12 +25,18 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
         switch (button.source)
         {
         case InputSource::KEYBOARD:
-            button.status = glfwGetKey(window.getGLFWwindow(), button.code);
-            newStatus |= button.status;
+            if (!ImGui::GetIO().WantCaptureKeyboard)
+            {
+                button.status = glfwGetKey(window.getGLFWwindow(), button.code);
+                newStatus |= button.status;
+            }
             break;
         case InputSource::MOUSE:
-            button.status = glfwGetMouseButton(window.getGLFWwindow(), button.code);
-            newStatus |= button.status;
+            if (!ImGui::GetIO().WantCaptureMouse)
+            {
+                button.status = glfwGetMouseButton(window.getGLFWwindow(), button.code);
+                newStatus |= button.status;
+            }
             break;
         case InputSource::GAMEPAD:
             // TODO: Gamepad support
@@ -88,10 +95,16 @@ void AxisAction::poll(const CmxWindow &window, float dt)
             switch (buttons[i].source)
             {
             case InputSource::KEYBOARD:
-                buttons[i].status = glfwGetKey(window.getGLFWwindow(), buttons[i].code);
+                if (!ImGui::GetIO().WantCaptureKeyboard)
+                {
+                    buttons[i].status = glfwGetKey(window.getGLFWwindow(), buttons[i].code);
+                }
                 break;
             case InputSource::MOUSE:
-                buttons[i].status = glfwGetMouseButton(window.getGLFWwindow(), buttons[i].code);
+                if (!ImGui::GetIO().WantCaptureMouse)
+                {
+                    buttons[i].status = glfwGetMouseButton(window.getGLFWwindow(), buttons[i].code);
+                }
                 break;
             case InputSource::GAMEPAD:
                 // TODO: Gamepad support
