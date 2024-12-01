@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cmx_input_action.h"
 #include <functional>
 #include <unordered_map>
 
@@ -21,18 +20,18 @@ namespace cmx
 class InputManager
 {
   public:
-    InputManager(class CmxWindow &, const std::unordered_map<std::string, InputAction *> &inputDictionary);
+    InputManager(class CmxWindow &, const std::unordered_map<std::string, class InputAction *> &inputDictionary);
     ~InputManager();
 
     void bindAxis(const std::string &name, std::function<void(float, glm::vec2)>);
     void bindButton(const std::string &name, std::function<void(float)>);
-    void addInput(const std::string &name, InputAction *);
+    void addInput(const std::string &name, class InputAction *);
     void pollEvents(float dt);
     void setMouseCapture(bool);
 
   private:
     bool gamepadDetected{false};
-    std::unordered_map<std::string, InputAction *> inputDictionary;
+    std::unordered_map<std::string, class InputAction *> inputDictionary;
     class CmxWindow &window;
 };
 

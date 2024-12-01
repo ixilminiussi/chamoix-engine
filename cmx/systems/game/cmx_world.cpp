@@ -104,8 +104,16 @@ void World::updateActors(float dt)
 void World::addComponent(std::shared_ptr<Component> component)
 {
     components.push_back(component);
-    spdlog::info("World '{0}': Actor '{1}': Added new component: '{2}'", name, component->getParent()->name,
-                 typeid(*component.get()).name());
+    spdlog::info("World '{0}': Added new component '{1}' to Actor '{2}'", name, typeid(*component.get()).name(),
+                 component->getParent()->name);
+    if (component->renderZ >= 0)
+    {
+        // auto it = std::lower_bound(renderQueue.begin(), renderQueue.end(), component);
+        // renderQueue.insert(it, component);
+        renderQueue.push_back(component);
+        spdlog::info("World '{0}': Component '{1}' joins renderQueue with renderZ {2}", name,
+                     typeid(*component.get()).name(), component->renderZ);
+    }
 }
 
 void World::updateComponents(float dt)

@@ -34,9 +34,23 @@ class Component
 
     // friend functions
     friend void World::addComponent(std::shared_ptr<Component>);
+    friend bool operator<(std::weak_ptr<Component>, std::shared_ptr<Component>);
 
   protected:
     class Actor *parent;
+
+    int32_t renderZ{-1}; // decides whether or not to add component to render queue:
+                         // -1: no
+                         // >0: yes, render lower values first
 };
+
+inline bool operator<(std::weak_ptr<Component> awk, std::shared_ptr<Component> b)
+{
+    if (auto a = awk.lock())
+    {
+        return a->renderZ < b->renderZ;
+    }
+    return true;
+}
 
 } // namespace cmx

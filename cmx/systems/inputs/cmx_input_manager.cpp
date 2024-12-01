@@ -1,11 +1,12 @@
 #include "cmx_input_manager.h"
 
 // cmx
-#include "cmx/systems/rendering/cmx_window.h"
 #include "cmx_input_action.h"
+#include "cmx_window.h"
 
 // lib
 #include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
 // std
 #include <cstdlib>

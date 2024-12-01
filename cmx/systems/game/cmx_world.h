@@ -53,6 +53,7 @@ class World
     class std::shared_ptr<class CameraComponent> activeCamera;
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> actors{};
     std::vector<std::weak_ptr<class Component>> components{};
+    std::vector<std::weak_ptr<class Component>> renderQueue{};
 
     class Game *game;
 };
