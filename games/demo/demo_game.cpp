@@ -112,7 +112,7 @@ void Demo::run()
     vkDeviceWaitIdle(cmxDevice.device());
 }
 
-void closeWindow(float dt)
+void Demo::closeWindow(float dt, int val)
 {
     std::exit(EXIT_SUCCESS);
 }
@@ -126,10 +126,9 @@ void Demo::load()
 
     createInputManager(
         cmxWindow, {{"exit", new cmx::ButtonAction{cmx::ButtonAction::Type::RELEASED, {cmx::CMX_KEY_ESCAPE}}},
-                    {"slowdown on", new cmx::ButtonAction{cmx::ButtonAction::Type::PRESSED, {cmx::CMX_KEY_SPACE}}},
-                    {"slowdown off", new cmx::ButtonAction{cmx::ButtonAction::Type::RELEASED, {cmx::CMX_KEY_SPACE}}}});
+                    {"slowdown toggle", new cmx::ButtonAction{cmx::ButtonAction::Type::TOGGLE, {cmx::CMX_KEY_SPACE}}}});
     setWorld(&mainWorld);
-    getInputManager()->bindButton("exit", &Demo::quit, this);
+    getInputManager()->bindButton("exit", &Demo::closeWindow, this);
 
     std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getWorld(), "Rotating Actor");
     rotatingActor->transform.scale = glm::vec3{10.f};

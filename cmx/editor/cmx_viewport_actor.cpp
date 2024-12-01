@@ -33,8 +33,7 @@ void ViewportActor::onBegin()
 
     inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, this);
     inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, this);
-    inputManager->bindButton("viewport select", &ViewportActor::select, this);
-    inputManager->bindButton("viewport deselect", &ViewportActor::deselect, this);
+    inputManager->bindButton("viewport toggle", &ViewportActor::select, this);
 }
 
 void ViewportActor::update(float dt)
@@ -73,16 +72,18 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     transform.rotation.y = glm::mod(transform.rotation.y, glm::two_pi<float>());
 }
 
-void ViewportActor::select(float dt)
+void ViewportActor::select(float dt, int val)
 {
-    selected = true;
-    getWorld()->getGame()->getInputManager()->setMouseCapture(true);
-}
-
-void ViewportActor::deselect(float dt)
-{
-    selected = false;
-    getWorld()->getGame()->getInputManager()->setMouseCapture(false);
+    if (val == 1)
+    {
+        selected = true;
+        getWorld()->getGame()->getInputManager()->setMouseCapture(true);
+    }
+    else
+    {
+        selected = false;
+        getWorld()->getGame()->getInputManager()->setMouseCapture(false);
+    }
 }
 
 } // namespace cmx

@@ -26,7 +26,8 @@ class InputManager
 
     template <typename T>
     void bindAxis(const std::string &name, void (T::*callbackFunction)(float, glm::vec2), T *instance);
-    template <typename T> void bindButton(const std::string &name, void (T::*callbackFunction)(float), T *instance);
+    template <typename T>
+    void bindButton(const std::string &name, void (T::*callbackFunction)(float, int), T *instance);
     void addInput(const std::string &name, class InputAction *);
     void pollEvents(float dt);
     void setMouseCapture(bool);
@@ -59,7 +60,7 @@ inline void InputManager::bindAxis(const std::string &name, void (T::*callbackFu
 }
 
 template <typename T>
-inline void InputManager::bindButton(const std::string &name, void (T::*callbackFunction)(float), T *instance)
+inline void InputManager::bindButton(const std::string &name, void (T::*callbackFunction)(float, int), T *instance)
 {
     auto mappedInput = inputDictionary.find(name);
     if (mappedInput == inputDictionary.end())
@@ -69,9 +70,9 @@ inline void InputManager::bindButton(const std::string &name, void (T::*callback
     }
     else
     {
-        mappedInput->second->bind([instance, callbackFunction](float dt) {
+        mappedInput->second->bind([instance, callbackFunction](float dt, int val) {
             if (instance)
-                (instance->*callbackFunction)(dt);
+                (instance->*callbackFunction)(dt, val);
             else
                 spdlog::warn("InputManager: action being called on deleted object");
         });

@@ -21,10 +21,7 @@ class Demo : public cmx::Game
     ~Demo();
     void load() override;
     void run() override;
-    void quit(float dt)
-    {
-        std::exit(EXIT_SUCCESS);
-    };
+    void closeWindow(float dt, int val);
 
   protected:
     cmx::World mainWorld{"Main", this};

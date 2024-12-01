@@ -1,8 +1,10 @@
 #include "cmx_viewport_ui_component.h"
 
 // cmx
+#include "cmx_actor.h"
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
+#include "cmx_game.h"
 #include "cmx_renderer.h"
 #include "cmx_swap_chain.h"
 
@@ -56,7 +58,7 @@ void ViewportUIComponent::renderTopBar()
     {
         if (ImGui::MenuItem("Viewport Settings", "Ctrl+V"))
         {
-            showViewportSettings = true;
+            renderViewportSettings();
         }
         ImGui::EndMenu();
     }
@@ -68,6 +70,7 @@ void ViewportUIComponent::renderTopBar()
 
 void ViewportUIComponent::renderViewportSettings()
 {
+    showViewportSettings = true;
     ImGui::Begin("Viewport Settings", &showViewportSettings, ImGuiWindowFlags_None);
 
     ImGui::Text("Adjust editor settings here.");

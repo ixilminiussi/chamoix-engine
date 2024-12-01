@@ -62,7 +62,7 @@ class InputAction
     ~InputAction() = default;
 
     virtual void poll(const class CmxWindow &, float dt) = 0;
-    virtual void bind(std::function<void(float)> callbackFunction) = 0;
+    virtual void bind(std::function<void(float, int)> callbackFunction) = 0;
     virtual void bind(std::function<void(float, glm::vec2)> callbackFunction) = 0;
 };
 
@@ -75,18 +75,18 @@ class ButtonAction : public InputAction
         HELD,     // sends as long as toggled
         RELEASED, // sends when released
         SHORTCUT, // TODO: sends when all are held for first time
-        TOGGLE,   // TODO: sends 1 when pressed, -1 when released
+        TOGGLE,   // sends 1 when pressed, 0 when released
     };
 
     ButtonAction(Type buttonType, std::initializer_list<Button> buttons) : buttonType{buttonType}, buttons{buttons} {};
 
     void poll(const class CmxWindow &, float dt) override;
-    void bind(std::function<void(float)> callbackFunction) override;
+    void bind(std::function<void(float, int)> callbackFunction) override;
     void bind(std::function<void(float, glm::vec2)> callbackFunction) override;
 
   private:
     std::vector<Button> buttons;
-    std::vector<std::function<void(float)>> functions;
+    std::vector<std::function<void(float, int)>> functions;
 
     int status{GLFW_RELEASE};
     Type buttonType;
@@ -106,7 +106,7 @@ class AxisAction : public InputAction
     AxisAction(Axis vertical, Axis horizontal = CMX_AXIS_VOID) : axes{vertical, horizontal}, type{AXES} {};
 
     void poll(const class CmxWindow &, float dt) override;
-    void bind(std::function<void(float)> callbackFunction) override;
+    void bind(std::function<void(float, int)> callbackFunction) override;
     void bind(std::function<void(float, glm::vec2)> callbackFunction) override;
 
   private:

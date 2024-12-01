@@ -10,8 +10,7 @@ class RotatingActor : public cmx::Actor
     void onBegin() override;
     void update(float dt) override;
 
-    void slowdownOn(float dt);
-    void slowdownOff(float dt);
+    void slowdownToggle(float dt, int val);
 
   private:
     float rotationSpeedSlow{0.03f}, rotationSpeedFast{1.f}, rotationSpeed{rotationSpeedFast};

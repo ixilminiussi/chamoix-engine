@@ -5,7 +5,6 @@
 #include "cmx_render_component.h"
 
 // lib
-#include <functional>
 #include <glm/ext/scalar_constants.hpp>
 
 void RotatingActor::onBegin()
@@ -17,8 +16,7 @@ void RotatingActor::onBegin()
     auto inputManager = getWorld()->getGame()->getInputManager();
     if (inputManager)
     {
-        inputManager->bindButton("slowdown on", &RotatingActor::slowdownOn, this);
-        inputManager->bindButton("slowdown off", &RotatingActor::slowdownOff, this);
+        inputManager->bindButton("slowdown toggle", &RotatingActor::slowdownToggle, this);
     }
 
     auto renderComponent = std::make_shared<cmx::RenderComponent>();
@@ -30,12 +28,14 @@ void RotatingActor::update(float dt)
     transform.rotation.y += rotationSpeed * dt * glm::pi<float>();
 }
 
-void RotatingActor::slowdownOn(float dt)
+void RotatingActor::slowdownToggle(float dt, int val)
 {
-    rotationSpeed = rotationSpeedSlow;
-}
-
-void RotatingActor::slowdownOff(float dt)
-{
-    rotationSpeed = rotationSpeedFast;
+    if (val == 1)
+    {
+        rotationSpeed = rotationSpeedSlow;
+    }
+    else
+    {
+        rotationSpeed = rotationSpeedFast;
+    }
 }

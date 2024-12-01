@@ -20,7 +20,7 @@ class ViewportActor : public cmx::Actor
     void onMovementInput(float dt, glm::vec2);
     void onJumpInput(float dt);
     void onMouseMovement(float dt, glm::vec2);
-    void select(float dt);
+    void select(float dt, int val);
     void deselect(float dt);
 
     std::weak_ptr<cmx::CameraComponent> getCamera()

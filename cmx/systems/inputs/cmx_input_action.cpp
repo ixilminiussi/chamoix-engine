@@ -28,14 +28,29 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
             if (!ImGui::GetIO().WantCaptureKeyboard)
             {
                 button.status = glfwGetKey(window.getGLFWwindow(), button.code);
-                newStatus |= button.status;
+
+                if (buttonType == Type::SHORTCUT)
+                {
+                    newStatus &= button.status;
+                }
+                else
+                {
+                    newStatus |= button.status;
+                }
             }
             break;
         case InputSource::MOUSE:
             if (!ImGui::GetIO().WantCaptureMouse)
             {
                 button.status = glfwGetMouseButton(window.getGLFWwindow(), button.code);
-                newStatus |= button.status;
+                if (buttonType == Type::SHORTCUT)
+                {
+                    newStatus &= button.status;
+                }
+                else
+                {
+                    newStatus |= button.status;
+                }
             }
             break;
         case InputSource::GAMEPAD:
@@ -49,13 +64,14 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
     switch (buttonType)
     {
     case Type::HELD:
-        if (newStatus == Type::HELD)
+        if (newStatus == 1)
         {
             success = true;
         }
         break;
 
     case Type::PRESSED:
+    case Type::SHORTCUT:
         if (newStatus == 1 && status == 0)
         {
             success = true;
@@ -68,14 +84,20 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
             success = true;
         }
         break;
+    case Type::TOGGLE:
+        if (newStatus != status)
+        {
+            success = true;
+        }
+        break;
     }
     status = newStatus;
 
     if (success)
     {
-        for (std::function<void(float)> func : functions)
+        for (std::function<void(float, int)> func : functions)
         {
-            func(dt);
+            func(dt, newStatus);
         }
     }
 }
@@ -164,18 +186,18 @@ void AxisAction::poll(const CmxWindow &window, float dt)
     }
 }
 
-void ButtonAction::bind(std::function<void(float)> callbackFunction)
+void ButtonAction::bind(std::function<void(float, int)> callbackFunction)
 {
     functions.push_back(callbackFunction);
 }
 
 void ButtonAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
 {
-    spdlog::critical("ButtonAction: can only be bound to std::function<void(float)>");
+    spdlog::critical("ButtonAction: can only be bound to std::function<void(float, int)>");
     std::exit(EXIT_FAILURE);
 }
 
-void AxisAction::bind(std::function<void(float)> callbackFunction)
+void AxisAction::bind(std::function<void(float, int)> callbackFunction)
 {
     spdlog::critical("AxisAction: can only be bound to std::function<void(float, glm::vec2)>");
     std::exit(EXIT_FAILURE);

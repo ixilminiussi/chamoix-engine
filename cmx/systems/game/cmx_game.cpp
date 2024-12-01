@@ -41,9 +41,7 @@ void Game::loadEditor()
 
     inputManager->addInput("viewport movement", new AxisAction{CMX_KEY_D, CMX_KEY_A, CMX_KEY_W, CMX_KEY_S});
     inputManager->addInput("viewport rotation", new AxisAction{CMX_MOUSE_AXIS_X_RELATIVE, CMX_MOUSE_AXIS_Y_RELATIVE});
-    inputManager->addInput("viewport select", new ButtonAction{ButtonAction::Type::PRESSED, {CMX_MOUSE_BUTTON_LEFT}});
-    inputManager->addInput("viewport deselect",
-                           new ButtonAction{ButtonAction::Type::RELEASED, {CMX_MOUSE_BUTTON_LEFT}});
+    inputManager->addInput("viewport toggle", new ButtonAction{ButtonAction::Type::TOGGLE, {CMX_MOUSE_BUTTON_LEFT}});
 
     std::shared_ptr<ViewportActor> viewportActor = Actor::spawn<ViewportActor>(getWorld(), "Viewport Actor");
 
