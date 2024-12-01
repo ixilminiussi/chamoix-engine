@@ -6,6 +6,9 @@
 // std
 #include <memory>
 
+namespace cmx
+{
+
 class ViewportActor : public cmx::Actor
 {
   public:
@@ -20,6 +23,8 @@ class ViewportActor : public cmx::Actor
     void select(float dt);
     void deselect(float dt);
 
+    void initImGUI(class CmxWindow &window);
+
     std::weak_ptr<cmx::CameraComponent> getCamera()
     {
         return camera;
@@ -31,3 +36,5 @@ class ViewportActor : public cmx::Actor
     float mouseSensitivity{2.f};
     bool selected{false};
 };
+
+} // namespace cmx

@@ -35,7 +35,6 @@ class Game
     {
         activeWorld = world;
     }
-
     void createInputManager(CmxWindow &window, const std::unordered_map<std::string, InputAction *> &inputDictionary)
     {
         inputManager = std::make_shared<InputManager>(window, inputDictionary);

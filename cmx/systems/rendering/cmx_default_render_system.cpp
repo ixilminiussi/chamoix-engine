@@ -72,18 +72,18 @@ void DefaultRenderSystem::createPipeline(VkRenderPass renderPass)
         std::make_unique<CmxPipeline>(cmxDevice, "shaders/shader.vert.spv", "shaders/shader.frag.spv", pipelineConfig);
 }
 
-void DefaultRenderSystem::render(VkCommandBuffer commandBuffer, std::vector<std::weak_ptr<Component>> &components,
+void DefaultRenderSystem::render(VkCommandBuffer commandBuffer, std::vector<std::weak_ptr<Component>> &renderQueue,
                                  const CameraComponent &camera)
 {
     cmxPipeline->bind(commandBuffer);
 
-    auto j = components.begin();
+    auto j = renderQueue.begin();
 
-    while (j < components.end())
+    while (j < renderQueue.end())
     {
         if (j->expired())
         {
-            j = components.erase(j);
+            j = renderQueue.erase(j);
             continue;
         }
 

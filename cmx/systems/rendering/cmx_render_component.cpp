@@ -20,6 +20,12 @@ namespace cmx
 
 RenderComponent::RenderComponent(std::shared_ptr<CmxModel> cmxModel) : cmxModel(cmxModel)
 {
+    renderZ = 0;
+}
+
+RenderComponent::RenderComponent()
+{
+    renderZ = 0;
 }
 
 struct SimplePushConstantData

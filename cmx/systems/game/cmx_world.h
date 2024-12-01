@@ -24,6 +24,10 @@ class World
     {
         return components;
     }
+    std::vector<std::weak_ptr<class Component>> &getRenderQueue()
+    {
+        return renderQueue;
+    }
 
     void addActor(std::shared_ptr<class Actor>);
     void removeActor(class Actor *);

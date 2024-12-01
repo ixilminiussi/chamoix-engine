@@ -4,18 +4,24 @@
 #include "cmx_camera_component.h"
 #include "cmx_game.h"
 #include "cmx_input_manager.h"
+#include "cmx_window.h"
 
 // lib
-#include <functional>
+#include "imgui.h"
+#include "imgui_impl_vulkan.h"
 #include <glm/common.hpp>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/constants.hpp>
-#include <limits>
 #include <spdlog/spdlog.h>
 
 // std
+#include <functional>
+#include <limits>
 #include <memory>
+
+namespace cmx
+{
 
 void ViewportActor::onBegin()
 {
@@ -83,3 +89,9 @@ void ViewportActor::deselect(float dt)
     selected = false;
     getWorld()->getGame()->getInputManager()->setMouseCapture(false);
 }
+
+void ViewportActor::initImGUI(CmxWindow &cmxWindow)
+{
+}
+
+} // namespace cmx

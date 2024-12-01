@@ -16,7 +16,7 @@ class RenderComponent : public Component
 {
   public:
     RenderComponent(std::shared_ptr<class CmxModel>);
-    RenderComponent() = default;
+    RenderComponent();
 
     ~RenderComponent() = default;
 

@@ -55,8 +55,8 @@ void Demo::run()
             {
                 cmxRenderer.beginSwapChainRenderPass(commandBuffer);
 
-                std::vector<std::weak_ptr<cmx::Component>> &components = getWorld()->getAllComponents();
-                defaultRenderSystem.render(commandBuffer, components, *camera.get());
+                std::vector<std::weak_ptr<cmx::Component>> &renderQueue = getWorld()->getRenderQueue();
+                defaultRenderSystem.render(commandBuffer, renderQueue, *camera.get());
                 cmxRenderer.endSwapChainRenderPass(commandBuffer);
                 cmxRenderer.endFrame();
             }

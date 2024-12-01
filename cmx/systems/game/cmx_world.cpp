@@ -108,9 +108,8 @@ void World::addComponent(std::shared_ptr<Component> component)
                  component->getParent()->name);
     if (component->renderZ >= 0)
     {
-        // auto it = std::lower_bound(renderQueue.begin(), renderQueue.end(), component);
-        // renderQueue.insert(it, component);
-        renderQueue.push_back(component);
+        auto it = std::lower_bound(renderQueue.begin(), renderQueue.end(), component);
+        renderQueue.insert(it, component);
         spdlog::info("World '{0}': Component '{1}' joins renderQueue with renderZ {2}", name,
                      typeid(*component.get()).name(), component->renderZ);
     }
