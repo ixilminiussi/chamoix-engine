@@ -4,6 +4,7 @@
 
 // std lib headers
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace cmx
 {
@@ -62,15 +63,23 @@ class CmxDevice
     {
         return presentQueue_;
     }
+    VkPhysicalDevice physicalDevice()
+    {
+        return physicalDevice_;
+    }
+    VkInstance instance()
+    {
+        return instance_;
+    }
 
     SwapChainSupportDetails getSwapChainSupport()
     {
-        return querySwapChainSupport(physicalDevice);
+        return querySwapChainSupport(physicalDevice_);
     }
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags);
     QueueFamilyIndices findPhysicalQueueFamilies()
     {
-        return findQueueFamilies(physicalDevice);
+        return findQueueFamilies(physicalDevice_);
     }
     VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling, VkFormatFeatureFlags);
 
@@ -103,9 +112,9 @@ class CmxDevice
     bool checkDeviceExtensionSupport(VkPhysicalDevice);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice);
 
-    VkInstance instance;
+    VkInstance instance_;
     VkDebugUtilsMessengerEXT debugMessenger;
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
     CmxWindow &window;
     VkCommandPool commandPool;
 

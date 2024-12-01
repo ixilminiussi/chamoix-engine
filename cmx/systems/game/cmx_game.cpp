@@ -1,8 +1,8 @@
 #include "cmx_game.h"
 
 #include "cmx_input_action.h"
-#include "cmx_input_manager.h"
 #include "cmx_viewport_actor.h"
+#include "cmx_viewport_ui_component.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -46,6 +46,12 @@ void Game::loadEditor()
                            new ButtonAction{ButtonAction::Type::RELEASED, {CMX_MOUSE_BUTTON_LEFT}});
 
     std::shared_ptr<ViewportActor> viewportActor = Actor::spawn<ViewportActor>(getWorld(), "Viewport Actor");
+
+    auto viewportUIWk = viewportActor->getComponentByType<ViewportUIComponent>();
+    if (auto viewportUIComponent = viewportUIWk.lock())
+    {
+        viewportUIComponent->initImGUI(cmxDevice, cmxWindow, cmxRenderer);
+    }
 
     auto cameraWk = viewportActor->getComponentByType<CameraComponent>();
     if (auto cameraComponent = cameraWk.lock())

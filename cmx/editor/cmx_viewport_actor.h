@@ -23,8 +23,6 @@ class ViewportActor : public cmx::Actor
     void select(float dt);
     void deselect(float dt);
 
-    void initImGUI(class CmxWindow &window);
-
     std::weak_ptr<cmx::CameraComponent> getCamera()
     {
         return camera;

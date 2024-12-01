@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 add_subdirectory(tinyobjloader)
+add_subdirectory(imgui)
 
 add_library(external INTERFACE)
 
@@ -12,4 +13,4 @@ foreach(dir ${SYSTEMS_HEADERS})
     endif()
 endforeach()
 
-target_link_libraries(external INTERFACE tinyobjloader)
+target_link_libraries(external INTERFACE tinyobjloader imgui)

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "cmx/systems/game/cmx_actor.h"
-#include "cmx/systems/game/cmx_component.h"
+#include "cmx_component.h"
 
 // lib
 #define GLM_FORCE_RADIANS

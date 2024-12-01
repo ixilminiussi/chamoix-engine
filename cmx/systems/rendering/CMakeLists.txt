@@ -7,6 +7,8 @@ add_library(rendering
     cmx_render_component.cpp
     cmx_device.cpp
     cmx_model.cpp
+    cmx_buffer.cpp
+    cmx_descriptors.cpp
     cmx_pipeline.cpp
     cmx_renderer.cpp
     cmx_swap_chain.cpp

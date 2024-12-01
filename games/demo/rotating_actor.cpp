@@ -17,8 +17,8 @@ void RotatingActor::onBegin()
     auto inputManager = getWorld()->getGame()->getInputManager();
     if (inputManager)
     {
-        inputManager->bindButton("slowdown on", std::bind(&RotatingActor::slowdownOn, this, std::placeholders::_1));
-        inputManager->bindButton("slowdown off", std::bind(&RotatingActor::slowdownOff, this, std::placeholders::_1));
+        inputManager->bindButton("slowdown on", &RotatingActor::slowdownOn, this);
+        inputManager->bindButton("slowdown off", &RotatingActor::slowdownOff, this);
     }
 
     auto renderComponent = std::make_shared<cmx::RenderComponent>();

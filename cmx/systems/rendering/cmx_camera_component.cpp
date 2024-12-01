@@ -1,4 +1,5 @@
 #include "cmx_camera_component.h"
+#include "cmx_actor.h"
 
 namespace cmx
 {

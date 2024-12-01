@@ -118,6 +118,7 @@ void CmxRenderer::endFrame()
     assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
 
     auto commandBuffer = getCurrentCommandBuffer();
+
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to record command buffer!");

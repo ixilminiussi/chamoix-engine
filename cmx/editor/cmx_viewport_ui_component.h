@@ -13,8 +13,9 @@ class ViewportUIComponent : public Component
 
     void render(VkCommandBuffer, VkPipelineLayout, const class CameraComponent &);
 
+    void initImGUI(class CmxDevice &, class CmxWindow &, class CmxRenderer &);
+
   private:
-    class CmxWindow *cmxWindow;
     bool initialized{false};
 };
 

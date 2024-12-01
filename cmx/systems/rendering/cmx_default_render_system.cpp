@@ -1,7 +1,7 @@
 #include "cmx_default_render_system.h"
 
-#include "cmx_camera_component.h"
 #include "cmx_component.h"
+#include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
 #include "cmx_world.h"
 
@@ -24,15 +24,11 @@
 namespace cmx
 {
 
-struct SimplePushConstantData
+DefaultRenderSystem::DefaultRenderSystem(CmxDevice &device, VkRenderPass renderPass,
+                                         VkDescriptorSetLayout globalSetLayout)
+    : cmxDevice{device}
 {
-    glm::mat4 transform{1.f};
-    glm::mat4 normalMatrix{1.f};
-};
-
-DefaultRenderSystem::DefaultRenderSystem(CmxDevice &device, VkRenderPass renderPass) : cmxDevice{device}
-{
-    createPipelineLayout();
+    createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 }
 
@@ -41,17 +37,19 @@ DefaultRenderSystem::~DefaultRenderSystem()
     vkDestroyPipelineLayout(cmxDevice.device(), pipelineLayout, nullptr);
 }
 
-void DefaultRenderSystem::createPipelineLayout()
+void DefaultRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(SimplePushConstantData);
 
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     if (vkCreatePipelineLayout(cmxDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
@@ -72,10 +70,12 @@ void DefaultRenderSystem::createPipeline(VkRenderPass renderPass)
         std::make_unique<CmxPipeline>(cmxDevice, "shaders/shader.vert.spv", "shaders/shader.frag.spv", pipelineConfig);
 }
 
-void DefaultRenderSystem::render(VkCommandBuffer commandBuffer, std::vector<std::weak_ptr<Component>> &renderQueue,
-                                 const CameraComponent &camera)
+void DefaultRenderSystem::render(FrameInfo &frameInfo, std::vector<std::weak_ptr<Component>> &renderQueue)
 {
-    cmxPipeline->bind(commandBuffer);
+    cmxPipeline->bind(frameInfo.commandBuffer);
+
+    vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                            &frameInfo.globalDescriptorSet, 0, nullptr);
 
     auto j = renderQueue.begin();
 
@@ -90,7 +90,7 @@ void DefaultRenderSystem::render(VkCommandBuffer commandBuffer, std::vector<std:
         std::shared_ptr<Component> component = j->lock();
         if (component)
         {
-            component->render(commandBuffer, pipelineLayout, camera);
+            component->render(frameInfo, pipelineLayout);
         }
 
         j++;

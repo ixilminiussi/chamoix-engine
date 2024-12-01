@@ -6,7 +6,6 @@
 
 // lib
 #include <GLFW/glfw3.h>
-#include <spdlog/spdlog.h>
 
 // std
 #include <cstdlib>
@@ -35,36 +34,6 @@ InputManager::~InputManager()
 void InputManager::addInput(const std::string &name, InputAction *newInput)
 {
     inputDictionary[name] = newInput;
-}
-
-void InputManager::bindAxis(const std::string &name, std::function<void(float, glm::vec2)> callbackFunction)
-{
-    auto mappedInput = inputDictionary.find(name);
-    if (mappedInput == inputDictionary.end())
-    {
-        spdlog::warn("InputManager: attempt at binding non existant input '{0}'", name);
-        return;
-    }
-    else
-    {
-        mappedInput->second->bind(callbackFunction);
-        spdlog::info("InputManager: '{0}' bound to new function", name);
-    }
-}
-
-void InputManager::bindButton(const std::string &name, std::function<void(float)> callbackFunction)
-{
-    auto mappedInput = inputDictionary.find(name);
-    if (mappedInput == inputDictionary.end())
-    {
-        spdlog::warn("InputManager: attempt at binding non existant input '{0}'", name);
-        return;
-    }
-    else
-    {
-        mappedInput->second->bind(callbackFunction);
-        spdlog::info("InputManager: '{0}' bound to new function", name);
-    }
 }
 
 void InputManager::pollEvents(float dt)

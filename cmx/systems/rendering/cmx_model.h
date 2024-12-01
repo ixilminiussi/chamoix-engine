@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cmx_buffer.h"
 #include "cmx_device.h"
 
 // lib
@@ -41,7 +42,7 @@ class CmxModel
     };
 
     CmxModel(CmxDevice &, const CmxModel::Builder &);
-    ~CmxModel();
+    ~CmxModel() = default;
 
     CmxModel(const CmxModel &) = delete;
     CmxModel &operator=(const CmxModel &) = delete;
@@ -57,13 +58,11 @@ class CmxModel
 
     CmxDevice &cmxDevice;
 
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
+    std::unique_ptr<CmxBuffer> vertexBuffer;
     uint32_t vertexCount;
 
     bool hasIndexBuffer{false};
-    VkBuffer indexBuffer;
-    VkDeviceMemory indexBufferMemory;
+    std::unique_ptr<CmxBuffer> indexBuffer;
     uint32_t indexCount;
 };
 

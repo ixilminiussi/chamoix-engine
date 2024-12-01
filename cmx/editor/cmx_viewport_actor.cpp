@@ -4,11 +4,8 @@
 #include "cmx_camera_component.h"
 #include "cmx_game.h"
 #include "cmx_input_manager.h"
-#include "cmx_window.h"
 
 // lib
-#include "imgui.h"
-#include "imgui_impl_vulkan.h"
 #include <glm/common.hpp>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
@@ -16,8 +13,6 @@
 #include <spdlog/spdlog.h>
 
 // std
-#include <functional>
-#include <limits>
 #include <memory>
 
 namespace cmx
@@ -34,12 +29,10 @@ void ViewportActor::onBegin()
 
     std::shared_ptr<cmx::InputManager> inputManager = getWorld()->getGame()->getInputManager();
 
-    inputManager->bindAxis("viewport movement", std::bind(&ViewportActor::onMovementInput, this, std::placeholders::_1,
-                                                          std::placeholders::_2));
-    inputManager->bindAxis("viewport rotation", std::bind(&ViewportActor::onMouseMovement, this, std::placeholders::_1,
-                                                          std::placeholders::_2));
-    inputManager->bindButton("viewport select", std::bind(&ViewportActor::select, this, std::placeholders::_1));
-    inputManager->bindButton("viewport deselect", std::bind(&ViewportActor::deselect, this, std::placeholders::_1));
+    inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, this);
+    inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, this);
+    inputManager->bindButton("viewport select", &ViewportActor::select, this);
+    inputManager->bindButton("viewport deselect", &ViewportActor::deselect, this);
 }
 
 void ViewportActor::update(float dt)

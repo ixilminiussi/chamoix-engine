@@ -1,8 +1,11 @@
 #pragma once
 
 // cmx
+#include "cmx_descriptors.h"
+#include "cmx_device.h"
 #include "cmx_input_action.h"
 #include "cmx_input_manager.h"
+#include "cmx_renderer.h"
 #include "cmx_window.h"
 
 // lib
@@ -47,6 +50,14 @@ class Game
 
   protected:
     class World *activeWorld{};
+
+    CmxWindow cmxWindow{1080, 720, "demo"};
+    CmxDevice cmxDevice{cmxWindow};
+    CmxRenderer cmxRenderer{cmxWindow, cmxDevice};
+    std::unique_ptr<VkPipeline> cmxPipeline;
+    VkPipelineLayout pipelineLayout;
+
+    std::unique_ptr<CmxDescriptorPool> globalPool{};
 
     std::shared_ptr<InputManager> inputManager;
 };

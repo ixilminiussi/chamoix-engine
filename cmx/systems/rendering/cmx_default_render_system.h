@@ -5,25 +5,32 @@
 #include "cmx_world.h"
 
 // std
+#include <glm/ext/matrix_float4x4.hpp>
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
 namespace cmx
 {
 
+struct SimplePushConstantData
+{
+    glm::mat4 modelMatrix{1.f};
+    glm::mat4 normalMatrix{1.f};
+};
+
 class DefaultRenderSystem
 {
   public:
-    DefaultRenderSystem(CmxDevice &, VkRenderPass);
+    DefaultRenderSystem(CmxDevice &, VkRenderPass, VkDescriptorSetLayout globalSetLayout);
     ~DefaultRenderSystem();
 
     DefaultRenderSystem(const DefaultRenderSystem &) = delete;
     DefaultRenderSystem &operator=(const DefaultRenderSystem &) = delete;
 
-    virtual void render(VkCommandBuffer, std::vector<std::weak_ptr<Component>> &, const class CameraComponent &);
+    virtual void render(class FrameInfo &, std::vector<std::weak_ptr<Component>> &renderQueue);
 
   private:
-    void createPipelineLayout();
+    void createPipelineLayout(VkDescriptorSetLayout);
     void createPipeline(VkRenderPass);
 
     CmxDevice &cmxDevice;

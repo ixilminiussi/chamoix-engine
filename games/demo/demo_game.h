@@ -1,9 +1,7 @@
 #pragma once
 
 // cmx
-#include "cmx_device.h"
 #include "cmx_game.h"
-#include "cmx_renderer.h"
 #include "cmx_world.h"
 
 // lib
@@ -12,7 +10,6 @@
 
 // std
 #include <cstdlib>
-#include <memory>
 
 class Demo : public cmx::Game
 {
@@ -24,13 +21,11 @@ class Demo : public cmx::Game
     ~Demo();
     void load() override;
     void run() override;
+    void quit(float dt)
+    {
+        std::exit(EXIT_SUCCESS);
+    };
 
   protected:
-    cmx::CmxWindow cmxWindow{WIDTH, HEIGHT, "demo"};
-    cmx::CmxDevice cmxDevice{cmxWindow};
-    cmx::CmxRenderer cmxRenderer{cmxWindow, cmxDevice};
-    std::unique_ptr<VkPipeline> cmxPipeline;
-    VkPipelineLayout pipelineLayout;
-
     cmx::World mainWorld{"Main", this};
 };

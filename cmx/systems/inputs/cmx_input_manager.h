@@ -1,6 +1,7 @@
 #pragma once
 
-#include <functional>
+#include "cmx_input_action.h"
+#include <spdlog/spdlog.h>
 #include <unordered_map>
 
 // lib
@@ -23,8 +24,9 @@ class InputManager
     InputManager(class CmxWindow &, const std::unordered_map<std::string, class InputAction *> &inputDictionary);
     ~InputManager();
 
-    void bindAxis(const std::string &name, std::function<void(float, glm::vec2)>);
-    void bindButton(const std::string &name, std::function<void(float)>);
+    template <typename T>
+    void bindAxis(const std::string &name, void (T::*callbackFunction)(float, glm::vec2), T *instance);
+    template <typename T> void bindButton(const std::string &name, void (T::*callbackFunction)(float), T *instance);
     void addInput(const std::string &name, class InputAction *);
     void pollEvents(float dt);
     void setMouseCapture(bool);
@@ -34,5 +36,47 @@ class InputManager
     std::unordered_map<std::string, class InputAction *> inputDictionary;
     class CmxWindow &window;
 };
+
+template <typename T>
+inline void InputManager::bindAxis(const std::string &name, void (T::*callbackFunction)(float, glm::vec2), T *instance)
+{
+    auto mappedInput = inputDictionary.find(name);
+    if (mappedInput == inputDictionary.end())
+    {
+        spdlog::warn("InputManager: attempt at binding non existant input '{0}'", name);
+        return;
+    }
+    else
+    {
+        mappedInput->second->bind([instance, callbackFunction](float dt, glm::vec2 value) {
+            if (instance)
+                (instance->*callbackFunction)(dt, value);
+            else
+                spdlog::warn("InputManager: action being called on deleted object");
+        });
+        spdlog::info("InputManager: '{0}' bound to new function", name);
+    }
+}
+
+template <typename T>
+inline void InputManager::bindButton(const std::string &name, void (T::*callbackFunction)(float), T *instance)
+{
+    auto mappedInput = inputDictionary.find(name);
+    if (mappedInput == inputDictionary.end())
+    {
+        spdlog::warn("InputManager: attempt at binding non existant input '{0}'", name);
+        return;
+    }
+    else
+    {
+        mappedInput->second->bind([instance, callbackFunction](float dt) {
+            if (instance)
+                (instance->*callbackFunction)(dt);
+            else
+                spdlog::warn("InputManager: action being called on deleted object");
+        });
+        spdlog::info("InputManager: '{0}' bound to new function", name);
+    }
+}
 
 } // namespace cmx
