@@ -8,7 +8,7 @@
 #include "cmx_model.h"
 #include "cmx_render_component.h"
 #include "cmx_world.h"
-#include "cube_actor.h"
+#include "rotating_actor.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -72,18 +72,21 @@ void Demo::run()
 
 void Demo::load()
 {
-    createInputManager(cmxWindow,
-                       {{"exit", new cmx::ButtonAction{cmx::ButtonAction::Type::RELEASED, {cmx::CMX_KEY_ESCAPE}}}});
+    createInputManager(
+        cmxWindow, {{"exit", new cmx::ButtonAction{cmx::ButtonAction::Type::RELEASED, {cmx::CMX_KEY_ESCAPE}}},
+                    {"slowdown on", new cmx::ButtonAction{cmx::ButtonAction::Type::PRESSED, {cmx::CMX_KEY_SPACE}}},
+                    {"slowdown off", new cmx::ButtonAction{cmx::ButtonAction::Type::RELEASED, {cmx::CMX_KEY_SPACE}}}});
     setWorld(&mainWorld);
     getInputManager()->bindButton("exit", [](float val) { std::exit(EXIT_SUCCESS); });
 
-    std::shared_ptr<CubeActor> cubeActor = cmx::Actor::spawn<CubeActor>(getWorld(), "Cube Actor");
+    std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getWorld(), "Rotating Actor");
+    rotatingActor->transform.scale = glm::vec3{10.f};
 
-    std::shared_ptr<CmxModel> cubeModel = CmxModel::createModelFromFile(cmxDevice, "assets/models/colored_cube.obj");
+    std::shared_ptr<CmxModel> rotatingModel = CmxModel::createModelFromFile(cmxDevice, "assets/models/bunny.obj");
 
-    auto cubeRendererWk = cubeActor->getComponentByType<cmx::RenderComponent>();
-    if (auto cubeRendererComponent = cubeRendererWk.lock())
+    auto rotatingRendererWk = rotatingActor->getComponentByType<cmx::RenderComponent>();
+    if (auto rotatingRendererComponent = rotatingRendererWk.lock())
     {
-        cubeRendererComponent->setModel(cubeModel);
+        rotatingRendererComponent->setModel(rotatingModel);
     }
 }

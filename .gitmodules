@@ -4,3 +4,6 @@
 [submodule ".external/imgui"]
 	path = .external/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "assets/models/tests"]
+	path = assets/models/tests
+	url = https://github.com/alecjacobson/common-3d-test-models.git

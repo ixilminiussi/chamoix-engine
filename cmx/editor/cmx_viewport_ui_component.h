@@ -12,6 +12,10 @@ class ViewportUIComponent : public Component
     ~ViewportUIComponent() = default;
 
     void render(VkCommandBuffer, VkPipelineLayout, const class CameraComponent &);
+
+  private:
+    class CmxWindow *cmxWindow;
+    bool initialized{false};
 };
 
 } // namespace cmx

@@ -90,8 +90,4 @@ void ViewportActor::deselect(float dt)
     getWorld()->getGame()->getInputManager()->setMouseCapture(false);
 }
 
-void ViewportActor::initImGUI(CmxWindow &cmxWindow)
-{
-}
-
 } // namespace cmx

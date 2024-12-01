@@ -11,11 +11,13 @@ namespace cmx
 
 ViewportUIComponent::ViewportUIComponent()
 {
-    renderZ = std::numeric_limits<int32_t>::max(); // ensures it gets rendered at the very top
+    // renderZ = std::numeric_limits<int32_t>::max(); // ensures it gets rendered at the very top
 }
 
 void ViewportUIComponent::render(VkCommandBuffer, VkPipelineLayout, const class CameraComponent &)
 {
 }
+
+void initImGUI(class CmxWindow &window);
 
 } // namespace cmx

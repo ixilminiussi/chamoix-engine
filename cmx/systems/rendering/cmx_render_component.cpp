@@ -31,7 +31,7 @@ RenderComponent::RenderComponent()
 struct SimplePushConstantData
 {
     glm::mat4 transform{1.f};
-    alignas(16) glm::vec3 color;
+    glm::mat4 normalMatrix{1.f};
 };
 
 void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout,
@@ -57,8 +57,9 @@ void RenderComponent::render(VkCommandBuffer commandBuffer, VkPipelineLayout pip
 
     SimplePushConstantData push{};
     Transform transform = getParent()->getAbsoluteTransform();
-    push.color = glm::vec3{1.0f, 0.0f, 1.0f};
+
     push.transform = projectionView * transform.mat4();
+    push.normalMatrix = transform.normalMatrix();
 
     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                        sizeof(SimplePushConstantData), &push);

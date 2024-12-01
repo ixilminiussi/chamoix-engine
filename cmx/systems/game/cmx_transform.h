@@ -8,36 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// FIX: Maybe doesn't work
-struct Transform2D
+namespace cmx
 {
-    glm::vec2 position = glm::vec2{.0f};
-    float rotation = 0;
-    glm::vec2 scale = glm::vec2{1.f};
-
-    glm::mat3 getMat3() const
-    {
-        float s = sin(rotation);
-        float c = cos(rotation);
-
-        glm::mat3 rotationMatrix{{c, s, 0.f}, {-s, c, 0.f}, {0.f, 0.f, 1.f}};
-        glm::mat3 scaleMatrix{{scale.x, 0.f, 0.f}, {0.f, scale.y, 0.f}, {0.f, 0.f, 1.f}};
-        glm::mat3 translationMatrix{{1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {position.x, position.y, 1.f}};
-
-        return glm::mat3{1.f};
-        return translationMatrix * rotationMatrix * scaleMatrix;
-    }
-};
-
-inline Transform2D operator+(const Transform2D &a, const Transform2D &b)
-{
-    Transform2D c{};
-    c.position = a.position + b.position;
-    c.rotation = a.rotation + b.rotation;
-    c.scale = a.scale + b.scale;
-
-    return c;
-}
 
 struct Transform
 {
@@ -45,58 +17,13 @@ struct Transform
     glm::vec3 scale{1.f, 1.f, 1.f};
     glm::vec3 rotation{0.f, 0.f, 1.f};
 
-    glm::mat4 mat4()
-    {
-        const float c3 = glm::cos(rotation.z);
-        const float s3 = glm::sin(rotation.z);
-        const float c2 = glm::cos(rotation.x);
-        const float s2 = glm::sin(rotation.x);
-        const float c1 = glm::cos(rotation.y);
-        const float s1 = glm::sin(rotation.y);
-        return glm::mat4{{
-                             scale.x * (c1 * c3 + s1 * s2 * s3),
-                             scale.x * (c2 * s3),
-                             scale.x * (c1 * s2 * s3 - c3 * s1),
-                             0.0f,
-                         },
-                         {
-                             scale.y * (c3 * s1 * s2 - c1 * s3),
-                             scale.y * (c2 * c3),
-                             scale.y * (c1 * c3 * s2 + s1 * s3),
-                             0.0f,
-                         },
-                         {
-                             scale.z * (c2 * s1),
-                             scale.z * (-s2),
-                             scale.z * (c1 * c2),
-                             0.0f,
-                         },
-                         {position.x, position.y, position.z, 1.0f}};
-    }
-
-    glm::vec3 forward()
-    {
-        return (glm::vec3{glm::sin(rotation.y) * glm::cos(rotation.x), glm::sin(rotation.x),
-                          glm::cos(rotation.y) * glm::cos(rotation.x)});
-    }
-
-    glm::vec3 right()
-    {
-        return glm::normalize(glm::vec3{glm::cos(rotation.y), 0.0f, -glm::sin(rotation.y)});
-    }
-
-    glm::vec3 up()
-    {
-        return glm::normalize(glm::cross(right(), forward()));
-    }
+    glm::mat4 mat4();
+    glm::mat3 normalMatrix();
+    glm::vec3 forward();
+    glm::vec3 right();
+    glm::vec3 up();
 };
 
-inline Transform operator+(const Transform &a, const Transform &b)
-{
-    Transform c{};
-    c.position = a.position + b.position;
-    c.rotation = a.rotation + b.rotation;
-    c.scale = a.scale + b.scale;
+Transform operator+(const Transform &a, const Transform &b);
 
-    return c;
-}
+} // namespace cmx

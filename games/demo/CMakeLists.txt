@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 
 add_library(demo
     demo_game.cpp
-    cube_actor.cpp
+    rotating_actor.cpp
 )
 
 target_include_directories(demo PUBLIC
