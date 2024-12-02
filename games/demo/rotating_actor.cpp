@@ -3,6 +3,7 @@
 // cmx
 #include "cmx_game.h"
 #include "cmx_render_component.h"
+#include "imgui.h"
 
 // lib
 #include <glm/ext/scalar_constants.hpp>
@@ -11,7 +12,6 @@ void RotatingActor::onBegin()
 {
     transform.position = {0.f, 0.f, 5.f};
     transform.scale = {.5f, .5f, .5f};
-    transform.rotation = {0.f, 0.f, 0.f};
 
     auto inputManager = getWorld()->getGame()->getInputManager();
     if (inputManager)
@@ -38,4 +38,13 @@ void RotatingActor::slowdownToggle(float dt, int val)
     {
         rotationSpeed = rotationSpeedFast;
     }
+}
+
+void RotatingActor::renderSettings()
+{
+    ImGui::SeparatorText("Rotation");
+    ImGui::DragFloat("Slow Speed", &rotationSpeedSlow, 0.01f, -10.0f, 10.0f);
+    ImGui::DragFloat("Fast Speed", &rotationSpeedFast, 0.01f, -10.0f, 10.0f);
+
+    Actor::renderSettings();
 }

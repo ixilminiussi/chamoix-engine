@@ -37,6 +37,9 @@ class Actor
     virtual void onBegin() {};
     virtual void update(float dt) {};
 
+    // for viewport
+    virtual void renderSettings();
+
     void attachComponent(std::shared_ptr<Component>);
     template <typename T> std::weak_ptr<T> getComponentByType();
 
@@ -89,7 +92,8 @@ class Actor
 
 inline uint32_t Actor::currentID = 0;
 
-template <typename T> std::shared_ptr<T> Actor::spawn(World *world, const std::string &name, const Transform &transform)
+template <typename T>
+inline std::shared_ptr<T> Actor::spawn(World *world, const std::string &name, const Transform &transform)
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
@@ -106,7 +110,7 @@ template <typename T> std::shared_ptr<T> Actor::spawn(World *world, const std::s
     return std::dynamic_pointer_cast<T>(actorSharedPtr);
 }
 
-template <typename T> std::weak_ptr<T> Actor::getComponentByType()
+template <typename T> inline std::weak_ptr<T> Actor::getComponentByType()
 {
     if constexpr (!std::is_base_of<Component, T>::value)
     {

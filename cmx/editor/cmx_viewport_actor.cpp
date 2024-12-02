@@ -27,7 +27,7 @@ void ViewportActor::onBegin()
 
     camera = std::make_shared<CameraComponent>();
     attachComponent(camera);
-    attachComponent(std::make_shared<ViewportUIComponent>());
+    attachComponent(std::make_shared<ViewportUIComponent>(moveSpeed, mouseSensitivity));
 
     std::shared_ptr<InputManager> inputManager = getWorld()->getGame()->getInputManager();
 

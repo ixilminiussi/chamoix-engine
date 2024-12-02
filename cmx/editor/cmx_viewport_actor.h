@@ -28,10 +28,11 @@ class ViewportActor : public cmx::Actor
         return camera;
     }
 
+    float moveSpeed{4.5f};
+    float mouseSensitivity{0.5f};
+
   private:
     class std::shared_ptr<cmx::CameraComponent> camera;
-    float moveSpeed{2.5f};
-    float mouseSensitivity{2.f};
     bool selected{false};
 };
 

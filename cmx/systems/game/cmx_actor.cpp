@@ -1,4 +1,5 @@
 #include "cmx_actor.h"
+#include "imgui.h"
 
 // lib
 #include <spdlog/spdlog.h>
@@ -47,6 +48,30 @@ Transform Actor::getAbsoluteTransform()
     }
 
     return transform;
+}
+
+void Actor::renderSettings()
+{
+    ImGui::SeparatorText("Transform");
+    float *position[3] = {&transform.position.x, &transform.position.y, &transform.position.z};
+    ImGui::DragFloat3("Position", *position, 0.1f);
+    float *scale[3] = {&transform.scale.x, &transform.scale.y, &transform.scale.z};
+    ImGui::DragFloat3("Scale", *scale, 0.1f);
+    float *rotation[3] = {&transform.rotation.x, &transform.rotation.y, &transform.rotation.z};
+    ImGui::DragFloat3("Rotation", *rotation, 0.1f);
+
+    if (components.size() > 0)
+    {
+        ImGui::SeparatorText("Components");
+        for (auto component : components)
+        {
+            if (ImGui::TreeNode(component->name))
+            {
+                component->renderSettings();
+                ImGui::TreePop();
+            }
+        }
+    }
 }
 
 } // namespace cmx

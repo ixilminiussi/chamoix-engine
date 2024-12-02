@@ -14,8 +14,8 @@
 class Demo : public cmx::Game
 {
   public:
-    static constexpr int WIDTH = 1080;
-    static constexpr int HEIGHT = 720;
+    static int WIDTH;
+    static int HEIGHT;
 
     Demo() = default;
     ~Demo();
@@ -26,3 +26,6 @@ class Demo : public cmx::Game
   protected:
     cmx::World mainWorld{"Main", this};
 };
+
+inline int Demo::WIDTH = 1080;
+inline int Demo::HEIGHT = 720;

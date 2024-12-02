@@ -16,7 +16,12 @@ class Component
     ~Component() = default;
 
     virtual void update(float dt) {};
-    virtual void render(class FrameInfo &, VkPipelineLayout) {};
+    virtual void render(class FrameInfo &, VkPipelineLayout) {
+        // TODO: Debug render code
+    };
+
+    // for viewport
+    virtual void renderSettings() {};
 
     void despawn();
 
@@ -35,6 +40,8 @@ class Component
     // friend functions
     friend void World::addComponent(std::shared_ptr<Component>);
     friend bool operator<(std::weak_ptr<Component>, std::shared_ptr<Component>);
+
+    const char *name{"Component"};
 
   protected:
     class Actor *parent;

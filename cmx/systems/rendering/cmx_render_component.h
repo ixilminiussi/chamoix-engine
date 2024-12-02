@@ -23,6 +23,8 @@ class RenderComponent : public Component
     void render(class FrameInfo &, VkPipelineLayout) override;
     void setModel(std::shared_ptr<class CmxModel>);
 
+    const char *name{"RenderComponent"};
+
   private:
     std::shared_ptr<class CmxModel> cmxModel;
 };

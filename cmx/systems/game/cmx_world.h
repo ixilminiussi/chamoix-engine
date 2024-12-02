@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -61,5 +62,39 @@ class World
 
     class Game *game;
 };
+
+template <typename T> inline void World::getAllActorsByType(std::vector<std::weak_ptr<Actor>> &actorList)
+{
+    if constexpr (!std::is_base_of<Actor, T>::value)
+    {
+        spdlog::error("'{0}' is not of base type 'Actor', 'getAllActorsByType<{1}>' will return nothing",
+                      typeid(T).name(), typeid(T).name());
+        return;
+    }
+    for (auto pair : actors)
+    {
+        if (auto actor = std::dynamic_pointer_cast<T>(pair.second))
+        {
+            actorList.push_back(actor);
+        }
+    }
+}
+
+template <typename T> inline void World::getAllComponentsByType(std::vector<std::weak_ptr<Component>> &componentList)
+{
+    if constexpr (!std::is_base_of<Component, T>::value)
+    {
+        spdlog::error("'{0}' is not of base type 'Components', 'getAllComponentsByType<{1}>' will return nothing",
+                      typeid(T).name(), typeid(T).name());
+        return;
+    }
+    for (auto component : components)
+    {
+        if (typeid(T) == typeid(component))
+        {
+            componentList.push_back(component);
+        }
+    }
+}
 
 } // namespace cmx

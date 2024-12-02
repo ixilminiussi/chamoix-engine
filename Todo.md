@@ -21,6 +21,10 @@
 -[x] models import
 -[ ] textures
 
+## Physics
+-[ ] Quaternion implementation
+-[ ] Physics system
+
 ## Level editor
 -[x] viewport navigation
 -[x] ImGUI implementation

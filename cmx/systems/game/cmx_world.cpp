@@ -40,28 +40,6 @@ std::weak_ptr<Actor> World::getActorByID(uint32_t id)
     return actor;
 }
 
-template <typename T> void World::getAllActorsByType(std::vector<std::weak_ptr<Actor>> &actorList)
-{
-    for (auto pair : actors)
-    {
-        if (typeid(T) == typeid(pair.second))
-        {
-            actorList.push_back(pair.second);
-        }
-    }
-}
-
-template <typename T> void World::getAllComponentsByType(std::vector<std::weak_ptr<Component>> &componentList)
-{
-    for (auto component : components)
-    {
-        if (typeid(T) == typeid(component))
-        {
-            componentList.push_back(component);
-        }
-    }
-}
-
 void World::addActor(std::shared_ptr<Actor> actor)
 {
 #if DEBUG
@@ -104,9 +82,14 @@ void World::updateActors(float dt)
 void World::addComponent(std::shared_ptr<Component> component)
 {
     components.push_back(component);
-    spdlog::info("World '{0}': Added new component '{1}' to Actor '{2}'", name, typeid(*component.get()).name(),
+    spdlog::info("World '{0}': Added new component '{1}' to Actor '{2}'", name, component->name,
                  component->getParent()->name);
+
+#ifndef NDEBUG
+    if (component->renderZ >= -1)
+#else
     if (component->renderZ >= 0)
+#endif
     {
         auto it = std::lower_bound(renderQueue.begin(), renderQueue.end(), component);
         renderQueue.insert(it, component);

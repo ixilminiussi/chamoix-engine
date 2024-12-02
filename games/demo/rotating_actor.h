@@ -10,6 +10,9 @@ class RotatingActor : public cmx::Actor
     void onBegin() override;
     void update(float dt) override;
 
+    // for viewport
+    void renderSettings() override;
+
     void slowdownToggle(float dt, int val);
 
   private:

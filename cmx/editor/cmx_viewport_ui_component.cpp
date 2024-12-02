@@ -4,14 +4,14 @@
 #include "cmx_actor.h"
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
-#include "cmx_game.h"
 #include "cmx_renderer.h"
-#include "cmx_swap_chain.h"
 
 // lib
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
+#include <glm/fwd.hpp>
+#include <memory>
 #include <spdlog/spdlog.h>
 
 // std
@@ -20,7 +20,8 @@
 namespace cmx
 {
 
-ViewportUIComponent::ViewportUIComponent()
+ViewportUIComponent::ViewportUIComponent(float &vpMoveSpeed, float &vpSensitivity)
+    : viewportMovementSpeed{vpMoveSpeed}, viewportSensitivity{vpSensitivity}
 {
     renderZ = std::numeric_limits<int32_t>::max(); // ensures it gets rendered at the very top
 }
@@ -47,6 +48,9 @@ void ViewportUIComponent::render(class FrameInfo &frameInfo, VkPipelineLayout pi
     if (showViewportSettings)
         renderViewportSettings();
 
+    if (showWorldTree)
+        renderWorldTree();
+
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), frameInfo.commandBuffer);
 }
@@ -64,6 +68,11 @@ void ViewportUIComponent::renderTopBar()
     }
     if (ImGui::BeginMenu("Toolbar"))
     {
+        if (ImGui::MenuItem("World Tree", "Ctrl+T"))
+        {
+            renderWorldTree();
+        }
+        ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
 }
@@ -71,14 +80,36 @@ void ViewportUIComponent::renderTopBar()
 void ViewportUIComponent::renderViewportSettings()
 {
     showViewportSettings = true;
-    ImGui::Begin("Viewport Settings", &showViewportSettings, ImGuiWindowFlags_None);
+    ImGui::Begin("Viewport Settings", &showViewportSettings);
 
-    ImGui::Text("Adjust editor settings here.");
+    ImGui::SliderFloat("movement speed", &viewportMovementSpeed, 0.0f, 100.0f);
+    ImGui::SliderFloat("mouse sensitivity", &viewportSensitivity, 0.0f, 10.0f);
 
-    static float brightness = 1.0f;
-    ImGui::SliderFloat("Brightness", &brightness, 0.0f, 2.0f);
+    ImGui::End();
+}
 
-    ImGui::End(); // Automatically handles the close button behavior
+void ViewportUIComponent::renderWorldTree()
+{
+    showWorldTree = true;
+    ImGui::Begin("World Tree", &showWorldTree);
+
+    std::vector<std::weak_ptr<Actor>> actorList{};
+    getParent()->getWorld()->getAllActorsByType<Actor>(actorList);
+
+    for (auto actorWk : actorList)
+    {
+        if (std::shared_ptr<Actor> actor = actorWk.lock())
+        {
+            if (actor->name == getParent()->name)
+                continue;
+            if (ImGui::CollapsingHeader(actor->name.c_str()))
+            {
+                actor->renderSettings();
+            }
+        }
+    }
+
+    ImGui::End();
 }
 
 void ViewportUIComponent::initImGUI(CmxDevice &cmxDevice, CmxWindow &cmxWindow, CmxRenderer &cmxRenderer)
