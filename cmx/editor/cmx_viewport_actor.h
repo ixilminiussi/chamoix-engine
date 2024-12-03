@@ -34,6 +34,7 @@ class ViewportActor : public cmx::Actor
   private:
     class std::shared_ptr<cmx::CameraComponent> camera;
     bool selected{false};
+    glm::vec3 viewVector{transform.forward()};
 };
 
 } // namespace cmx

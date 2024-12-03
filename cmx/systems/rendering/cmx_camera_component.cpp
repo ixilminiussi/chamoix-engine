@@ -6,8 +6,7 @@ namespace cmx
 
 void CameraComponent::update(float dt)
 {
-    setViewDirection(getParent()->getAbsoluteTransform().position, getParent()->getAbsoluteTransform().forward(),
-                     getParent()->getAbsoluteTransform().up());
+    setViewDirection(getParent()->transform.position, getParent()->transform.forward(), getParent()->transform.up());
 }
 
 void CameraComponent::setOrthographicProjection(float left, float right, float top, float bottom, float near, float far)

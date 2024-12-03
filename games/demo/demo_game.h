@@ -14,9 +14,6 @@
 class Demo : public cmx::Game
 {
   public:
-    static int WIDTH;
-    static int HEIGHT;
-
     Demo() = default;
     ~Demo();
     void load() override;
@@ -26,6 +23,3 @@ class Demo : public cmx::Game
   protected:
     cmx::World mainWorld{"Main", this};
 };
-
-inline int Demo::WIDTH = 1080;
-inline int Demo::HEIGHT = 720;

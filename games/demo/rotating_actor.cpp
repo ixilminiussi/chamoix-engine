@@ -7,10 +7,12 @@
 
 // lib
 #include <glm/ext/scalar_constants.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 void RotatingActor::onBegin()
 {
-    transform.position = {0.f, 0.f, 5.f};
+    transform.position = {0.f, 0.f, -5.f};
     transform.scale = {.5f, .5f, .5f};
 
     auto inputManager = getWorld()->getGame()->getInputManager();
@@ -25,7 +27,7 @@ void RotatingActor::onBegin()
 
 void RotatingActor::update(float dt)
 {
-    transform.rotation.y += rotationSpeed * dt * glm::pi<float>();
+    transform.rotation = glm::normalize(glm::angleAxis(rotationSpeed * dt * 1.0f, transform.up()) * transform.rotation);
 }
 
 void RotatingActor::slowdownToggle(float dt, int val)

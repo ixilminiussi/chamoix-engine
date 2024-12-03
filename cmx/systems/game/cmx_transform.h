@@ -7,6 +7,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace cmx
 {
@@ -15,7 +16,7 @@ struct Transform
 {
     glm::vec3 position{};
     glm::vec3 scale{1.f, 1.f, 1.f};
-    glm::vec3 rotation{0.f, 0.f, 0.f};
+    glm::quat rotation{0.f, 0.f, 0.f, 0.f};
 
     glm::mat4 mat4();
     glm::mat3 normalMatrix();

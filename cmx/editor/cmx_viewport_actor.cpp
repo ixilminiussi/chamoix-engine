@@ -8,9 +8,13 @@
 
 // lib
 #include <glm/common.hpp>
+#include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/constants.hpp>
+#include <vulkan/vulkan_core.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
 #include <spdlog/spdlog.h>
 
 // std
@@ -23,7 +27,6 @@ void ViewportActor::onBegin()
 {
     transform.position = {0.f, 0.f, 0.f};
     transform.scale = {1.f, 1.f, 1.f};
-    transform.rotation = {0.f, 0.f, 1.f};
 
     camera = std::make_shared<CameraComponent>();
     attachComponent(camera);
@@ -51,7 +54,7 @@ void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
     movement *= moveSpeed;
 
     transform.position += transform.forward() * movement.y * dt;
-    transform.position += transform.right() * movement.x * dt;
+    transform.position += transform.right() * -movement.x * dt;
 }
 
 void ViewportActor::onJumpInput(float dt)
@@ -64,12 +67,27 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     if (!selected)
         return;
 
-    transform.rotation.y += mouseSensitivity * mousePosition.x * dt;
-    transform.rotation.x += mouseSensitivity * mousePosition.y * dt;
+    // Calculate pitch (around X-axis) and yaw (around Y-axis)
+    float yawAngle = mousePosition.x * mouseSensitivity * dt;
+    float pitchAngle = -mousePosition.y * mouseSensitivity * dt;
 
-    // limit pitch value to +/- 85 degrees
-    transform.rotation.x = glm::clamp(transform.rotation.x, -1.5f, 1.5f);
-    transform.rotation.y = glm::mod(transform.rotation.y, glm::two_pi<float>());
+    // Prevent excessive pitch to avoid gimbal lock (usually between -89 and +89 degrees)
+    static float accumulatedPitch = 0.0f;
+    pitchAngle = std::min(glm::half_pi<float>() - 0.01f - accumulatedPitch, pitchAngle);
+    pitchAngle = std::max(-glm::half_pi<float>() + 0.01f - accumulatedPitch, pitchAngle);
+    accumulatedPitch += pitchAngle;
+    accumulatedPitch = glm::clamp(accumulatedPitch, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
+
+    // Create quaternions for yaw and pitch
+    glm::quat yaw = glm::angleAxis(yawAngle, glm::vec3(0.0f, 1.0f, 0.0f));      // Rotate around the Y-axis
+    glm::quat pitch = glm::angleAxis(-pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate around the X-axis
+
+    // Combine the new rotations: yaw first, then pitch relative to yaw
+    transform.rotation = yaw * transform.rotation;   // Apply yaw
+    transform.rotation = transform.rotation * pitch; // Apply pitch in local space
+
+    // Ensure the quaternion remains normalized
+    transform.rotation = glm::normalize(transform.rotation);
 }
 
 void ViewportActor::select(float dt, int val)

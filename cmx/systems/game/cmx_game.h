@@ -22,6 +22,9 @@ namespace cmx
 class Game
 {
   public:
+    static int WIDTH;
+    static int HEIGHT;
+
     Game() = default;
     ~Game() = default;
 
@@ -51,7 +54,7 @@ class Game
   protected:
     class World *activeWorld{};
 
-    CmxWindow cmxWindow{1080, 720, "demo"};
+    CmxWindow cmxWindow{WIDTH, HEIGHT, "demo"};
     CmxDevice cmxDevice{cmxWindow};
     CmxRenderer cmxRenderer{cmxWindow, cmxDevice};
     std::unique_ptr<VkPipeline> cmxPipeline;
@@ -61,5 +64,8 @@ class Game
 
     std::shared_ptr<InputManager> inputManager;
 };
+
+inline int Game::WIDTH = 1600;
+inline int Game::HEIGHT = 1200;
 
 } // namespace cmx

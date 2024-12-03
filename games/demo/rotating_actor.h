@@ -16,5 +16,7 @@ class RotatingActor : public cmx::Actor
     void slowdownToggle(float dt, int val);
 
   private:
-    float rotationSpeedSlow{0.03f}, rotationSpeedFast{1.f}, rotationSpeed{rotationSpeedFast};
+    float rotationSpeedSlow{0.03f};
+    float rotationSpeedFast{1.f};
+    float rotationSpeed{rotationSpeedFast};
 };

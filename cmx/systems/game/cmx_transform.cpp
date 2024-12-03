@@ -1,79 +1,41 @@
 #include "cmx_transform.h"
+#include <glm/gtc/quaternion.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 namespace cmx
 {
 
 glm::mat4 Transform::mat4()
 {
-    const float c3 = glm::cos(rotation.z);
-    const float s3 = glm::sin(rotation.z);
-    const float c2 = glm::cos(rotation.x);
-    const float s2 = glm::sin(rotation.x);
-    const float c1 = glm::cos(rotation.y);
-    const float s1 = glm::sin(rotation.y);
-    return glm::mat4{{
-                         scale.x * (c1 * c3 + s1 * s2 * s3),
-                         scale.x * (c2 * s3),
-                         scale.x * (c1 * s2 * s3 - c3 * s1),
-                         0.0f,
-                     },
-                     {
-                         scale.y * (c3 * s1 * s2 - c1 * s3),
-                         scale.y * (c2 * c3),
-                         scale.y * (c1 * c3 * s2 + s1 * s3),
-                         0.0f,
-                     },
-                     {
-                         scale.z * (c2 * s1),
-                         scale.z * (-s2),
-                         scale.z * (c1 * c2),
-                         0.0f,
-                     },
-                     {position.x, position.y, position.z, 1.0f}};
+    glm::mat4 rotationMatrix = glm::toMat4(rotation); // Convert quaternion directly to mat4
+    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position);
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
+
+    return translationMatrix * rotationMatrix * scaleMatrix; // Combine transformations
 }
 
 glm::mat3 Transform::normalMatrix()
 {
-    const float c3 = glm::cos(rotation.z);
-    const float s3 = glm::sin(rotation.z);
-    const float c2 = glm::cos(rotation.x);
-    const float s2 = glm::sin(rotation.x);
-    const float c1 = glm::cos(rotation.y);
-    const float s1 = glm::sin(rotation.y);
-    const glm::vec3 invScale = 1.0f / scale;
-    return glm::mat3{
-        {
-            invScale.x * (c1 * c3 + s1 * s2 * s3),
-            invScale.x * (c2 * s3),
-            invScale.x * (c1 * s2 * s3 - c3 * s1),
-        },
-        {
-            invScale.y * (c3 * s1 * s2 - c1 * s3),
-            invScale.y * (c2 * c3),
-            invScale.y * (c1 * c3 * s2 + s1 * s3),
-        },
-        {
-            invScale.z * (c2 * s1),
-            invScale.z * (-s2),
-            invScale.z * (c1 * c2),
-        },
-    };
+    glm::mat3 rotationMatrix = glm::mat3_cast(rotation);                          // Convert quaternion to mat3
+    glm::mat3 scaleMatrix = glm::mat3(glm::scale(glm::mat4(1.0f), 1.0f / scale)); // Inverse scale
+
+    return glm::transpose(glm::inverse(rotationMatrix * scaleMatrix)); // Normal matrix calculation
 }
 
 glm::vec3 Transform::forward()
 {
-    return (glm::vec3{glm::sin(rotation.y) * glm::cos(rotation.x), glm::sin(rotation.x),
-                      glm::cos(rotation.y) * glm::cos(rotation.x)});
-}
-
-glm::vec3 Transform::right()
-{
-    return glm::normalize(glm::vec3{glm::cos(rotation.y), 0.0f, -glm::sin(rotation.y)});
+    return glm::normalize(rotation * glm::vec3(0.0f, 0.0f, -1.0f)); // Default forward in OpenGL is -Z
 }
 
 glm::vec3 Transform::up()
 {
-    return glm::normalize(glm::cross(right(), forward()));
+    return glm::normalize(rotation * glm::vec3(0.0f, -1.0f, 0.0f)); // Default up is +Y
+}
+
+glm::vec3 Transform::right()
+{
+    return glm::normalize(rotation * glm::vec3(1.0f, 0.0f, 0.0f)); // Default right is +X
 }
 
 Transform operator+(const Transform &a, const Transform &b)
