@@ -7,3 +7,6 @@
 [submodule "assets/models/tests"]
 	path = assets/models/tests
 	url = https://github.com/alecjacobson/common-3d-test-models.git
+[submodule ".external/tinyxml2"]
+	path = .external/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git
