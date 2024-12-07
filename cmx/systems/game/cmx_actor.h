@@ -1,15 +1,19 @@
 #pragma once
 
+#include "cmx_camera_component.h"
 #include "cmx_component.h"
+#include "cmx_scene.h"
 #include "cmx_transform.h"
-#include "cmx_world.h"
+
+// lib
+#include "tinyxml2.h"
 
 // std
 #include <cstdlib>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 namespace cmx
 {
@@ -24,29 +28,35 @@ class Actor
 {
   public:
     template <class T>
-    static std::shared_ptr<T> spawn(World *, const std::string &name, const Transform &transform = Transform{});
+    static std::shared_ptr<T> spawn(Scene *, const std::string &name, const Transform &transform = Transform{});
 
     void despawn();
-    void move(World *);
+    void move(Scene *);
 
     Actor() = delete;
     virtual ~Actor() = default;
     Actor &operator=(const Actor &) = delete;
     Actor(const Actor &) = delete;
 
+    std::string getType();
+
     virtual void onBegin() {};
     virtual void update(float dt) {};
+
+    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
 
     // for viewport
     virtual void renderSettings();
 
-    void attachComponent(std::shared_ptr<Component>);
+    void attachComponent(std::shared_ptr<Component>, std::string name = "");
+    void detachComponent(const std::string &name);
     template <typename T> std::weak_ptr<T> getComponentByType();
+    std::weak_ptr<Component> getComponentByName(const std::string &name);
 
     // getters and setters :: begin
-    World *getWorld()
+    Scene *getScene()
     {
-        return world;
+        return scene;
     }
 
     bool getVisible() const
@@ -68,9 +78,9 @@ class Actor
     // getters and setters :: end
 
     // friend functions
-    friend void World::addActor(std::shared_ptr<Actor>);
-    friend void World::removeActor(Actor *);
-    friend std::weak_ptr<Actor> World::getActorByName(std::string &);
+    friend void Scene::addActor(std::shared_ptr<Actor>);
+    friend void Scene::removeActor(Actor *);
+    friend std::weak_ptr<Actor> Scene::getActorByName(const std::string &);
 
     const std::string name;
 
@@ -78,14 +88,14 @@ class Actor
     Positioning positioning{Positioning::RELATIVE};
 
   protected:
-    Actor(World *, uint32_t id, const std::string &name, const Transform &);
+    Actor(Scene *, uint32_t id, const std::string &name, const Transform &);
     std::weak_ptr<Actor> parent;
 
-    World *world;
+    Scene *scene;
     uint32_t id;
     bool isVisible = true;
 
-    std::vector<std::shared_ptr<Component>> components;
+    std::unordered_map<std::string, std::shared_ptr<Component>> components{};
 
     static uint32_t currentID;
 };
@@ -93,7 +103,7 @@ class Actor
 inline uint32_t Actor::currentID = 0;
 
 template <typename T>
-inline std::shared_ptr<T> Actor::spawn(World *world, const std::string &name, const Transform &transform)
+inline std::shared_ptr<T> Actor::spawn(Scene *scene, const std::string &name, const Transform &transform)
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
@@ -103,10 +113,10 @@ inline std::shared_ptr<T> Actor::spawn(World *world, const std::string &name, co
 
     currentID++;
 
-    Actor *actor = new T{world, currentID++, name, transform};
+    Actor *actor = new T{scene, currentID++, name, transform};
     auto actorSharedPtr = std::shared_ptr<Actor>(actor);
 
-    world->addActor(actorSharedPtr);
+    scene->addActor(actorSharedPtr);
     return std::dynamic_pointer_cast<T>(actorSharedPtr);
 }
 
@@ -122,7 +132,7 @@ template <typename T> inline std::weak_ptr<T> Actor::getComponentByType()
 
     for (const auto &component : components)
     {
-        if (auto castedComponent = std::dynamic_pointer_cast<T>(component))
+        if (auto castedComponent = std::dynamic_pointer_cast<T>(component.second))
         {
             return castedComponent;
         }

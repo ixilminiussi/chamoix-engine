@@ -2,8 +2,10 @@
 
 // cmx
 #include "cmx_actor.h"
+#include "cmx_component.h"
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
+#include "cmx_game.h"
 #include "cmx_renderer.h"
 
 // lib
@@ -48,8 +50,8 @@ void ViewportUIComponent::render(class FrameInfo &frameInfo, VkPipelineLayout pi
     if (showViewportSettings)
         renderViewportSettings();
 
-    if (showWorldTree)
-        renderWorldTree();
+    if (showSceneTree)
+        renderSceneTree();
 
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), frameInfo.commandBuffer);
@@ -58,6 +60,14 @@ void ViewportUIComponent::render(class FrameInfo &frameInfo, VkPipelineLayout pi
 void ViewportUIComponent::renderTopBar()
 {
     ImGui::BeginMainMenuBar();
+    if (ImGui::BeginMenu("File"))
+    {
+        if (ImGui::MenuItem("Save", "Ctrl+S"))
+        {
+            parent->getScene()->getGame()->save("xmlfile.xml");
+        }
+        ImGui::EndMenu();
+    }
     if (ImGui::BeginMenu("Settings"))
     {
         if (ImGui::MenuItem("Viewport Settings", "Ctrl+V"))
@@ -68,9 +78,9 @@ void ViewportUIComponent::renderTopBar()
     }
     if (ImGui::BeginMenu("Toolbar"))
     {
-        if (ImGui::MenuItem("World Tree", "Ctrl+T"))
+        if (ImGui::MenuItem("Scene Tree", "Ctrl+T"))
         {
-            renderWorldTree();
+            renderSceneTree();
         }
         ImGui::EndMenu();
     }
@@ -88,13 +98,13 @@ void ViewportUIComponent::renderViewportSettings()
     ImGui::End();
 }
 
-void ViewportUIComponent::renderWorldTree()
+void ViewportUIComponent::renderSceneTree()
 {
-    showWorldTree = true;
-    ImGui::Begin("World Tree", &showWorldTree);
+    showSceneTree = true;
+    ImGui::Begin("Scene Tree", &showSceneTree);
 
     std::vector<std::weak_ptr<Actor>> actorList{};
-    getParent()->getWorld()->getAllActorsByType<Actor>(actorList);
+    getParent()->getScene()->getAllActorsByType<Actor>(actorList);
 
     for (auto actorWk : actorList)
     {
@@ -153,6 +163,13 @@ void ViewportUIComponent::initImGUI(CmxDevice &cmxDevice, CmxWindow &cmxWindow, 
     init_info.RenderPass = cmxRenderer.getSwapChainRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
+}
+
+tinyxml2::XMLElement &ViewportUIComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+{
+    tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
+
+    return componentElement;
 }
 
 } // namespace cmx

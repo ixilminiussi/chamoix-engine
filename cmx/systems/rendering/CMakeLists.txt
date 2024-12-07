@@ -4,7 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 add_library(rendering
     cmx_camera_component.cpp
     cmx_default_render_system.cpp
-    cmx_render_component.cpp
+    cmx_mesh_actor.cpp
+    cmx_mesh_component.cpp
     cmx_device.cpp
     cmx_model.cpp
     cmx_buffer.cpp

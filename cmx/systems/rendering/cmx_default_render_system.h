@@ -2,7 +2,7 @@
 
 #include "cmx_device.h"
 #include "cmx_pipeline.h"
-#include "cmx_world.h"
+#include "cmx_scene.h"
 
 // std
 #include <glm/ext/matrix_float4x4.hpp>

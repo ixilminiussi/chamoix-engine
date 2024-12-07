@@ -20,10 +20,10 @@ void CameraComponent::setOrthographicProjection(float left, float right, float t
     projectionMatrix[3][2] = -near / (far - near);
 }
 
-void CameraComponent::setPerspectiveProjection(float fovy, float aspect, float near, float far)
+void CameraComponent::setPerspectiveProjection(float fov, float aspect, float near, float far)
 {
     assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
-    const float tanHalfFovy = tan(fovy / 2.f);
+    const float tanHalfFovy = tan(glm::radians(fov) / 2.f);
     projectionMatrix = glm::mat4{0.0f};
     projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
     projectionMatrix[1][1] = 1.f / (tanHalfFovy);
@@ -92,7 +92,19 @@ void CameraComponent::updateAspectRatio(float aspectRatio)
     }
 
     // camera->setOrthographicProjection(-aspect, aspect, -1.f, 1.f, -1.f, 1.f);
-    setPerspectiveProjection(glm::radians(50.f), screenAspectRatio, nearPlane, farPlane);
+    setPerspectiveProjection(FOV, screenAspectRatio, nearPlane, farPlane);
+}
+
+tinyxml2::XMLElement &CameraComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+{
+    tinyxml2::XMLElement &cameraComponent = Component::save(doc, parentComponent);
+    cameraComponent.SetAttribute("fov", FOV);
+    cameraComponent.SetAttribute("nearPlane", nearPlane);
+    cameraComponent.SetAttribute("farPlane", farPlane);
+
+    parentComponent->InsertEndChild(&cameraComponent);
+
+    return cameraComponent;
 }
 
 } // namespace cmx

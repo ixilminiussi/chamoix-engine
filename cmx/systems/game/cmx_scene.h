@@ -1,8 +1,12 @@
 #pragma once
 
+// lib
+#include "tinyxml2.h"
+#include <spdlog/spdlog.h>
+
+// std
 #include <cstdint>
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -10,13 +14,13 @@
 namespace cmx
 {
 
-class World
+class Scene
 {
   public:
-    World(const std::string &name, class Game *game) : name(name), game{game} {};
-    ~World() = default;
+    Scene(const std::string &name, class Game *game) : name(name), game{game} {};
+    ~Scene() = default;
 
-    std::weak_ptr<class Actor> getActorByName(std::string &name);
+    std::weak_ptr<class Actor> getActorByName(const std::string &name);
     std::weak_ptr<class Actor> getActorByID(uint32_t id);
     template <typename T> void getAllActorsByType(std::vector<std::weak_ptr<class Actor>> &actorList);
     template <typename T> void getAllComponentsByType(std::vector<std::weak_ptr<class Component>> &componentList);
@@ -36,11 +40,9 @@ class World
 
     void addComponent(std::shared_ptr<class Component>);
     void updateComponents(float dt);
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
 
-    void setCamera(std::shared_ptr<class CameraComponent> camera)
-    {
-        activeCamera = camera;
-    }
+    void setCamera(std::shared_ptr<class CameraComponent> camera);
 
     std::weak_ptr<class CameraComponent> getCamera()
     {
@@ -63,7 +65,7 @@ class World
     class Game *game;
 };
 
-template <typename T> inline void World::getAllActorsByType(std::vector<std::weak_ptr<Actor>> &actorList)
+template <typename T> inline void Scene::getAllActorsByType(std::vector<std::weak_ptr<Actor>> &actorList)
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
@@ -80,7 +82,7 @@ template <typename T> inline void World::getAllActorsByType(std::vector<std::wea
     }
 }
 
-template <typename T> inline void World::getAllComponentsByType(std::vector<std::weak_ptr<Component>> &componentList)
+template <typename T> inline void Scene::getAllComponentsByType(std::vector<std::weak_ptr<Component>> &componentList)
 {
     if constexpr (!std::is_base_of<Component, T>::value)
     {

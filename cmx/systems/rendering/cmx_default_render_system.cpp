@@ -3,7 +3,7 @@
 #include "cmx_component.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
-#include "cmx_world.h"
+#include "cmx_scene.h"
 
 // lib
 #include <GLFW/glfw3.h>

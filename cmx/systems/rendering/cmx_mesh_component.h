@@ -2,6 +2,7 @@
 
 #include "cmx_component.h"
 #include "cmx_model.h"
+#include "tinyxml2.h"
 
 // lib
 #include <vulkan/vulkan_core.h>
@@ -12,18 +13,18 @@
 namespace cmx
 {
 
-class RenderComponent : public Component
+class MeshComponent : public Component
 {
   public:
-    RenderComponent(std::shared_ptr<class CmxModel>);
-    RenderComponent();
+    MeshComponent();
+    MeshComponent(std::shared_ptr<class CmxModel>);
 
-    ~RenderComponent() = default;
+    ~MeshComponent() = default;
 
     void render(class FrameInfo &, VkPipelineLayout) override;
     void setModel(std::shared_ptr<class CmxModel>);
 
-    const char *name{"RenderComponent"};
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
 
   private:
     std::shared_ptr<class CmxModel> cmxModel;

@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 3.10)
 
 add_library(game
     cmx_actor.cpp
+    cmx_component.cpp
     cmx_game.cpp
-    cmx_world.cpp
+    cmx_scene.cpp
     cmx_transform.cpp
 )
 

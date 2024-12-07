@@ -14,20 +14,20 @@ class ViewportUIComponent : public Component
     void update(float dt) override;
     void render(class FrameInfo &, VkPipelineLayout) override;
 
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) override;
+
     void renderTopBar();
     void renderViewportSettings();
-    void renderWorldTree();
+    void renderSceneTree();
 
     void initImGUI(class CmxDevice &, class CmxWindow &, class CmxRenderer &);
-
-    const char *name{"ViewportUIComponent"};
 
   private:
     bool initialized{false};
     std::unique_ptr<class CmxDescriptorPool> imguiPool;
 
     bool showViewportSettings{false};
-    bool showWorldTree{true};
+    bool showSceneTree{true};
 
     // viewport actor settings
     float &viewportMovementSpeed;

@@ -7,14 +7,12 @@
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
 #include "cmx_input_action.h"
-#include "cmx_input_manager.h"
+#include "cmx_mesh_component.h"
 #include "cmx_model.h"
-#include "cmx_render_component.h"
+#include "cmx_scene.h"
 #include "cmx_swap_chain.h"
-#include "cmx_world.h"
-#include "imgui.h"
-#include "imgui_impl_vulkan.h"
 #include "rotating_actor.h"
+#include "tinyxml2.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -75,11 +73,13 @@ void Demo::run()
 
         getInputManager()->pollEvents(dt);
 
-        getWorld()->updateActors(dt);
-        getWorld()->updateComponents(dt);
+        getScene()->updateActors(dt);
+        getScene()->updateComponents(dt);
 
-        if (auto camera = getWorld()->getCamera().lock())
+        if (auto camera = getScene()->getCamera().lock())
         {
+            noCameraFlag = false;
+
             float aspect = cmxRenderer.getAspectRatio();
             camera->updateAspectRatio(aspect);
 
@@ -95,7 +95,7 @@ void Demo::run()
 
                 // render
                 cmxRenderer.beginSwapChainRenderPass(commandBuffer);
-                std::vector<std::weak_ptr<cmx::Component>> &renderQueue = getWorld()->getRenderQueue();
+                std::vector<std::weak_ptr<cmx::Component>> &renderQueue = getScene()->getRenderQueue();
                 defaultRenderSystem.render(frameInfo, renderQueue);
 
                 // ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
@@ -105,7 +105,11 @@ void Demo::run()
         }
         else
         {
-            spdlog::warn("No active camera in world '{0}'", getWorld()->name);
+            if (!noCameraFlag)
+            {
+                spdlog::warn("No active camera in scene '{0}'", getScene()->name);
+                noCameraFlag = true;
+            }
         }
     }
 
@@ -127,18 +131,26 @@ void Demo::load()
     createInputManager(
         cmxWindow, {{"exit", new cmx::ButtonAction{cmx::ButtonAction::Type::RELEASED, {cmx::CMX_KEY_ESCAPE}}},
                     {"slowdown toggle", new cmx::ButtonAction{cmx::ButtonAction::Type::TOGGLE, {cmx::CMX_KEY_SPACE}}}});
-    setWorld(&mainWorld);
+
+    scenes.push_back(&mainScene);
+    setScene(0);
+
     getInputManager()->bindButton("exit", &Demo::closeWindow, this);
 
-    std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getWorld(), "Rotating Actor");
+    std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor");
     rotatingActor->transform.scale = glm::vec3{10.f};
 
     std::shared_ptr<cmx::CmxModel> rotatingModel =
         cmx::CmxModel::createModelFromFile(cmxDevice, "assets/models/bunny.obj");
 
-    auto rotatingRendererWk = rotatingActor->getComponentByType<cmx::RenderComponent>();
+    auto rotatingRendererWk = rotatingActor->getComponentByType<cmx::MeshComponent>();
     if (auto rotatingRendererComponent = rotatingRendererWk.lock())
     {
         rotatingRendererComponent->setModel(rotatingModel);
     }
+}
+
+tinyxml2::XMLElement &Demo::save(const char *filepath)
+{
+    return Game::save(filepath);
 }

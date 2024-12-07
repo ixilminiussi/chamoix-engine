@@ -7,6 +7,7 @@
 #include "cmx_input_manager.h"
 #include "cmx_renderer.h"
 #include "cmx_window.h"
+#include "tinyxml2.h"
 
 // lib
 #include <unordered_map>
@@ -33,13 +34,15 @@ class Game
 
     virtual void load() {};
     void loadEditor();
+    virtual tinyxml2::XMLElement &save(const char *filepath);
+
     virtual void run() {};
 
     // getters and setters :: begin
-    class World *getWorld();
-    void setWorld(class World *world)
+    class Scene *getScene();
+    void setScene(int i)
     {
-        activeWorld = world;
+        activeScene = scenes.at(i);
     }
     void createInputManager(CmxWindow &window, const std::unordered_map<std::string, InputAction *> &inputDictionary)
     {
@@ -52,7 +55,8 @@ class Game
     // getters and setters :: end
 
   protected:
-    class World *activeWorld{};
+    class Scene *activeScene{};
+    std::vector<Scene *> scenes;
 
     CmxWindow cmxWindow{WIDTH, HEIGHT, "demo"};
     CmxDevice cmxDevice{cmxWindow};
@@ -63,6 +67,9 @@ class Game
     std::unique_ptr<CmxDescriptorPool> globalPool{};
 
     std::shared_ptr<InputManager> inputManager;
+
+    // warning flags
+    bool noCameraFlag{false};
 };
 
 inline int Game::WIDTH = 1600;

@@ -2,6 +2,7 @@
 
 #include "cmx_buffer.h"
 #include "cmx_device.h"
+#include "tinyxml2.h"
 
 // lib
 #define GLM_FORCE_RADIANS
@@ -37,6 +38,7 @@ class CmxModel
     {
         std::vector<Vertex> vertices{};
         std::vector<uint32_t> indices{};
+        std::string filepath;
 
         void loadModel(const std::string &filepath);
     };
@@ -46,6 +48,8 @@ class CmxModel
 
     CmxModel(const CmxModel &) = delete;
     CmxModel &operator=(const CmxModel &) = delete;
+
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
 
     static std::unique_ptr<CmxModel> createModelFromFile(CmxDevice &device, const std::string &filepath);
 
@@ -64,6 +68,8 @@ class CmxModel
     bool hasIndexBuffer{false};
     std::unique_ptr<CmxBuffer> indexBuffer;
     uint32_t indexCount;
+
+    std::string filepath;
 };
 
 } // namespace cmx

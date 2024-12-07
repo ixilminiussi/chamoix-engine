@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cmx_actor.h"
-#include "cmx_camera_component.h"
 
 // std
 #include <memory>
@@ -23,7 +22,7 @@ class ViewportActor : public cmx::Actor
     void select(float dt, int val);
     void deselect(float dt);
 
-    std::weak_ptr<cmx::CameraComponent> getCamera()
+    std::weak_ptr<class cmx::CameraComponent> getCamera()
     {
         return camera;
     }
@@ -32,7 +31,7 @@ class ViewportActor : public cmx::Actor
     float mouseSensitivity{0.5f};
 
   private:
-    class std::shared_ptr<cmx::CameraComponent> camera;
+    std::shared_ptr<class cmx::CameraComponent> camera;
     bool selected{false};
     glm::vec3 viewVector{transform.forward()};
 };

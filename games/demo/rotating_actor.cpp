@@ -2,7 +2,7 @@
 
 // cmx
 #include "cmx_game.h"
-#include "cmx_render_component.h"
+#include "cmx_mesh_component.h"
 #include "imgui.h"
 
 // lib
@@ -15,14 +15,14 @@ void RotatingActor::onBegin()
     transform.position = {0.f, 0.f, -5.f};
     transform.scale = {.5f, .5f, .5f};
 
-    auto inputManager = getWorld()->getGame()->getInputManager();
+    auto inputManager = getScene()->getGame()->getInputManager();
     if (inputManager)
     {
         inputManager->bindButton("slowdown toggle", &RotatingActor::slowdownToggle, this);
     }
 
-    auto renderComponent = std::make_shared<cmx::RenderComponent>();
-    attachComponent(renderComponent);
+    auto meshComponent = std::make_shared<cmx::MeshComponent>();
+    attachComponent(meshComponent);
 }
 
 void RotatingActor::update(float dt)

@@ -28,9 +28,9 @@ void main()
 {
     gl_Position = ubo.projectionViewMatrix * push.modelMatrix * vec4(position, 1.0f);
 
-    vec3 normalWorldSpace = normalize(mat3(push.normalMatrix) * normal);
+    vec3 normalSceneSpace = normalize(mat3(push.normalMatrix) * normal);
 
-    float lightIntensity = max(dot(normalWorldSpace, ubo.directionToLight), 0) + GLOBAL_ILLUMINATION;
+    float lightIntensity = max(dot(normalSceneSpace, ubo.directionToLight), 0) + GLOBAL_ILLUMINATION;
 
     fragColor = lightIntensity * color;
 }

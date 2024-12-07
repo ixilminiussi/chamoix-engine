@@ -1,9 +1,10 @@
-#include "cmx_render_component.h"
+#include "cmx_mesh_component.h"
 
 #include "cmx_actor.h"
 #include "cmx_default_render_system.h"
 #include "cmx_frame_info.h"
 #include "cmx_model.h"
+#include "tinyxml2.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -19,21 +20,21 @@
 namespace cmx
 {
 
-RenderComponent::RenderComponent(std::shared_ptr<CmxModel> cmxModel) : cmxModel(cmxModel)
+MeshComponent::MeshComponent()
 {
     renderZ = 1;
 }
 
-RenderComponent::RenderComponent()
+MeshComponent::MeshComponent(std::shared_ptr<CmxModel> cmxModel) : cmxModel(cmxModel)
 {
     renderZ = 1;
 }
 
-void RenderComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
 {
     if (!getParent())
     {
-        spdlog::error("RenderComponent parent is null");
+        spdlog::error("MeshComponent parent is null");
         return;
     };
 
@@ -44,7 +45,7 @@ void RenderComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
 
     if (!cmxModel)
     {
-        spdlog::error("RenderComponent is missing model");
+        spdlog::error("MeshComponent is missing model");
     }
 
     SimplePushConstantData push{};
@@ -61,9 +62,21 @@ void RenderComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
     cmxModel->draw(frameInfo.commandBuffer);
 }
 
-void RenderComponent::setModel(std::shared_ptr<class CmxModel> newModel)
+void MeshComponent::setModel(std::shared_ptr<class CmxModel> newModel)
 {
     cmxModel = newModel;
+}
+
+tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+{
+    tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
+
+    if (cmxModel)
+    {
+        cmxModel->save(doc, &componentElement);
+    }
+
+    return componentElement;
 }
 
 } // namespace cmx

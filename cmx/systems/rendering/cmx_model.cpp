@@ -35,6 +35,7 @@ CmxModel::CmxModel(CmxDevice &device, const CmxModel::Builder &builder) : cmxDev
 {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
+    filepath = builder.filepath;
 }
 
 std::unique_ptr<CmxModel> CmxModel::createModelFromFile(CmxDevice &device, const std::string &filepath)
@@ -198,6 +199,17 @@ void CmxModel::Builder::loadModel(const std::string &filepath)
             indices.push_back(uniqueVertices[vertex]);
         }
     }
+    this->filepath = filepath;
+}
+
+tinyxml2::XMLElement &CmxModel::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+{
+    tinyxml2::XMLElement *modelElement = doc.NewElement("model");
+    modelElement->SetAttribute("path", filepath.c_str());
+
+    parentElement->InsertEndChild(modelElement);
+
+    return *modelElement;
 }
 
 } // namespace cmx

@@ -29,10 +29,10 @@ void ViewportActor::onBegin()
     transform.scale = {1.f, 1.f, 1.f};
 
     camera = std::make_shared<CameraComponent>();
-    attachComponent(camera);
-    attachComponent(std::make_shared<ViewportUIComponent>(moveSpeed, mouseSensitivity));
+    attachComponent(camera, "ViewportCamera");
+    attachComponent(std::make_shared<ViewportUIComponent>(moveSpeed, mouseSensitivity), "ViewportUI");
 
-    std::shared_ptr<InputManager> inputManager = getWorld()->getGame()->getInputManager();
+    std::shared_ptr<InputManager> inputManager = getScene()->getGame()->getInputManager();
 
     inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, this);
     inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, this);
@@ -95,12 +95,12 @@ void ViewportActor::select(float dt, int val)
     if (val == 1)
     {
         selected = true;
-        getWorld()->getGame()->getInputManager()->setMouseCapture(true);
+        getScene()->getGame()->getInputManager()->setMouseCapture(true);
     }
     else
     {
         selected = false;
-        getWorld()->getGame()->getInputManager()->setMouseCapture(false);
+        getScene()->getGame()->getInputManager()->setMouseCapture(false);
     }
 }
 

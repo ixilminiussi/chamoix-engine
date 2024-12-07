@@ -7,6 +7,7 @@
 ## Assets
 -[ ] textures
 -[ ] models loading
+-[ ] asset manager
 
 ## 2D rendering
 -[ ] textures
@@ -22,7 +23,7 @@
 -[ ] textures
 
 ## Physics
--[ ] Quaternion implementation
+-[x] Quaternion implementation
 -[ ] Physics system
 
 ## Level editor
