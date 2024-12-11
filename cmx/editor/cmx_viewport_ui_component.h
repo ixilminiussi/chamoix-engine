@@ -18,6 +18,7 @@ class ViewportUIComponent : public Component
 
     void renderTopBar();
     void renderViewportSettings();
+    void renderProjectSettings();
     void renderSceneTree();
 
     void initImGUI(class CmxDevice &, class CmxWindow &, class CmxRenderer &);
@@ -27,6 +28,7 @@ class ViewportUIComponent : public Component
     std::unique_ptr<class CmxDescriptorPool> imguiPool;
 
     bool showViewportSettings{false};
+    bool showProjectSettings{false};
     bool showSceneTree{true};
 
     // viewport actor settings

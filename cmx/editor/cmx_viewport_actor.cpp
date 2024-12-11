@@ -104,4 +104,16 @@ void ViewportActor::select(float dt, int val)
     }
 }
 
+tinyxml2::XMLElement &ViewportActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+{
+    tinyxml2::XMLElement &actorElement = Actor::save(doc, parentElement);
+
+    return actorElement;
+}
+
+void ViewportActor::load(tinyxml2::XMLElement *actorElement)
+{
+    Actor::load(actorElement);
+}
+
 } // namespace cmx

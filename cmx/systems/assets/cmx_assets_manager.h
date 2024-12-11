@@ -1,66 +1,47 @@
 #pragma once
 
-#include "cmx_asset.h"
+// cmx
+#include "cmx_model.h"
+
+// lib
+#include "tinyxml2.h"
+#include <spdlog/spdlog.h>
 
 // std
-#include <memory>
-#include <spdlog/spdlog.h>
 #include <string>
-
-#include <type_traits>
 #include <unordered_map>
 
 namespace cmx
 {
 
+// usage:
+// every scene has an asset manager which loads and unloads assets on change
+// TODO: Global assets which are shared between managers
 class AssetsManager final
 {
   public:
-    static AssetsManager *getInstance()
-    {
-        if (instance)
-        {
-            instance = new AssetsManager();
-        }
-        return instance;
-    }
-
-    // TODO: implement
-    void loadAssets(const std::string &filePath);
-
-    template <typename T> std::weak_ptr<T> getAsset(const std::string &name);
-
-  private:
-    AssetsManager() = default;
+    AssetsManager(class Scene *parent) : parentScene{parent} {};
     ~AssetsManager() = default;
 
-    static AssetsManager *instance;
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
+    void load(tinyxml2::XMLElement *);
+    void unload();
 
-    std::unordered_map<std::string, std::unique_ptr<Asset>> assets{};
+    void renderSettings();
+
+    void addModel(const std::string &filepath, const std::string &name);
+    void removeModel(const std::string &name);
+    std::shared_ptr<CmxModel> getModel(const std::string &name);
+
+  private:
+    class Scene *parentScene;
+
+    // regular pointers, WE are MANAGING the life cycle of these assets
+    std::unordered_map<std::string, std::shared_ptr<CmxModel>> models;
+    // TODO:
+    // fonts
+    // textures
+    // sprites
 };
-
-template <typename T> std::weak_ptr<T> AssetsManager::getAsset(const std::string &name)
-{
-    if constexpr (!std::is_base_of<Asset, T>::value)
-    {
-        spdlog::error(
-            "AssetManager: '{0}' is not of base type 'Asset', 'getAsset<{1}>' will always return invalid pointer",
-            typeid(T).name(), typeid(T).name());
-        return std::weak_ptr<T>();
-    }
-
-    if (!assets.at(name))
-    {
-        spdlog::error("'AssetManager: '{0}' does not exist in list of loaded assets");
-        return std::weak_ptr<T>();
-    }
-
-    if (auto asset = std::dynamic_pointer_cast<T>(assets.at(name)))
-    {
-        return asset;
-    }
-
-    return std::weak_ptr<T>();
-}
 
 } // namespace cmx

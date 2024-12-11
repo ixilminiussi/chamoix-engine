@@ -44,9 +44,10 @@ class Actor
     virtual void update(float dt) {};
 
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
+    virtual void load(tinyxml2::XMLElement *);
 
     // for viewport
-    virtual void renderSettings();
+    virtual void renderSettings(int i);
 
     void attachComponent(std::shared_ptr<Component>, std::string name = "");
     void detachComponent(const std::string &name);
@@ -78,7 +79,7 @@ class Actor
     // getters and setters :: end
 
     // friend functions
-    friend void Scene::addActor(std::shared_ptr<Actor>);
+    friend std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor>);
     friend void Scene::removeActor(Actor *);
     friend std::weak_ptr<Actor> Scene::getActorByName(const std::string &);
 
@@ -116,7 +117,7 @@ inline std::shared_ptr<T> Actor::spawn(Scene *scene, const std::string &name, co
     Actor *actor = new T{scene, currentID++, name, transform};
     auto actorSharedPtr = std::shared_ptr<Actor>(actor);
 
-    scene->addActor(actorSharedPtr);
+    actorSharedPtr = scene->addActor(actorSharedPtr);
     return std::dynamic_pointer_cast<T>(actorSharedPtr);
 }
 

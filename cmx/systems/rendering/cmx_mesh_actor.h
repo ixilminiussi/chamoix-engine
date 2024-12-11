@@ -25,10 +25,13 @@ class CmxMeshActor : public Actor
     void update(float dt) override;
 
     // for viewport
-    void renderSettings() override;
+    void renderSettings(int i) override;
 
     void updateMesh(CmxPrimitives);
     void updateMesh(std::string &assetName);
+
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    void load(tinyxml2::XMLElement *) override;
 };
 
 } // namespace cmx

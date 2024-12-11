@@ -1,6 +1,7 @@
 #pragma once
 
 // lib
+#include "tinyxml2.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -24,7 +25,6 @@ enum InputSource
 
 struct Button
 {
-
     int code;
     InputSource source;
     int status{0};
@@ -64,6 +64,9 @@ class InputAction
     virtual void poll(const class CmxWindow &, float dt) = 0;
     virtual void bind(std::function<void(float, int)> callbackFunction) = 0;
     virtual void bind(std::function<void(float, glm::vec2)> callbackFunction) = 0;
+
+    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) = 0;
+    virtual void load(tinyxml2::XMLElement *parentElement) = 0;
 };
 
 class ButtonAction : public InputAction
@@ -83,6 +86,9 @@ class ButtonAction : public InputAction
     void poll(const class CmxWindow &, float dt) override;
     void bind(std::function<void(float, int)> callbackFunction) override;
     void bind(std::function<void(float, glm::vec2)> callbackFunction) override;
+
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) override;
+    void load(tinyxml2::XMLElement *parentElement) override;
 
   private:
     std::vector<Button> buttons;
@@ -108,6 +114,9 @@ class AxisAction : public InputAction
     void poll(const class CmxWindow &, float dt) override;
     void bind(std::function<void(float, int)> callbackFunction) override;
     void bind(std::function<void(float, glm::vec2)> callbackFunction) override;
+
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) override;
+    void load(tinyxml2::XMLElement *parentElement) override;
 
   private:
     Type type;

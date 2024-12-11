@@ -3,17 +3,54 @@
 // cmx
 #include "cmx_actor.h"
 #include "cmx_camera_component.h"
+#include "cmx_game.h"
 
 // std
 #include <memory>
 #include <stdexcept>
 
 // lib
+#include "misc/cmx_registers.h"
 #include "tinyxml2.h"
 #include <spdlog/spdlog.h>
 
 namespace cmx
 {
+
+void Scene::load()
+{
+    // TODO: Get relevant elements from xml and generate scene from it
+
+    tinyxml2::XMLDocument doc;
+    if (doc.LoadFile(xmlPath.c_str()) == tinyxml2::XML_SUCCESS)
+    {
+        spdlog::info("Scene: Loading new scene from {0}...", xmlPath);
+
+        tinyxml2::XMLElement *rootElement = doc.RootElement();
+
+        assetsManager->load(rootElement);
+
+        tinyxml2::XMLElement *actorElement = rootElement->FirstChildElement("actor");
+        while (actorElement)
+        {
+            std::shared_ptr<Actor> actor =
+                cmx::reg::loadActor(actorElement->Attribute("type"), this, actorElement->Attribute("name"));
+            actor->load(actorElement);
+
+            actorElement = actorElement->NextSiblingElement("actor");
+        }
+
+        spdlog::info("Scene: Completed loading new scene...");
+    }
+    else
+    {
+        spdlog::error("Scene: Couldn't load scene from {0}, {1}", xmlPath, doc.ErrorStr());
+    }
+}
+
+void Scene::unload()
+{
+}
 
 std::weak_ptr<Actor> Scene::getActorByName(const std::string &name)
 {
@@ -49,20 +86,24 @@ void Scene::setCamera(std::shared_ptr<class CameraComponent> camera)
     spdlog::info("Scene: new active Camera is {0}->{1}", camera->getParent()->name, camera->name);
 }
 
-void Scene::addActor(std::shared_ptr<Actor> actor)
+std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor> actor)
 {
 #ifdef DEBUG
 #else
     // expensive operation so we only use it in debug mode
     if (!getActorByName(actor->name).expired())
     {
-        spdlog::warn("Scene '{0}': An actor with name '{0}' already exists", name, actor->name);
+        spdlog::warn("Scene '{0}': An actor with name '{1}' already exists", name, actor->name);
+
+        return (getActorByName(actor->name).lock());
     }
 #endif
 
     actor->onBegin();
     actors[actor->id] = actor;
     spdlog::info("Scene '{0}': Added new Actor '{1}'", name, actor->name);
+
+    return actor;
 }
 
 void Scene::removeActor(Actor *actor)
@@ -126,17 +167,36 @@ void Scene::updateComponents(float dt)
     }
 }
 
-tinyxml2::XMLElement &Scene::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parent)
+tinyxml2::XMLElement &Scene::save()
 {
+    return saveAs(xmlPath.c_str());
+}
+
+tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
+{
+    spdlog::info("Scene: saving scene to {0}", filepath);
+
+    tinyxml2::XMLDocument doc;
+    // Add declaration
+    doc.InsertFirstChild(doc.NewDeclaration());
+
     tinyxml2::XMLElement *sceneElement = doc.NewElement("scene");
     sceneElement->SetAttribute("name", name.c_str());
-    parent->InsertEndChild(sceneElement);
+    doc.InsertEndChild(sceneElement);
+
+    assetsManager->save(doc, sceneElement);
 
     for (auto actorPair : actors)
     {
         actorPair.second->save(doc, sceneElement);
     }
 
+    if (doc.SaveFile(filepath) != tinyxml2::XML_SUCCESS)
+    {
+        spdlog::error("FILE SAVING: {0}", doc.ErrorStr());
+    };
+
+    spdlog::info("Scene: saving scene to {0}", filepath);
     return *sceneElement;
 }
 

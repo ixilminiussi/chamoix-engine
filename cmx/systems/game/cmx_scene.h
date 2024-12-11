@@ -1,6 +1,7 @@
 #pragma once
 
 // lib
+#include "cmx_assets_manager.h"
 #include "tinyxml2.h"
 #include <spdlog/spdlog.h>
 
@@ -17,7 +18,7 @@ namespace cmx
 class Scene
 {
   public:
-    Scene(const std::string &name, class Game *game) : name(name), game{game} {};
+    Scene(const std::string &xmlPath, class Game *game) : xmlPath{xmlPath}, game{game} {};
     ~Scene() = default;
 
     std::weak_ptr<class Actor> getActorByName(const std::string &name);
@@ -34,13 +35,17 @@ class Scene
         return renderQueue;
     }
 
-    void addActor(std::shared_ptr<class Actor>);
+    tinyxml2::XMLElement &save();
+    tinyxml2::XMLElement &saveAs(const char *filepath);
+    void load();
+    void unload();
+
+    std::shared_ptr<Actor> addActor(std::shared_ptr<class Actor>);
     void removeActor(class Actor *);
     void updateActors(float dt);
 
     void addComponent(std::shared_ptr<class Component>);
     void updateComponents(float dt);
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
 
     void setCamera(std::shared_ptr<class CameraComponent> camera);
 
@@ -54,10 +59,13 @@ class Scene
         return game;
     }
 
-    const std::string name;
+    const std::string xmlPath;
+    std::string name;
+
+    std::shared_ptr<class AssetsManager> assetsManager = std::make_shared<class AssetsManager>(this);
 
   private:
-    class std::shared_ptr<class CameraComponent> activeCamera;
+    std::shared_ptr<class CameraComponent> activeCamera;
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> actors{};
     std::vector<std::weak_ptr<class Component>> components{};
     std::vector<std::weak_ptr<class Component>> renderQueue{};

@@ -197,6 +197,58 @@ void ButtonAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
     std::exit(EXIT_FAILURE);
 }
 
+tinyxml2::XMLElement &ButtonAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+{
+    tinyxml2::XMLElement *inputActionElement = doc.NewElement("buttonAction");
+
+    switch (buttonType)
+    {
+    case (Type::PRESSED):
+        inputActionElement->SetAttribute("type", "PRESSED");
+        break;
+    case (Type::HELD):
+        inputActionElement->SetAttribute("type", "HELD");
+        break;
+    case (Type::RELEASED):
+        inputActionElement->SetAttribute("type", "RELEASED");
+        break;
+    case (Type::SHORTCUT):
+        inputActionElement->SetAttribute("type", "SHORTCUT");
+        break;
+    case (Type::TOGGLE):
+        inputActionElement->SetAttribute("type", "TOGGLE");
+        break;
+    }
+
+    for (Button button : buttons)
+    {
+        tinyxml2::XMLElement *buttonElement = doc.NewElement("button");
+        buttonElement->SetAttribute("code", button.code);
+
+        switch (button.source)
+        {
+        case (InputSource::GAMEPAD):
+            buttonElement->SetAttribute("source", "GAMEPAD");
+            break;
+        case (InputSource::MOUSE):
+            buttonElement->SetAttribute("source", "MOUSE");
+            break;
+        case (InputSource::KEYBOARD):
+            buttonElement->SetAttribute("source", "KEYBOARD");
+            break;
+        }
+
+        inputActionElement->InsertEndChild(buttonElement);
+    }
+
+    parentElement->InsertEndChild(inputActionElement);
+    return *inputActionElement;
+}
+
+void ButtonAction::load(tinyxml2::XMLElement *parentElement)
+{
+}
+
 void AxisAction::bind(std::function<void(float, int)> callbackFunction)
 {
     spdlog::critical("AxisAction: can only be bound to std::function<void(float, glm::vec2)>");
@@ -206,6 +258,72 @@ void AxisAction::bind(std::function<void(float, int)> callbackFunction)
 void AxisAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
 {
     functions.push_back(callbackFunction);
+}
+
+tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+{
+    tinyxml2::XMLElement *inputActionElement = doc.NewElement("axisAction");
+
+    switch (type)
+    {
+    case (Type::BUTTONS):
+        inputActionElement->SetAttribute("type", "BUTTONS");
+
+        for (Axis axis : axes)
+        {
+            tinyxml2::XMLElement *axisElement = doc.NewElement("axis");
+            axisElement->SetAttribute("code", axis.code);
+
+            switch (axis.source)
+            {
+            case (InputSource::GAMEPAD):
+                axisElement->SetAttribute("source", "GAMEPAD");
+                break;
+            case (InputSource::MOUSE):
+                axisElement->SetAttribute("source", "MOUSE");
+                break;
+            case (InputSource::KEYBOARD):
+                axisElement->SetAttribute("source", "KEYBOARD");
+                break;
+            }
+
+            inputActionElement->InsertEndChild(axisElement);
+        }
+
+        break;
+    case (Type::AXES):
+        inputActionElement->SetAttribute("type", "AXES");
+
+        for (Button button : buttons)
+        {
+            tinyxml2::XMLElement *axisElement = doc.NewElement("axis");
+            axisElement->SetAttribute("code", button.code);
+
+            switch (button.source)
+            {
+            case (InputSource::GAMEPAD):
+                axisElement->SetAttribute("source", "GAMEPAD");
+                break;
+            case (InputSource::MOUSE):
+                axisElement->SetAttribute("source", "MOUSE");
+                break;
+            case (InputSource::KEYBOARD):
+                axisElement->SetAttribute("source", "KEYBOARD");
+                break;
+            }
+
+            inputActionElement->InsertEndChild(axisElement);
+        }
+
+        break;
+    }
+
+    parentElement->InsertEndChild(inputActionElement);
+    return *inputActionElement;
+}
+
+void AxisAction::load(tinyxml2::XMLElement *parentElement)
+{
 }
 
 } // namespace cmx

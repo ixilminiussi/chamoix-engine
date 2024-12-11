@@ -42,11 +42,32 @@ void RotatingActor::slowdownToggle(float dt, int val)
     }
 }
 
-void RotatingActor::renderSettings()
+void RotatingActor::renderSettings(int i)
 {
+    std::string label;
     ImGui::SeparatorText("Rotation");
-    ImGui::DragFloat("Slow Speed", &rotationSpeedSlow, 0.01f, -10.0f, 10.0f);
-    ImGui::DragFloat("Fast Speed", &rotationSpeedFast, 0.01f, -10.0f, 10.0f);
+    label = fmt::format("Slow Speed##{}", i);
+    ImGui::DragFloat(label.c_str(), &rotationSpeedSlow, 0.01f, -10.0f, 10.0f);
+    label = fmt::format("Fast Speed##{}", i);
+    ImGui::DragFloat(label.c_str(), &rotationSpeedFast, 0.01f, -10.0f, 10.0f);
 
-    Actor::renderSettings();
+    Actor::renderSettings(i);
+}
+
+tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+{
+    tinyxml2::XMLElement &actorElement = Actor::save(doc, parentElement);
+
+    actorElement.SetAttribute("slowSpeed", rotationSpeedSlow);
+    actorElement.SetAttribute("fastSpeed", rotationSpeedFast);
+
+    return actorElement;
+}
+
+void RotatingActor::load(tinyxml2::XMLElement *actorElement)
+{
+    Actor::load(actorElement);
+
+    rotationSpeedSlow = actorElement->FloatAttribute("slow speed");
+    rotationSpeedFast = actorElement->FloatAttribute("fast speed");
 }

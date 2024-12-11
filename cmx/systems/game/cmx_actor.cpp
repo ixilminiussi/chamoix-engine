@@ -100,15 +100,22 @@ Transform Actor::getAbsoluteTransform()
     return transform;
 }
 
-void Actor::renderSettings()
+void Actor::renderSettings(int i)
 {
+    std::string label;
     ImGui::SeparatorText("Transform");
+
+    label = fmt::format("Position##{}", i);
     float *position[3] = {&transform.position.x, &transform.position.y, &transform.position.z};
-    ImGui::DragFloat3("Position", *position, 0.1f);
+    ImGui::DragFloat3(label.c_str(), *position, 0.1f);
+
+    label = fmt::format("Scale##{}", i);
     float *scale[3] = {&transform.scale.x, &transform.scale.y, &transform.scale.z};
-    ImGui::DragFloat3("Scale", *scale, 0.1f);
+    ImGui::DragFloat3(label.c_str(), *scale, 0.1f);
+
+    label = fmt::format("Rotation##{}", i);
     float *rotation[3] = {&transform.rotation.x, &transform.rotation.y, &transform.rotation.z};
-    ImGui::DragFloat3("Rotation", *rotation, 0.1f);
+    ImGui::DragFloat3(label.c_str(), *rotation, 0.1f);
 
     if (components.size() > 0)
     {
@@ -117,7 +124,7 @@ void Actor::renderSettings()
         {
             if (ImGui::TreeNode(component.first.c_str()))
             {
-                component.second->renderSettings();
+                component.second->renderSettings(i);
                 ImGui::TreePop();
             }
         }
@@ -130,14 +137,68 @@ tinyxml2::XMLElement &Actor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEleme
     actorElement->SetAttribute("type", getType().c_str());
     actorElement->SetAttribute("name", name.c_str());
     actorElement->SetAttribute("id", id);
-    parentElement->InsertEndChild(actorElement);
+
+    tinyxml2::XMLElement *transformElement = doc.NewElement("transform");
+
+    tinyxml2::XMLElement *positionElement = doc.NewElement("position");
+    positionElement->SetAttribute("x", transform.position.x);
+    positionElement->SetAttribute("y", transform.position.y);
+    positionElement->SetAttribute("z", transform.position.z);
+    transformElement->InsertEndChild(positionElement);
+
+    tinyxml2::XMLElement *rotationElement = doc.NewElement("rotation");
+    rotationElement->SetAttribute("pitch", transform.rotation.x);
+    rotationElement->SetAttribute("yaw", transform.rotation.y);
+    rotationElement->SetAttribute("roll", transform.rotation.z);
+    transformElement->InsertEndChild(rotationElement);
+
+    tinyxml2::XMLElement *scaleElement = doc.NewElement("scale");
+    scaleElement->SetAttribute("x", transform.scale.x);
+    scaleElement->SetAttribute("y", transform.scale.y);
+    scaleElement->SetAttribute("z", transform.scale.z);
+    transformElement->InsertEndChild(scaleElement);
+
+    actorElement->InsertEndChild(transformElement);
 
     for (auto componentPair : components)
     {
         componentPair.second->save(doc, actorElement);
     }
 
+    parentElement->InsertEndChild(actorElement);
+
     return *actorElement;
+}
+
+void Actor::load(tinyxml2::XMLElement *actorElement)
+{
+    if (tinyxml2::XMLElement *transformElement = actorElement->FirstChildElement("transform"))
+    {
+        if (tinyxml2::XMLElement *positionElement = transformElement->FirstChildElement("position"))
+        {
+            transform.position.x = positionElement->FloatAttribute("x");
+            transform.position.y = positionElement->FloatAttribute("y");
+            transform.position.z = positionElement->FloatAttribute("z");
+        }
+        if (tinyxml2::XMLElement *rotationElement = transformElement->FirstChildElement("rotation"))
+        {
+            transform.rotation.x = rotationElement->FloatAttribute("x");
+            transform.rotation.y = rotationElement->FloatAttribute("y");
+            transform.rotation.z = rotationElement->FloatAttribute("z");
+        }
+        if (tinyxml2::XMLElement *scaleElement = transformElement->FirstChildElement("scale"))
+        {
+            transform.scale.x = scaleElement->FloatAttribute("x");
+            transform.scale.y = scaleElement->FloatAttribute("y");
+            transform.scale.z = scaleElement->FloatAttribute("z");
+        }
+    }
+
+    tinyxml2::XMLElement *componentElement = actorElement->FirstChildElement("component");
+    while (componentElement)
+    {
+        componentElement = componentElement->NextSiblingElement("component");
+    }
 }
 
 std::string Actor::getType()

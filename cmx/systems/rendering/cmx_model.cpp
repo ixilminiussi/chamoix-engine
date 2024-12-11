@@ -31,20 +31,22 @@ template <> struct std::hash<cmx::CmxModel::Vertex>
 namespace cmx
 {
 
-CmxModel::CmxModel(CmxDevice &device, const CmxModel::Builder &builder) : cmxDevice{device}
+CmxModel::CmxModel(CmxDevice &device, const CmxModel::Builder &builder, const std::string &name)
+    : cmxDevice{device}, name{name}
 {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
     filepath = builder.filepath;
 }
 
-std::unique_ptr<CmxModel> CmxModel::createModelFromFile(CmxDevice &device, const std::string &filepath)
+std::shared_ptr<CmxModel> CmxModel::createModelFromFile(CmxDevice &device, const std::string &filepath,
+                                                        const std::string &name)
 {
     Builder builder{};
     builder.loadModel(filepath);
 
     spdlog::info("CmxModel: '{0}' loaded with {1} vertices", filepath, builder.vertices.size());
-    return std::make_unique<CmxModel>(device, builder);
+    return std::make_shared<CmxModel>(device, builder, name);
 }
 
 void CmxModel::bind(VkCommandBuffer commandBuffer)
@@ -205,8 +207,8 @@ void CmxModel::Builder::loadModel(const std::string &filepath)
 tinyxml2::XMLElement &CmxModel::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
 {
     tinyxml2::XMLElement *modelElement = doc.NewElement("model");
-    modelElement->SetAttribute("path", filepath.c_str());
 
+    modelElement->SetAttribute("filepath", filepath.c_str());
     parentElement->InsertEndChild(modelElement);
 
     return *modelElement;

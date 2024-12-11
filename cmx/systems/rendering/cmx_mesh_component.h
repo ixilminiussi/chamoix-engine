@@ -22,7 +22,7 @@ class MeshComponent : public Component
     ~MeshComponent() = default;
 
     void render(class FrameInfo &, VkPipelineLayout) override;
-    void setModel(std::shared_ptr<class CmxModel>);
+    void setModel(const std::string &name);
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
 

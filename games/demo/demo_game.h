@@ -3,7 +3,6 @@
 // cmx
 #include "cmx_game.h"
 #include "cmx_scene.h"
-#include "tinyxml2.h"
 
 // lib
 #include <spdlog/spdlog.h>
@@ -21,8 +20,6 @@ class Demo : public cmx::Game
     void run() override;
     void closeWindow(float dt, int val);
 
-    tinyxml2::XMLElement &save(const char *filepath) override;
-
   protected:
-    cmx::Scene mainScene{"Main", this};
+    cmx::Scene mainScene{"scenes/demo-scene.xml", this};
 };

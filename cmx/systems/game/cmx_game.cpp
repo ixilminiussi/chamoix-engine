@@ -59,29 +59,4 @@ void Game::loadEditor()
     }
 }
 
-tinyxml2::XMLElement &Game::save(const char *filepath)
-{
-    tinyxml2::XMLDocument doc;
-    // Add declaration
-    doc.InsertFirstChild(doc.NewDeclaration());
-
-    // Create the root element
-    tinyxml2::XMLElement *root = doc.NewElement("game");
-    root->SetAttribute("width", WIDTH);
-    root->SetAttribute("height", HEIGHT);
-    doc.InsertEndChild(root);
-
-    for (int i = 0; i < scenes.size(); i++)
-    {
-        scenes.at(i)->save(doc, root);
-    }
-
-    if (doc.SaveFile(filepath) != tinyxml2::XML_SUCCESS)
-    {
-        spdlog::error("FILE SAVING: {0}", doc.ErrorStr());
-    };
-
-    return *root;
-}
-
 } // namespace cmx

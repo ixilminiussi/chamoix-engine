@@ -16,6 +16,9 @@ class ViewportActor : public cmx::Actor
     void onBegin() override;
     void update(float dt) override;
 
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    void load(tinyxml2::XMLElement *) override;
+
     void onMovementInput(float dt, glm::vec2);
     void onJumpInput(float dt);
     void onMouseMovement(float dt, glm::vec2);

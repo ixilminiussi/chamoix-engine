@@ -34,7 +34,7 @@ void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout
 {
     if (!getParent())
     {
-        spdlog::error("MeshComponent parent is null");
+        spdlog::error("MeshComponent: parent is null");
         return;
     };
 
@@ -45,7 +45,8 @@ void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout
 
     if (!cmxModel)
     {
-        spdlog::error("MeshComponent is missing model");
+        spdlog::error("MeshComponent: missing model");
+        return;
     }
 
     SimplePushConstantData push{};
@@ -62,19 +63,15 @@ void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout
     cmxModel->draw(frameInfo.commandBuffer);
 }
 
-void MeshComponent::setModel(std::shared_ptr<class CmxModel> newModel)
+void MeshComponent::setModel(const std::string &name)
 {
-    cmxModel = newModel;
+    cmxModel = getParent()->getScene()->assetsManager->getModel(name);
 }
 
 tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
-
-    if (cmxModel)
-    {
-        cmxModel->save(doc, &componentElement);
-    }
+    componentElement.SetAttribute("model", cmxModel->name.c_str());
 
     return componentElement;
 }

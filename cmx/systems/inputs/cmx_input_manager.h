@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cmx_input_action.h"
+#include "tinyxml2.h"
 #include <spdlog/spdlog.h>
 #include <unordered_map>
 
@@ -23,6 +24,9 @@ class InputManager
   public:
     InputManager(class CmxWindow &, const std::unordered_map<std::string, class InputAction *> &inputDictionary);
     ~InputManager();
+
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
+    void load(tinyxml2::XMLElement *);
 
     template <typename T>
     void bindAxis(const std::string &name, void (T::*callbackFunction)(float, glm::vec2), T *instance);

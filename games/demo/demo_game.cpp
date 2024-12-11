@@ -1,6 +1,7 @@
 #include "demo_game.h"
 
 #include "cmx_actor.h"
+#include "cmx_assets_manager.h"
 #include "cmx_buffer.h"
 #include "cmx_camera_component.h"
 #include "cmx_default_render_system.h"
@@ -140,17 +141,20 @@ void Demo::load()
     std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor");
     rotatingActor->transform.scale = glm::vec3{10.f};
 
-    std::shared_ptr<cmx::CmxModel> rotatingModel =
-        cmx::CmxModel::createModelFromFile(cmxDevice, "assets/models/bunny.obj");
+    std::shared_ptr<RotatingActor> rotatingActor2 = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor2");
+    rotatingActor2->transform.scale = glm::vec3{10.f};
+
+    getScene()->assetsManager->addModel("assets/models/bunny.obj", "bunny");
 
     auto rotatingRendererWk = rotatingActor->getComponentByType<cmx::MeshComponent>();
     if (auto rotatingRendererComponent = rotatingRendererWk.lock())
     {
-        rotatingRendererComponent->setModel(rotatingModel);
+        rotatingRendererComponent->setModel("bunny");
     }
-}
 
-tinyxml2::XMLElement &Demo::save(const char *filepath)
-{
-    return Game::save(filepath);
+    auto rotatingRendererWk2 = rotatingActor2->getComponentByType<cmx::MeshComponent>();
+    if (auto rotatingRendererComponent = rotatingRendererWk2.lock())
+    {
+        rotatingRendererComponent->setModel("bunny");
+    }
 }

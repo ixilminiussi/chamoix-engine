@@ -33,7 +33,6 @@ class CmxModel
             return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
         }
     };
-
     struct Builder
     {
         std::vector<Vertex> vertices{};
@@ -43,7 +42,7 @@ class CmxModel
         void loadModel(const std::string &filepath);
     };
 
-    CmxModel(CmxDevice &, const CmxModel::Builder &);
+    CmxModel(CmxDevice &, const CmxModel::Builder &, const std::string &name);
     ~CmxModel() = default;
 
     CmxModel(const CmxModel &) = delete;
@@ -51,10 +50,13 @@ class CmxModel
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
 
-    static std::unique_ptr<CmxModel> createModelFromFile(CmxDevice &device, const std::string &filepath);
+    static std::shared_ptr<CmxModel> createModelFromFile(CmxDevice &device, const std::string &filepath,
+                                                         const std::string &name);
 
     void bind(VkCommandBuffer);
     void draw(VkCommandBuffer);
+
+    const std::string name;
 
   private:
     void createVertexBuffers(const std::vector<Vertex> &);

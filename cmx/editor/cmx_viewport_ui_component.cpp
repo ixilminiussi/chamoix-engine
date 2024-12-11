@@ -5,7 +5,6 @@
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
-#include "cmx_game.h"
 #include "cmx_renderer.h"
 
 // lib
@@ -47,6 +46,9 @@ void ViewportUIComponent::render(class FrameInfo &frameInfo, VkPipelineLayout pi
 
     renderTopBar();
 
+    if (showProjectSettings)
+        renderProjectSettings();
+
     if (showViewportSettings)
         renderViewportSettings();
 
@@ -64,7 +66,7 @@ void ViewportUIComponent::renderTopBar()
     {
         if (ImGui::MenuItem("Save", "Ctrl+S"))
         {
-            parent->getScene()->getGame()->save("xmlfile.xml");
+            parent->getScene()->save();
         }
         ImGui::EndMenu();
     }
@@ -73,6 +75,10 @@ void ViewportUIComponent::renderTopBar()
         if (ImGui::MenuItem("Viewport Settings", "Ctrl+V"))
         {
             renderViewportSettings();
+        }
+        if (ImGui::MenuItem("Project Settings", "Ctrl+V"))
+        {
+            renderProjectSettings();
         }
         ImGui::EndMenu();
     }
@@ -98,6 +104,28 @@ void ViewportUIComponent::renderViewportSettings()
     ImGui::End();
 }
 
+void ViewportUIComponent::renderProjectSettings()
+{
+    static int activeTab = 0;
+
+    showProjectSettings = true;
+    ImGui::SetNextWindowSize({500, 1000});
+    ImGui::Begin("Project Settings", &showProjectSettings);
+
+    if (ImGui::BeginTabBar(""))
+    {
+        if (ImGui::BeginTabItem("Input Manager"))
+        {
+            activeTab = 0;
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+
+        ImGui::End();
+    }
+}
+
 void ViewportUIComponent::renderSceneTree()
 {
     showSceneTree = true;
@@ -106,6 +134,7 @@ void ViewportUIComponent::renderSceneTree()
     std::vector<std::weak_ptr<Actor>> actorList{};
     getParent()->getScene()->getAllActorsByType<Actor>(actorList);
 
+    int i = 0;
     for (auto actorWk : actorList)
     {
         if (std::shared_ptr<Actor> actor = actorWk.lock())
@@ -114,9 +143,10 @@ void ViewportUIComponent::renderSceneTree()
                 continue;
             if (ImGui::CollapsingHeader(actor->name.c_str()))
             {
-                actor->renderSettings();
+                actor->renderSettings(i);
             }
         }
+        i++;
     }
 
     ImGui::End();

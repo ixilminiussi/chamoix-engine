@@ -59,4 +59,23 @@ void InputManager::setMouseCapture(bool b)
         : glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
+tinyxml2::XMLElement &InputManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+{
+    tinyxml2::XMLElement *inputManagerElement = doc.NewElement("inputs");
+
+    for (const auto &pair : inputDictionary)
+    {
+        tinyxml2::XMLElement &inputActionElement = pair.second->save(doc, inputManagerElement);
+        inputActionElement.Attribute("name", pair.first.c_str());
+    }
+
+    parentElement->InsertEndChild(inputManagerElement);
+
+    return *inputManagerElement;
+}
+
+void InputManager::load(tinyxml2::XMLElement *parentElement)
+{
+}
+
 } // namespace cmx

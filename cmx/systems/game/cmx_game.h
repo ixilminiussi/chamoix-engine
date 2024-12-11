@@ -1,15 +1,18 @@
 #pragma once
 
 // cmx
+#include "cmx_assets_manager.h"
 #include "cmx_descriptors.h"
 #include "cmx_device.h"
 #include "cmx_input_action.h"
 #include "cmx_input_manager.h"
 #include "cmx_renderer.h"
+#include "cmx_scene.h"
 #include "cmx_window.h"
 #include "tinyxml2.h"
 
 // lib
+#include <stdexcept>
 #include <unordered_map>
 #include <vulkan/vulkan_core.h>
 
@@ -34,7 +37,6 @@ class Game
 
     virtual void load() {};
     void loadEditor();
-    virtual tinyxml2::XMLElement &save(const char *filepath);
 
     virtual void run() {};
 
@@ -42,7 +44,19 @@ class Game
     class Scene *getScene();
     void setScene(int i)
     {
-        activeScene = scenes.at(i);
+        if (activeScene)
+        {
+            activeScene->unload();
+        }
+        try
+        {
+            activeScene = scenes.at(i);
+            activeScene->load();
+        }
+        catch (const std::out_of_range &e)
+        {
+            spdlog::error("Scene: no scene at index {0}", i);
+        }
     }
     void createInputManager(CmxWindow &window, const std::unordered_map<std::string, InputAction *> &inputDictionary)
     {
@@ -52,10 +66,14 @@ class Game
     {
         return inputManager;
     }
+    CmxDevice &getDevice()
+    {
+        return cmxDevice;
+    }
     // getters and setters :: end
 
   protected:
-    class Scene *activeScene{};
+    class Scene *activeScene;
     std::vector<Scene *> scenes;
 
     CmxWindow cmxWindow{WIDTH, HEIGHT, "demo"};

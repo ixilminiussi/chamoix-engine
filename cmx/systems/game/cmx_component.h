@@ -22,7 +22,7 @@ class Component
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
 
     // for viewport
-    virtual void renderSettings() {};
+    virtual void renderSettings(int i) {};
 
     void despawn();
 
