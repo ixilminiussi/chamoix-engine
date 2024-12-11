@@ -3,6 +3,8 @@
 // cmx
 #include "cmx_input_action.h"
 #include "cmx_window.h"
+#include "imgui.h"
+#include "tinyxml2.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -15,8 +17,7 @@
 namespace cmx
 {
 
-InputManager::InputManager(CmxWindow &window, const std::unordered_map<std::string, InputAction *> &inputDictionary)
-    : window{window}, inputDictionary{inputDictionary}
+InputManager::InputManager(CmxWindow &window) : window{window}, inputDictionary{}
 {
     gamepadDetected = glfwJoystickPresent(GLFW_JOYSTICK_1);
     glfwSetInputMode(window.getGLFWwindow(), GLFW_STICKY_KEYS, GLFW_TRUE);
@@ -34,6 +35,7 @@ InputManager::~InputManager()
 void InputManager::addInput(const std::string &name, InputAction *newInput)
 {
     inputDictionary[name] = newInput;
+    spdlog::info("InputManager: New input '{0}' added", name.c_str());
 }
 
 void InputManager::pollEvents(float dt)
@@ -59,23 +61,75 @@ void InputManager::setMouseCapture(bool b)
         : glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
-tinyxml2::XMLElement &InputManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+void InputManager::save()
 {
+    const char *filepath = ".input-manager.xml";
+    spdlog::info("InputManager: saving state to {0}", filepath);
+
+    tinyxml2::XMLDocument doc;
+    doc.InsertFirstChild(doc.NewDeclaration());
+
     tinyxml2::XMLElement *inputManagerElement = doc.NewElement("inputs");
 
     for (const auto &pair : inputDictionary)
     {
         tinyxml2::XMLElement &inputActionElement = pair.second->save(doc, inputManagerElement);
-        inputActionElement.Attribute("name", pair.first.c_str());
+        inputActionElement.SetAttribute("name", pair.first.c_str());
     }
 
-    parentElement->InsertEndChild(inputManagerElement);
+    doc.InsertEndChild(inputManagerElement);
 
-    return *inputManagerElement;
+    if (doc.SaveFile(filepath) != tinyxml2::XML_SUCCESS)
+    {
+        spdlog::error("FILE SAVING: {0}", doc.ErrorStr());
+    };
+
+    spdlog::info("InputManager: saving success!", filepath);
 }
 
-void InputManager::load(tinyxml2::XMLElement *parentElement)
+void InputManager::load()
 {
+    tinyxml2::XMLDocument doc;
+    const char *filepath = ".input-manager.xml";
+
+    if (doc.LoadFile(filepath) == tinyxml2::XML_SUCCESS)
+    {
+        spdlog::info("InputManager: Loading input manager from {0}...", ".input-manager.xml");
+
+        tinyxml2::XMLElement *rootElement = doc.RootElement();
+        if (tinyxml2::XMLElement *inputsElement = doc.FirstChildElement("inputs"))
+        {
+            tinyxml2::XMLElement *buttonActionElement = inputsElement->FirstChildElement("buttonAction");
+            while (buttonActionElement)
+            {
+                ButtonAction *buttonAction = new ButtonAction{};
+                buttonAction->load(buttonActionElement);
+                addInput(buttonActionElement->Attribute("name"), buttonAction);
+
+                buttonActionElement = buttonActionElement->NextSiblingElement("buttonAction");
+            }
+
+            tinyxml2::XMLElement *axisActionElement = inputsElement->FirstChildElement("axisAction");
+            while (axisActionElement)
+            {
+                AxisAction *axisAction = new AxisAction{};
+                axisAction->load(axisActionElement);
+                addInput(axisActionElement->Attribute("name"), axisAction);
+
+                axisActionElement = axisActionElement->NextSiblingElement("axisAction");
+            }
+        }
+
+        spdlog::info("InputManager: Successfully loaded input manager!");
+    }
+}
+
+void InputManager::renderSettings()
+{
+    if (ImGui::Button("Apply"))
+    {
+        save();
+    }
 }
 
 } // namespace cmx

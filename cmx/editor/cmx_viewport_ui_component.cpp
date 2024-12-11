@@ -5,6 +5,7 @@
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
+#include "cmx_game.h"
 #include "cmx_renderer.h"
 
 // lib
@@ -108,6 +109,8 @@ void ViewportUIComponent::renderProjectSettings()
 {
     static int activeTab = 0;
 
+    Game *game = getParent()->getScene()->getGame();
+
     showProjectSettings = true;
     ImGui::SetNextWindowSize({500, 1000});
     ImGui::Begin("Project Settings", &showProjectSettings);
@@ -117,6 +120,9 @@ void ViewportUIComponent::renderProjectSettings()
         if (ImGui::BeginTabItem("Input Manager"))
         {
             activeTab = 0;
+
+            game->getInputManager()->renderSettings();
+
             ImGui::EndTabItem();
         }
 
@@ -129,6 +135,7 @@ void ViewportUIComponent::renderProjectSettings()
 void ViewportUIComponent::renderSceneTree()
 {
     showSceneTree = true;
+    ImGui::SetNextWindowSize({300, 500});
     ImGui::Begin("Scene Tree", &showSceneTree);
 
     std::vector<std::weak_ptr<Actor>> actorList{};

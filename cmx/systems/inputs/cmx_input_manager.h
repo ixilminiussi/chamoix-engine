@@ -22,11 +22,11 @@ namespace cmx
 class InputManager
 {
   public:
-    InputManager(class CmxWindow &, const std::unordered_map<std::string, class InputAction *> &inputDictionary);
+    InputManager(class CmxWindow &);
     ~InputManager();
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
-    void load(tinyxml2::XMLElement *);
+    void save();
+    void load();
 
     template <typename T>
     void bindAxis(const std::string &name, void (T::*callbackFunction)(float, glm::vec2), T *instance);
@@ -35,6 +35,8 @@ class InputManager
     void addInput(const std::string &name, class InputAction *);
     void pollEvents(float dt);
     void setMouseCapture(bool);
+
+    void renderSettings();
 
   private:
     bool gamepadDetected{false};

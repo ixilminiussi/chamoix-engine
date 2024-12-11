@@ -58,10 +58,6 @@ class Game
             spdlog::error("Scene: no scene at index {0}", i);
         }
     }
-    void createInputManager(CmxWindow &window, const std::unordered_map<std::string, InputAction *> &inputDictionary)
-    {
-        inputManager = std::make_shared<InputManager>(window, inputDictionary);
-    }
     std::shared_ptr<InputManager> getInputManager()
     {
         return inputManager;
@@ -84,7 +80,7 @@ class Game
 
     std::unique_ptr<CmxDescriptorPool> globalPool{};
 
-    std::shared_ptr<InputManager> inputManager;
+    std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(cmxWindow);
 
     // warning flags
     bool noCameraFlag{false};

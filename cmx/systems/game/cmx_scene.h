@@ -18,7 +18,8 @@ namespace cmx
 class Scene
 {
   public:
-    Scene(const std::string &xmlPath, class Game *game) : xmlPath{xmlPath}, game{game} {};
+    Scene(const std::string &xmlPath, class Game *game, const std::string &name)
+        : xmlPath{xmlPath}, game{game}, name{name} {};
     ~Scene() = default;
 
     std::weak_ptr<class Actor> getActorByName(const std::string &name);
@@ -60,7 +61,7 @@ class Scene
     }
 
     const std::string xmlPath;
-    std::string name;
+    const std::string name;
 
     std::shared_ptr<class AssetsManager> assetsManager = std::make_shared<class AssetsManager>(this);
 

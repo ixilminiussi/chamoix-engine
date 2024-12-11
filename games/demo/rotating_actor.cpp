@@ -12,9 +12,6 @@
 
 void RotatingActor::onBegin()
 {
-    transform.position = {0.f, 0.f, -5.f};
-    transform.scale = {.5f, .5f, .5f};
-
     auto inputManager = getScene()->getGame()->getInputManager();
     if (inputManager)
     {
@@ -68,6 +65,6 @@ void RotatingActor::load(tinyxml2::XMLElement *actorElement)
 {
     Actor::load(actorElement);
 
-    rotationSpeedSlow = actorElement->FloatAttribute("slow speed");
-    rotationSpeedFast = actorElement->FloatAttribute("fast speed");
+    rotationSpeedSlow = actorElement->FloatAttribute("slowSpeed");
+    rotationSpeedFast = actorElement->FloatAttribute("fastSpeed");
 }

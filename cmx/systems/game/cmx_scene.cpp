@@ -174,15 +174,13 @@ tinyxml2::XMLElement &Scene::save()
 
 tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 {
-    spdlog::info("Scene: saving scene to {0}", filepath);
+    spdlog::info("Scene: saving scene to {0}...", filepath);
 
     tinyxml2::XMLDocument doc;
-    // Add declaration
     doc.InsertFirstChild(doc.NewDeclaration());
 
     tinyxml2::XMLElement *sceneElement = doc.NewElement("scene");
     sceneElement->SetAttribute("name", name.c_str());
-    doc.InsertEndChild(sceneElement);
 
     assetsManager->save(doc, sceneElement);
 
@@ -191,12 +189,14 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
         actorPair.second->save(doc, sceneElement);
     }
 
+    doc.InsertEndChild(sceneElement);
+
     if (doc.SaveFile(filepath) != tinyxml2::XML_SUCCESS)
     {
         spdlog::error("FILE SAVING: {0}", doc.ErrorStr());
     };
 
-    spdlog::info("Scene: saving scene to {0}", filepath);
+    spdlog::info("Scene: saving success!", filepath);
     return *sceneElement;
 }
 

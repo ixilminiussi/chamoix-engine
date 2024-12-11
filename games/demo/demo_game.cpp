@@ -129,9 +129,7 @@ void Demo::load()
                      .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, cmx::CmxSwapChain::MAX_FRAMES_IN_FLIGHT)
                      .build();
 
-    createInputManager(
-        cmxWindow, {{"exit", new cmx::ButtonAction{cmx::ButtonAction::Type::RELEASED, {cmx::CMX_KEY_ESCAPE}}},
-                    {"slowdown toggle", new cmx::ButtonAction{cmx::ButtonAction::Type::TOGGLE, {cmx::CMX_KEY_SPACE}}}});
+    inputManager->load();
 
     scenes.push_back(&mainScene);
     setScene(0);
@@ -139,12 +137,8 @@ void Demo::load()
     getInputManager()->bindButton("exit", &Demo::closeWindow, this);
 
     std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor");
-    rotatingActor->transform.scale = glm::vec3{10.f};
 
     std::shared_ptr<RotatingActor> rotatingActor2 = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor2");
-    rotatingActor2->transform.scale = glm::vec3{10.f};
-
-    getScene()->assetsManager->addModel("assets/models/bunny.obj", "bunny");
 
     auto rotatingRendererWk = rotatingActor->getComponentByType<cmx::MeshComponent>();
     if (auto rotatingRendererComponent = rotatingRendererWk.lock())

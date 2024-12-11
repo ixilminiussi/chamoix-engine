@@ -81,6 +81,8 @@ class ButtonAction : public InputAction
         TOGGLE,   // sends 1 when pressed, 0 when released
     };
 
+    ButtonAction() = default;
+
     ButtonAction(Type buttonType, std::initializer_list<Button> buttons) : buttonType{buttonType}, buttons{buttons} {};
 
     void poll(const class CmxWindow &, float dt) override;
@@ -107,6 +109,8 @@ class AxisAction : public InputAction
     };
 
   public:
+    AxisAction() = default;
+
     AxisAction(Button right, Button left, Button up = CMX_BUTTON_VOID, Button down = CMX_BUTTON_VOID)
         : buttons{right, left, up, down}, type{BUTTONS} {};
     AxisAction(Axis vertical, Axis horizontal = CMX_AXIS_VOID) : axes{vertical, horizontal}, type{AXES} {};
