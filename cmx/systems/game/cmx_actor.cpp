@@ -122,7 +122,8 @@ void Actor::renderSettings(int i)
         ImGui::SeparatorText("Components");
         for (auto component : components)
         {
-            if (ImGui::TreeNode(component.first.c_str()))
+            label = fmt::format("{}##{}", component.first.c_str(), i);
+            if (ImGui::TreeNode(label.c_str()))
             {
                 component.second->renderSettings(i);
                 ImGui::TreePop();

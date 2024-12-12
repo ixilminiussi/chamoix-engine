@@ -12,6 +12,7 @@
 // std
 #include <cstdlib>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 #include <unordered_map>
 
 namespace cmx
@@ -34,8 +35,17 @@ InputManager::~InputManager()
 
 void InputManager::addInput(const std::string &name, InputAction *newInput)
 {
-    inputDictionary[name] = newInput;
-    spdlog::info("InputManager: New input '{0}' added", name.c_str());
+    try
+    {
+        auto attempt = inputDictionary.at(name);
+    }
+    catch (const std::out_of_range &e)
+    {
+        inputDictionary[name] = newInput;
+        spdlog::info("InputManager: New input '{0}' added", name.c_str());
+        return;
+    }
+    spdlog::error("InputManager: Attempt at rebinding existing input '{0}'", name.c_str());
 }
 
 void InputManager::pollEvents(float dt)

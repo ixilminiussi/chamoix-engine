@@ -67,4 +67,5 @@ void RotatingActor::load(tinyxml2::XMLElement *actorElement)
 
     rotationSpeedSlow = actorElement->FloatAttribute("slowSpeed");
     rotationSpeedFast = actorElement->FloatAttribute("fastSpeed");
+    rotationSpeed = rotationSpeedFast;
 }

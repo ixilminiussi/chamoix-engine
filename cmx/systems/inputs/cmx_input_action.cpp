@@ -340,7 +340,7 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
 
         for (int i = 0; i < 4; i++)
         {
-            tinyxml2::XMLElement *axisElement = doc.NewElement("axis");
+            tinyxml2::XMLElement *axisElement = doc.NewElement("button");
             axisElement->SetAttribute("code", buttons[i].code);
 
             switch (buttons[i].source)
@@ -380,15 +380,15 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
             int code = axisElement->IntAttribute("code");
             const char *source = axisElement->Attribute("source");
 
-            if (strcmp(source, "GAMEPAD"))
+            if (strcmp(source, "GAMEPAD") == 0)
             {
                 axes[i] = {code, InputSource::GAMEPAD};
             }
-            if (strcmp(source, "MOUSE"))
+            if (strcmp(source, "MOUSE") == 0)
             {
                 axes[i] = {code, InputSource::MOUSE};
             }
-            if (strcmp(source, "KEYBOARD"))
+            if (strcmp(source, "KEYBOARD") == 0)
             {
                 axes[i] = {code, InputSource::KEYBOARD};
             }
@@ -400,7 +400,7 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
     if (strcmp(typeString, "BUTTONS") == 0)
     {
         type = Type::BUTTONS;
-        tinyxml2::XMLElement *buttonsElement = axisActionElement->FirstChildElement("axis");
+        tinyxml2::XMLElement *buttonsElement = axisActionElement->FirstChildElement("button");
 
         int i = 0;
         while (buttonsElement)
@@ -408,22 +408,22 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
             int code = buttonsElement->IntAttribute("code");
             const char *source = buttonsElement->Attribute("source");
 
-            if (strcmp(source, "GAMEPAD"))
+            if (strcmp(source, "GAMEPAD") == 0)
             {
                 buttons[i] = {code, InputSource::GAMEPAD};
             }
-            if (strcmp(source, "MOUSE"))
+            if (strcmp(source, "MOUSE") == 0)
             {
                 buttons[i] = {code, InputSource::MOUSE};
             }
-            if (strcmp(source, "KEYBOARD"))
+            if (strcmp(source, "KEYBOARD") == 0)
             {
                 buttons[i] = {code, InputSource::KEYBOARD};
             }
 
             i++;
 
-            buttonsElement = buttonsElement->NextSiblingElement("buttons");
+            buttonsElement = buttonsElement->NextSiblingElement("button");
         }
     }
 }
