@@ -31,12 +31,6 @@ void ViewportActor::onBegin()
     camera = std::make_shared<CameraComponent>();
     attachComponent(camera, "ViewportCamera");
     attachComponent(std::make_shared<ViewportUIComponent>(moveSpeed, mouseSensitivity), "ViewportUI");
-
-    std::shared_ptr<InputManager> inputManager = getScene()->getGame()->getInputManager();
-
-    inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, this);
-    inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, this);
-    inputManager->bindButton("viewport toggle", &ViewportActor::select, this);
 }
 
 void ViewportActor::update(float dt)

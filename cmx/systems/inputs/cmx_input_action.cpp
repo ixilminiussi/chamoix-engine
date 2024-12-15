@@ -1,6 +1,7 @@
 #include "cmx_input_action.h"
 
 // cmx
+#include "cmx_inputs.h"
 #include "cmx_window.h"
 #include "imgui.h"
 
@@ -15,6 +16,55 @@
 
 namespace cmx
 {
+
+const char *toString(ButtonAction::Type buttonType)
+{
+    switch (buttonType)
+    {
+    case ButtonAction::Type::HELD:
+        return "HELD";
+        break;
+    case ButtonAction::Type::PRESSED:
+        return "PRESSED";
+        break;
+    case ButtonAction::Type::RELEASED:
+        return "RELEASED";
+        break;
+    case ButtonAction::Type::SHORTCUT:
+        return "SHORTCUT";
+        break;
+    case ButtonAction::Type::TOGGLE:
+        return "TOGGLE";
+        break;
+    }
+    return "";
+}
+
+const ButtonAction::Type toButtonActionType(const char *typeString)
+{
+    if (strcmp(typeString, "PRESSED") == 0)
+    {
+        return ButtonAction::Type::PRESSED;
+    }
+    if (strcmp(typeString, "HELD") == 0)
+    {
+        return ButtonAction::Type::HELD;
+    }
+    if (strcmp(typeString, "RELEASED") == 0)
+    {
+        return ButtonAction::Type::RELEASED;
+    }
+    if (strcmp(typeString, "SHORTCUT") == 0)
+    {
+        return ButtonAction::Type::SHORTCUT;
+    }
+    if (strcmp(typeString, "TOGGLE") == 0)
+    {
+        return ButtonAction::Type::TOGGLE;
+    }
+
+    return ButtonAction::Type::PRESSED;
+}
 
 void ButtonAction::poll(const CmxWindow &window, float dt)
 {
@@ -201,42 +251,13 @@ tinyxml2::XMLElement &ButtonAction::save(tinyxml2::XMLDocument &doc, tinyxml2::X
 {
     tinyxml2::XMLElement *inputActionElement = doc.NewElement("buttonAction");
 
-    switch (buttonType)
-    {
-    case Type::PRESSED:
-        inputActionElement->SetAttribute("type", "PRESSED");
-        break;
-    case Type::HELD:
-        inputActionElement->SetAttribute("type", "HELD");
-        break;
-    case Type::RELEASED:
-        inputActionElement->SetAttribute("type", "RELEASED");
-        break;
-    case Type::SHORTCUT:
-        inputActionElement->SetAttribute("type", "SHORTCUT");
-        break;
-    case Type::TOGGLE:
-        inputActionElement->SetAttribute("type", "TOGGLE");
-        break;
-    }
+    inputActionElement->SetAttribute("type", toString(buttonType));
 
     for (Button button : buttons)
     {
         tinyxml2::XMLElement *buttonElement = doc.NewElement("button");
         buttonElement->SetAttribute("code", button.code);
-
-        switch (button.source)
-        {
-        case InputSource::GAMEPAD:
-            buttonElement->SetAttribute("source", "GAMEPAD");
-            break;
-        case InputSource::MOUSE:
-            buttonElement->SetAttribute("source", "MOUSE");
-            break;
-        case InputSource::KEYBOARD:
-            buttonElement->SetAttribute("source", "KEYBOARD");
-            break;
-        }
+        buttonElement->SetAttribute("source", toString(button.source));
 
         inputActionElement->InsertEndChild(buttonElement);
     }
@@ -249,45 +270,13 @@ void ButtonAction::load(tinyxml2::XMLElement *buttonActionElement)
 {
     const char *typeString = buttonActionElement->Attribute("type");
 
-    if (strcmp(typeString, "PRESSED") == 0)
-    {
-        buttonType = Type::PRESSED;
-    }
-    if (strcmp(typeString, "HELD") == 0)
-    {
-        buttonType = Type::HELD;
-    }
-    if (strcmp(typeString, "RELEASED") == 0)
-    {
-        buttonType = Type::RELEASED;
-    }
-    if (strcmp(typeString, "SHORTCUT") == 0)
-    {
-        buttonType = Type::SHORTCUT;
-    }
-    if (strcmp(typeString, "TOGGLE") == 0)
-    {
-        buttonType = Type::TOGGLE;
-    }
+    buttonType = toButtonActionType(typeString);
 
     tinyxml2::XMLElement *buttonElement = buttonActionElement->FirstChildElement("button");
     while (buttonElement)
     {
         int code = buttonElement->IntAttribute("code");
-        const char *source = buttonElement->Attribute("source");
-
-        if (strcmp(source, "GAMEPAD") == 0)
-        {
-            buttons.push_back({code, InputSource::GAMEPAD});
-        }
-        if (strcmp(source, "MOUSE") == 0)
-        {
-            buttons.push_back({code, InputSource::MOUSE});
-        }
-        if (strcmp(source, "KEYBOARD") == 0)
-        {
-            buttons.push_back({code, InputSource::KEYBOARD});
-        }
+        buttons.push_back({code, toInputSource(buttonElement->Attribute("source"))});
 
         buttonElement = buttonElement->NextSiblingElement("button");
     }
@@ -317,19 +306,7 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
         {
             tinyxml2::XMLElement *axisElement = doc.NewElement("axis");
             axisElement->SetAttribute("code", axes[i].code);
-
-            switch (axes[i].source)
-            {
-            case InputSource::GAMEPAD:
-                axisElement->SetAttribute("source", "GAMEPAD");
-                break;
-            case InputSource::MOUSE:
-                axisElement->SetAttribute("source", "MOUSE");
-                break;
-            case InputSource::KEYBOARD:
-                axisElement->SetAttribute("source", "KEYBOARD");
-                break;
-            }
+            axisElement->SetAttribute("source", toString(axes[i].source));
 
             inputActionElement->InsertEndChild(axisElement);
         }
@@ -342,19 +319,7 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
         {
             tinyxml2::XMLElement *axisElement = doc.NewElement("button");
             axisElement->SetAttribute("code", buttons[i].code);
-
-            switch (buttons[i].source)
-            {
-            case InputSource::GAMEPAD:
-                axisElement->SetAttribute("source", "GAMEPAD");
-                break;
-            case InputSource::MOUSE:
-                axisElement->SetAttribute("source", "MOUSE");
-                break;
-            case InputSource::KEYBOARD:
-                axisElement->SetAttribute("source", "KEYBOARD");
-                break;
-            }
+            axisElement->SetAttribute("source", toString(buttons[i].source));
 
             inputActionElement->InsertEndChild(axisElement);
         }
@@ -378,20 +343,7 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
         while (axisElement)
         {
             int code = axisElement->IntAttribute("code");
-            const char *source = axisElement->Attribute("source");
-
-            if (strcmp(source, "GAMEPAD") == 0)
-            {
-                axes[i] = {code, InputSource::GAMEPAD};
-            }
-            if (strcmp(source, "MOUSE") == 0)
-            {
-                axes[i] = {code, InputSource::MOUSE};
-            }
-            if (strcmp(source, "KEYBOARD") == 0)
-            {
-                axes[i] = {code, InputSource::KEYBOARD};
-            }
+            axes[i] = {code, toInputSource(axisElement->Attribute("source"))};
             i++;
 
             axisElement = axisElement->NextSiblingElement("axis");
@@ -406,25 +358,64 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
         while (buttonsElement)
         {
             int code = buttonsElement->IntAttribute("code");
-            const char *source = buttonsElement->Attribute("source");
-
-            if (strcmp(source, "GAMEPAD") == 0)
-            {
-                buttons[i] = {code, InputSource::GAMEPAD};
-            }
-            if (strcmp(source, "MOUSE") == 0)
-            {
-                buttons[i] = {code, InputSource::MOUSE};
-            }
-            if (strcmp(source, "KEYBOARD") == 0)
-            {
-                buttons[i] = {code, InputSource::KEYBOARD};
-            }
+            buttons[i] = {code, toInputSource(buttonsElement->Attribute("source"))};
 
             i++;
 
             buttonsElement = buttonsElement->NextSiblingElement("button");
         }
+    }
+}
+
+void AxisAction::renderSettings(int i)
+{
+    std::string label;
+
+    if (type == Type::AXES)
+    {
+        for (Axis &axis : axes)
+        {
+            label = fmt::format("##a{}", i++);
+            axis.renderSettings(label);
+        }
+    }
+    if (type == Type::BUTTONS)
+    {
+        for (Button &button : buttons)
+        {
+            label = fmt::format("##ab{}", i++);
+            button.renderSettings(label);
+        }
+    }
+}
+
+void ButtonAction::renderSettings(int i)
+{
+    std::string label = fmt::format("##t{}", i++);
+
+    if (ImGui::BeginCombo(label.c_str(), toString(buttonType)))
+    {
+        for (const Type &type : {Type::HELD, Type::TOGGLE, Type::PRESSED, Type::RELEASED, Type::SHORTCUT})
+        {
+            bool isSelected = (type == buttonType);
+
+            if (ImGui::Selectable(toString(type), isSelected))
+            {
+                buttonType = type;
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    for (Button button : buttons)
+    {
+        label = fmt::format("##b{}", i++);
+        button.renderSettings(label);
     }
 }
 

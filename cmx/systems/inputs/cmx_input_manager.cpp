@@ -18,7 +18,8 @@
 namespace cmx
 {
 
-InputManager::InputManager(CmxWindow &window) : window{window}, inputDictionary{}
+InputManager::InputManager(CmxWindow &window, const std::string &filepath)
+    : window{window}, inputDictionary{}, filepath{filepath}
 {
     gamepadDetected = glfwJoystickPresent(GLFW_JOYSTICK_1);
     glfwSetInputMode(window.getGLFWwindow(), GLFW_STICKY_KEYS, GLFW_TRUE);
@@ -73,8 +74,12 @@ void InputManager::setMouseCapture(bool b)
 
 void InputManager::save()
 {
-    const char *filepath = ".input-manager.xml";
-    spdlog::info("InputManager: saving state to {0}", filepath);
+    saveAs(filepath);
+}
+
+void InputManager::saveAs(const std::string &customFilepath)
+{
+    spdlog::info("InputManager: saving state to {0}", customFilepath);
 
     tinyxml2::XMLDocument doc;
     doc.InsertFirstChild(doc.NewDeclaration());
@@ -89,7 +94,7 @@ void InputManager::save()
 
     doc.InsertEndChild(inputManagerElement);
 
-    if (doc.SaveFile(filepath) != tinyxml2::XML_SUCCESS)
+    if (doc.SaveFile(customFilepath.c_str()) != tinyxml2::XML_SUCCESS)
     {
         spdlog::error("FILE SAVING: {0}", doc.ErrorStr());
     };
@@ -100,11 +105,10 @@ void InputManager::save()
 void InputManager::load()
 {
     tinyxml2::XMLDocument doc;
-    const char *filepath = ".input-manager.xml";
 
-    if (doc.LoadFile(filepath) == tinyxml2::XML_SUCCESS)
+    if (doc.LoadFile(filepath.c_str()) == tinyxml2::XML_SUCCESS)
     {
-        spdlog::info("InputManager: Loading input manager from {0}...", ".input-manager.xml");
+        spdlog::info("InputManager: Loading input manager from {0}...", filepath);
 
         tinyxml2::XMLElement *rootElement = doc.RootElement();
         if (tinyxml2::XMLElement *inputsElement = doc.FirstChildElement("inputs"))
@@ -136,6 +140,14 @@ void InputManager::load()
 
 void InputManager::renderSettings()
 {
+    int i = 0;
+    for (auto pair : inputDictionary)
+    {
+        ImGui::SeparatorText(pair.first.c_str());
+        pair.second->renderSettings(i);
+        i++;
+    }
+
     if (ImGui::Button("Apply"))
     {
         save();

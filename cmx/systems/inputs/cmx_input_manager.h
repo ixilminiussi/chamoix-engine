@@ -1,11 +1,10 @@
 #pragma once
 
 #include "cmx_input_action.h"
-#include "tinyxml2.h"
-#include <spdlog/spdlog.h>
-#include <unordered_map>
 
 // lib
+#include "tinyxml2.h"
+#include <spdlog/spdlog.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
@@ -15,6 +14,7 @@
 
 // std
 #include <string>
+#include <unordered_map>
 
 namespace cmx
 {
@@ -22,10 +22,11 @@ namespace cmx
 class InputManager
 {
   public:
-    InputManager(class CmxWindow &);
+    InputManager(class CmxWindow &, const std::string &filepath = ".input-manager.xml");
     ~InputManager();
 
     void save();
+    void saveAs(const std::string &);
     void load();
 
     template <typename T>
@@ -39,6 +40,7 @@ class InputManager
     void renderSettings();
 
   private:
+    const std::string filepath;
     bool gamepadDetected{false};
     std::unordered_map<std::string, class InputAction *> inputDictionary;
     class CmxWindow &window;

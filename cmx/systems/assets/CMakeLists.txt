@@ -5,4 +5,4 @@ add_library(assets
     cmx_assets_manager.cpp
 )
 
-target_link_libraries(assets PRIVATE cmx spdlog glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi)
+target_link_libraries(assets PRIVATE cmx spdlog glfw vulkan)

@@ -7,8 +7,10 @@
 #include "cmx_frame_info.h"
 #include "cmx_game.h"
 #include "cmx_renderer.h"
+#include "cmx_viewport_actor.h"
 
 // lib
+#include "cmx_viewport_actor.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
@@ -35,6 +37,10 @@ ViewportUIComponent::~ViewportUIComponent()
 
 void ViewportUIComponent::update(float dt)
 {
+    if (inputManager != nullptr)
+    {
+        inputManager->pollEvents(dt);
+    }
 }
 
 void ViewportUIComponent::render(class FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
@@ -101,6 +107,12 @@ void ViewportUIComponent::renderViewportSettings()
 
     ImGui::SliderFloat("movement speed", &viewportMovementSpeed, 0.0f, 100.0f);
     ImGui::SliderFloat("mouse sensitivity", &viewportSensitivity, 0.0f, 10.0f);
+
+    ImGui::SeparatorText("Shortcuts");
+    if (inputManager != nullptr)
+    {
+        inputManager->renderSettings();
+    }
 
     ImGui::End();
 }
@@ -200,6 +212,16 @@ void ViewportUIComponent::initImGUI(CmxDevice &cmxDevice, CmxWindow &cmxWindow, 
     init_info.RenderPass = cmxRenderer.getSwapChainRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
+}
+
+void ViewportUIComponent::initInputManager(class CmxWindow &window, const std::string &shortcutsPath)
+{
+    inputManager = std::make_unique<InputManager>(window, shortcutsPath);
+    inputManager->load();
+
+    inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, (ViewportActor *)(getParent()));
+    inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, (ViewportActor *)getParent());
+    inputManager->bindButton("viewport toggle", &ViewportActor::select, (ViewportActor *)getParent());
 }
 
 tinyxml2::XMLElement &ViewportUIComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)

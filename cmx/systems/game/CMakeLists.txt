@@ -9,4 +9,4 @@ add_library(game
     cmx_transform.cpp
 )
 
-target_link_libraries(game PRIVATE cmx spdlog glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi)
+target_link_libraries(game PRIVATE cmx spdlog)

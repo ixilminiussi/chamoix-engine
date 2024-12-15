@@ -34,21 +34,12 @@ Scene *Game::getScene()
 
 void Game::loadEditor()
 {
-    if (!inputManager)
-    {
-        spdlog::error("Editor: Missing input manager.");
-        return;
-    }
-
-    inputManager->addInput("viewport movement", new AxisAction{CMX_KEY_D, CMX_KEY_A, CMX_KEY_W, CMX_KEY_S});
-    inputManager->addInput("viewport rotation", new AxisAction{CMX_MOUSE_AXIS_X_RELATIVE, CMX_MOUSE_AXIS_Y_RELATIVE});
-    inputManager->addInput("viewport toggle", new ButtonAction{ButtonAction::Type::TOGGLE, {CMX_MOUSE_BUTTON_LEFT}});
-
     std::shared_ptr<ViewportActor> viewportActor = Actor::spawn<ViewportActor>(getScene(), "ViewportActor");
 
     std::weak_ptr<ViewportUIComponent> viewportUIWk = viewportActor->getComponentByType<ViewportUIComponent>();
     if (auto viewportUIComponent = viewportUIWk.lock())
     {
+        viewportUIComponent->initInputManager(cmxWindow);
         viewportUIComponent->initImGUI(cmxDevice, cmxWindow, cmxRenderer);
     }
 
