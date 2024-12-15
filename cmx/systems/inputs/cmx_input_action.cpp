@@ -412,7 +412,7 @@ void ButtonAction::renderSettings(int i)
         ImGui::EndCombo();
     }
 
-    for (Button button : buttons)
+    for (Button &button : buttons)
     {
         label = fmt::format("##b{}", i++);
         button.renderSettings(label);
