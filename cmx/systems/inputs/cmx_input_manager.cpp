@@ -141,13 +141,43 @@ void InputManager::load()
 void InputManager::renderSettings()
 {
     int i = 0;
-    for (auto pair : inputDictionary)
+
+    auto it = inputDictionary.begin();
+    while (it != inputDictionary.end())
     {
-        ImGui::SeparatorText(pair.first.c_str());
-        pair.second->renderSettings(i);
-        i++;
+        ImGui::PushID(i++);
+        ImGui::Separator();
+        ImGui::Text("%s", it->first.c_str());
+        ImGui::SameLine();
+        if (ImGui::Button("-"))
+        {
+            it = inputDictionary.erase(it);
+        }
+        else
+        {
+            it->second->renderSettings();
+            it++;
+        }
+
+        ImGui::PopID();
     }
 
+    ImGui::Separator();
+    static char buffer[100] = "";
+    ImGui::SetNextItemWidth(150);
+    ImGui::InputText("##gfd", buffer, 100);
+    ImGui::SameLine();
+    if (ImGui::Button("Axis"))
+    {
+        addInput(std::string(buffer), new AxisAction{});
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Button"))
+    {
+        addInput(std::string(buffer), new ButtonAction{});
+    }
+
+    ImGui::Separator();
     if (ImGui::Button("Apply"))
     {
         save();

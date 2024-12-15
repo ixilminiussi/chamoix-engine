@@ -66,6 +66,19 @@ const ButtonAction::Type toButtonActionType(const char *typeString)
     return ButtonAction::Type::PRESSED;
 }
 
+const char *toString(AxisAction::Type axisType)
+{
+    switch (axisType)
+    {
+    case AxisAction::Type::AXES:
+        return "AXES";
+    case AxisAction::Type::BUTTONS:
+        return "BUTTONS";
+    }
+
+    return "AXES";
+}
+
 void ButtonAction::poll(const CmxWindow &window, float dt)
 {
     int newStatus = 0;
@@ -258,6 +271,7 @@ tinyxml2::XMLElement &ButtonAction::save(tinyxml2::XMLDocument &doc, tinyxml2::X
         tinyxml2::XMLElement *buttonElement = doc.NewElement("button");
         buttonElement->SetAttribute("code", button.code);
         buttonElement->SetAttribute("source", toString(button.source));
+        buttonElement->SetAttribute("id", button.id);
 
         inputActionElement->InsertEndChild(buttonElement);
     }
@@ -276,7 +290,8 @@ void ButtonAction::load(tinyxml2::XMLElement *buttonActionElement)
     while (buttonElement)
     {
         int code = buttonElement->IntAttribute("code");
-        buttons.push_back({code, toInputSource(buttonElement->Attribute("source"))});
+        short unsigned int id = buttonElement->UnsignedAttribute("id");
+        buttons.push_back({code, toInputSource(buttonElement->Attribute("source")), id});
 
         buttonElement = buttonElement->NextSiblingElement("button");
     }
@@ -307,6 +322,7 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
             tinyxml2::XMLElement *axisElement = doc.NewElement("axis");
             axisElement->SetAttribute("code", axes[i].code);
             axisElement->SetAttribute("source", toString(axes[i].source));
+            axisElement->SetAttribute("id", axes[i].id);
 
             inputActionElement->InsertEndChild(axisElement);
         }
@@ -320,6 +336,7 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
             tinyxml2::XMLElement *axisElement = doc.NewElement("button");
             axisElement->SetAttribute("code", buttons[i].code);
             axisElement->SetAttribute("source", toString(buttons[i].source));
+            axisElement->SetAttribute("id", buttons[i].id);
 
             inputActionElement->InsertEndChild(axisElement);
         }
@@ -343,7 +360,8 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
         while (axisElement)
         {
             int code = axisElement->IntAttribute("code");
-            axes[i] = {code, toInputSource(axisElement->Attribute("source"))};
+            short unsigned int id = axisElement->UnsignedAttribute("id");
+            axes[i] = {code, toInputSource(axisElement->Attribute("source")), id};
             i++;
 
             axisElement = axisElement->NextSiblingElement("axis");
@@ -367,9 +385,31 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
     }
 }
 
-void AxisAction::renderSettings(int i)
+void AxisAction::renderSettings()
 {
+    int i = 0;
     std::string label;
+
+    ImGui::SetNextItemWidth(100);
+    if (ImGui::BeginCombo("type", toString(type)))
+    {
+        for (const Type &axisType : {Type::BUTTONS, Type::AXES})
+        {
+            bool isSelected = (axisType == type);
+
+            if (ImGui::Selectable(toString(axisType), isSelected))
+            {
+                type = axisType;
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
 
     if (type == Type::AXES)
     {
@@ -389,11 +429,13 @@ void AxisAction::renderSettings(int i)
     }
 }
 
-void ButtonAction::renderSettings(int i)
+void ButtonAction::renderSettings()
 {
-    std::string label = fmt::format("##t{}", i++);
+    int i = 0;
+    std::string label;
 
-    if (ImGui::BeginCombo(label.c_str(), toString(buttonType)))
+    ImGui::SetNextItemWidth(100);
+    if (ImGui::BeginCombo("mode", toString(buttonType)))
     {
         for (const Type &type : {Type::HELD, Type::TOGGLE, Type::PRESSED, Type::RELEASED, Type::SHORTCUT})
         {
@@ -412,10 +454,28 @@ void ButtonAction::renderSettings(int i)
         ImGui::EndCombo();
     }
 
-    for (Button &button : buttons)
+    auto it = buttons.begin();
+    while (it != buttons.end())
     {
         label = fmt::format("##b{}", i++);
-        button.renderSettings(label);
+        it->renderSettings(label);
+
+        ImGui::SameLine();
+        label = fmt::format("-##r{}", i++);
+        if (ImGui::Button(label.c_str()))
+        {
+            buttons.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
+
+    label = fmt::format("+##p{}", i++);
+    if (ImGui::Button(label.c_str()))
+    {
+        buttons.push_back(CMX_BUTTON_VOID);
     }
 }
 

@@ -1,4 +1,5 @@
 #include "cmx_inputs.h"
+#include "imgui.h"
 #include <spdlog/spdlog.h>
 
 namespace cmx
@@ -23,6 +24,7 @@ void Axis::renderSettings(const std::string &label)
 
     int currentItem = findSelected();
 
+    ImGui::SetNextItemWidth(200);
     if (ImGui::BeginCombo(label.c_str(), CMX_AXIS_DICTIONARY[currentItem].first))
     {
         for (auto &pair : CMX_AXIS_DICTIONARY)
@@ -33,6 +35,7 @@ void Axis::renderSettings(const std::string &label)
             {
                 code = pair.second->code;
                 source = pair.second->source;
+                id = pair.second->id;
             }
 
             if (isSelected)
@@ -61,6 +64,7 @@ void Button::renderSettings(const std::string &label)
         return 0;
     };
 
+    ImGui::SetNextItemWidth(200);
     if (ImGui::BeginCombo(label.c_str(), CMX_BUTTON_DICTIONARY[findSelected()].first))
     {
         for (auto &pair : CMX_BUTTON_DICTIONARY)
@@ -71,6 +75,7 @@ void Button::renderSettings(const std::string &label)
             {
                 code = pair.second->code;
                 source = pair.second->source;
+                id = pair.second->id;
             }
 
             if (isSelected)

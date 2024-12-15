@@ -29,7 +29,7 @@ class InputAction
 
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) = 0;
     virtual void load(tinyxml2::XMLElement *parentElement) = 0;
-    virtual void renderSettings(int i) = 0;
+    virtual void renderSettings() = 0;
 };
 
 class ButtonAction : public InputAction
@@ -44,7 +44,7 @@ class ButtonAction : public InputAction
         TOGGLE,   // sends 1 when pressed, 0 when released
     };
 
-    ButtonAction() = default;
+    ButtonAction() : buttonType{PRESSED} {};
 
     ButtonAction(Type buttonType, std::initializer_list<Button> buttons) : buttonType{buttonType}, buttons{buttons} {};
 
@@ -54,7 +54,7 @@ class ButtonAction : public InputAction
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) override;
     void load(tinyxml2::XMLElement *parentElement) override;
-    void renderSettings(int i) override;
+    void renderSettings() override;
 
   private:
     std::vector<Button> buttons;
@@ -66,14 +66,14 @@ class ButtonAction : public InputAction
 
 class AxisAction : public InputAction
 {
+  public:
     enum Type
     {
         BUTTONS,
         AXES
     };
 
-  public:
-    AxisAction() = default;
+    AxisAction() : AxisAction{CMX_AXIS_VOID, CMX_AXIS_VOID} {};
 
     AxisAction(Button right, Button left, Button up = CMX_BUTTON_VOID, Button down = CMX_BUTTON_VOID)
         : buttons{right, left, up, down}, type{BUTTONS} {};
@@ -85,7 +85,7 @@ class AxisAction : public InputAction
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) override;
     void load(tinyxml2::XMLElement *parentElement) override;
-    void renderSettings(int i) override;
+    void renderSettings() override;
 
   private:
     Type type;

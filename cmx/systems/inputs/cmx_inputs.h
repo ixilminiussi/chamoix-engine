@@ -1,10 +1,8 @@
 #pragma once
 
 // std
-#include "imgui.h"
+#include <cstring>
 #include <string>
-#include <unordered_map>
-#include <vector>
 
 // lib
 #define GLFW_INCLUDE_VULKAN
@@ -50,10 +48,14 @@ inline InputSource toInputSource(const char *sourceString)
 
     return InputSource::KEYBOARD;
 }
+
 struct Button
 {
     int code;
     InputSource source;
+
+    short unsigned int id = 0; // used to set apart inputs of same code but different use
+
     int status{0};
 
     void renderSettings(const std::string &label);
@@ -61,13 +63,16 @@ struct Button
 
 inline bool operator==(const Button &a, const Button &b)
 {
-    return (a.code == b.code && a.source == b.source);
+    return (a.code == b.code && a.source == b.source && a.id == b.id);
 }
 
 struct Axis
 {
     int code;
     InputSource source;
+
+    short unsigned int id = 0; // used to set apart inputs of same code but different use
+
     float value{0.f};
     float absValue{0.f};
 
@@ -76,15 +81,15 @@ struct Axis
 
 inline bool operator==(const Axis &a, const Axis &b)
 {
-    return (a.code == b.code && a.source == b.source);
+    return (a.code == b.code && a.source == b.source && a.id == b.id);
 }
 
 inline Button CMX_BUTTON_VOID{-1, InputSource::KEYBOARD};
 inline Axis CMX_AXIS_VOID{-1, InputSource::KEYBOARD};
 inline Axis CMX_MOUSE_AXIS_X_ABSOLUTE{0, InputSource::MOUSE};
 inline Axis CMX_MOUSE_AXIS_Y_ABSOLUTE{1, InputSource::MOUSE};
-inline Axis CMX_MOUSE_AXIS_X_RELATIVE{0, InputSource::MOUSE};
-inline Axis CMX_MOUSE_AXIS_Y_RELATIVE{1, InputSource::MOUSE};
+inline Axis CMX_MOUSE_AXIS_X_RELATIVE{0, InputSource::MOUSE, 1};
+inline Axis CMX_MOUSE_AXIS_Y_RELATIVE{1, InputSource::MOUSE, 1};
 
 inline Button CMX_KEY_SPACE{GLFW_KEY_SPACE, InputSource::KEYBOARD};
 inline Button CMX_KEY_APOSTROPHE{GLFW_KEY_APOSTROPHE, InputSource::KEYBOARD};
@@ -215,8 +220,8 @@ inline Button CMX_MOUSE_BUTTON_6{GLFW_MOUSE_BUTTON_6, InputSource::MOUSE};
 inline Button CMX_MOUSE_BUTTON_7{GLFW_MOUSE_BUTTON_7, InputSource::MOUSE};
 inline Button CMX_MOUSE_BUTTON_8{GLFW_MOUSE_BUTTON_8, InputSource::MOUSE};
 inline Button CMX_MOUSE_BUTTON_LAST{GLFW_MOUSE_BUTTON_LAST, InputSource::MOUSE};
-inline Button CMX_MOUSE_BUTTON_LEFT{GLFW_MOUSE_BUTTON_LEFT, InputSource::MOUSE};
-inline Button CMX_MOUSE_BUTTON_RIGHT{GLFW_MOUSE_BUTTON_RIGHT, InputSource::MOUSE};
+inline Button CMX_MOUSE_BUTTON_LEFT{GLFW_MOUSE_BUTTON_LEFT, InputSource::MOUSE, 1};
+inline Button CMX_MOUSE_BUTTON_RIGHT{GLFW_MOUSE_BUTTON_RIGHT, InputSource::MOUSE, 1};
 inline Button CMX_MOUSE_BUTTON_MIDDLE{GLFW_MOUSE_BUTTON_MIDDLE, InputSource::MOUSE};
 
 inline Button CMX_GAMEPAD_BUTTON_A{GLFW_GAMEPAD_BUTTON_A, InputSource::GAMEPAD};
