@@ -14,6 +14,8 @@ namespace cmx
 namespace reg
 {
 
+inline const char *list[] = {"cmx::Actor", "cmx::ViewportActor", "RotatingActor"};
+
 inline std::shared_ptr<Actor> loadActor(const std::string &classname, Scene *scene, const std::string &name)
 {
     if (classname.compare("cmx::Actor") == 0)

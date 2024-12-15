@@ -6,6 +6,7 @@
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
 #include "cmx_game.h"
+#include "cmx_registers.h"
 #include "cmx_renderer.h"
 #include "cmx_viewport_actor.h"
 
@@ -154,18 +155,72 @@ void ViewportUIComponent::renderSceneTree()
     std::vector<std::weak_ptr<Actor>> actorList{};
     getParent()->getScene()->getAllActorsByType<Actor>(actorList);
 
-    for (auto actorWk : actorList)
+    auto it = actorList.begin();
+    int i = 0;
+
+    // render existing actors
+    while (it != actorList.end())
     {
-        if (std::shared_ptr<Actor> actor = actorWk.lock())
+        ImGui::PushID(i++);
+        if (std::shared_ptr<Actor> actor = it->lock())
         {
             if (actor->name == getParent()->name)
+            {
+                it++;
+                ImGui::PopID();
                 continue;
+            }
             if (ImGui::Button(actor->name.c_str()))
             {
-                inspectedActor = actorWk;
+                inspectedActor = *it;
                 renderInspector();
             }
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_MS_DELETE))
+            {
+                getParent()->getScene()->removeActor(actor.get());
+                ImGui::PopID();
+                continue;
+            }
         }
+
+        ImGui::PopID();
+        it++;
+    }
+
+    // create new actor
+    static const char *selected = reg::list[0];
+
+    ImGui::PushID(i++);
+    ImGui::SetNextItemWidth(172);
+    if (ImGui::BeginCombo("##", selected))
+    {
+        for (const char *option : reg::list)
+        {
+            bool isSelected = (strcmp(selected, option) == 0);
+
+            if (ImGui::Selectable(option, isSelected))
+            {
+                selected = option;
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+    ImGui::PopID();
+
+    static char buffer[100];
+    ImGui::SetNextItemWidth(140);
+    ImGui::InputText("##", buffer, 100);
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_MS_ADD))
+    {
+        reg::loadActor(std::string(selected), getParent()->getScene(), buffer);
     }
 
     ImGui::End();

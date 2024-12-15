@@ -186,6 +186,10 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 
     for (auto actorPair : actors)
     {
+        if (std::shared_ptr<ViewportActor> viewport = std::dynamic_pointer_cast<ViewportActor>(actorPair.second))
+        {
+            continue;
+        }
         actorPair.second->save(doc, sceneElement);
     }
 

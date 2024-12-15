@@ -29,7 +29,7 @@
 ## Level editor
 -[x] viewport navigation
 -[x] ImGUI implementation
--[ ] separate input manager for editor and game
+-[x] separate input manager for editor and game
 -[ ] Shortcut input support
 -[x] <xml> import and export
 -[ ] playing and editing state
