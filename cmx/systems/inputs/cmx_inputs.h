@@ -2,6 +2,7 @@
 
 // std
 #include <cstring>
+#include <spdlog/spdlog.h>
 #include <string>
 
 // lib

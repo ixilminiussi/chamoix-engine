@@ -25,7 +25,7 @@ class CmxMeshActor : public Actor
     void update(float dt) override;
 
     // for viewport
-    void renderSettings(int i) override;
+    void renderSettings() override;
 
     void updateMesh(CmxPrimitives);
     void updateMesh(std::string &assetName);

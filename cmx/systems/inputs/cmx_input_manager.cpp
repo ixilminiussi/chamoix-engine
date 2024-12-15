@@ -4,9 +4,10 @@
 #include "cmx_input_action.h"
 #include "cmx_window.h"
 #include "imgui.h"
-#include "tinyxml2.h"
 
 // lib
+#include "IconsMaterialSymbols.h"
+#include "tinyxml2.h"
 #include <GLFW/glfw3.h>
 
 // std
@@ -148,7 +149,7 @@ void InputManager::renderSettings()
         ImGui::PushID(i++);
         if (ImGui::CollapsingHeader(it->first.c_str()))
         {
-            if (ImGui::Button("delete"))
+            if (ImGui::Button(ICON_MS_DELETE " delete"))
             {
                 it = inputDictionary.erase(it);
             }

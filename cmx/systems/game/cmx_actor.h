@@ -47,7 +47,7 @@ class Actor
     virtual void load(tinyxml2::XMLElement *);
 
     // for viewport
-    virtual void renderSettings(int i);
+    virtual void renderSettings();
 
     void attachComponent(std::shared_ptr<Component>, std::string name = "");
     void detachComponent(const std::string &name);

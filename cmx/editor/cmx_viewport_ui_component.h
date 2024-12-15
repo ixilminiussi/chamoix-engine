@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cmx_component.h"
+#include <memory>
 
 namespace cmx
 {
@@ -22,6 +23,7 @@ class ViewportUIComponent : public Component
     void renderViewportSettings();
     void renderProjectSettings();
     void renderSceneTree();
+    void renderInspector();
 
     void initImGUI(class CmxDevice &, class CmxWindow &, class CmxRenderer &);
     void initInputManager(class CmxWindow &, const std::string &shortcutsPath = "editor/shortcuts.xml");
@@ -39,6 +41,8 @@ class ViewportUIComponent : public Component
     bool showViewportSettings{false};
     bool showProjectSettings{false};
     bool showSceneTree{true};
+    bool showInspector{false};
+    std::weak_ptr<Actor> inspectedActor;
 
     // viewport actor settings
     float &viewportMovementSpeed;

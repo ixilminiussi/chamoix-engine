@@ -42,6 +42,7 @@ class Game
 
     // getters and setters :: begin
     class Scene *getScene();
+
     void setScene(int i)
     {
         if (activeScene)
@@ -58,7 +59,7 @@ class Game
             spdlog::error("Scene: no scene at index {0}", i);
         }
     }
-    std::shared_ptr<InputManager> getInputManager()
+    std::shared_ptr<InputManager> getInputManager() const
     {
         return inputManager;
     }

@@ -1,6 +1,8 @@
 #include "cmx_input_action.h"
 
 // cmx
+#include "IconsFontAwesome5.h"
+#include "IconsMaterialSymbols.h"
 #include "cmx_inputs.h"
 #include "cmx_window.h"
 #include "imgui.h"
@@ -461,7 +463,7 @@ void ButtonAction::renderSettings()
         it->renderSettings(label);
 
         ImGui::SameLine();
-        label = fmt::format("-##r{}", i++);
+        label = fmt::format(ICON_MS_REMOVE "##r{}", i++);
         if (ImGui::Button(label.c_str()))
         {
             buttons.erase(it);
@@ -472,7 +474,8 @@ void ButtonAction::renderSettings()
         }
     }
 
-    label = fmt::format("+##p{}", i++);
+    label = fmt::format(ICON_MS_ADD "##p{}", i++);
+    ImGui::SameLine();
     if (ImGui::Button(label.c_str()))
     {
         buttons.push_back(CMX_BUTTON_VOID);

@@ -10,16 +10,16 @@
 #include "cmx_viewport_actor.h"
 
 // lib
-#include "cmx_viewport_actor.h"
+#include "IconsMaterialSymbols.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 #include <glm/fwd.hpp>
-#include <memory>
 #include <spdlog/spdlog.h>
 
 // std
 #include <limits>
+#include <memory>
 
 namespace cmx
 {
@@ -62,6 +62,9 @@ void ViewportUIComponent::render(class FrameInfo &frameInfo, VkPipelineLayout pi
     if (showSceneTree)
         renderSceneTree();
 
+    if (showInspector)
+        renderInspector();
+
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), frameInfo.commandBuffer);
 }
@@ -71,7 +74,7 @@ void ViewportUIComponent::renderTopBar()
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("File"))
     {
-        if (ImGui::MenuItem("Save", "Ctrl+S"))
+        if (ImGui::MenuItem(ICON_MS_SAVE " Save", "Ctrl+S"))
         {
             parent->getScene()->save();
         }
@@ -79,11 +82,11 @@ void ViewportUIComponent::renderTopBar()
     }
     if (ImGui::BeginMenu("Settings"))
     {
-        if (ImGui::MenuItem("Viewport Settings", "Ctrl+V"))
+        if (ImGui::MenuItem(ICON_MS_SETTINGS " Viewport Settings", "Ctrl+V"))
         {
             renderViewportSettings();
         }
-        if (ImGui::MenuItem("Project Settings", "Ctrl+V"))
+        if (ImGui::MenuItem(ICON_MS_SETTINGS " Project Settings", "Ctrl+V"))
         {
             renderProjectSettings();
         }
@@ -91,7 +94,7 @@ void ViewportUIComponent::renderTopBar()
     }
     if (ImGui::BeginMenu("Toolbar"))
     {
-        if (ImGui::MenuItem("Scene Tree", "Ctrl+T"))
+        if (ImGui::MenuItem(ICON_MS_FOUNDATION " Scene Tree", "Ctrl+T"))
         {
             renderSceneTree();
         }
@@ -124,7 +127,6 @@ void ViewportUIComponent::renderProjectSettings()
     Game *game = getParent()->getScene()->getGame();
 
     showProjectSettings = true;
-    ImGui::SetNextWindowSize({500, 1000});
     ImGui::Begin("Project Settings", &showProjectSettings);
 
     if (ImGui::BeginTabBar(""))
@@ -147,25 +149,40 @@ void ViewportUIComponent::renderProjectSettings()
 void ViewportUIComponent::renderSceneTree()
 {
     showSceneTree = true;
-    ImGui::SetNextWindowSize({300, 500});
     ImGui::Begin("Scene Tree", &showSceneTree);
 
     std::vector<std::weak_ptr<Actor>> actorList{};
     getParent()->getScene()->getAllActorsByType<Actor>(actorList);
 
-    int i = 0;
     for (auto actorWk : actorList)
     {
         if (std::shared_ptr<Actor> actor = actorWk.lock())
         {
             if (actor->name == getParent()->name)
                 continue;
-            if (ImGui::CollapsingHeader(actor->name.c_str()))
+            if (ImGui::Button(actor->name.c_str()))
             {
-                actor->renderSettings(i);
+                inspectedActor = actorWk;
+                renderInspector();
             }
         }
-        i++;
+    }
+
+    ImGui::End();
+}
+
+void ViewportUIComponent::renderInspector()
+{
+    showInspector = true;
+    ImGui::Begin("Inspector", &showInspector);
+
+    if (std::shared_ptr<Actor> actor = inspectedActor.lock())
+    {
+        actor->renderSettings();
+    }
+    else
+    {
+        ImGui::Text("No actor selected.");
     }
 
     ImGui::End();
@@ -212,6 +229,19 @@ void ViewportUIComponent::initImGUI(CmxDevice &cmxDevice, CmxWindow &cmxWindow, 
     init_info.RenderPass = cmxRenderer.getSwapChainRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
+
+    ImGuiIO &io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF("editor/JetBrainsMonoNL-Regular.ttf", 16.0f);
+    float iconFontSize = 16.0f;
+
+    // merge in icons from Font Awesome
+    static const ImWchar icons_ranges[] = {ICON_MIN_MS, ICON_MAX_16_MS, 0};
+    ImFontConfig icons_config;
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    icons_config.GlyphOffset = {0.0f, 4.0f};
+    io.Fonts->AddFontFromFileTTF("editor/MaterialIcons-Regular.ttf", iconFontSize, &icons_config, icons_ranges);
+    // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 }
 
 void ViewportUIComponent::initInputManager(class CmxWindow &window, const std::string &shortcutsPath)

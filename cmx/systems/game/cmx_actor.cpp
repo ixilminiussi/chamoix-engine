@@ -100,33 +100,32 @@ Transform Actor::getAbsoluteTransform()
     return transform;
 }
 
-void Actor::renderSettings(int i)
+void Actor::renderSettings()
 {
-    std::string label;
-    ImGui::SeparatorText("Transform");
+    if (ImGui::CollapsingHeader("Transform"))
+    {
+        float *position[3] = {&transform.position.x, &transform.position.y, &transform.position.z};
+        ImGui::DragFloat3("Position", *position, 0.1f);
 
-    label = fmt::format("Position##{}", i);
-    float *position[3] = {&transform.position.x, &transform.position.y, &transform.position.z};
-    ImGui::DragFloat3(label.c_str(), *position, 0.1f);
+        float *scale[3] = {&transform.scale.x, &transform.scale.y, &transform.scale.z};
+        ImGui::DragFloat3("Scale", *scale, 0.1f);
 
-    label = fmt::format("Scale##{}", i);
-    float *scale[3] = {&transform.scale.x, &transform.scale.y, &transform.scale.z};
-    ImGui::DragFloat3(label.c_str(), *scale, 0.1f);
-
-    label = fmt::format("Rotation##{}", i);
-    float *rotation[3] = {&transform.rotation.x, &transform.rotation.y, &transform.rotation.z};
-    ImGui::DragFloat3(label.c_str(), *rotation, 0.1f);
+        float *rotation[3] = {&transform.rotation.x, &transform.rotation.y, &transform.rotation.z};
+        ImGui::DragFloat3("Rotation", *rotation, 0.1f);
+    }
 
     if (components.size() > 0)
     {
         ImGui::SeparatorText("Components");
+        int i = 0;
+        std::string label;
+
         for (auto component : components)
         {
-            label = fmt::format("{}##{}", component.first.c_str(), i);
-            if (ImGui::TreeNode(label.c_str()))
+            label = fmt::format("{}##{}", component.first.c_str(), i++);
+            if (ImGui::CollapsingHeader(label.c_str()))
             {
                 component.second->renderSettings(i);
-                ImGui::TreePop();
             }
         }
     }
