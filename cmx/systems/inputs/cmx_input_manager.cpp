@@ -146,18 +146,18 @@ void InputManager::renderSettings()
     while (it != inputDictionary.end())
     {
         ImGui::PushID(i++);
-        ImGui::Separator();
-        ImGui::Text("%s", it->first.c_str());
-        ImGui::SameLine();
-        if (ImGui::Button("-"))
+        if (ImGui::CollapsingHeader(it->first.c_str()))
         {
-            it = inputDictionary.erase(it);
+            if (ImGui::Button("delete"))
+            {
+                it = inputDictionary.erase(it);
+            }
+            else
+            {
+                it->second->renderSettings();
+            }
         }
-        else
-        {
-            it->second->renderSettings();
-            it++;
-        }
+        it++;
 
         ImGui::PopID();
     }
