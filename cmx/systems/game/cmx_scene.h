@@ -2,6 +2,7 @@
 
 // lib
 #include "cmx_assets_manager.h"
+#include "cmx_graphics_manager.h"
 #include "tinyxml2.h"
 #include <spdlog/spdlog.h>
 
@@ -31,22 +32,17 @@ class Scene
     {
         return components;
     }
-    std::vector<std::weak_ptr<class Component>> &getRenderQueue()
-    {
-        return renderQueue;
-    }
 
     tinyxml2::XMLElement &save();
     tinyxml2::XMLElement &saveAs(const char *filepath);
     void load();
     void unload();
 
+    void update(float dt);
+
     std::shared_ptr<Actor> addActor(std::shared_ptr<class Actor>);
     void removeActor(class Actor *);
-    void updateActors(float dt);
-
     void addComponent(std::shared_ptr<class Component>);
-    void updateComponents(float dt);
 
     void setCamera(std::shared_ptr<class CameraComponent> camera);
 
@@ -64,12 +60,16 @@ class Scene
     const std::string name;
 
     std::shared_ptr<class AssetsManager> assetsManager = std::make_shared<class AssetsManager>(this);
+    std::unique_ptr<class GraphicsManager> graphicsManager;
 
   private:
+    void updateActors(float dt);
+    void updateComponents(float dt);
+    void draw();
+
     std::shared_ptr<class CameraComponent> activeCamera;
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> actors{};
     std::vector<std::weak_ptr<class Component>> components{};
-    std::vector<std::weak_ptr<class Component>> renderQueue{};
 
     class Game *game;
 };

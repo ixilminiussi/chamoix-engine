@@ -19,7 +19,7 @@ namespace cmx
 
 void Scene::load()
 {
-    // TODO: Get relevant elements from xml and generate scene from it
+    graphicsManager = std::unique_ptr<GraphicsManager>(new GraphicsManager(getGame()->getRenderSystem()));
 
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(xmlPath.c_str()) == tinyxml2::XML_SUCCESS)
@@ -106,6 +106,13 @@ std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor> actor)
     return actor;
 }
 
+void Scene::update(float dt)
+{
+    updateActors(dt);
+    updateComponents(dt);
+    graphicsManager->drawComponents(getCamera());
+}
+
 void Scene::removeActor(Actor *actor)
 {
     try
@@ -141,10 +148,7 @@ void Scene::addComponent(std::shared_ptr<Component> component)
     if (component->renderZ >= 0)
 #endif
     {
-        auto it = std::lower_bound(renderQueue.begin(), renderQueue.end(), component);
-        renderQueue.insert(it, component);
-        spdlog::info("Scene '{0}': Component '{1}' joins renderQueue with renderZ {2}", name, component->name,
-                     component->renderZ);
+        graphicsManager->addToQueue(component);
     }
 }
 

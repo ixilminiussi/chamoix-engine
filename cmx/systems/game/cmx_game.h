@@ -2,18 +2,14 @@
 
 // cmx
 #include "cmx_assets_manager.h"
-#include "cmx_descriptors.h"
 #include "cmx_device.h"
-#include "cmx_input_action.h"
 #include "cmx_input_manager.h"
-#include "cmx_renderer.h"
+#include "cmx_render_system.h"
 #include "cmx_scene.h"
 #include "cmx_window.h"
-#include "tinyxml2.h"
 
 // lib
 #include <stdexcept>
-#include <unordered_map>
 #include <vulkan/vulkan_core.h>
 
 // std
@@ -63,9 +59,13 @@ class Game
     {
         return inputManager;
     }
+    std::shared_ptr<RenderSystem> getRenderSystem() const
+    {
+        return renderSystem;
+    }
     CmxDevice &getDevice()
     {
-        return cmxDevice;
+        return *renderSystem->cmxDevice;
     }
     // getters and setters :: end
 
@@ -74,14 +74,9 @@ class Game
     std::vector<Scene *> scenes;
 
     CmxWindow cmxWindow{WIDTH, HEIGHT, "demo"};
-    CmxDevice cmxDevice{cmxWindow};
-    CmxRenderer cmxRenderer{cmxWindow, cmxDevice};
-    std::unique_ptr<VkPipeline> cmxPipeline;
-    VkPipelineLayout pipelineLayout;
-
-    std::unique_ptr<CmxDescriptorPool> globalPool{};
 
     std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(cmxWindow);
+    std::shared_ptr<RenderSystem> renderSystem = std::make_shared<RenderSystem>(cmxWindow);
 
     // warning flags
     bool noCameraFlag{false};

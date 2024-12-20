@@ -243,10 +243,12 @@ void ViewportUIComponent::renderInspector()
     ImGui::End();
 }
 
-void ViewportUIComponent::initImGUI(CmxDevice &cmxDevice, CmxWindow &cmxWindow, CmxRenderer &cmxRenderer)
+void ViewportUIComponent::initImGUI(RenderSystem *renderSystem)
 {
     // 1: create descriptor pool for IMGUI
     // the size of the pool is very oversize, but it's copied from imgui demo itself.
+    CmxDevice &cmxDevice = *renderSystem->cmxDevice.get();
+    CmxWindow &cmxWindow = *renderSystem->cmxWindow;
 
     imguiPool = CmxDescriptorPool::Builder(cmxDevice)
                     .setMaxSets(1000)
@@ -281,7 +283,7 @@ void ViewportUIComponent::initImGUI(CmxDevice &cmxDevice, CmxWindow &cmxWindow, 
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = cmxRenderer.getSwapChainRenderPass();
+    init_info.RenderPass = renderSystem->cmxRenderer->getSwapChainRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
 

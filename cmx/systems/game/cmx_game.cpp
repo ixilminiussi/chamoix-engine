@@ -40,7 +40,7 @@ void Game::loadEditor()
     if (auto viewportUIComponent = viewportUIWk.lock())
     {
         viewportUIComponent->initInputManager(cmxWindow);
-        viewportUIComponent->initImGUI(cmxDevice, cmxWindow, cmxRenderer);
+        viewportUIComponent->initImGUI(renderSystem.get());
     }
 
     std::weak_ptr<CameraComponent> cameraWk = viewportActor->getComponentByType<CameraComponent>();
