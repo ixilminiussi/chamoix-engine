@@ -31,12 +31,12 @@ class Component
     // getters and setters :: begin
     void setParent(class Actor *actor)
     {
-        parent = actor;
+        _parent = actor;
     }
 
     Actor *getParent()
     {
-        return parent;
+        return _parent;
     }
     // getters and setters :: end
 
@@ -47,18 +47,18 @@ class Component
     std::string name;
 
   protected:
-    class Actor *parent = nullptr;
+    class Actor *_parent = nullptr;
 
-    int32_t renderZ{-1}; // decides whether or not to add component to render queue:
-                         // -1: no
-                         // >0: yes, render lower values first
+    int32_t _renderZ{-1}; // decides whether or not to add component to render queue:
+                          // -1: no
+                          // >0: yes, render lower values first
 };
 
 inline bool operator<(std::weak_ptr<Component> awk, std::shared_ptr<Component> b)
 {
     if (auto a = awk.lock())
     {
-        return a->renderZ < b->renderZ;
+        return a->_renderZ < b->_renderZ;
     }
     return true;
 }

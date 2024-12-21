@@ -35,23 +35,23 @@ class CameraComponent : public Component
     // getters and setters :: begin
     const glm::mat4 &getProjection() const
     {
-        return projectionMatrix;
+        return _projectionMatrix;
     }
 
     const glm::mat4 &getView() const
     {
-        return viewMatrix;
+        return _viewMatrix;
     }
     // getters and setters :: end
 
   private:
-    glm::mat4 projectionMatrix{1.f};
-    glm::mat4 viewMatrix{1.f};
+    glm::mat4 _projectionMatrix{1.f};
+    glm::mat4 _viewMatrix{1.f};
 
-    float screenAspectRatio{};
-    float FOV{80.0f};
-    float nearPlane{.1f};
-    float farPlane{1000.f};
+    float _screenAspectRatio{};
+    float _FOV{80.0f};
+    float _nearPlane{.1f};
+    float _farPlane{1000.f};
 };
 
 } // namespace cmx

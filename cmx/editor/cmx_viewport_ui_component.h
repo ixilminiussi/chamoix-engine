@@ -30,23 +30,23 @@ class ViewportUIComponent : public Component
 
     class InputManager *getInputManager()
     {
-        return inputManager.get();
+        return _inputManager.get();
     }
 
   private:
-    bool initialized{false};
-    std::unique_ptr<class CmxDescriptorPool> imguiPool;
+    bool _initialized{false};
+    std::unique_ptr<class CmxDescriptorPool> _imguiPool;
 
-    std::unique_ptr<class InputManager> inputManager;
-    bool showViewportSettings{false};
-    bool showProjectSettings{false};
-    bool showSceneTree{true};
-    bool showInspector{false};
-    std::weak_ptr<Actor> inspectedActor;
+    std::unique_ptr<class InputManager> _inputManager;
+    bool _showViewportSettings{false};
+    bool _showProjectSettings{false};
+    bool _showSceneTree{true};
+    bool _showInspector{false};
+    std::weak_ptr<Actor> _inspectedActor;
 
     // viewport actor settings
-    float &viewportMovementSpeed;
-    float &viewportSensitivity;
+    float &_viewportMovementSpeed;
+    float &_viewportSensitivity;
 };
 
 } // namespace cmx

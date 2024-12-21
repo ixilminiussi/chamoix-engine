@@ -53,9 +53,9 @@ class CmxPipeline
 
     void createShaderModule(const std::vector<char> &code, VkShaderModule *);
 
-    CmxDevice &cmxDevice;
-    VkPipeline graphicsPipeline;
-    VkShaderModule vertShaderModule;
-    VkShaderModule fragShaderModule;
+    CmxDevice &_cmxDevice;
+    VkPipeline _graphicsPipeline;
+    VkShaderModule _vertShaderModule;
+    VkShaderModule _fragShaderModule;
 };
 } // namespace cmx

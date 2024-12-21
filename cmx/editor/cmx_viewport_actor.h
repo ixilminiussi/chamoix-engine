@@ -27,16 +27,16 @@ class ViewportActor : public cmx::Actor
 
     std::weak_ptr<class cmx::CameraComponent> getCamera()
     {
-        return camera;
+        return _camera;
     }
 
-    float moveSpeed{4.5f};
-    float mouseSensitivity{0.5f};
+    float _moveSpeed{4.5f};
+    float _mouseSensitivity{0.5f};
 
   private:
-    std::shared_ptr<class cmx::CameraComponent> camera;
-    bool selected{false};
-    glm::vec3 viewVector{transform.forward()};
+    std::shared_ptr<class cmx::CameraComponent> _camera;
+    bool _selected{false};
+    glm::vec3 _viewVector{transform.forward()};
 };
 
 } // namespace cmx

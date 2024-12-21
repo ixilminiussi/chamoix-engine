@@ -19,16 +19,16 @@ namespace cmx
 
 void Scene::load()
 {
-    graphicsManager = std::unique_ptr<GraphicsManager>(new GraphicsManager(getGame()->getRenderSystem()));
+    _graphicsManager = std::unique_ptr<GraphicsManager>(new GraphicsManager(getGame()->getRenderSystem()));
 
     tinyxml2::XMLDocument doc;
-    if (doc.LoadFile(xmlPath.c_str()) == tinyxml2::XML_SUCCESS)
+    if (doc.LoadFile(_xmlPath.c_str()) == tinyxml2::XML_SUCCESS)
     {
-        spdlog::info("Scene: Loading new scene from {0}...", xmlPath);
+        spdlog::info("Scene: Loading new scene from {0}...", _xmlPath);
 
         tinyxml2::XMLElement *rootElement = doc.RootElement();
 
-        assetsManager->load(rootElement);
+        _assetsManager->load(rootElement);
 
         tinyxml2::XMLElement *actorElement = rootElement->FirstChildElement("actor");
         while (actorElement)
@@ -44,7 +44,7 @@ void Scene::load()
     }
     else
     {
-        spdlog::error("Scene: Couldn't load scene from {0}, {1}", xmlPath, doc.ErrorStr());
+        spdlog::error("Scene: Couldn't load scene from {0}, {1}", _xmlPath, doc.ErrorStr());
     }
 }
 
@@ -54,7 +54,7 @@ void Scene::unload()
 
 std::weak_ptr<Actor> Scene::getActorByName(const std::string &name)
 {
-    for (auto pair : actors)
+    for (auto pair : _actors)
     {
         if (pair.second->name == name)
         {
@@ -70,7 +70,7 @@ std::weak_ptr<Actor> Scene::getActorByID(uint32_t id)
     std::weak_ptr<Actor> actor;
     try
     {
-        actor = actors.at(id);
+        actor = _actors.at(id);
     }
     catch (const std::out_of_range &e)
     {
@@ -82,7 +82,7 @@ std::weak_ptr<Actor> Scene::getActorByID(uint32_t id)
 
 void Scene::setCamera(std::shared_ptr<class CameraComponent> camera)
 {
-    activeCamera = camera;
+    _activeCamera = camera;
     spdlog::info("Scene: new active Camera is {0}->{1}", camera->getParent()->name, camera->name);
 }
 
@@ -100,7 +100,7 @@ std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor> actor)
 #endif
 
     actor->onBegin();
-    actors[actor->id] = actor;
+    _actors[actor->_id] = actor;
     spdlog::info("Scene '{0}': Added new Actor '{1}'", name, actor->name);
 
     return actor;
@@ -110,28 +110,28 @@ void Scene::update(float dt)
 {
     updateActors(dt);
     updateComponents(dt);
-    graphicsManager->drawComponents(getCamera());
+    _graphicsManager->drawComponents(getCamera());
 }
 
 void Scene::removeActor(Actor *actor)
 {
     try
     {
-        actors.at(actor->id) = nullptr;
+        _actors.at(actor->_id) = nullptr;
     }
     catch (const std::out_of_range &e)
     {
         spdlog::warn("Scene '{0}': Attempt to remove non-managed actor '{1}''", name, actor->name);
     }
 
-    actors.erase(actor->id);
+    _actors.erase(actor->_id);
 
     spdlog::info("Scene '{0}': Removed actor '{1}'", name, actor->name);
 }
 
 void Scene::updateActors(float dt)
 {
-    for (auto pair : actors)
+    for (auto pair : _actors)
     {
         pair.second->update(dt);
     }
@@ -139,27 +139,27 @@ void Scene::updateActors(float dt)
 
 void Scene::addComponent(std::shared_ptr<Component> component)
 {
-    components.push_back(component);
+    _components.push_back(component);
     spdlog::info("Scene '{0}': Added new component '{1}->{2}'", name, component->getParent()->name, component->name);
 
 #ifndef NDEBUG
-    if (component->renderZ >= -1)
+    if (component->_renderZ >= -1)
 #else
-    if (component->renderZ >= 0)
+    if (component->_renderZ >= 0)
 #endif
     {
-        graphicsManager->addToQueue(component);
+        _graphicsManager->addToQueue(component);
     }
 }
 
 void Scene::updateComponents(float dt)
 {
-    for (auto i = components.begin(); i < components.end();)
+    for (auto i = _components.begin(); i < _components.end();)
     {
         // if component is deleted, remove it from our list
         if (i->expired())
         {
-            i = components.erase(i);
+            i = _components.erase(i);
             continue;
         }
 
@@ -173,7 +173,7 @@ void Scene::updateComponents(float dt)
 
 tinyxml2::XMLElement &Scene::save()
 {
-    return saveAs(xmlPath.c_str());
+    return saveAs(_xmlPath.c_str());
 }
 
 tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
@@ -186,9 +186,9 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
     tinyxml2::XMLElement *sceneElement = doc.NewElement("scene");
     sceneElement->SetAttribute("name", name.c_str());
 
-    assetsManager->save(doc, sceneElement);
+    _assetsManager->save(doc, sceneElement);
 
-    for (auto actorPair : actors)
+    for (auto actorPair : _actors)
     {
         if (std::shared_ptr<ViewportActor> viewport = std::dynamic_pointer_cast<ViewportActor>(actorPair.second))
         {

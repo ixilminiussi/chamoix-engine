@@ -21,23 +21,23 @@ class CmxWindow
 
     bool shouldClose() const
     {
-        return glfwWindowShouldClose(window);
+        return glfwWindowShouldClose(_window);
     }
     VkExtent2D getExtent() const
     {
-        return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+        return {static_cast<uint32_t>(_width), static_cast<uint32_t>(_height)};
     }
     bool wasWindowResized() const
     {
-        return framebufferResized;
+        return _framebufferResized;
     }
     void resetWindowResizedFlag()
     {
-        framebufferResized = false;
+        _framebufferResized = false;
     }
     GLFWwindow *getGLFWwindow() const
     {
-        return window;
+        return _window;
     }
 
     void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
@@ -46,11 +46,11 @@ class CmxWindow
     static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
     void initWindow();
 
-    int width;
-    int height;
-    bool framebufferResized = false;
+    int _width;
+    int _height;
+    bool _framebufferResized = false;
 
-    std::string windowName;
-    GLFWwindow *window;
+    std::string _windowName;
+    GLFWwindow *_window;
 };
 } // namespace cmx

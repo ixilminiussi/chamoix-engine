@@ -14,19 +14,19 @@ CmxDescriptorSetLayout::Builder &CmxDescriptorSetLayout::Builder::addBinding(uin
                                                                              VkShaderStageFlags stageFlags,
                                                                              uint32_t count)
 {
-    assert(bindings.count(binding) == 0 && "Binding already in use");
+    assert(_bindings.count(binding) == 0 && "Binding already in use");
     VkDescriptorSetLayoutBinding layoutBinding{};
     layoutBinding.binding = binding;
     layoutBinding.descriptorType = descriptorType;
     layoutBinding.descriptorCount = count;
     layoutBinding.stageFlags = stageFlags;
-    bindings[binding] = layoutBinding;
+    _bindings[binding] = layoutBinding;
     return *this;
 }
 
 std::unique_ptr<CmxDescriptorSetLayout> CmxDescriptorSetLayout::Builder::build() const
 {
-    return std::make_unique<CmxDescriptorSetLayout>(cmxDevice, bindings);
+    return std::make_unique<CmxDescriptorSetLayout>(_cmxDevice, _bindings);
 }
 
 // *************** Descriptor Set Layout *********************
@@ -62,31 +62,31 @@ CmxDescriptorSetLayout::~CmxDescriptorSetLayout()
 
 CmxDescriptorPool::Builder &CmxDescriptorPool::Builder::addPoolSize(VkDescriptorType descriptorType, uint32_t count)
 {
-    poolSizes.push_back({descriptorType, count});
+    _poolSizes.push_back({descriptorType, count});
     return *this;
 }
 
 CmxDescriptorPool::Builder &CmxDescriptorPool::Builder::setPoolFlags(VkDescriptorPoolCreateFlags flags)
 {
-    poolFlags = flags;
+    _poolFlags = flags;
     return *this;
 }
 CmxDescriptorPool::Builder &CmxDescriptorPool::Builder::setMaxSets(uint32_t count)
 {
-    maxSets = count;
+    _maxSets = count;
     return *this;
 }
 
 std::unique_ptr<CmxDescriptorPool> CmxDescriptorPool::Builder::build() const
 {
-    return std::make_unique<CmxDescriptorPool>(cmxDevice, maxSets, poolFlags, poolSizes);
+    return std::make_unique<CmxDescriptorPool>(_cmxDevice, _maxSets, _poolFlags, _poolSizes);
 }
 
 // *************** Descriptor Pool *********************
 
 CmxDescriptorPool::CmxDescriptorPool(CmxDevice &cmxDevice, uint32_t maxSets, VkDescriptorPoolCreateFlags poolFlags,
                                      const std::vector<VkDescriptorPoolSize> &poolSizes)
-    : cmxDevice{cmxDevice}
+    : _cmxDevice{cmxDevice}
 {
     VkDescriptorPoolCreateInfo descriptorPoolInfo{};
     descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -95,7 +95,7 @@ CmxDescriptorPool::CmxDescriptorPool(CmxDevice &cmxDevice, uint32_t maxSets, VkD
     descriptorPoolInfo.maxSets = maxSets;
     descriptorPoolInfo.flags = poolFlags;
 
-    if (vkCreateDescriptorPool(cmxDevice.device(), &descriptorPoolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+    if (vkCreateDescriptorPool(cmxDevice.device(), &descriptorPoolInfo, nullptr, &_descriptorPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor pool!");
     }
@@ -103,7 +103,7 @@ CmxDescriptorPool::CmxDescriptorPool(CmxDevice &cmxDevice, uint32_t maxSets, VkD
 
 CmxDescriptorPool::~CmxDescriptorPool()
 {
-    vkDestroyDescriptorPool(cmxDevice.device(), descriptorPool, nullptr);
+    vkDestroyDescriptorPool(_cmxDevice.device(), _descriptorPool, nullptr);
 }
 
 bool CmxDescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout,
@@ -111,13 +111,13 @@ bool CmxDescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descripto
 {
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorPool = _descriptorPool;
     allocInfo.pSetLayouts = &descriptorSetLayout;
     allocInfo.descriptorSetCount = 1;
 
     // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
     // a new pool whenever an old pool fills up. But this is beyond our current scope
-    if (vkAllocateDescriptorSets(cmxDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS)
+    if (vkAllocateDescriptorSets(_cmxDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS)
     {
         return false;
     }
@@ -126,27 +126,27 @@ bool CmxDescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descripto
 
 void CmxDescriptorPool::freeDescriptors(std::vector<VkDescriptorSet> &descriptors) const
 {
-    vkFreeDescriptorSets(cmxDevice.device(), descriptorPool, static_cast<uint32_t>(descriptors.size()),
+    vkFreeDescriptorSets(_cmxDevice.device(), _descriptorPool, static_cast<uint32_t>(descriptors.size()),
                          descriptors.data());
 }
 
 void CmxDescriptorPool::resetPool()
 {
-    vkResetDescriptorPool(cmxDevice.device(), descriptorPool, 0);
+    vkResetDescriptorPool(_cmxDevice.device(), _descriptorPool, 0);
 }
 
 // *************** Descriptor Writer *********************
 
 CmxDescriptorWriter::CmxDescriptorWriter(CmxDescriptorSetLayout &setLayout, CmxDescriptorPool &pool)
-    : setLayout{setLayout}, pool{pool}
+    : _setLayout{setLayout}, _pool{pool}
 {
 }
 
 CmxDescriptorWriter &CmxDescriptorWriter::writeBuffer(uint32_t binding, VkDescriptorBufferInfo *bufferInfo)
 {
-    assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
+    assert(_setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-    auto &bindingDescription = setLayout.bindings[binding];
+    auto &bindingDescription = _setLayout.bindings[binding];
 
     assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
@@ -157,15 +157,15 @@ CmxDescriptorWriter &CmxDescriptorWriter::writeBuffer(uint32_t binding, VkDescri
     write.pBufferInfo = bufferInfo;
     write.descriptorCount = 1;
 
-    writes.push_back(write);
+    _writes.push_back(write);
     return *this;
 }
 
 CmxDescriptorWriter &CmxDescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo)
 {
-    assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
+    assert(_setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-    auto &bindingDescription = setLayout.bindings[binding];
+    auto &bindingDescription = _setLayout.bindings[binding];
 
     assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
@@ -176,13 +176,13 @@ CmxDescriptorWriter &CmxDescriptorWriter::writeImage(uint32_t binding, VkDescrip
     write.pImageInfo = imageInfo;
     write.descriptorCount = 1;
 
-    writes.push_back(write);
+    _writes.push_back(write);
     return *this;
 }
 
 bool CmxDescriptorWriter::build(VkDescriptorSet &set)
 {
-    bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
+    bool success = _pool.allocateDescriptor(_setLayout.getDescriptorSetLayout(), set);
     if (!success)
     {
         return false;
@@ -193,11 +193,11 @@ bool CmxDescriptorWriter::build(VkDescriptorSet &set)
 
 void CmxDescriptorWriter::overwrite(VkDescriptorSet &set)
 {
-    for (auto &write : writes)
+    for (auto &write : _writes)
     {
         write.dstSet = set;
     }
-    vkUpdateDescriptorSets(pool.cmxDevice.device(), writes.size(), writes.data(), 0, nullptr);
+    vkUpdateDescriptorSets(_pool._cmxDevice.device(), _writes.size(), _writes.data(), 0, nullptr);
 }
 
 } // namespace cmx

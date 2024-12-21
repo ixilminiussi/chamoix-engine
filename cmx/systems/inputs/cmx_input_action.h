@@ -44,9 +44,10 @@ class ButtonAction : public InputAction
         TOGGLE,   // sends 1 when pressed, 0 when released
     };
 
-    ButtonAction() : buttonType{PRESSED} {};
+    ButtonAction() : _buttonType{PRESSED} {};
 
-    ButtonAction(Type buttonType, std::initializer_list<Button> buttons) : buttonType{buttonType}, buttons{buttons} {};
+    ButtonAction(Type buttonType, std::initializer_list<Button> buttons)
+        : _buttonType{buttonType}, _buttons{buttons} {};
 
     void poll(const class CmxWindow &, float dt) override;
     void bind(std::function<void(float, int)> callbackFunction) override;
@@ -57,11 +58,11 @@ class ButtonAction : public InputAction
     void renderSettings() override;
 
   private:
-    std::vector<Button> buttons;
-    std::vector<std::function<void(float, int)>> functions;
+    std::vector<Button> _buttons;
+    std::vector<std::function<void(float, int)>> _functions;
 
-    int status{GLFW_RELEASE};
-    Type buttonType;
+    int _status{GLFW_RELEASE};
+    Type _buttonType;
 };
 
 class AxisAction : public InputAction

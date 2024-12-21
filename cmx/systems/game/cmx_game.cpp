@@ -1,9 +1,8 @@
 #include "cmx_game.h"
 
-#include "cmx_input_action.h"
+// cmx
 #include "cmx_viewport_actor.h"
 #include "cmx_viewport_ui_component.h"
-#include "tinyxml2.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -24,12 +23,12 @@ namespace cmx
 
 Scene *Game::getScene()
 {
-    if (!activeScene)
+    if (!_activeScene)
     {
         spdlog::critical("Game: No active scene! There MUST be an active scene at all times");
         std::exit(EXIT_FAILURE);
     }
-    return activeScene;
+    return _activeScene;
 }
 
 void Game::loadEditor()
@@ -39,8 +38,8 @@ void Game::loadEditor()
     std::weak_ptr<ViewportUIComponent> viewportUIWk = viewportActor->getComponentByType<ViewportUIComponent>();
     if (auto viewportUIComponent = viewportUIWk.lock())
     {
-        viewportUIComponent->initInputManager(cmxWindow);
-        viewportUIComponent->initImGUI(renderSystem.get());
+        viewportUIComponent->initInputManager(_cmxWindow);
+        viewportUIComponent->initImGUI(_renderSystem.get());
     }
 
     std::weak_ptr<CameraComponent> cameraWk = viewportActor->getComponentByType<CameraComponent>();

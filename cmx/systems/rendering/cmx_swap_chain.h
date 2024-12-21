@@ -26,40 +26,40 @@ class CmxSwapChain
 
     VkFramebuffer getFrameBuffer(int index)
     {
-        return swapChainFramebuffers[index];
+        return _swapChainFramebuffers[index];
     }
     VkRenderPass getRenderPass()
     {
-        return renderPass;
+        return _renderPass;
     }
     VkImageView getImageView(int index)
     {
-        return swapChainImageViews[index];
+        return _swapChainImageViews[index];
     }
     size_t imageCount()
     {
-        return swapChainImages.size();
+        return _swapChainImages.size();
     }
     VkFormat getSwapChainImageFormat()
     {
-        return swapChainImageFormat;
+        return _swapChainImageFormat;
     }
     VkExtent2D getSwapChainExtent()
     {
-        return swapChainExtent;
+        return _swapChainExtent;
     }
     uint32_t width()
     {
-        return swapChainExtent.width;
+        return _swapChainExtent.width;
     }
     uint32_t height()
     {
-        return swapChainExtent.height;
+        return _swapChainExtent.height;
     }
 
     float extentAspectRatio()
     {
-        return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
+        return static_cast<float>(_swapChainExtent.width) / static_cast<float>(_swapChainExtent.height);
     }
     VkFormat findDepthFormat();
 
@@ -68,8 +68,8 @@ class CmxSwapChain
 
     bool compareSwapFormats(const CmxSwapChain &swapChain) const
     {
-        return (swapChainDepthFormat == swapChain.swapChainDepthFormat &&
-                swapChainImageFormat == swapChain.swapChainImageFormat);
+        return (_swapChainDepthFormat == swapChain._swapChainDepthFormat &&
+                _swapChainImageFormat == swapChain._swapChainImageFormat);
     }
 
   private:
@@ -86,30 +86,30 @@ class CmxSwapChain
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
-    VkFormat swapChainImageFormat;
-    VkFormat swapChainDepthFormat;
-    VkExtent2D swapChainExtent;
+    VkFormat _swapChainImageFormat;
+    VkFormat _swapChainDepthFormat;
+    VkExtent2D _swapChainExtent;
 
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-    VkRenderPass renderPass;
+    std::vector<VkFramebuffer> _swapChainFramebuffers;
+    VkRenderPass _renderPass;
 
-    std::vector<VkImage> depthImages;
-    std::vector<VkDeviceMemory> depthImageMemorys;
-    std::vector<VkImageView> depthImageViews;
-    std::vector<VkImage> swapChainImages;
-    std::vector<VkImageView> swapChainImageViews;
+    std::vector<VkImage> _depthImages;
+    std::vector<VkDeviceMemory> _depthImageMemorys;
+    std::vector<VkImageView> _depthImageViews;
+    std::vector<VkImage> _swapChainImages;
+    std::vector<VkImageView> _swapChainImageViews;
 
-    CmxDevice &device;
-    VkExtent2D windowExtent;
+    CmxDevice &_cmxDevice;
+    VkExtent2D _windowExtent;
 
-    VkSwapchainKHR swapChain;
-    std::shared_ptr<CmxSwapChain> oldSwapChain;
+    VkSwapchainKHR _swapChain;
+    std::shared_ptr<CmxSwapChain> _oldSwapChain;
 
-    std::vector<VkSemaphore> imageAvailableSemaphores;
-    std::vector<VkSemaphore> renderFinishedSemaphores;
-    std::vector<VkFence> inFlightFences;
-    std::vector<VkFence> imagesInFlight;
-    size_t currentFrame = 0;
+    std::vector<VkSemaphore> _imageAvailableSemaphores;
+    std::vector<VkSemaphore> _renderFinishedSemaphores;
+    std::vector<VkFence> _inFlightFences;
+    std::vector<VkFence> _imagesInFlight;
+    size_t _currentFrame = 0;
 };
 
 } // namespace cmx

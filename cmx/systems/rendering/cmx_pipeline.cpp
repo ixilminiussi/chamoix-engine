@@ -12,23 +12,23 @@
 namespace cmx
 {
 
-CmxPipeline::CmxPipeline(CmxDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
+CmxPipeline::CmxPipeline(CmxDevice &cmxDevice, const std::string &vertFilepath, const std::string &fragFilepath,
                          const PipelineConfigInfo &configInfo)
-    : cmxDevice{device}
+    : _cmxDevice{cmxDevice}
 {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
 }
 
 CmxPipeline::~CmxPipeline()
 {
-    vkDestroyShaderModule(cmxDevice.device(), vertShaderModule, nullptr);
-    vkDestroyShaderModule(cmxDevice.device(), fragShaderModule, nullptr);
-    vkDestroyPipeline(cmxDevice.device(), graphicsPipeline, nullptr);
+    vkDestroyShaderModule(_cmxDevice.device(), _vertShaderModule, nullptr);
+    vkDestroyShaderModule(_cmxDevice.device(), _fragShaderModule, nullptr);
+    vkDestroyPipeline(_cmxDevice.device(), _graphicsPipeline, nullptr);
 }
 
 void CmxPipeline::bind(VkCommandBuffer commandBuffer)
 {
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline);
 }
 
 std::vector<char> CmxPipeline::readFile(const std::string &filepath)
@@ -61,20 +61,20 @@ void CmxPipeline::createGraphicsPipeline(const std::string &vertFilepath, const 
     std::vector<char> vertCode = readFile(vertFilepath);
     std::vector<char> fragCode = readFile(fragFilepath);
 
-    createShaderModule(vertCode, &vertShaderModule);
-    createShaderModule(fragCode, &fragShaderModule);
+    createShaderModule(vertCode, &_vertShaderModule);
+    createShaderModule(fragCode, &_fragShaderModule);
 
     VkPipelineShaderStageCreateInfo shaderStages[2];
     shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    shaderStages[0].module = vertShaderModule;
+    shaderStages[0].module = _vertShaderModule;
     shaderStages[0].pName = "main";
     shaderStages[0].flags = 0;
     shaderStages[0].pNext = nullptr;
     shaderStages[0].pSpecializationInfo = nullptr;
     shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    shaderStages[1].module = fragShaderModule;
+    shaderStages[1].module = _fragShaderModule;
     shaderStages[1].pName = "main";
     shaderStages[1].flags = 0;
     shaderStages[1].pNext = nullptr;
@@ -110,7 +110,7 @@ void CmxPipeline::createGraphicsPipeline(const std::string &vertFilepath, const 
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(cmxDevice.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) !=
+    if (vkCreateGraphicsPipelines(_cmxDevice.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) !=
         VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline");
@@ -124,7 +124,7 @@ void CmxPipeline::createShaderModule(const std::vector<char> &code, VkShaderModu
     createInfo.codeSize = code.size();
     createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
-    if (vkCreateShaderModule(cmxDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
+    if (vkCreateShaderModule(_cmxDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create shader module");
     }

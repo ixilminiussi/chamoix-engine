@@ -26,9 +26,9 @@ namespace cmx
 {
 
 ViewportUIComponent::ViewportUIComponent(float &vpMoveSpeed, float &vpSensitivity)
-    : viewportMovementSpeed{vpMoveSpeed}, viewportSensitivity{vpSensitivity}
+    : _viewportMovementSpeed{vpMoveSpeed}, _viewportSensitivity{vpSensitivity}
 {
-    renderZ = std::numeric_limits<int32_t>::max(); // ensures it gets rendered at the very top
+    _renderZ = std::numeric_limits<int32_t>::max(); // ensures it gets rendered at the very top
 }
 
 ViewportUIComponent::~ViewportUIComponent()
@@ -38,9 +38,9 @@ ViewportUIComponent::~ViewportUIComponent()
 
 void ViewportUIComponent::update(float dt)
 {
-    if (inputManager != nullptr)
+    if (_inputManager != nullptr)
     {
-        inputManager->pollEvents(dt);
+        _inputManager->pollEvents(dt);
     }
 }
 
@@ -54,16 +54,16 @@ void ViewportUIComponent::render(class FrameInfo &frameInfo, VkPipelineLayout pi
 
     renderTopBar();
 
-    if (showProjectSettings)
+    if (_showProjectSettings)
         renderProjectSettings();
 
-    if (showViewportSettings)
+    if (_showViewportSettings)
         renderViewportSettings();
 
-    if (showSceneTree)
+    if (_showSceneTree)
         renderSceneTree();
 
-    if (showInspector)
+    if (_showInspector)
         renderInspector();
 
     ImGui::Render();
@@ -77,7 +77,7 @@ void ViewportUIComponent::renderTopBar()
     {
         if (ImGui::MenuItem(ICON_MS_SAVE " Save", "Ctrl+S"))
         {
-            parent->getScene()->save();
+            _parent->getScene()->save();
         }
         ImGui::EndMenu();
     }
@@ -106,16 +106,16 @@ void ViewportUIComponent::renderTopBar()
 
 void ViewportUIComponent::renderViewportSettings()
 {
-    showViewportSettings = true;
-    ImGui::Begin("Viewport Settings", &showViewportSettings);
+    _showViewportSettings = true;
+    ImGui::Begin("Viewport Settings", &_showViewportSettings);
 
-    ImGui::SliderFloat("movement speed", &viewportMovementSpeed, 0.0f, 100.0f);
-    ImGui::SliderFloat("mouse sensitivity", &viewportSensitivity, 0.0f, 10.0f);
+    ImGui::SliderFloat("movement speed", &_viewportMovementSpeed, 0.0f, 100.0f);
+    ImGui::SliderFloat("mouse sensitivity", &_viewportSensitivity, 0.0f, 10.0f);
 
     ImGui::SeparatorText("Shortcuts");
-    if (inputManager != nullptr)
+    if (_inputManager != nullptr)
     {
-        inputManager->renderSettings();
+        _inputManager->renderSettings();
     }
 
     ImGui::End();
@@ -127,8 +127,8 @@ void ViewportUIComponent::renderProjectSettings()
 
     Game *game = getParent()->getScene()->getGame();
 
-    showProjectSettings = true;
-    ImGui::Begin("Project Settings", &showProjectSettings);
+    _showProjectSettings = true;
+    ImGui::Begin("Project Settings", &_showProjectSettings);
 
     if (ImGui::BeginTabBar(""))
     {
@@ -149,8 +149,8 @@ void ViewportUIComponent::renderProjectSettings()
 
 void ViewportUIComponent::renderSceneTree()
 {
-    showSceneTree = true;
-    ImGui::Begin("Scene Tree", &showSceneTree);
+    _showSceneTree = true;
+    ImGui::Begin("Scene Tree", &_showSceneTree);
 
     std::vector<std::weak_ptr<Actor>> actorList{};
     getParent()->getScene()->getAllActorsByType<Actor>(actorList);
@@ -172,7 +172,7 @@ void ViewportUIComponent::renderSceneTree()
             }
             if (ImGui::Button(actor->name.c_str()))
             {
-                inspectedActor = *it;
+                _inspectedActor = *it;
                 renderInspector();
             }
             ImGui::SameLine();
@@ -228,10 +228,10 @@ void ViewportUIComponent::renderSceneTree()
 
 void ViewportUIComponent::renderInspector()
 {
-    showInspector = true;
-    ImGui::Begin("Inspector", &showInspector);
+    _showInspector = true;
+    ImGui::Begin("Inspector", &_showInspector);
 
-    if (std::shared_ptr<Actor> actor = inspectedActor.lock())
+    if (std::shared_ptr<Actor> actor = _inspectedActor.lock())
     {
         actor->renderSettings();
     }
@@ -247,23 +247,23 @@ void ViewportUIComponent::initImGUI(RenderSystem *renderSystem)
 {
     // 1: create descriptor pool for IMGUI
     // the size of the pool is very oversize, but it's copied from imgui demo itself.
-    CmxDevice &cmxDevice = *renderSystem->cmxDevice.get();
-    CmxWindow &cmxWindow = *renderSystem->cmxWindow;
+    CmxDevice &cmxDevice = *renderSystem->_cmxDevice.get();
+    CmxWindow &cmxWindow = *renderSystem->_cmxWindow;
 
-    imguiPool = CmxDescriptorPool::Builder(cmxDevice)
-                    .setMaxSets(1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_SAMPLER, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000)
-                    .addPoolSize(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000)
-                    .build();
+    _imguiPool = CmxDescriptorPool::Builder(cmxDevice)
+                     .setMaxSets(1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_SAMPLER, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000)
+                     .addPoolSize(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000)
+                     .build();
     // 2: initialize imgui library
 
     // this initializes the core structures of imgui
@@ -279,11 +279,11 @@ void ViewportUIComponent::initImGUI(RenderSystem *renderSystem)
     init_info.PhysicalDevice = cmxDevice.physicalDevice();
     init_info.Device = cmxDevice.device();
     init_info.Queue = cmxDevice.graphicsQueue();
-    init_info.DescriptorPool = imguiPool->getDescriptorPool();
+    init_info.DescriptorPool = _imguiPool->getDescriptorPool();
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = renderSystem->cmxRenderer->getSwapChainRenderPass();
+    init_info.RenderPass = renderSystem->_cmxRenderer->getSwapChainRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
 
@@ -303,12 +303,12 @@ void ViewportUIComponent::initImGUI(RenderSystem *renderSystem)
 
 void ViewportUIComponent::initInputManager(class CmxWindow &window, const std::string &shortcutsPath)
 {
-    inputManager = std::make_unique<InputManager>(window, shortcutsPath);
-    inputManager->load();
+    _inputManager = std::make_unique<InputManager>(window, shortcutsPath);
+    _inputManager->load();
 
-    inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, (ViewportActor *)(getParent()));
-    inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, (ViewportActor *)getParent());
-    inputManager->bindButton("viewport toggle", &ViewportActor::select, (ViewportActor *)getParent());
+    _inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, (ViewportActor *)(getParent()));
+    _inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, (ViewportActor *)getParent());
+    _inputManager->bindButton("viewport toggle", &ViewportActor::select, (ViewportActor *)getParent());
 }
 
 tinyxml2::XMLElement &ViewportUIComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)

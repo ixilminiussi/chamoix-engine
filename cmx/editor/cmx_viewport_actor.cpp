@@ -28,9 +28,9 @@ void ViewportActor::onBegin()
     transform.position = {0.f, 0.f, 0.f};
     transform.scale = {1.f, 1.f, 1.f};
 
-    camera = std::make_shared<CameraComponent>();
-    attachComponent(camera, "ViewportCamera");
-    attachComponent(std::make_shared<ViewportUIComponent>(moveSpeed, mouseSensitivity), "ViewportUI");
+    _camera = std::make_shared<CameraComponent>();
+    attachComponent(_camera, "ViewportCamera");
+    attachComponent(std::make_shared<ViewportUIComponent>(_moveSpeed, _mouseSensitivity), "ViewportUI");
 }
 
 void ViewportActor::update(float dt)
@@ -39,13 +39,13 @@ void ViewportActor::update(float dt)
 
 void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
 {
-    if (!selected)
+    if (!_selected)
         return;
 
     if (glm::length(movement) <= glm::epsilon<float>())
         return;
 
-    movement *= moveSpeed;
+    movement *= _moveSpeed;
 
     transform.position += transform.forward() * movement.y * dt;
     transform.position += transform.right() * -movement.x * dt;
@@ -58,12 +58,12 @@ void ViewportActor::onJumpInput(float dt)
 
 void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
 {
-    if (!selected)
+    if (!_selected)
         return;
 
     // Calculate pitch (around X-axis) and yaw (around Y-axis)
-    float yawAngle = mousePosition.x * mouseSensitivity * dt;
-    float pitchAngle = -mousePosition.y * mouseSensitivity * dt;
+    float yawAngle = mousePosition.x * _mouseSensitivity * dt;
+    float pitchAngle = -mousePosition.y * _mouseSensitivity * dt;
 
     // Prevent excessive pitch to avoid gimbal lock (usually between -89 and +89 degrees)
     static float accumulatedPitch = 0.0f;
@@ -88,12 +88,12 @@ void ViewportActor::select(float dt, int val)
 {
     if (val == 1)
     {
-        selected = true;
+        _selected = true;
         getScene()->getGame()->getInputManager()->setMouseCapture(true);
     }
     else
     {
-        selected = false;
+        _selected = false;
         getScene()->getGame()->getInputManager()->setMouseCapture(false);
     }
 }

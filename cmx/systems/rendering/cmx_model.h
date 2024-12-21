@@ -62,16 +62,16 @@ class CmxModel
     void createVertexBuffers(const std::vector<Vertex> &);
     void createIndexBuffers(const std::vector<uint32_t> &);
 
-    CmxDevice &cmxDevice;
+    CmxDevice &_cmxDevice;
 
-    std::unique_ptr<CmxBuffer> vertexBuffer;
-    uint32_t vertexCount;
+    std::unique_ptr<CmxBuffer> _vertexBuffer;
+    uint32_t _vertexCount;
 
-    bool hasIndexBuffer{false};
-    std::unique_ptr<CmxBuffer> indexBuffer;
-    uint32_t indexCount;
+    bool _hasIndexBuffer{false};
+    std::unique_ptr<CmxBuffer> _indexBuffer;
+    uint32_t _indexCount;
 
-    std::string filepath;
+    std::string _filepath;
 };
 
 } // namespace cmx

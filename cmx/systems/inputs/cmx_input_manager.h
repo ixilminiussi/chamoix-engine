@@ -3,7 +3,6 @@
 #include "cmx_input_action.h"
 
 // lib
-#include "tinyxml2.h"
 #include <spdlog/spdlog.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -40,17 +39,17 @@ class InputManager
     void renderSettings();
 
   private:
-    const std::string filepath;
-    bool gamepadDetected{false};
-    std::unordered_map<std::string, class InputAction *> inputDictionary;
-    class CmxWindow &window;
+    const std::string _filepath;
+    bool _gamepadDetected{false};
+    std::unordered_map<std::string, class InputAction *> _inputDictionary;
+    class CmxWindow &_window;
 };
 
 template <typename T>
 inline void InputManager::bindAxis(const std::string &name, void (T::*callbackFunction)(float, glm::vec2), T *instance)
 {
-    auto mappedInput = inputDictionary.find(name);
-    if (mappedInput == inputDictionary.end())
+    auto mappedInput = _inputDictionary.find(name);
+    if (mappedInput == _inputDictionary.end())
     {
         spdlog::warn("InputManager: attempt at binding non existant input '{0}'", name);
         return;
@@ -70,8 +69,8 @@ inline void InputManager::bindAxis(const std::string &name, void (T::*callbackFu
 template <typename T>
 inline void InputManager::bindButton(const std::string &name, void (T::*callbackFunction)(float, int), T *instance)
 {
-    auto mappedInput = inputDictionary.find(name);
-    if (mappedInput == inputDictionary.end())
+    auto mappedInput = _inputDictionary.find(name);
+    if (mappedInput == _inputDictionary.end())
     {
         spdlog::warn("InputManager: attempt at binding non existant input '{0}'", name);
         return;

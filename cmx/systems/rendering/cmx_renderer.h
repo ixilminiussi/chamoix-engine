@@ -24,29 +24,29 @@ class CmxRenderer
     // getters and setters :: begin
     VkRenderPass getSwapChainRenderPass() const
     {
-        return cmxSwapChain->getRenderPass();
+        return _cmxSwapChain->getRenderPass();
     }
 
     float getAspectRatio() const
     {
-        return cmxSwapChain->extentAspectRatio();
+        return _cmxSwapChain->extentAspectRatio();
     }
 
     bool isFrameInProgress() const
     {
-        return isFrameStarted;
+        return _isFrameStarted;
     }
 
     VkCommandBuffer getCurrentCommandBuffer() const
     {
-        assert(isFrameStarted && "Cannot get command buffer when frame not in progress!");
-        return commandBuffers[currentFrameIndex];
+        assert(_isFrameStarted && "Cannot get command buffer when frame not in progress!");
+        return _commandBuffers[_currentFrameIndex];
     }
 
     int getFrameIndex() const
     {
-        assert(isFrameStarted && "Cannot get frame index when frame not in progress!");
-        return currentFrameIndex;
+        assert(_isFrameStarted && "Cannot get frame index when frame not in progress!");
+        return _currentFrameIndex;
     }
     // getters and setters :: end
 
@@ -63,14 +63,14 @@ class CmxRenderer
     void freeCommandBuffers();
     void recreateSwapChain();
 
-    CmxWindow &cmxWindow;
-    CmxDevice &cmxDevice;
-    std::unique_ptr<CmxSwapChain> cmxSwapChain;
-    std::vector<VkCommandBuffer> commandBuffers;
+    CmxWindow &_cmxWindow;
+    CmxDevice &_cmxDevice;
+    std::unique_ptr<CmxSwapChain> _cmxSwapChain;
+    std::vector<VkCommandBuffer> _commandBuffers;
 
-    uint32_t currentImageIndex;
-    int currentFrameIndex{0};
-    bool isFrameStarted{false};
+    uint32_t _currentImageIndex;
+    int _currentFrameIndex{0};
+    bool _isFrameStarted{false};
 };
 
 } // namespace cmx

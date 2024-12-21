@@ -1,7 +1,6 @@
 #include "cmx_input_action.h"
 
 // cmx
-#include "IconsFontAwesome5.h"
 #include "IconsMaterialSymbols.h"
 #include "cmx_inputs.h"
 #include "cmx_window.h"
@@ -85,7 +84,7 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
 {
     int newStatus = 0;
 
-    for (Button &button : buttons)
+    for (Button &button : _buttons)
     {
         switch (button.source)
         {
@@ -94,7 +93,7 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
             {
                 button.status = glfwGetKey(window.getGLFWwindow(), button.code);
 
-                if (buttonType == Type::SHORTCUT)
+                if (_buttonType == Type::SHORTCUT)
                 {
                     newStatus &= button.status;
                 }
@@ -108,7 +107,7 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
             if (!ImGui::GetIO().WantCaptureMouse)
             {
                 button.status = glfwGetMouseButton(window.getGLFWwindow(), button.code);
-                if (buttonType == Type::SHORTCUT)
+                if (_buttonType == Type::SHORTCUT)
                 {
                     newStatus &= button.status;
                 }
@@ -126,7 +125,7 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
 
     bool success = false;
 
-    switch (buttonType)
+    switch (_buttonType)
     {
     case Type::HELD:
         if (newStatus == 1)
@@ -137,30 +136,30 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
 
     case Type::PRESSED:
     case Type::SHORTCUT:
-        if (newStatus == 1 && status == 0)
+        if (newStatus == 1 && _status == 0)
         {
             success = true;
         }
         break;
 
     case Type::RELEASED:
-        if (newStatus == 0 && status == 1)
+        if (newStatus == 0 && _status == 1)
         {
             success = true;
         }
         break;
     case Type::TOGGLE:
-        if (newStatus != status)
+        if (newStatus != _status)
         {
             success = true;
         }
         break;
     }
-    status = newStatus;
+    _status = newStatus;
 
     if (success)
     {
-        for (std::function<void(float, int)> func : functions)
+        for (std::function<void(float, int)> func : _functions)
         {
             func(dt, newStatus);
         }
@@ -253,7 +252,7 @@ void AxisAction::poll(const CmxWindow &window, float dt)
 
 void ButtonAction::bind(std::function<void(float, int)> callbackFunction)
 {
-    functions.push_back(callbackFunction);
+    _functions.push_back(callbackFunction);
 }
 
 void ButtonAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
@@ -266,9 +265,9 @@ tinyxml2::XMLElement &ButtonAction::save(tinyxml2::XMLDocument &doc, tinyxml2::X
 {
     tinyxml2::XMLElement *inputActionElement = doc.NewElement("buttonAction");
 
-    inputActionElement->SetAttribute("type", toString(buttonType));
+    inputActionElement->SetAttribute("type", toString(_buttonType));
 
-    for (Button button : buttons)
+    for (Button button : _buttons)
     {
         tinyxml2::XMLElement *buttonElement = doc.NewElement("button");
         buttonElement->SetAttribute("code", button.code);
@@ -286,14 +285,14 @@ void ButtonAction::load(tinyxml2::XMLElement *buttonActionElement)
 {
     const char *typeString = buttonActionElement->Attribute("type");
 
-    buttonType = toButtonActionType(typeString);
+    _buttonType = toButtonActionType(typeString);
 
     tinyxml2::XMLElement *buttonElement = buttonActionElement->FirstChildElement("button");
     while (buttonElement)
     {
         int code = buttonElement->IntAttribute("code");
         short unsigned int id = buttonElement->UnsignedAttribute("id");
-        buttons.push_back({code, toInputSource(buttonElement->Attribute("source")), id});
+        _buttons.push_back({code, toInputSource(buttonElement->Attribute("source")), id});
 
         buttonElement = buttonElement->NextSiblingElement("button");
     }
@@ -437,15 +436,15 @@ void ButtonAction::renderSettings()
     std::string label;
 
     ImGui::SetNextItemWidth(100);
-    if (ImGui::BeginCombo("mode", toString(buttonType)))
+    if (ImGui::BeginCombo("mode", toString(_buttonType)))
     {
         for (const Type &type : {Type::HELD, Type::TOGGLE, Type::PRESSED, Type::RELEASED, Type::SHORTCUT})
         {
-            bool isSelected = (type == buttonType);
+            bool isSelected = (type == _buttonType);
 
             if (ImGui::Selectable(toString(type), isSelected))
             {
-                buttonType = type;
+                _buttonType = type;
             }
 
             if (isSelected)
@@ -456,8 +455,8 @@ void ButtonAction::renderSettings()
         ImGui::EndCombo();
     }
 
-    auto it = buttons.begin();
-    while (it != buttons.end())
+    auto it = _buttons.begin();
+    while (it != _buttons.end())
     {
         label = fmt::format("##b{}", i++);
         it->renderSettings(label);
@@ -466,7 +465,7 @@ void ButtonAction::renderSettings()
         label = fmt::format(ICON_MS_REMOVE "##r{}", i++);
         if (ImGui::Button(label.c_str()))
         {
-            buttons.erase(it);
+            _buttons.erase(it);
         }
         else
         {
@@ -478,7 +477,7 @@ void ButtonAction::renderSettings()
     ImGui::SameLine();
     if (ImGui::Button(label.c_str()))
     {
-        buttons.push_back(CMX_BUTTON_VOID);
+        _buttons.push_back(CMX_BUTTON_VOID);
     }
 }
 

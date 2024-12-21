@@ -10,7 +10,7 @@ namespace cmx
 class GraphicsManager
 {
   public:
-    GraphicsManager(std::shared_ptr<class RenderSystem> renderSystem) : renderSystem{renderSystem} {};
+    GraphicsManager(std::shared_ptr<class RenderSystem> renderSystem) : _renderSystem{renderSystem} {};
 
     void addToQueue(std::shared_ptr<class Component>);
     void removeFromQueue(std::shared_ptr<class Component>);
@@ -18,8 +18,8 @@ class GraphicsManager
     void drawComponents(std::weak_ptr<class CameraComponent>);
 
   private:
-    std::shared_ptr<class RenderSystem> renderSystem;
-    std::vector<std::shared_ptr<class Component>> componentRenderQueue{};
+    std::shared_ptr<class RenderSystem> _renderSystem;
+    std::vector<std::shared_ptr<class Component>> _componentRenderQueue{};
 };
 
 } // namespace cmx

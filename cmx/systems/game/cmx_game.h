@@ -41,14 +41,14 @@ class Game
 
     void setScene(int i)
     {
-        if (activeScene)
+        if (_activeScene)
         {
-            activeScene->unload();
+            _activeScene->unload();
         }
         try
         {
-            activeScene = scenes.at(i);
-            activeScene->load();
+            _activeScene = _scenes.at(i);
+            _activeScene->load();
         }
         catch (const std::out_of_range &e)
         {
@@ -57,29 +57,29 @@ class Game
     }
     std::shared_ptr<InputManager> getInputManager() const
     {
-        return inputManager;
+        return _inputManager;
     }
     std::shared_ptr<RenderSystem> getRenderSystem() const
     {
-        return renderSystem;
+        return _renderSystem;
     }
     CmxDevice &getDevice()
     {
-        return *renderSystem->cmxDevice;
+        return *_renderSystem->_cmxDevice;
     }
     // getters and setters :: end
 
   protected:
-    class Scene *activeScene;
-    std::vector<Scene *> scenes;
+    class Scene *_activeScene;
+    std::vector<Scene *> _scenes;
 
-    CmxWindow cmxWindow{WIDTH, HEIGHT, "demo"};
+    CmxWindow _cmxWindow{WIDTH, HEIGHT, "demo"};
 
-    std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(cmxWindow);
-    std::shared_ptr<RenderSystem> renderSystem = std::make_shared<RenderSystem>(cmxWindow);
+    std::shared_ptr<InputManager> _inputManager = std::make_shared<InputManager>(_cmxWindow);
+    std::shared_ptr<RenderSystem> _renderSystem = std::make_shared<RenderSystem>(_cmxWindow);
 
     // warning flags
-    bool noCameraFlag{false};
+    bool __noCameraFlag{false};
 };
 
 inline int Game::WIDTH = 1600;

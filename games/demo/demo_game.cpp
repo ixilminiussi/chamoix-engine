@@ -34,7 +34,7 @@ Demo::~Demo()
 
 void Demo::run()
 {
-    while (!cmxWindow.shouldClose())
+    while (!_cmxWindow.shouldClose())
     {
         float dt = glfwGetTime();
         glfwSetTime(0.);
@@ -52,10 +52,10 @@ void Demo::closeWindow(float dt, int val)
 
 void Demo::load()
 {
-    inputManager->load();
-    renderSystem->initialize();
+    _inputManager->load();
+    _renderSystem->initialize();
 
-    scenes.push_back(&mainScene);
+    _scenes.push_back(&mainScene);
     setScene(0);
 
     getInputManager()->bindButton("exit", &Demo::closeWindow, this);

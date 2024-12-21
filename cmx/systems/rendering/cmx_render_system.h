@@ -37,7 +37,7 @@ class RenderSystem
 
     friend void ViewportUIComponent::initImGUI(RenderSystem *);
 
-    std::unique_ptr<class CmxDevice> cmxDevice;
+    std::unique_ptr<class CmxDevice> _cmxDevice;
 
   private:
     void createPipelineLayout(VkDescriptorSetLayout);
@@ -47,19 +47,19 @@ class RenderSystem
     virtual void render(class FrameInfo *, const std::vector<std::shared_ptr<class Component>> &);
     virtual void endRender();
 
-    std::unique_ptr<class CmxRenderer> cmxRenderer;
-    std::unique_ptr<class CmxPipeline> cmxPipeline;
-    class CmxWindow *cmxWindow;
+    std::unique_ptr<class CmxRenderer> _cmxRenderer;
+    std::unique_ptr<class CmxPipeline> _cmxPipeline;
+    class CmxWindow *_cmxWindow;
 
-    std::unique_ptr<class CmxDescriptorPool> globalPool{};
+    std::unique_ptr<class CmxDescriptorPool> _globalPool{};
 
-    VkPipelineLayout pipelineLayout;
-    VkCommandBuffer commandBuffer;
+    VkPipelineLayout _pipelineLayout;
+    VkCommandBuffer _commandBuffer;
 
-    std::vector<std::unique_ptr<CmxBuffer>> uboBuffers;
-    std::vector<VkDescriptorSet> globalDescriptorSets;
+    std::vector<std::unique_ptr<CmxBuffer>> _uboBuffers;
+    std::vector<VkDescriptorSet> _globalDescriptorSets;
 
     // warning flags
-    bool noCameraFlag{false};
+    bool _noCameraFlag{false};
 };
 } // namespace cmx

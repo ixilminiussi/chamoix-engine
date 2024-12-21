@@ -24,7 +24,7 @@
 namespace cmx
 {
 
-CmxRenderer::CmxRenderer(CmxWindow &window, CmxDevice &device) : cmxWindow{window}, cmxDevice{device}
+CmxRenderer::CmxRenderer(CmxWindow &cmxWindow, CmxDevice &cmxDevice) : _cmxWindow{cmxWindow}, _cmxDevice{cmxDevice}
 {
     recreateSwapChain();
     createCommandBuffers();
@@ -37,23 +37,23 @@ CmxRenderer::~CmxRenderer()
 
 void CmxRenderer::recreateSwapChain()
 {
-    VkExtent2D extent = cmxWindow.getExtent();
+    VkExtent2D extent = _cmxWindow.getExtent();
     while (extent.width == 0 || extent.height == 0)
     {
-        extent = cmxWindow.getExtent();
+        extent = _cmxWindow.getExtent();
         glfwWaitEvents();
     }
-    vkDeviceWaitIdle(cmxDevice.device());
+    vkDeviceWaitIdle(_cmxDevice.device());
 
-    if (cmxSwapChain == nullptr)
+    if (_cmxSwapChain == nullptr)
     {
-        cmxSwapChain = std::make_unique<CmxSwapChain>(cmxDevice, extent);
+        _cmxSwapChain = std::make_unique<CmxSwapChain>(_cmxDevice, extent);
     }
     else
     {
-        std::shared_ptr<CmxSwapChain> oldSwapChain = std::move(cmxSwapChain);
-        cmxSwapChain = std::make_unique<CmxSwapChain>(cmxDevice, extent, oldSwapChain);
-        if (!oldSwapChain->compareSwapFormats(*cmxSwapChain.get()))
+        std::shared_ptr<CmxSwapChain> oldSwapChain = std::move(_cmxSwapChain);
+        _cmxSwapChain = std::make_unique<CmxSwapChain>(_cmxDevice, extent, oldSwapChain);
+        if (!oldSwapChain->compareSwapFormats(*_cmxSwapChain.get()))
         {
             throw std::runtime_error("Swap chain image (or depth) format  has changed!");
         }
@@ -62,15 +62,15 @@ void CmxRenderer::recreateSwapChain()
 
 void CmxRenderer::createCommandBuffers()
 {
-    commandBuffers.resize(CmxSwapChain::MAX_FRAMES_IN_FLIGHT);
+    _commandBuffers.resize(CmxSwapChain::MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = cmxDevice.getCommandPool();
-    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+    allocInfo.commandPool = _cmxDevice.getCommandPool();
+    allocInfo.commandBufferCount = static_cast<uint32_t>(_commandBuffers.size());
 
-    if (vkAllocateCommandBuffers(cmxDevice.device(), &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(_cmxDevice.device(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate command buffers!");
     }
@@ -78,16 +78,16 @@ void CmxRenderer::createCommandBuffers()
 
 void CmxRenderer::freeCommandBuffers()
 {
-    vkFreeCommandBuffers(cmxDevice.device(), cmxDevice.getCommandPool(), static_cast<uint32_t>(commandBuffers.size()),
-                         commandBuffers.data());
-    commandBuffers.clear();
+    vkFreeCommandBuffers(_cmxDevice.device(), _cmxDevice.getCommandPool(),
+                         static_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
+    _commandBuffers.clear();
 }
 
 VkCommandBuffer CmxRenderer::beginFrame()
 {
-    assert(!isFrameStarted && "Can't call beginFrame while already in progress");
+    assert(!_isFrameStarted && "Can't call beginFrame while already in progress");
 
-    VkResult result = cmxSwapChain->acquireNextImage(&currentImageIndex);
+    VkResult result = _cmxSwapChain->acquireNextImage(&_currentImageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -99,7 +99,7 @@ VkCommandBuffer CmxRenderer::beginFrame()
         throw std::runtime_error("failed to acquire swap chain image");
     }
 
-    isFrameStarted = true;
+    _isFrameStarted = true;
 
     auto commandBuffer = getCurrentCommandBuffer();
     VkCommandBufferBeginInfo beginInfo{};
@@ -115,7 +115,7 @@ VkCommandBuffer CmxRenderer::beginFrame()
 
 void CmxRenderer::endFrame()
 {
-    assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
+    assert(_isFrameStarted && "Can't call endFrame while frame is not in progress");
 
     auto commandBuffer = getCurrentCommandBuffer();
 
@@ -124,10 +124,10 @@ void CmxRenderer::endFrame()
         throw std::runtime_error("failed to record command buffer!");
     }
 
-    auto result = cmxSwapChain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || cmxWindow.wasWindowResized())
+    auto result = _cmxSwapChain->submitCommandBuffers(&commandBuffer, &_currentImageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _cmxWindow.wasWindowResized())
     {
-        cmxWindow.resetWindowResizedFlag();
+        _cmxWindow.resetWindowResizedFlag();
         recreateSwapChain();
     }
     else if (result != VK_SUCCESS)
@@ -135,23 +135,23 @@ void CmxRenderer::endFrame()
         throw std::runtime_error("failed to present swap chain image!");
     }
 
-    isFrameStarted = false;
-    currentFrameIndex = (currentFrameIndex + 1) % CmxSwapChain::MAX_FRAMES_IN_FLIGHT;
+    _isFrameStarted = false;
+    _currentFrameIndex = (_currentFrameIndex + 1) % CmxSwapChain::MAX_FRAMES_IN_FLIGHT;
 }
 
 void CmxRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
 {
-    assert(isFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
+    assert(_isFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() &&
            "Can't begin render pass on command buffer from a different frame");
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = cmxSwapChain->getRenderPass();
-    renderPassInfo.framebuffer = cmxSwapChain->getFrameBuffer(currentImageIndex);
+    renderPassInfo.renderPass = _cmxSwapChain->getRenderPass();
+    renderPassInfo.framebuffer = _cmxSwapChain->getFrameBuffer(_currentImageIndex);
 
     renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = cmxSwapChain->getSwapChainExtent();
+    renderPassInfo.renderArea.extent = _cmxSwapChain->getSwapChainExtent();
 
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -164,18 +164,18 @@ void CmxRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(cmxSwapChain->getSwapChainExtent().width);
-    viewport.height = static_cast<float>(cmxSwapChain->getSwapChainExtent().height);
+    viewport.width = static_cast<float>(_cmxSwapChain->getSwapChainExtent().width);
+    viewport.height = static_cast<float>(_cmxSwapChain->getSwapChainExtent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    VkRect2D scissor{{0, 0}, cmxSwapChain->getSwapChainExtent()};
+    VkRect2D scissor{{0, 0}, _cmxSwapChain->getSwapChainExtent()};
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
 void CmxRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
 {
-    assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
+    assert(_isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() &&
            "Can't end render pass on command buffer from a different frame");
 

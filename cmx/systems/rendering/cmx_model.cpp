@@ -32,11 +32,11 @@ namespace cmx
 {
 
 CmxModel::CmxModel(CmxDevice &device, const CmxModel::Builder &builder, const std::string &name)
-    : cmxDevice{device}, name{name}
+    : _cmxDevice{device}, name{name}
 {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
-    filepath = builder.filepath;
+    _filepath = builder.filepath;
 }
 
 std::shared_ptr<CmxModel> CmxModel::createModelFromFile(CmxDevice &device, const std::string &filepath,
@@ -51,70 +51,70 @@ std::shared_ptr<CmxModel> CmxModel::createModelFromFile(CmxDevice &device, const
 
 void CmxModel::bind(VkCommandBuffer commandBuffer)
 {
-    VkBuffer buffers[] = {vertexBuffer->getBuffer()};
+    VkBuffer buffers[] = {_vertexBuffer->getBuffer()};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
-    if (hasIndexBuffer)
+    if (_hasIndexBuffer)
     {
-        vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffer, _indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 }
 
 void CmxModel::draw(VkCommandBuffer commandBuffer)
 {
-    if (hasIndexBuffer)
+    if (_hasIndexBuffer)
     {
-        vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffer, _indexCount, 1, 0, 0, 0);
     }
     else
     {
-        vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+        vkCmdDraw(commandBuffer, _vertexCount, 1, 0, 0);
     }
 }
 
 void CmxModel::createVertexBuffers(const std::vector<Vertex> &vertices)
 {
-    vertexCount = static_cast<uint32_t>(vertices.size());
-    assert(vertexCount >= 3 && "Vertex count must be at least 3");
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+    _vertexCount = static_cast<uint32_t>(vertices.size());
+    assert(_vertexCount >= 3 && "Vertex count must be at least 3");
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * _vertexCount;
     uint32_t vertexSize = sizeof(vertices[0]);
 
-    CmxBuffer stagingBuffer{cmxDevice, vertexSize, vertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    CmxBuffer stagingBuffer{_cmxDevice, vertexSize, _vertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
     stagingBuffer.map();
     stagingBuffer.writeToBuffer((void *)vertices.data());
 
-    vertexBuffer = std::make_unique<CmxBuffer>(cmxDevice, vertexSize, vertexCount,
-                                               VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    _vertexBuffer = std::make_unique<CmxBuffer>(_cmxDevice, vertexSize, _vertexCount,
+                                                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    cmxDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+    _cmxDevice.copyBuffer(stagingBuffer.getBuffer(), _vertexBuffer->getBuffer(), bufferSize);
 }
 
 void CmxModel::createIndexBuffers(const std::vector<uint32_t> &indices)
 {
-    indexCount = static_cast<uint32_t>(indices.size());
-    hasIndexBuffer = indexCount > 0;
+    _indexCount = static_cast<uint32_t>(indices.size());
+    _hasIndexBuffer = _indexCount > 0;
 
-    if (!hasIndexBuffer)
+    if (!_hasIndexBuffer)
         return;
 
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
+    VkDeviceSize bufferSize = sizeof(indices[0]) * _indexCount;
     uint32_t indexSize = sizeof(indices[0]);
 
-    CmxBuffer stagingBuffer{cmxDevice, indexSize, indexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    CmxBuffer stagingBuffer{_cmxDevice, indexSize, _indexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
     stagingBuffer.map();
     stagingBuffer.writeToBuffer((void *)indices.data());
 
-    indexBuffer = std::make_unique<CmxBuffer>(cmxDevice, indexSize, indexCount,
-                                              VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    _indexBuffer = std::make_unique<CmxBuffer>(_cmxDevice, indexSize, _indexCount,
+                                               VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    cmxDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
+    _cmxDevice.copyBuffer(stagingBuffer.getBuffer(), _indexBuffer->getBuffer(), bufferSize);
 }
 
 std::vector<VkVertexInputBindingDescription> CmxModel::Vertex::getBindingDescriptions()
@@ -208,7 +208,7 @@ tinyxml2::XMLElement &CmxModel::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEl
 {
     tinyxml2::XMLElement *modelElement = doc.NewElement("model");
 
-    modelElement->SetAttribute("filepath", filepath.c_str());
+    modelElement->SetAttribute("filepath", _filepath.c_str());
     parentElement->InsertEndChild(modelElement);
 
     return *modelElement;

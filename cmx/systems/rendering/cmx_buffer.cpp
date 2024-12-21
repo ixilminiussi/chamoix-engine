@@ -35,19 +35,19 @@ VkDeviceSize CmxBuffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize min
 CmxBuffer::CmxBuffer(CmxDevice &device, VkDeviceSize instanceSize, uint32_t instanceCount,
                      VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags,
                      VkDeviceSize minOffsetAlignment)
-    : cmxDevice{device}, instanceSize{instanceSize}, instanceCount{instanceCount}, usageFlags{usageFlags},
-      memoryPropertyFlags{memoryPropertyFlags}
+    : _cmxDevice{device}, _instanceSize{instanceSize}, _instanceCount{instanceCount}, _usageFlags{usageFlags},
+      _memoryPropertyFlags{memoryPropertyFlags}
 {
-    alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
-    bufferSize = alignmentSize * instanceCount;
-    device.createBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, memory);
+    _alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
+    _bufferSize = _alignmentSize * instanceCount;
+    device.createBuffer(_bufferSize, usageFlags, memoryPropertyFlags, _buffer, _memory);
 }
 
 CmxBuffer::~CmxBuffer()
 {
     unmap();
-    vkDestroyBuffer(cmxDevice.device(), buffer, nullptr);
-    vkFreeMemory(cmxDevice.device(), memory, nullptr);
+    vkDestroyBuffer(_cmxDevice.device(), _buffer, nullptr);
+    vkFreeMemory(_cmxDevice.device(), _memory, nullptr);
 }
 
 /**
@@ -61,8 +61,8 @@ CmxBuffer::~CmxBuffer()
  */
 VkResult CmxBuffer::map(VkDeviceSize size, VkDeviceSize offset)
 {
-    assert(buffer && memory && "Called map on buffer before create");
-    return vkMapMemory(cmxDevice.device(), memory, offset, size, 0, &mapped);
+    assert(_buffer && _memory && "Called map on buffer before create");
+    return vkMapMemory(_cmxDevice.device(), _memory, offset, size, 0, &_mapped);
 }
 
 /**
@@ -72,10 +72,10 @@ VkResult CmxBuffer::map(VkDeviceSize size, VkDeviceSize offset)
  */
 void CmxBuffer::unmap()
 {
-    if (mapped)
+    if (_mapped)
     {
-        vkUnmapMemory(cmxDevice.device(), memory);
-        mapped = nullptr;
+        vkUnmapMemory(_cmxDevice.device(), _memory);
+        _mapped = nullptr;
     }
 }
 
@@ -90,15 +90,15 @@ void CmxBuffer::unmap()
  */
 void CmxBuffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offset)
 {
-    assert(mapped && "Cannot copy to unmapped buffer");
+    assert(_mapped && "Cannot copy to unmapped buffer");
 
     if (size == VK_WHOLE_SIZE)
     {
-        memcpy(mapped, data, bufferSize);
+        memcpy(_mapped, data, _bufferSize);
     }
     else
     {
-        char *memOffset = (char *)mapped;
+        char *memOffset = (char *)_mapped;
         memOffset += offset;
         memcpy(memOffset, data, size);
     }
@@ -119,10 +119,10 @@ VkResult CmxBuffer::flush(VkDeviceSize size, VkDeviceSize offset)
 {
     VkMappedMemoryRange mappedRange = {};
     mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-    mappedRange.memory = memory;
+    mappedRange.memory = _memory;
     mappedRange.offset = offset;
     mappedRange.size = size;
-    return vkFlushMappedMemoryRanges(cmxDevice.device(), 1, &mappedRange);
+    return vkFlushMappedMemoryRanges(_cmxDevice.device(), 1, &mappedRange);
 }
 
 /**
@@ -140,10 +140,10 @@ VkResult CmxBuffer::invalidate(VkDeviceSize size, VkDeviceSize offset)
 {
     VkMappedMemoryRange mappedRange = {};
     mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-    mappedRange.memory = memory;
+    mappedRange.memory = _memory;
     mappedRange.offset = offset;
     mappedRange.size = size;
-    return vkInvalidateMappedMemoryRanges(cmxDevice.device(), 1, &mappedRange);
+    return vkInvalidateMappedMemoryRanges(_cmxDevice.device(), 1, &mappedRange);
 }
 
 /**
@@ -157,7 +157,7 @@ VkResult CmxBuffer::invalidate(VkDeviceSize size, VkDeviceSize offset)
 VkDescriptorBufferInfo CmxBuffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset)
 {
     return VkDescriptorBufferInfo{
-        buffer,
+        _buffer,
         offset,
         size,
     };
@@ -172,7 +172,7 @@ VkDescriptorBufferInfo CmxBuffer::descriptorInfo(VkDeviceSize size, VkDeviceSize
  */
 void CmxBuffer::writeToIndex(void *data, int index)
 {
-    writeToBuffer(data, instanceSize, index * alignmentSize);
+    writeToBuffer(data, _instanceSize, index * _alignmentSize);
 }
 
 /**
@@ -183,7 +183,7 @@ void CmxBuffer::writeToIndex(void *data, int index)
  */
 VkResult CmxBuffer::flushIndex(int index)
 {
-    return flush(alignmentSize, index * alignmentSize);
+    return flush(_alignmentSize, index * _alignmentSize);
 }
 
 /**
@@ -195,7 +195,7 @@ VkResult CmxBuffer::flushIndex(int index)
  */
 VkDescriptorBufferInfo CmxBuffer::descriptorInfoForIndex(int index)
 {
-    return descriptorInfo(alignmentSize, index * alignmentSize);
+    return descriptorInfo(_alignmentSize, index * _alignmentSize);
 }
 
 /**
@@ -209,7 +209,7 @@ VkDescriptorBufferInfo CmxBuffer::descriptorInfoForIndex(int index)
  */
 VkResult CmxBuffer::invalidateIndex(int index)
 {
-    return invalidate(alignmentSize, index * alignmentSize);
+    return invalidate(_alignmentSize, index * _alignmentSize);
 }
 
 } // namespace cmx

@@ -20,30 +20,30 @@ namespace cmx
 {
 
 InputManager::InputManager(CmxWindow &window, const std::string &filepath)
-    : window{window}, inputDictionary{}, filepath{filepath}
+    : _window{window}, _inputDictionary{}, _filepath{filepath}
 {
-    gamepadDetected = glfwJoystickPresent(GLFW_JOYSTICK_1);
+    _gamepadDetected = glfwJoystickPresent(GLFW_JOYSTICK_1);
     glfwSetInputMode(window.getGLFWwindow(), GLFW_STICKY_KEYS, GLFW_TRUE);
 }
 
 InputManager::~InputManager()
 {
-    for (auto &pair : inputDictionary)
+    for (auto &pair : _inputDictionary)
     {
         delete pair.second;
     }
-    inputDictionary.clear();
+    _inputDictionary.clear();
 }
 
 void InputManager::addInput(const std::string &name, InputAction *newInput)
 {
     try
     {
-        auto attempt = inputDictionary.at(name);
+        auto attempt = _inputDictionary.at(name);
     }
     catch (const std::out_of_range &e)
     {
-        inputDictionary[name] = newInput;
+        _inputDictionary[name] = newInput;
         spdlog::info("InputManager: New input '{0}' added", name.c_str());
         return;
     }
@@ -54,28 +54,28 @@ void InputManager::pollEvents(float dt)
 {
     glfwPollEvents();
 
-    for (auto &[name, input] : inputDictionary)
+    for (auto &[name, input] : _inputDictionary)
     {
         if (auto button = static_cast<ButtonAction *>(input))
         {
-            button->poll(window, dt);
+            button->poll(_window, dt);
         }
         if (auto button = static_cast<AxisAction *>(input))
         {
-            button->poll(window, dt);
+            button->poll(_window, dt);
         }
     }
 }
 
 void InputManager::setMouseCapture(bool b)
 {
-    (b) ? glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-        : glfwSetInputMode(window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    (b) ? glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED)
+        : glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 void InputManager::save()
 {
-    saveAs(filepath);
+    saveAs(_filepath);
 }
 
 void InputManager::saveAs(const std::string &customFilepath)
@@ -87,7 +87,7 @@ void InputManager::saveAs(const std::string &customFilepath)
 
     tinyxml2::XMLElement *inputManagerElement = doc.NewElement("inputs");
 
-    for (const auto &pair : inputDictionary)
+    for (const auto &pair : _inputDictionary)
     {
         tinyxml2::XMLElement &inputActionElement = pair.second->save(doc, inputManagerElement);
         inputActionElement.SetAttribute("name", pair.first.c_str());
@@ -100,16 +100,16 @@ void InputManager::saveAs(const std::string &customFilepath)
         spdlog::error("FILE SAVING: {0}", doc.ErrorStr());
     };
 
-    spdlog::info("InputManager: saving success!", filepath);
+    spdlog::info("InputManager: saving success!", _filepath);
 }
 
 void InputManager::load()
 {
     tinyxml2::XMLDocument doc;
 
-    if (doc.LoadFile(filepath.c_str()) == tinyxml2::XML_SUCCESS)
+    if (doc.LoadFile(_filepath.c_str()) == tinyxml2::XML_SUCCESS)
     {
-        spdlog::info("InputManager: Loading input manager from {0}...", filepath);
+        spdlog::info("InputManager: Loading input manager from {0}...", _filepath);
 
         tinyxml2::XMLElement *rootElement = doc.RootElement();
         if (tinyxml2::XMLElement *inputsElement = doc.FirstChildElement("inputs"))
@@ -143,15 +143,15 @@ void InputManager::renderSettings()
 {
     int i = 0;
 
-    auto it = inputDictionary.begin();
-    while (it != inputDictionary.end())
+    auto it = _inputDictionary.begin();
+    while (it != _inputDictionary.end())
     {
         ImGui::PushID(i++);
         if (ImGui::CollapsingHeader(it->first.c_str()))
         {
             if (ImGui::Button(ICON_MS_DELETE " delete"))
             {
-                it = inputDictionary.erase(it);
+                it = _inputDictionary.erase(it);
             }
             else
             {

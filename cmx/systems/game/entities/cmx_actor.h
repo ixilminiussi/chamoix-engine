@@ -57,22 +57,22 @@ class Actor
     // getters and setters :: begin
     Scene *getScene()
     {
-        return scene;
+        return _scene;
     }
 
     bool getVisible() const
     {
-        return isVisible;
+        return _isVisible;
     }
 
     void setVisible(bool newState)
     {
-        isVisible = newState;
+        _isVisible = newState;
     }
 
     void reParent(std::shared_ptr<Actor> actor)
     {
-        parent = actor;
+        _parent = actor;
     }
 
     Transform getAbsoluteTransform();
@@ -90,13 +90,13 @@ class Actor
 
   protected:
     Actor(Scene *, uint32_t id, const std::string &name, const Transform &);
-    std::weak_ptr<Actor> parent;
+    std::weak_ptr<Actor> _parent;
 
-    Scene *scene;
-    uint32_t id;
-    bool isVisible = true;
+    Scene *_scene;
+    uint32_t _id;
+    bool _isVisible = true;
 
-    std::unordered_map<std::string, std::shared_ptr<Component>> components{};
+    std::unordered_map<std::string, std::shared_ptr<Component>> _components{};
 
     static uint32_t currentID;
 };
@@ -131,7 +131,7 @@ template <typename T> inline std::weak_ptr<T> Actor::getComponentByType()
         return std::weak_ptr<T>();
     }
 
-    for (const auto &component : components)
+    for (const auto &component : _components)
     {
         if (auto castedComponent = std::dynamic_pointer_cast<T>(component.second))
         {

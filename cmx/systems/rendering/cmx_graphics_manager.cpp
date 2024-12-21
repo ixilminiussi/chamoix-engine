@@ -9,18 +9,18 @@ namespace cmx
 
 void GraphicsManager::addToQueue(std::shared_ptr<Component> component)
 {
-    componentRenderQueue.push_back(component);
+    _componentRenderQueue.push_back(component);
 }
 
 void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
 {
-    auto it = componentRenderQueue.begin();
+    auto it = _componentRenderQueue.begin();
 
-    while (it != componentRenderQueue.end())
+    while (it != _componentRenderQueue.end())
     {
         if (*it != component)
         {
-            componentRenderQueue.erase(it);
+            _componentRenderQueue.erase(it);
             return;
         }
         it++;
@@ -29,7 +29,7 @@ void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
 
 void GraphicsManager::drawComponents(std::weak_ptr<class CameraComponent> camera)
 {
-    renderSystem->drawScene(camera, componentRenderQueue);
+    _renderSystem->drawScene(camera, _componentRenderQueue);
 }
 
 } // namespace cmx

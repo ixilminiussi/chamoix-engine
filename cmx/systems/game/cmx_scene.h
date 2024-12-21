@@ -20,7 +20,7 @@ class Scene
 {
   public:
     Scene(const std::string &xmlPath, class Game *game, const std::string &name)
-        : xmlPath{xmlPath}, game{game}, name{name} {};
+        : _xmlPath{xmlPath}, _game{game}, name{name} {};
     ~Scene() = default;
 
     std::weak_ptr<class Actor> getActorByName(const std::string &name);
@@ -30,7 +30,7 @@ class Scene
 
     std::vector<std::weak_ptr<class Component>> &getAllComponents()
     {
-        return components;
+        return _components;
     }
 
     tinyxml2::XMLElement &save();
@@ -48,30 +48,30 @@ class Scene
 
     std::weak_ptr<class CameraComponent> getCamera()
     {
-        return activeCamera;
+        return _activeCamera;
     }
 
     class Game *getGame()
     {
-        return game;
+        return _game;
     }
 
-    const std::string xmlPath;
+    const std::string _xmlPath;
     const std::string name;
 
-    std::shared_ptr<class AssetsManager> assetsManager = std::make_shared<class AssetsManager>(this);
-    std::unique_ptr<class GraphicsManager> graphicsManager;
+    std::shared_ptr<class AssetsManager> _assetsManager = std::make_shared<class AssetsManager>(this);
+    std::unique_ptr<class GraphicsManager> _graphicsManager;
 
   private:
     void updateActors(float dt);
     void updateComponents(float dt);
     void draw();
 
-    std::shared_ptr<class CameraComponent> activeCamera;
-    std::unordered_map<uint32_t, std::shared_ptr<class Actor>> actors{};
-    std::vector<std::weak_ptr<class Component>> components{};
+    std::shared_ptr<class CameraComponent> _activeCamera;
+    std::unordered_map<uint32_t, std::shared_ptr<class Actor>> _actors{};
+    std::vector<std::weak_ptr<class Component>> _components{};
 
-    class Game *game;
+    class Game *_game;
 };
 
 template <typename T> inline void Scene::getAllActorsByType(std::vector<std::weak_ptr<Actor>> &actorList)
@@ -82,7 +82,8 @@ template <typename T> inline void Scene::getAllActorsByType(std::vector<std::wea
                       typeid(T).name(), typeid(T).name());
         return;
     }
-    for (auto pair : actors)
+
+    for (auto pair : _actors)
     {
         if (auto actor = std::dynamic_pointer_cast<T>(pair.second))
         {
@@ -99,7 +100,7 @@ template <typename T> inline void Scene::getAllComponentsByType(std::vector<std:
                       typeid(T).name(), typeid(T).name());
         return;
     }
-    for (auto component : components)
+    for (auto component : _components)
     {
         if (typeid(T) == typeid(component))
         {

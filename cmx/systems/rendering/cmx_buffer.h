@@ -30,51 +30,51 @@ class CmxBuffer
 
     VkBuffer getBuffer() const
     {
-        return buffer;
+        return _buffer;
     }
     void *getMappedMemory() const
     {
-        return mapped;
+        return _mapped;
     }
     uint32_t getInstanceCount() const
     {
-        return instanceCount;
+        return _instanceCount;
     }
     VkDeviceSize getInstanceSize() const
     {
-        return instanceSize;
+        return _instanceSize;
     }
     VkDeviceSize getAlignmentSize() const
     {
-        return instanceSize;
+        return _instanceSize;
     }
     VkBufferUsageFlags getUsageFlags() const
     {
-        return usageFlags;
+        return _usageFlags;
     }
     VkMemoryPropertyFlags getMemoryPropertyFlags() const
     {
-        return memoryPropertyFlags;
+        return _memoryPropertyFlags;
     }
     VkDeviceSize getBufferSize() const
     {
-        return bufferSize;
+        return _bufferSize;
     }
 
   private:
     static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
 
-    CmxDevice &cmxDevice;
-    void *mapped = nullptr;
-    VkBuffer buffer = VK_NULL_HANDLE;
-    VkDeviceMemory memory = VK_NULL_HANDLE;
+    CmxDevice &_cmxDevice;
+    void *_mapped = nullptr;
+    VkBuffer _buffer = VK_NULL_HANDLE;
+    VkDeviceMemory _memory = VK_NULL_HANDLE;
 
-    VkDeviceSize bufferSize;
-    uint32_t instanceCount;
-    VkDeviceSize instanceSize;
-    VkDeviceSize alignmentSize;
-    VkBufferUsageFlags usageFlags;
-    VkMemoryPropertyFlags memoryPropertyFlags;
+    VkDeviceSize _bufferSize;
+    uint32_t _instanceCount;
+    VkDeviceSize _instanceSize;
+    VkDeviceSize _alignmentSize;
+    VkBufferUsageFlags _usageFlags;
+    VkMemoryPropertyFlags _memoryPropertyFlags;
 };
 
 } // namespace cmx

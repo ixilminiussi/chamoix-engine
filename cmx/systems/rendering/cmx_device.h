@@ -32,9 +32,9 @@ class CmxDevice
 {
   public:
 #ifdef NDEBUG
-    const bool enableValidationLayers = false;
+    const bool _enableValidationLayers = false;
 #else
-    const bool enableValidationLayers = true;
+    const bool _enableValidationLayers = true;
 #endif
 
     CmxDevice(CmxWindow &);
@@ -45,41 +45,41 @@ class CmxDevice
 
     VkCommandPool getCommandPool()
     {
-        return commandPool;
+        return _commandPool;
     }
     VkDevice device()
     {
-        return device_;
+        return _device;
     }
     VkSurfaceKHR surface()
     {
-        return surface_;
+        return _surface;
     }
     VkQueue graphicsQueue()
     {
-        return graphicsQueue_;
+        return _graphicsQueue;
     }
     VkQueue presentQueue()
     {
-        return presentQueue_;
+        return _presentQueue;
     }
     VkPhysicalDevice physicalDevice()
     {
-        return physicalDevice_;
+        return _physicalDevice;
     }
     VkInstance instance()
     {
-        return instance_;
+        return _instance;
     }
 
     SwapChainSupportDetails getSwapChainSupport()
     {
-        return querySwapChainSupport(physicalDevice_);
+        return querySwapChainSupport(_physicalDevice);
     }
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags);
     QueueFamilyIndices findPhysicalQueueFamilies()
     {
-        return findQueueFamilies(physicalDevice_);
+        return findQueueFamilies(_physicalDevice);
     }
     VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling, VkFormatFeatureFlags);
 
@@ -92,7 +92,7 @@ class CmxDevice
 
     void createImageWithInfo(const VkImageCreateInfo &, VkMemoryPropertyFlags, VkImage &, VkDeviceMemory &);
 
-    VkPhysicalDeviceProperties properties;
+    VkPhysicalDeviceProperties _properties;
 
   private:
     void createInstance();
@@ -112,19 +112,19 @@ class CmxDevice
     bool checkDeviceExtensionSupport(VkPhysicalDevice);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice);
 
-    VkInstance instance_;
-    VkDebugUtilsMessengerEXT debugMessenger;
-    VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
-    CmxWindow &window;
-    VkCommandPool commandPool;
+    VkInstance _instance;
+    VkDebugUtilsMessengerEXT _debugMessenger;
+    VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
+    CmxWindow &_window;
+    VkCommandPool _commandPool;
 
-    VkDevice device_;
-    VkSurfaceKHR surface_;
-    VkQueue graphicsQueue_;
-    VkQueue presentQueue_;
+    VkDevice _device;
+    VkSurfaceKHR _surface;
+    VkQueue _graphicsQueue;
+    VkQueue _presentQueue;
 
-    const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
-    const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const std::vector<const char *> _validationLayers = {"VK_LAYER_KHRONOS_validation"};
+    const std::vector<const char *> _deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 };
 
 } // namespace cmx

@@ -16,7 +16,7 @@ class CmxDescriptorSetLayout
     class Builder
     {
       public:
-        Builder(CmxDevice &cmxDevice) : cmxDevice{cmxDevice}
+        Builder(CmxDevice &cmxDevice) : _cmxDevice{cmxDevice}
         {
         }
 
@@ -25,8 +25,8 @@ class CmxDescriptorSetLayout
         std::unique_ptr<CmxDescriptorSetLayout> build() const;
 
       private:
-        CmxDevice &cmxDevice;
-        std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
+        CmxDevice &_cmxDevice;
+        std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> _bindings{};
     };
 
     CmxDescriptorSetLayout(CmxDevice &cmxDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
@@ -53,7 +53,7 @@ class CmxDescriptorPool
     class Builder
     {
       public:
-        Builder(CmxDevice &cmxDevice) : cmxDevice{cmxDevice}
+        Builder(CmxDevice &cmxDevice) : _cmxDevice{cmxDevice}
         {
         }
 
@@ -63,10 +63,10 @@ class CmxDescriptorPool
         std::unique_ptr<CmxDescriptorPool> build() const;
 
       private:
-        CmxDevice &cmxDevice;
-        std::vector<VkDescriptorPoolSize> poolSizes{};
-        uint32_t maxSets = 1000;
-        VkDescriptorPoolCreateFlags poolFlags = 0;
+        CmxDevice &_cmxDevice;
+        std::vector<VkDescriptorPoolSize> _poolSizes{};
+        uint32_t _maxSets = 1000;
+        VkDescriptorPoolCreateFlags _poolFlags = 0;
     };
 
     CmxDescriptorPool(CmxDevice &cmxDevice, uint32_t maxSets, VkDescriptorPoolCreateFlags poolFlags,
@@ -83,12 +83,12 @@ class CmxDescriptorPool
 
     VkDescriptorPool getDescriptorPool()
     {
-        return descriptorPool;
+        return _descriptorPool;
     }
 
   private:
-    CmxDevice &cmxDevice;
-    VkDescriptorPool descriptorPool;
+    CmxDevice &_cmxDevice;
+    VkDescriptorPool _descriptorPool;
 
     friend class CmxDescriptorWriter;
 };
@@ -105,9 +105,9 @@ class CmxDescriptorWriter
     void overwrite(VkDescriptorSet &set);
 
   private:
-    CmxDescriptorSetLayout &setLayout;
-    CmxDescriptorPool &pool;
-    std::vector<VkWriteDescriptorSet> writes;
+    CmxDescriptorSetLayout &_setLayout;
+    CmxDescriptorPool &_pool;
+    std::vector<VkWriteDescriptorSet> _writes;
 };
 
 } // namespace cmx

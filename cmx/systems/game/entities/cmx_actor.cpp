@@ -14,7 +14,7 @@ namespace cmx
 {
 
 Actor::Actor(Scene *scene, uint32_t id, const std::string &name, const Transform &transform)
-    : scene{scene}, id{id}, name{name}, transform{transform}
+    : _scene{scene}, _id{id}, name{name}, transform{transform}
 {
 }
 
@@ -36,7 +36,7 @@ void Actor::attachComponent(std::shared_ptr<Component> component, std::string co
     componentName = (componentName.compare("") == 0) ? component->getType() : componentName;
     try
     {
-        auto c = components.at(componentName);
+        auto c = _components.at(componentName);
     }
     catch (const std::out_of_range &e)
     {
@@ -47,7 +47,7 @@ void Actor::attachComponent(std::shared_ptr<Component> component, std::string co
         component->name = componentName;
         component->setParent(this);
 
-        components[component->name] = component;
+        _components[component->name] = component;
         getScene()->addComponent(component);
 
         return;
@@ -60,14 +60,14 @@ void Actor::detachComponent(const std::string &componentName)
 {
     try
     {
-        components.at(componentName) = nullptr;
+        _components.at(componentName) = nullptr;
     }
     catch (const std::out_of_range &e)
     {
         spdlog::warn("Actor '{0}': Attempt to remove unheld component '{1}''", name, componentName);
     }
 
-    components.erase(componentName);
+    _components.erase(componentName);
 
     spdlog::info("Actor '{0}': Removed component '{1}'", name, componentName);
 }
@@ -77,11 +77,11 @@ std::weak_ptr<Component> Actor::getComponentByName(const std::string &name)
     std::weak_ptr<Component> component;
     try
     {
-        component = components.at(name);
+        component = _components.at(name);
     }
     catch (const std::out_of_range &e)
     {
-        spdlog::warn("Scene '{0}': Attempt to get component from invalid id: '{1}''", name, id);
+        spdlog::warn("Scene '{0}': Attempt to get component from invalid id: '{1}''", name, _id);
     }
 
     return component;
@@ -91,7 +91,7 @@ Transform Actor::getAbsoluteTransform()
 {
     if (positioning == Positioning::RELATIVE)
     {
-        if (auto parentActor = parent.lock())
+        if (auto parentActor = _parent.lock())
         {
             return transform + parentActor->getAbsoluteTransform();
         }
@@ -114,13 +114,13 @@ void Actor::renderSettings()
         ImGui::DragFloat3("Rotation", *rotation, 0.1f);
     }
 
-    if (components.size() > 0)
+    if (_components.size() > 0)
     {
         ImGui::SeparatorText("Components");
         int i = 0;
         std::string label;
 
-        for (auto component : components)
+        for (auto component : _components)
         {
             label = fmt::format("{}##{}", component.first.c_str(), i++);
             if (ImGui::CollapsingHeader(label.c_str()))
@@ -136,7 +136,7 @@ tinyxml2::XMLElement &Actor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEleme
     tinyxml2::XMLElement *actorElement = doc.NewElement("actor");
     actorElement->SetAttribute("type", getType().c_str());
     actorElement->SetAttribute("name", name.c_str());
-    actorElement->SetAttribute("id", id);
+    actorElement->SetAttribute("id", _id);
 
     tinyxml2::XMLElement *transformElement = doc.NewElement("transform");
 
@@ -160,7 +160,7 @@ tinyxml2::XMLElement &Actor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEleme
 
     actorElement->InsertEndChild(transformElement);
 
-    for (auto componentPair : components)
+    for (auto componentPair : _components)
     {
         componentPair.second->save(doc, actorElement);
     }

@@ -27,7 +27,7 @@ class MeshComponent : public Component
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
 
   private:
-    std::shared_ptr<class CmxModel> cmxModel;
+    std::shared_ptr<class CmxModel> _cmxModel;
 };
 
 } // namespace cmx
