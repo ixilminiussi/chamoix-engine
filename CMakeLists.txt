@@ -26,7 +26,7 @@ target_link_libraries(VulkanTest PRIVATE
 
 # Define custom targets for 'test' and 'clean'
 add_custom_target(test
-    COMMAND ${CMAKE_COMMAND} -E env bash ${CMAKE_SOURCE_DIR}/compile.sh
+    COMMAND ${CMAKE_COMMAND} -E env bash ${CMAKE_SOURCE_DIR}/compile.sh demo
     COMMAND VulkanTest
     DEPENDS VulkanTest
     COMMENT "Running VulkanTest"

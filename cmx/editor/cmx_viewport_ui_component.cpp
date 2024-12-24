@@ -6,7 +6,9 @@
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
 #include "cmx_game.h"
+#include "cmx_input_manager.h"
 #include "cmx_registers.h"
+#include "cmx_render_system.h"
 #include "cmx_renderer.h"
 #include "cmx_viewport_actor.h"
 

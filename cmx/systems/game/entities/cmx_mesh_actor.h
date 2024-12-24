@@ -5,7 +5,7 @@
 namespace cmx
 {
 
-enum CmxPrimitives
+enum Primitives
 {
     SPHERE,
     BOX,
@@ -16,7 +16,7 @@ enum CmxPrimitives
     // CAPSULE,
 };
 
-class CmxMeshActor : public Actor
+class MeshActor : public Actor
 {
   public:
     using Actor::Actor;
@@ -27,7 +27,7 @@ class CmxMeshActor : public Actor
     // for viewport
     void renderSettings() override;
 
-    void updateMesh(CmxPrimitives);
+    void updateMesh(Primitives){};
     void updateMesh(std::string &assetName);
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;

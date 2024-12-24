@@ -2,6 +2,8 @@
 
 // cmx
 #include "cmx_render_system.h"
+
+// lib
 #include <spdlog/spdlog.h>
 
 namespace cmx
@@ -27,7 +29,7 @@ void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
     }
 }
 
-void GraphicsManager::drawComponents(std::weak_ptr<class CameraComponent> camera)
+void GraphicsManager::drawComponents(std::weak_ptr<CameraComponent> camera)
 {
     _renderSystem->drawScene(camera, _componentRenderQueue);
 }

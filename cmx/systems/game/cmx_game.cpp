@@ -1,6 +1,10 @@
 #include "cmx_game.h"
 
 // cmx
+#include "cmx_camera_component.h"
+#include "cmx_device.h"
+#include "cmx_input_manager.h"
+#include "cmx_render_system.h"
 #include "cmx_viewport_actor.h"
 #include "cmx_viewport_ui_component.h"
 
@@ -21,6 +25,37 @@
 namespace cmx
 {
 
+Game::Game()
+{
+    _cmxWindow = std::make_unique<CmxWindow>(WIDTH, HEIGHT, "chamoix");
+
+    _inputManager = std::make_shared<InputManager>(*_cmxWindow.get());
+    _renderSystem = std::make_shared<RenderSystem>(*_cmxWindow.get());
+}
+
+Game::~Game()
+{
+}
+
+void Game::setScene(int i)
+{
+    {
+        if (_activeScene)
+        {
+            _activeScene->unload();
+        }
+        try
+        {
+            _activeScene = _scenes.at(i);
+            _activeScene->load();
+        }
+        catch (const std::out_of_range &e)
+        {
+            spdlog::error("Scene: no scene at index {0}", i);
+        }
+    }
+}
+
 Scene *Game::getScene()
 {
     if (!_activeScene)
@@ -31,6 +66,11 @@ Scene *Game::getScene()
     return _activeScene;
 }
 
+CmxDevice &Game::getDevice()
+{
+    return *_renderSystem->_cmxDevice.get();
+}
+
 void Game::loadEditor()
 {
     std::shared_ptr<ViewportActor> viewportActor = Actor::spawn<ViewportActor>(getScene(), "ViewportActor");
@@ -38,7 +78,7 @@ void Game::loadEditor()
     std::weak_ptr<ViewportUIComponent> viewportUIWk = viewportActor->getComponentByType<ViewportUIComponent>();
     if (auto viewportUIComponent = viewportUIWk.lock())
     {
-        viewportUIComponent->initInputManager(_cmxWindow);
+        viewportUIComponent->initInputManager(*_cmxWindow.get());
         viewportUIComponent->initImGUI(_renderSystem.get());
     }
 

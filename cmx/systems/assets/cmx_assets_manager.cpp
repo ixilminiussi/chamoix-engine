@@ -22,6 +22,8 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
 
     parentElement->InsertEndChild(assetsElement);
 
+    spdlog::info("Saved asset manager");
+
     return *assetsElement;
 }
 
@@ -63,7 +65,7 @@ std::shared_ptr<CmxModel> AssetsManager::getModel(const std::string &name)
 {
     try
     {
-        return models[name];
+        return models.at(name);
     }
     catch (const std::out_of_range &e)
     {

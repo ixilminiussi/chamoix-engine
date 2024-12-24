@@ -1,14 +1,7 @@
 #pragma once
 
-// cmx
-#include "cmx_assets_manager.h"
-#include "cmx_device.h"
-#include "cmx_input_manager.h"
-#include "cmx_render_system.h"
-#include "cmx_scene.h"
-#include "cmx_window.h"
-
 // lib
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
@@ -25,8 +18,8 @@ class Game
     static int WIDTH;
     static int HEIGHT;
 
-    Game() = default;
-    ~Game() = default;
+    Game();
+    ~Game();
 
     Game(const Game &) = delete;
     Game &operator=(const Game &) = delete;
@@ -38,45 +31,27 @@ class Game
 
     // getters and setters :: begin
     class Scene *getScene();
+    void setScene(int i);
 
-    void setScene(int i)
-    {
-        if (_activeScene)
-        {
-            _activeScene->unload();
-        }
-        try
-        {
-            _activeScene = _scenes.at(i);
-            _activeScene->load();
-        }
-        catch (const std::out_of_range &e)
-        {
-            spdlog::error("Scene: no scene at index {0}", i);
-        }
-    }
-    std::shared_ptr<InputManager> getInputManager() const
+    std::shared_ptr<class InputManager> getInputManager() const
     {
         return _inputManager;
     }
-    std::shared_ptr<RenderSystem> getRenderSystem() const
+    std::shared_ptr<class RenderSystem> getRenderSystem() const
     {
         return _renderSystem;
     }
-    CmxDevice &getDevice()
-    {
-        return *_renderSystem->_cmxDevice;
-    }
+    class CmxDevice &getDevice();
     // getters and setters :: end
 
   protected:
     class Scene *_activeScene;
     std::vector<Scene *> _scenes;
 
-    CmxWindow _cmxWindow{WIDTH, HEIGHT, "demo"};
+    std::unique_ptr<class CmxWindow> _cmxWindow;
 
-    std::shared_ptr<InputManager> _inputManager = std::make_shared<InputManager>(_cmxWindow);
-    std::shared_ptr<RenderSystem> _renderSystem = std::make_shared<RenderSystem>(_cmxWindow);
+    std::shared_ptr<InputManager> _inputManager;
+    std::shared_ptr<RenderSystem> _renderSystem;
 
     // warning flags
     bool __noCameraFlag{false};

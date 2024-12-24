@@ -2,14 +2,17 @@
 
 // cmx
 #include "cmx_actor.h"
+#include "cmx_assets_manager.h"
 #include "cmx_camera_component.h"
 #include "cmx_game.h"
+#include "cmx_graphics_manager.h"
 
 // std
 #include <memory>
 #include <stdexcept>
 
 // lib
+#include "cmx_graphics_manager.h"
 #include "misc/cmx_registers.h"
 #include "tinyxml2.h"
 #include <spdlog/spdlog.h>
@@ -17,9 +20,17 @@
 namespace cmx
 {
 
+Scene::Scene(const std::string &xmlPath, class Game *game, const std::string &name)
+    : _xmlPath{xmlPath}, _game{game}, name{name} {};
+
+Scene::~Scene()
+{
+}
+
 void Scene::load()
 {
-    _graphicsManager = std::unique_ptr<GraphicsManager>(new GraphicsManager(getGame()->getRenderSystem()));
+    _assetsManager = std::make_shared<AssetsManager>(this);
+    _graphicsManager = std::make_unique<GraphicsManager>(getGame()->getRenderSystem());
 
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(_xmlPath.c_str()) == tinyxml2::XML_SUCCESS)
@@ -80,7 +91,7 @@ std::weak_ptr<Actor> Scene::getActorByID(uint32_t id)
     return actor;
 }
 
-void Scene::setCamera(std::shared_ptr<class CameraComponent> camera)
+void Scene::setCamera(std::shared_ptr<CameraComponent> camera)
 {
     _activeCamera = camera;
     spdlog::info("Scene: new active Camera is {0}->{1}", camera->getParent()->name, camera->name);

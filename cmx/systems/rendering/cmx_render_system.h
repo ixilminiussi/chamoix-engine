@@ -1,9 +1,6 @@
 #pragma once
 
 // cmx
-#include "cmx_buffer.h"
-#include "cmx_camera_component.h"
-#include "cmx_scene.h"
 #include "cmx_viewport_ui_component.h"
 
 // lib
@@ -56,7 +53,7 @@ class RenderSystem
     VkPipelineLayout _pipelineLayout;
     VkCommandBuffer _commandBuffer;
 
-    std::vector<std::unique_ptr<CmxBuffer>> _uboBuffers;
+    std::vector<std::unique_ptr<class CmxBuffer>> _uboBuffers;
     std::vector<VkDescriptorSet> _globalDescriptorSets;
 
     // warning flags

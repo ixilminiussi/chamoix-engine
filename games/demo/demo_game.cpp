@@ -2,8 +2,11 @@
 
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
+#include "cmx_input_manager.h"
 #include "cmx_mesh_component.h"
+#include "cmx_render_system.h"
 #include "cmx_scene.h"
+#include "cmx_window.h"
 #include "rotating_actor.h"
 
 // lib
@@ -28,13 +31,17 @@ struct GlobalUbo
     glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
 };
 
+Demo::Demo()
+{
+}
+
 Demo::~Demo()
 {
 }
 
 void Demo::run()
 {
-    while (!_cmxWindow.shouldClose())
+    while (!_cmxWindow->shouldClose())
     {
         float dt = glfwGetTime();
         glfwSetTime(0.);
@@ -60,8 +67,9 @@ void Demo::load()
 
     getInputManager()->bindButton("exit", &Demo::closeWindow, this);
 
-    std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor");
+    mainScene._assetsManager->addModel("assets/models/bunny.obj", "bunny");
 
+    std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor");
     std::shared_ptr<RotatingActor> rotatingActor2 = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor2");
 
     auto rotatingRendererWk = rotatingActor->getComponentByType<cmx::MeshComponent>();

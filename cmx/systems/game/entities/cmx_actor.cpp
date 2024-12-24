@@ -1,8 +1,11 @@
 #include "cmx_actor.h"
-#include "imgui.h"
-#include "tinyxml2.h"
+
+// cmx
+#include "cmx_component.h"
 
 // lib
+#include "imgui.h"
+#include "tinyxml2.h"
 #include <spdlog/spdlog.h>
 
 // std

@@ -1,8 +1,6 @@
 #pragma once
 
 // lib
-#include "cmx_assets_manager.h"
-#include "cmx_graphics_manager.h"
 #include "tinyxml2.h"
 #include <spdlog/spdlog.h>
 
@@ -19,9 +17,8 @@ namespace cmx
 class Scene
 {
   public:
-    Scene(const std::string &xmlPath, class Game *game, const std::string &name)
-        : _xmlPath{xmlPath}, _game{game}, name{name} {};
-    ~Scene() = default;
+    Scene(const std::string &xmlPath, class Game *, const std::string &name);
+    ~Scene();
 
     std::weak_ptr<class Actor> getActorByName(const std::string &name);
     std::weak_ptr<class Actor> getActorByID(uint32_t id);
@@ -59,7 +56,7 @@ class Scene
     const std::string _xmlPath;
     const std::string name;
 
-    std::shared_ptr<class AssetsManager> _assetsManager = std::make_shared<class AssetsManager>(this);
+    std::shared_ptr<class AssetsManager> _assetsManager;
     std::unique_ptr<class GraphicsManager> _graphicsManager;
 
   private:

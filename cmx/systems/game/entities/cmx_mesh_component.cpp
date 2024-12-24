@@ -1,6 +1,7 @@
 #include "cmx_mesh_component.h"
 
 #include "cmx_actor.h"
+#include "cmx_assets_manager.h"
 #include "cmx_frame_info.h"
 #include "cmx_model.h"
 #include "cmx_render_system.h"

@@ -1,11 +1,14 @@
 #pragma once
 
+// cmx
 #include "cmx_scene.h"
-#include "tinyxml2.h"
 
 // lib
-#include <memory>
+#include "tinyxml2.h"
 #include <vulkan/vulkan_core.h>
+
+// std
+#include <memory>
 
 namespace cmx
 {

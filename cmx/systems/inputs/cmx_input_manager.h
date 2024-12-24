@@ -21,7 +21,7 @@ namespace cmx
 class InputManager
 {
   public:
-    InputManager(class CmxWindow &, const std::string &filepath = ".input-manager.xml");
+    InputManager(class CmxWindow &, const std::string &filepath = "properties/input-manager.xml");
     ~InputManager();
 
     void save();

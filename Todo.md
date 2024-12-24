@@ -1,53 +1,63 @@
 ## Todo list
 
+## REFACTOR
+- [x] graphics manager
+- [ ] member variable nomenclature
+- [ ] visitor pattern for 
+    - [ ] save
+    - [ ] load
+    - [ ] edit
+- [ ] one directional variable names
+- [ ] fix compilation times
+
 ## UI
--[ ] default buttons classes
--[x] user inputs system
+- [ ] default buttons classes
+- [x] user inputs system
 
 ## Assets
--[ ] textures
--[ ] models loading
--[ ] asset manager
+- [ ] textures
+- [ ] models loading
+- [ ] asset manager
 
 ## 2D rendering
--[ ] textures
--[ ] default shapes
--[ ] font-loading / rendering
+- [ ] textures
+- [ ] default shapes
+- [ ] font-loading / rendering
 
 ## 3D rendering
--[x] 3D actor transforms
--[x] projection matrices
--[x] lighting
--[ ] point lighting
--[x] models import
--[ ] textures
+- [x] 3D actor transforms
+- [x] projection matrices
+- [x] lighting
+- [ ] point lighting
+- [x] models import
+- [ ] textures
 
 ## Physics
--[x] Quaternion implementation
--[ ] Physics system
+- [x] Quaternion implementation
+- [ ] Physics system
 
 ## Level editor
--[x] viewport navigation
--[x] ImGUI implementation
--[x] separate input manager for editor and game
--[ ] Shortcut input support
--[x] <xml> import and export
--[ ] playing and editing state
+- [x] viewport navigation
+- [x] ImGUI implementation
+- [x] separate input manager for editor and game
+- [ ] Shortcut input support
+- [x] <xml> import and export
+- [ ] playing and editing state
 
 ## Post processing
--[ ] compute shaders
--[ ] new render system
+- [ ] compute shaders
+- [ ] new render system
 
 ## Sound
--[ ] sound system
+- [ ] sound system
 
 ## Miscellaneous
--[x] DeltaTime
--[ ] Pause menu
+- [x] DeltaTime
+- [ ] Pause menu
 
 ## Demos
--[ ] menu of all demos + screenshots
--[ ] pong
--[ ] reimport clouds
--[ ] 3D terrain generation
--[ ] procedural animations 2D
+- [ ] menu of all demos + screenshots
+- [ ] pong
+- [ ] reimport clouds
+- [ ] 3D terrain generation
+- [ ] procedural animations 2D

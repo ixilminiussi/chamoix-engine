@@ -1,6 +1,8 @@
 #include "cmx_render_system.h"
 
 // cmx
+#include "cmx_buffer.h"
+#include "cmx_camera_component.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
 #include "cmx_device.h"
@@ -105,7 +107,7 @@ void RenderSystem::drawScene(std::weak_ptr<CameraComponent> cameraWk,
     vkDeviceWaitIdle(_cmxDevice->device());
 }
 
-FrameInfo *RenderSystem::beginRender(class CameraComponent *camera)
+FrameInfo *RenderSystem::beginRender(CameraComponent *camera)
 {
     FrameInfo *frameInfo;
 
@@ -126,7 +128,7 @@ FrameInfo *RenderSystem::beginRender(class CameraComponent *camera)
     return frameInfo;
 }
 
-void RenderSystem::render(FrameInfo *frameInfo, const std::vector<std::shared_ptr<class Component>> &renderQueue)
+void RenderSystem::render(FrameInfo *frameInfo, const std::vector<std::shared_ptr<Component>> &renderQueue)
 {
     _cmxPipeline->bind(frameInfo->commandBuffer);
 

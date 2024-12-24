@@ -14,7 +14,7 @@
 class Demo : public cmx::Game
 {
   public:
-    Demo() = default;
+    Demo();
     ~Demo();
     void load() override;
     void run() override;

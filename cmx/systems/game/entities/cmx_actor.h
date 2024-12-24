@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cmx_camera_component.h"
-#include "cmx_component.h"
 #include "cmx_scene.h"
 #include "cmx_transform.h"
 
@@ -28,10 +26,10 @@ class Actor
 {
   public:
     template <class T>
-    static std::shared_ptr<T> spawn(Scene *, const std::string &name, const Transform &transform = Transform{});
+    static std::shared_ptr<T> spawn(class Scene *, const std::string &name, const Transform &transform = Transform{});
 
     void despawn();
-    void move(Scene *);
+    void move(class Scene *);
 
     Actor() = delete;
     virtual ~Actor() = default;
@@ -49,10 +47,10 @@ class Actor
     // for viewport
     virtual void renderSettings();
 
-    void attachComponent(std::shared_ptr<Component>, std::string name = "");
+    void attachComponent(std::shared_ptr<class Component>, std::string name = "");
     void detachComponent(const std::string &name);
     template <typename T> std::weak_ptr<T> getComponentByType();
-    std::weak_ptr<Component> getComponentByName(const std::string &name);
+    std::weak_ptr<class Component> getComponentByName(const std::string &name);
 
     // getters and setters :: begin
     Scene *getScene()

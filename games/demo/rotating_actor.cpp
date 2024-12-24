@@ -2,6 +2,7 @@
 
 // cmx
 #include "cmx_game.h"
+#include "cmx_input_manager.h"
 #include "cmx_mesh_component.h"
 #include "imgui.h"
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cmx_component.h"
-#include "cmx_model.h"
 #include "tinyxml2.h"
 
 // lib
