@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_FRAME_INFO
+#define CMX_FRAME_INFO
 
 // lib
 #include <vulkan/vulkan.h>
@@ -15,3 +16,5 @@ struct FrameInfo
 };
 
 } // namespace cmx
+
+#endif

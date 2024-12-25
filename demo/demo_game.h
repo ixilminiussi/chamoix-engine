@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DEMO_GAME
+#define DEMO_GAME
 
 // cmx
 #include "cmx_game.h"
@@ -23,3 +24,5 @@ class Demo : public cmx::Game
   protected:
     cmx::Scene mainScene{"scenes/demo-scene.xml", this, "first scene"};
 };
+
+#endif

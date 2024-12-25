@@ -1,7 +1,5 @@
-#pragma once
-
-// cmx
-#include "cmx_graphics_manager.h"
+#ifndef CMX_ASSET_MANAGER
+#define CMX_ASSET_MANAGER
 
 // lib
 #include "tinyxml2.h"
@@ -45,3 +43,5 @@ class AssetsManager final
 };
 
 } // namespace cmx
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_COMPONENT
+#define CMX_COMPONENT
 
 // cmx
 #include "cmx_scene.h"
@@ -67,3 +68,5 @@ inline bool operator<(std::weak_ptr<Component> awk, std::shared_ptr<Component> b
 }
 
 } // namespace cmx
+
+#endif

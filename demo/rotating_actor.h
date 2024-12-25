@@ -1,11 +1,12 @@
-#pragma once
+#ifndef ROTATING_ACTOR
+#define ROTATING_ACTOR
 
-#include "cmx_actor.h"
+#include "cmx_mesh_actor.h"
 
-class RotatingActor : public cmx::Actor
+class RotatingActor : public cmx::MeshActor
 {
   public:
-    using cmx::Actor::Actor;
+    using cmx::MeshActor::MeshActor;
 
     void onBegin() override;
     void update(float dt) override;
@@ -23,3 +24,5 @@ class RotatingActor : public cmx::Actor
     float rotationSpeedFast{1.f};
     float rotationSpeed{rotationSpeedFast};
 };
+
+#endif

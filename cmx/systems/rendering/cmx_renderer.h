@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_RENDERER
+#define CMX_RENDERER
 
 #include "cmx_device.h"
 #include "cmx_swap_chain.h"
@@ -74,3 +75,5 @@ class CmxRenderer
 };
 
 } // namespace cmx
+
+#endif

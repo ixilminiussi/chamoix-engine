@@ -21,6 +21,10 @@ Actor::Actor(Scene *scene, uint32_t id, const std::string &name, const Transform
 {
 }
 
+Actor::~Actor()
+{
+}
+
 void Actor::despawn()
 {
     getScene()->removeActor(this);

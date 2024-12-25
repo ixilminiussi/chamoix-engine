@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_RENDER_SYSTEM
+#define CMX_RENDER_SYSTEM
 
 // cmx
 #include "cmx_viewport_ui_component.h"
@@ -60,3 +61,5 @@ class RenderSystem
     bool _noCameraFlag{false};
 };
 } // namespace cmx
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_UTILS
+#define CMX_UTILS
 
 // std
 #include <functional>
@@ -14,3 +15,5 @@ template <typename T, typename... Rest> void hashCombine(std::size_t &seed, cons
 };
 
 } // namespace cmx
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_CAMERA_COMPONENT
+#define CMX_CAMERA_COMPONENT
 
 #include "cmx_component.h"
 #include <glm/trigonometric.hpp>
@@ -55,3 +56,5 @@ class CameraComponent : public Component
 };
 
 } // namespace cmx
+
+#endif

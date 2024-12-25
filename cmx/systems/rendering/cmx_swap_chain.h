@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_SWAP_CHAIN
+#define CMX_SWAP_CHAIN
 
 #include "cmx_device.h"
 
@@ -113,3 +114,5 @@ class CmxSwapChain
 };
 
 } // namespace cmx
+
+#endif

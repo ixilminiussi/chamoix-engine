@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_INPUTS
+#define CMX_INPUTS
 
 // std
 #include <cstring>
@@ -407,3 +408,5 @@ inline static const std::pair<const char *, Button *> CMX_BUTTON_DICTIONARY[] = 
     {"GAMEPAD_BUTTON_DPAD_LEFT", &CMX_GAMEPAD_BUTTON_DPAD_LEFT}};
 
 } // namespace cmx
+
+#endif

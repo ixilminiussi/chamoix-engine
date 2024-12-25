@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_MESH_COMPONENT
+#define CMX_MESH_COMPONENT
 
 #include "cmx_component.h"
 #include "tinyxml2.h"
@@ -30,3 +31,5 @@ class MeshComponent : public Component
 };
 
 } // namespace cmx
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_GAME
+#define CMX_GAME
 
 // lib
 #include <spdlog/spdlog.h>
@@ -61,3 +62,5 @@ inline int Game::WIDTH = 1600;
 inline int Game::HEIGHT = 1200;
 
 } // namespace cmx
+
+#endif

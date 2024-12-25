@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_DEVICE
+#define CMX_DEVICE
 
 #include "cmx_window.h"
 
@@ -128,3 +129,5 @@ class CmxDevice
 };
 
 } // namespace cmx
+
+#endif

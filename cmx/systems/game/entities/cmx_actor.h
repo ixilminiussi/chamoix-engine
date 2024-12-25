@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_ACTOR
+#define CMX_ACTOR
 
 #include "cmx_scene.h"
 #include "cmx_transform.h"
@@ -32,7 +33,7 @@ class Actor
     void move(class Scene *);
 
     Actor() = delete;
-    virtual ~Actor() = default;
+    virtual ~Actor();
     Actor &operator=(const Actor &) = delete;
     Actor(const Actor &) = delete;
 
@@ -141,3 +142,5 @@ template <typename T> inline std::weak_ptr<T> Actor::getComponentByType()
 }
 
 } // namespace cmx
+
+#endif

@@ -6,14 +6,14 @@
 #include "cmx_camera_component.h"
 #include "cmx_game.h"
 #include "cmx_graphics_manager.h"
+#include "cmx_viewport_actor.h"
+#include "misc/cmx_registers.h"
 
 // std
 #include <memory>
 #include <stdexcept>
 
 // lib
-#include "cmx_graphics_manager.h"
-#include "misc/cmx_registers.h"
 #include "tinyxml2.h"
 #include <spdlog/spdlog.h>
 
@@ -47,7 +47,6 @@ void Scene::load()
             std::shared_ptr<Actor> actor =
                 cmx::reg::loadActor(actorElement->Attribute("type"), this, actorElement->Attribute("name"));
             actor->load(actorElement);
-
             actorElement = actorElement->NextSiblingElement("actor");
         }
 

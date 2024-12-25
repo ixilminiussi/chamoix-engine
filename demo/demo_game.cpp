@@ -1,13 +1,9 @@
 #include "demo_game.h"
 
-#include "cmx_actor.h"
-#include "cmx_assets_manager.h"
 #include "cmx_input_manager.h"
-#include "cmx_mesh_component.h"
 #include "cmx_render_system.h"
 #include "cmx_scene.h"
 #include "cmx_window.h"
-#include "rotating_actor.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -66,21 +62,4 @@ void Demo::load()
     setScene(0);
 
     getInputManager()->bindButton("exit", &Demo::closeWindow, this);
-
-    mainScene._assetsManager->addModel("assets/models/bunny.obj", "bunny");
-
-    std::shared_ptr<RotatingActor> rotatingActor = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor");
-    std::shared_ptr<RotatingActor> rotatingActor2 = cmx::Actor::spawn<RotatingActor>(getScene(), "RotatingActor2");
-
-    auto rotatingRendererWk = rotatingActor->getComponentByType<cmx::MeshComponent>();
-    if (auto rotatingRendererComponent = rotatingRendererWk.lock())
-    {
-        rotatingRendererComponent->setModel("bunny");
-    }
-
-    auto rotatingRendererWk2 = rotatingActor2->getComponentByType<cmx::MeshComponent>();
-    if (auto rotatingRendererComponent = rotatingRendererWk2.lock())
-    {
-        rotatingRendererComponent->setModel("bunny");
-    }
 }

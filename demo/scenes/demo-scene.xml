@@ -3,7 +3,7 @@
     <assets>
         <model filepath="assets/models/bunny.obj" name="bunny"/>
     </assets>
-    <actor type="RotatingActor" name="RotatingActor2" id="3" slowSpeed="0.029999999" fastSpeed="1">
+    <actor type="RotatingActor" name="RotatingActor2" id="3" mesh="bunny" slowSpeed="0.029999999" fastSpeed="1">
         <transform>
             <position x="0" y="0" z="-3"/>
             <rotation pitch="0" yaw="-0.80019897" roll="0"/>
@@ -11,7 +11,7 @@
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent" model="bunny"/>
     </actor>
-    <actor type="RotatingActor" name="RotatingActor" id="1" slowSpeed="0.029999999" fastSpeed="1">
+    <actor type="RotatingActor" name="RotatingActor" id="1" mesh="bunny" slowSpeed="0.029999999" fastSpeed="1">
         <transform>
             <position x="0" y="2" z="-3"/>
             <rotation pitch="0" yaw="-0.80019897" roll="0"/>

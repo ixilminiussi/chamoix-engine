@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_VIEWPORT_UI_COMPONENT
+#define CMX_VIEWPORT_UI_COMPONENT
 
 #include "cmx_component.h"
 #include <memory>
@@ -50,3 +51,5 @@ class ViewportUIComponent : public Component
 };
 
 } // namespace cmx
+
+#endif

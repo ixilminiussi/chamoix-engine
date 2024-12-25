@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_BUFFER
+#define CMX_BUFFER
 
 #include "cmx_device.h"
 
@@ -78,3 +79,5 @@ class CmxBuffer
 };
 
 } // namespace cmx
+
+#endif

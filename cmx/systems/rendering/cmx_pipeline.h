@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_PIPELINE
+#define CMX_PIPELINE
 
 #include "cmx_device.h"
 
@@ -59,3 +60,5 @@ class CmxPipeline
     VkShaderModule _fragShaderModule;
 };
 } // namespace cmx
+
+#endif

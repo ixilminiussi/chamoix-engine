@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_VIEWPORT_ACTOR
+#define CMX_VIEWPORT_ACTOR
 
 #include "cmx_actor.h"
 
@@ -40,3 +41,5 @@ class ViewportActor : public cmx::Actor
 };
 
 } // namespace cmx
+
+#endif

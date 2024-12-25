@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_TRANSFORM
+#define CMX_TRANSFORM
 
 // lib
 #define GLM_FORCE_RADIANS
@@ -28,3 +29,5 @@ struct Transform
 Transform operator+(const Transform &a, const Transform &b);
 
 } // namespace cmx
+
+#endif

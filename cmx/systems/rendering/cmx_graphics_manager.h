@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_GRAPHICS_MANAGER
+#define CMX_GRAPHICS_MANAGER
 
 // std
 #include <memory>
@@ -23,3 +24,5 @@ class GraphicsManager
 };
 
 } // namespace cmx
+
+#endif

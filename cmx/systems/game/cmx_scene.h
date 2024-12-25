@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_SCENE
+#define CMX_SCENE
 
 // lib
 #include "tinyxml2.h"
@@ -107,3 +108,5 @@ template <typename T> inline void Scene::getAllComponentsByType(std::vector<std:
 }
 
 } // namespace cmx
+
+#endif

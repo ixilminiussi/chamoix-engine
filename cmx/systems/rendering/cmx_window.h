@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_WINDOW
+#define CMX_WINDOW
 
 // lib
 #define GLFW_INCLUDE_VULKAN
@@ -54,3 +55,5 @@ class CmxWindow
     GLFWwindow *_window;
 };
 } // namespace cmx
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_INPUT_ACTION
+#define CMX_INPUT_ACTION
 
 // cmx
 #include "cmx_inputs.h"
@@ -99,3 +100,5 @@ class AxisAction : public InputAction
 };
 
 } // namespace cmx
+
+#endif

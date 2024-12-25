@@ -1,10 +1,7 @@
 #include "cmx_mesh_actor.h"
 
 // cmx
-#include "cmx_game.h"
-#include "cmx_input_manager.h"
 #include "cmx_mesh_component.h"
-#include "imgui.h"
 
 // lib
 #include <glm/ext/scalar_constants.hpp>
@@ -16,14 +13,17 @@ namespace cmx
 
 void MeshActor::onBegin()
 {
-    auto meshComponent = std::make_shared<cmx::MeshComponent>();
-    attachComponent(meshComponent);
-
-    meshComponent->setModel("bunny");
+    _meshComponent = std::make_shared<MeshComponent>();
+    attachComponent(_meshComponent);
 }
 
 void MeshActor::update(float dt)
 {
+}
+
+void MeshActor::updateMesh(std::string &meshName)
+{
+    _meshComponent->setModel(meshName);
 }
 
 void MeshActor::renderSettings()
@@ -35,6 +35,13 @@ tinyxml2::XMLElement &MeshActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLE
 {
     tinyxml2::XMLElement &actorElement = Actor::save(doc, parentElement);
 
+    auto meshComponentWk = getComponentByName("MeshComponent");
+
+    if (auto meshComponent = meshComponentWk.lock())
+    {
+        actorElement.SetAttribute("mesh", meshComponent->name.c_str());
+    }
+
     return actorElement;
 }
 
@@ -42,9 +49,8 @@ void MeshActor::load(tinyxml2::XMLElement *actorElement)
 {
     Actor::load(actorElement);
 
-    rotationSpeedSlow = actorElement->FloatAttribute("slowSpeed");
-    rotationSpeedFast = actorElement->FloatAttribute("fastSpeed");
-    rotationSpeed = rotationSpeedFast;
+    std::string meshName = actorElement->Attribute("mesh");
+    updateMesh(meshName);
 }
 
 } // namespace cmx

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_DESCRIPTORS
+#define CMX_DESCRIPTORS
 
 #include "cmx_device.h"
 
@@ -111,3 +112,5 @@ class CmxDescriptorWriter
 };
 
 } // namespace cmx
+
+#endif

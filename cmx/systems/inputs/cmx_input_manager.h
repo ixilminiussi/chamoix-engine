@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_INPUT_MANAGER
+#define CMX_INPUT_MANAGER
 
 #include "cmx_input_action.h"
 
@@ -88,3 +89,5 @@ inline void InputManager::bindButton(const std::string &name, void (T::*callback
 }
 
 } // namespace cmx
+
+#endif

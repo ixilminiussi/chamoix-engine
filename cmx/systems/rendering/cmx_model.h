@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMX_MODEL
+#define CMX_MODEL
 
 #include "cmx_buffer.h"
 #include "cmx_device.h"
@@ -75,3 +76,5 @@ class CmxModel
 };
 
 } // namespace cmx
+
+#endif

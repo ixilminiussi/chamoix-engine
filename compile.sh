@@ -38,16 +38,22 @@ done
 echo "Shader compilation complete."
 
 # Copying game assets to build directory
-SOURCE_DIR="../$1/*"
-OUTPUT_DIR="./"
+SOURCE_DIR="../$1"
+OUTPUT_DIR="."
 
 # Ensure the ouput directory exists
 mkdir -p "$OUTPUT_DIR"
 
 # Copy over the files
-cp -r $SOURCE_DIR $OUTPUT_DIR
-
+cp -r $SOURCE_DIR/assets $OUTPUT_DIR/assets
 echo "Assets copied."
+
+cp -r $SOURCE_DIR/scenes $OUTPUT_DIR/scenes
+echo "Scenes copied."
+
+cp -r $SOURCE_DIR/properties $OUTPUT_DIR/properties
+echo "Properties copied."
+
 
 # Copying editor to the build directory
 SOURCE_DIR="../editor"
@@ -58,5 +64,4 @@ mkdir -p "$OUTPUT_DIR"
 
 # Copy over the files
 cp -r $SOURCE_DIR/* $OUTPUT_DIR/
-
-echo "Assets copied."
+echo "Editor assets copied."

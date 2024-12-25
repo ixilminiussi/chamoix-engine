@@ -12,4 +12,4 @@ add_library(game
     cmx_scene.cpp
 )
 
-target_link_libraries(game PRIVATE cmx spdlog)
+target_link_libraries(game PRIVATE cmx demo spdlog)

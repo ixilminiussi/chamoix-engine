@@ -4,23 +4,22 @@
 #include "cmx_game.h"
 #include "cmx_input_manager.h"
 #include "cmx_mesh_component.h"
-#include "imgui.h"
 
 // lib
+#include "imgui.h"
 #include <glm/ext/scalar_constants.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 void RotatingActor::onBegin()
 {
+    cmx::MeshActor::onBegin();
+
     auto inputManager = getScene()->getGame()->getInputManager();
     if (inputManager)
     {
         inputManager->bindButton("slowdown toggle", &RotatingActor::slowdownToggle, this);
     }
-
-    auto meshComponent = std::make_shared<cmx::MeshComponent>();
-    attachComponent(meshComponent);
 }
 
 void RotatingActor::update(float dt)
@@ -48,12 +47,12 @@ void RotatingActor::renderSettings()
         ImGui::DragFloat("Fast Speed", &rotationSpeedFast, 0.01f, -10.0f, 10.0f);
     }
 
-    Actor::renderSettings();
+    cmx::MeshActor::renderSettings();
 }
 
 tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
 {
-    tinyxml2::XMLElement &actorElement = Actor::save(doc, parentElement);
+    tinyxml2::XMLElement &actorElement = cmx::MeshActor::save(doc, parentElement);
 
     actorElement.SetAttribute("slowSpeed", rotationSpeedSlow);
     actorElement.SetAttribute("fastSpeed", rotationSpeedFast);
@@ -63,7 +62,7 @@ tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::
 
 void RotatingActor::load(tinyxml2::XMLElement *actorElement)
 {
-    Actor::load(actorElement);
+    cmx::MeshActor::load(actorElement);
 
     rotationSpeedSlow = actorElement->FloatAttribute("slowSpeed");
     rotationSpeedFast = actorElement->FloatAttribute("fastSpeed");
