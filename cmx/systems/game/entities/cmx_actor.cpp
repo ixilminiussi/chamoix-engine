@@ -204,6 +204,7 @@ void Actor::load(tinyxml2::XMLElement *actorElement)
     tinyxml2::XMLElement *componentElement = actorElement->FirstChildElement("component");
     while (componentElement)
     {
+        // TODO: Implement this shit
         componentElement = componentElement->NextSiblingElement("component");
     }
 }

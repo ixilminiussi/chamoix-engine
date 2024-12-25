@@ -16,7 +16,6 @@ class ViewportUIComponent : public Component
     void update(float dt) override;
     void render(class FrameInfo &, VkPipelineLayout) override;
 
-    // TODO: very own input manager logic
     void load();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) override;
 

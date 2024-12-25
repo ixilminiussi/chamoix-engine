@@ -18,7 +18,7 @@ namespace cmx
 class AssetsManager final
 {
   public:
-    AssetsManager(class Scene *parent) : parentScene{parent} {};
+    AssetsManager(class Scene *parent) : _parentScene{parent} {};
     ~AssetsManager() = default;
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
@@ -32,10 +32,10 @@ class AssetsManager final
     std::shared_ptr<class CmxModel> getModel(const std::string &name);
 
   private:
-    class Scene *parentScene;
+    class Scene *_parentScene;
 
     // regular pointers, WE are MANAGING the life cycle of these assets
-    std::unordered_map<std::string, std::shared_ptr<class CmxModel>> models;
+    std::unordered_map<std::string, std::shared_ptr<class CmxModel>> _models;
     // TODO:
     // fonts
     // textures
