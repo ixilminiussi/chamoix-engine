@@ -23,6 +23,7 @@ class MeshComponent : public Component
 
     void render(class FrameInfo &, VkPipelineLayout) override;
     void setModel(const std::string &name);
+    const std::string &getModelName();
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
 

@@ -69,6 +69,11 @@ void MeshComponent::setModel(const std::string &name)
     _cmxModel = getParent()->getScene()->_assetsManager->getModel(name);
 }
 
+const std::string &MeshComponent::getModelName()
+{
+    return _cmxModel->name;
+}
+
 tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);

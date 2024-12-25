@@ -35,12 +35,7 @@ tinyxml2::XMLElement &MeshActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLE
 {
     tinyxml2::XMLElement &actorElement = Actor::save(doc, parentElement);
 
-    auto meshComponentWk = getComponentByName("MeshComponent");
-
-    if (auto meshComponent = meshComponentWk.lock())
-    {
-        actorElement.SetAttribute("mesh", meshComponent->name.c_str());
-    }
+    actorElement.SetAttribute("mesh", _meshComponent->getModelName().c_str());
 
     return actorElement;
 }
