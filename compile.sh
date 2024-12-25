@@ -45,13 +45,13 @@ OUTPUT_DIR="."
 mkdir -p "$OUTPUT_DIR"
 
 # Copy over the files
-cp -r $SOURCE_DIR/assets $OUTPUT_DIR/assets
+cp -r $SOURCE_DIR/assets $OUTPUT_DIR/
 echo "Assets copied."
 
-cp -r $SOURCE_DIR/scenes $OUTPUT_DIR/scenes
+cp -r $SOURCE_DIR/scenes $OUTPUT_DIR/
 echo "Scenes copied."
 
-cp -r $SOURCE_DIR/properties $OUTPUT_DIR/properties
+cp -r $SOURCE_DIR/properties $OUTPUT_DIR/
 echo "Properties copied."
 
 
