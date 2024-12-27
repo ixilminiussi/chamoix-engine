@@ -8,9 +8,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+add_subdirectory(.external)
 add_subdirectory(cmx)
 add_subdirectory(demo)
-add_subdirectory(.external)
 
 # Create the executable by linking all modules
 add_executable(VulkanTest demo/main.cpp)  # Assuming main.cpp is at the root level
@@ -19,7 +19,6 @@ add_executable(VulkanTest demo/main.cpp)  # Assuming main.cpp is at the root lev
 target_link_libraries(VulkanTest PRIVATE
     cmx
     demo
-    external
 )
 
 # Define custom targets for 'test' and 'clean'

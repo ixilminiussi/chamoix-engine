@@ -1,13 +1,12 @@
 #include "demo_game.h"
 
-#include "cmx_input_manager.h"
-#include "cmx_render_system.h"
-#include "cmx_scene.h"
-#include "cmx_window.h"
+#include "cmx/cmx_input_manager.h"
+#include "cmx/cmx_render_system.h"
+#include "cmx/cmx_scene.h"
+#include "cmx/cmx_window.h"
 
 // lib
 #include <GLFW/glfw3.h>
-#include <cstdlib>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
 #include <spdlog/common.h>
@@ -19,6 +18,7 @@
 #include <glm/gtc/constants.hpp>
 
 // std
+#include <cstdlib>
 #include <memory>
 
 struct GlobalUbo

@@ -11,4 +11,8 @@ add_library(imgui
     imgui_impl_glfw.cpp
 )
 
+target_include_directories(imgui INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  )
+
 target_link_libraries(imgui PRIVATE glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi)

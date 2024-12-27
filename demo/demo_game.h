@@ -2,8 +2,8 @@
 #define DEMO_GAME
 
 // cmx
-#include "cmx_game.h"
-#include "cmx_scene.h"
+#include "cmx/cmx_game.h"
+#include "cmx/cmx_scene.h"
 
 // lib
 #include <spdlog/spdlog.h>

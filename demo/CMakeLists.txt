@@ -10,4 +10,4 @@ target_include_directories(demo PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(demo PRIVATE cmx spdlog glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi)
+target_link_libraries(demo PUBLIC cmx tinyxml2 imgui spdlog)

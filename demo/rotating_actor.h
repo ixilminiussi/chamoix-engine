@@ -1,7 +1,7 @@
 #ifndef ROTATING_ACTOR
 #define ROTATING_ACTOR
 
-#include "cmx_mesh_actor.h"
+#include "cmx/cmx_mesh_actor.h"
 
 class RotatingActor : public cmx::MeshActor
 {

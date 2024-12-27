@@ -1,9 +1,9 @@
 #include "rotating_actor.h"
 
 // cmx
-#include "cmx_game.h"
-#include "cmx_input_manager.h"
-#include "cmx_mesh_component.h"
+#include "cmx/cmx_game.h"
+#include "cmx/cmx_input_manager.h"
+#include "cmx/cmx_mesh_component.h"
 
 // lib
 #include "imgui.h"
