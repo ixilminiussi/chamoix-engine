@@ -2,7 +2,7 @@
 
 ## REFACTOR
 - [x] graphics manager
-- [ ] member variable nomenclature
+- [x] member variable nomenclature
 - [ ] visitor pattern for 
     - [ ] save
     - [ ] load
@@ -47,6 +47,7 @@
 ## Post processing
 - [ ] compute shaders
 - [ ] new render system
+- [ ] sky shader
 
 ## Sound
 - [ ] sound system

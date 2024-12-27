@@ -24,9 +24,10 @@ class Component
     virtual void render(class FrameInfo &, VkPipelineLayout);
 
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
+    virtual void load(tinyxml2::XMLElement *) {}; // TODO: IMPLEMENT
 
     // for viewport
-    virtual void renderSettings(int i) {};
+    virtual void renderSettings(int i) {}; // TODO: IMPLEMENT
 
     void despawn();
 
