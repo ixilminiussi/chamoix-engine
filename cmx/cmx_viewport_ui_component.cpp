@@ -7,7 +7,7 @@
 #include "cmx_frame_info.h"
 #include "cmx_game.h"
 #include "cmx_input_manager.h"
-#include "cmx_registers.h"
+#include "cmx_register.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
 #include "cmx_viewport_actor.h"
@@ -30,6 +30,7 @@ namespace cmx
 ViewportUIComponent::ViewportUIComponent(float &vpMoveSpeed, float &vpSensitivity)
     : _viewportMovementSpeed{vpMoveSpeed}, _viewportSensitivity{vpSensitivity}
 {
+    _cmxRegister = Register::getInstance();
     _renderZ = std::numeric_limits<int32_t>::max(); // ensures it gets rendered at the very top
 }
 
@@ -191,19 +192,19 @@ void ViewportUIComponent::renderSceneTree()
     }
 
     // create new actor
-    static const char *selected = reg::list[0];
+    static const char *selected = _cmxRegister->actorsRegister.begin()->first.c_str();
 
     ImGui::PushID(i++);
     ImGui::SetNextItemWidth(172);
     if (ImGui::BeginCombo("##", selected))
     {
-        for (const char *option : reg::list)
+        for (const auto &pair : _cmxRegister->actorsRegister)
         {
-            bool isSelected = (strcmp(selected, option) == 0);
+            bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 
-            if (ImGui::Selectable(option, isSelected))
+            if (ImGui::Selectable(pair.first.c_str(), isSelected))
             {
-                selected = option;
+                selected = pair.first.c_str();
             }
 
             if (isSelected)
@@ -222,7 +223,7 @@ void ViewportUIComponent::renderSceneTree()
     ImGui::SameLine();
     if (ImGui::Button(ICON_MS_ADD))
     {
-        reg::loadActor(std::string(selected), getParent()->getScene(), buffer);
+        _cmxRegister->actorsRegister[selected](getParent()->getScene(), buffer);
     }
 
     ImGui::End();

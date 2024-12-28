@@ -44,6 +44,8 @@ class ViewportUIComponent : public Component
     bool _showInspector{false};
     std::weak_ptr<Actor> _inspectedActor;
 
+    class Register *_cmxRegister;
+
     // viewport actor settings
     float &_viewportMovementSpeed;
     float &_viewportSensitivity;

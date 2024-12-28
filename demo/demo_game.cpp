@@ -1,9 +1,12 @@
 #include "demo_game.h"
 
-#include "cmx/cmx_input_manager.h"
-#include "cmx/cmx_render_system.h"
-#include "cmx/cmx_scene.h"
-#include "cmx/cmx_window.h"
+#include "rotating_actor.h"
+#include <cmx/cmx_actor.h>
+#include <cmx/cmx_input_manager.h>
+#include <cmx/cmx_register.h>
+#include <cmx/cmx_render_system.h>
+#include <cmx/cmx_scene.h>
+#include <cmx/cmx_window.h>
 
 // lib
 #include <GLFW/glfw3.h>
@@ -29,6 +32,11 @@ struct GlobalUbo
 
 Demo::Demo()
 {
+    cmx::Register *cmxRegister = cmx::Register::getInstance();
+
+    cmxRegister->actorsRegister["RotatingActor"] = [](cmx::Scene *scene, const std::string &name) {
+        return cmx::Actor::spawn<RotatingActor>(scene, name);
+    };
 }
 
 Demo::~Demo()

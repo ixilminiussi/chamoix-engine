@@ -6,7 +6,7 @@
 #include "cmx_camera_component.h"
 #include "cmx_game.h"
 #include "cmx_graphics_manager.h"
-#include "cmx_registers.h"
+#include "cmx_register.h"
 #include "cmx_viewport_actor.h"
 
 // std
@@ -32,6 +32,8 @@ void Scene::load()
     _assetsManager = std::make_shared<AssetsManager>(this);
     _graphicsManager = std::make_unique<GraphicsManager>(getGame()->getRenderSystem());
 
+    Register *cmxRegister = Register::getInstance();
+
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(_xmlPath.c_str()) == tinyxml2::XML_SUCCESS)
     {
@@ -44,9 +46,17 @@ void Scene::load()
         tinyxml2::XMLElement *actorElement = rootElement->FirstChildElement("actor");
         while (actorElement)
         {
-            std::shared_ptr<Actor> actor =
-                cmx::reg::loadActor(actorElement->Attribute("type"), this, actorElement->Attribute("name"));
-            actor->load(actorElement);
+            try
+            {
+                auto spawnFunction = cmxRegister->actorsRegister.at(std::string(actorElement->Attribute("type")));
+
+                std::shared_ptr<Actor> actor = spawnFunction(this, std::string(actorElement->Attribute("name")));
+                actor->load(actorElement);
+            }
+            catch (std::out_of_range e)
+            {
+                spdlog::error("Scene: No actor type '{0}' in register of actors", actorElement->Attribute("type"));
+            }
             actorElement = actorElement->NextSiblingElement("actor");
         }
 
