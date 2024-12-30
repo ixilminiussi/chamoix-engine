@@ -34,9 +34,9 @@ Demo::Demo()
 {
     cmx::Register *cmxRegister = cmx::Register::getInstance();
 
-    cmxRegister->actorsRegister["RotatingActor"] = [](cmx::Scene *scene, const std::string &name) {
+    cmxRegister->addActor("RotatingActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<RotatingActor>(scene, name);
-    };
+    });
 }
 
 Demo::~Demo()

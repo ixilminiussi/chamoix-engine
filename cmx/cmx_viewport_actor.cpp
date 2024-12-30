@@ -5,6 +5,7 @@
 #include "cmx_game.h"
 #include "cmx_input_manager.h"
 #include "cmx_viewport_ui_component.h"
+#include "imgui.h"
 
 // lib
 #include <glm/common.hpp>
@@ -30,7 +31,7 @@ void ViewportActor::onBegin()
 
     _cameraComponent = std::make_shared<CameraComponent>();
     attachComponent(_cameraComponent, "ViewportCamera");
-    attachComponent(std::make_shared<ViewportUIComponent>(_moveSpeed, _mouseSensitivity), "ViewportUI");
+    attachComponent(std::make_shared<ViewportUIComponent>(), "ViewportUI");
 }
 
 void ViewportActor::update(float dt)
@@ -108,6 +109,13 @@ tinyxml2::XMLElement &ViewportActor::save(tinyxml2::XMLDocument &doc, tinyxml2::
 void ViewportActor::load(tinyxml2::XMLElement *actorElement)
 {
     Actor::load(actorElement);
+}
+
+void ViewportActor::renderSettings()
+{
+    Actor::renderSettings();
+    ImGui::SliderFloat("movement speed", &_moveSpeed, 0.0f, 100.0f);
+    ImGui::SliderFloat("mouse sensitivity", &_mouseSensitivity, 0.0f, 10.0f);
 }
 
 } // namespace cmx

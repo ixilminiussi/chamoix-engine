@@ -1,6 +1,7 @@
 #include "cmx_actor.h"
 
 // cmx
+#include "cmx/cmx_register.h"
 #include "cmx_component.h"
 
 // lib
@@ -201,9 +202,13 @@ void Actor::load(tinyxml2::XMLElement *actorElement)
         }
     }
 
+    Register *cmxRegister = Register::getInstance();
     tinyxml2::XMLElement *componentElement = actorElement->FirstChildElement("component");
     while (componentElement)
     {
+        cmxRegister->attachComponent(componentElement->Attribute("type"), this, componentElement->Attribute("name"))
+            ->load(componentElement);
+
         // TODO: Implement this shit
         componentElement = componentElement->NextSiblingElement("component");
     }

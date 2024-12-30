@@ -10,7 +10,7 @@ namespace cmx
 class ViewportUIComponent : public Component
 {
   public:
-    ViewportUIComponent(float &vpMoveSpeed, float &vpSensitivity);
+    ViewportUIComponent();
     ~ViewportUIComponent();
 
     void update(float dt) override;
@@ -45,10 +45,6 @@ class ViewportUIComponent : public Component
     std::weak_ptr<Actor> _inspectedActor;
 
     class Register *_cmxRegister;
-
-    // viewport actor settings
-    float &_viewportMovementSpeed;
-    float &_viewportSensitivity;
 };
 
 } // namespace cmx

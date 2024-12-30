@@ -48,10 +48,10 @@ void Scene::load()
         {
             try
             {
-                auto spawnFunction = cmxRegister->actorsRegister.at(std::string(actorElement->Attribute("type")));
-
-                std::shared_ptr<Actor> actor = spawnFunction(this, std::string(actorElement->Attribute("name")));
-                actor->load(actorElement);
+                cmxRegister
+                    ->spawnActor(std::string(actorElement->Attribute("type")), this,
+                                 std::string(actorElement->Attribute("name")))
+                    ->load(actorElement);
             }
             catch (std::out_of_range e)
             {

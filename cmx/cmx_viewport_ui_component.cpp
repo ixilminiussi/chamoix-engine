@@ -27,8 +27,7 @@
 namespace cmx
 {
 
-ViewportUIComponent::ViewportUIComponent(float &vpMoveSpeed, float &vpSensitivity)
-    : _viewportMovementSpeed{vpMoveSpeed}, _viewportSensitivity{vpSensitivity}
+ViewportUIComponent::ViewportUIComponent()
 {
     _cmxRegister = Register::getInstance();
     _renderZ = std::numeric_limits<int32_t>::max(); // ensures it gets rendered at the very top
@@ -112,8 +111,7 @@ void ViewportUIComponent::renderViewportSettings()
     _showViewportSettings = true;
     ImGui::Begin("Viewport Settings", &_showViewportSettings);
 
-    ImGui::SliderFloat("movement speed", &_viewportMovementSpeed, 0.0f, 100.0f);
-    ImGui::SliderFloat("mouse sensitivity", &_viewportSensitivity, 0.0f, 10.0f);
+    getParent()->renderSettings();
 
     ImGui::SeparatorText("Shortcuts");
     if (_inputManager != nullptr)
@@ -192,13 +190,13 @@ void ViewportUIComponent::renderSceneTree()
     }
 
     // create new actor
-    static const char *selected = _cmxRegister->actorsRegister.begin()->first.c_str();
+    static const char *selected = _cmxRegister->getActorRegister().begin()->first.c_str();
 
     ImGui::PushID(i++);
     ImGui::SetNextItemWidth(172);
     if (ImGui::BeginCombo("##", selected))
     {
-        for (const auto &pair : _cmxRegister->actorsRegister)
+        for (const auto &pair : _cmxRegister->getActorRegister())
         {
             bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 
@@ -223,7 +221,7 @@ void ViewportUIComponent::renderSceneTree()
     ImGui::SameLine();
     if (ImGui::Button(ICON_MS_ADD))
     {
-        _cmxRegister->actorsRegister[selected](getParent()->getScene(), buffer);
+        _cmxRegister->spawnActor(selected, getParent()->getScene(), buffer);
     }
 
     ImGui::End();
