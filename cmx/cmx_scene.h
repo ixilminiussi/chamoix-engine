@@ -26,7 +26,7 @@ class Scene
     template <typename T> void getAllActorsByType(std::vector<std::weak_ptr<class Actor>> &actorList);
     template <typename T> void getAllComponentsByType(std::vector<std::weak_ptr<class Component>> &componentList);
 
-    std::vector<std::weak_ptr<class Component>> &getAllComponents()
+    std::vector<std::shared_ptr<class Component>> &getAllComponents()
     {
         return _components;
     }
@@ -41,6 +41,7 @@ class Scene
     std::shared_ptr<Actor> addActor(std::shared_ptr<class Actor>);
     void removeActor(class Actor *);
     void addComponent(std::shared_ptr<class Component>);
+    void removeComponent(std::shared_ptr<class Component>);
 
     void setCamera(std::shared_ptr<class Camera> camera);
 
@@ -67,7 +68,7 @@ class Scene
 
     std::shared_ptr<class Camera> _activeCamera;
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> _actors{};
-    std::vector<std::weak_ptr<class Component>> _components{};
+    std::vector<std::shared_ptr<class Component>> _components{};
 
     class Game *_game;
 };

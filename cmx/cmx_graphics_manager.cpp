@@ -11,7 +11,8 @@ namespace cmx
 
 void GraphicsManager::addToQueue(std::shared_ptr<Component> component)
 {
-    _componentRenderQueue.push_back(component);
+    auto it = std::lower_bound(_componentRenderQueue.begin(), _componentRenderQueue.end(), component);
+    _componentRenderQueue.insert(it, component);
 }
 
 void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
@@ -20,7 +21,7 @@ void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
 
     while (it != _componentRenderQueue.end())
     {
-        if (*it != component)
+        if (*it == component)
         {
             _componentRenderQueue.erase(it);
             return;

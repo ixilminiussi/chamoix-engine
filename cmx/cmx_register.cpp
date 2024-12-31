@@ -29,26 +29,10 @@ Register::Register()
         return Actor::spawn<ViewportActor>(scene, name);
     };
 
-    componentRegister["cmx::Component"] = [](class Actor *actor, const std::string &name) {
-        std::shared_ptr<Component> component = std::make_shared<Component>();
-        actor->attachComponent(component);
-        return component;
-    };
-    componentRegister["cmx::MeshComponent"] = [](class Actor *actor, const std::string &name) {
-        std::shared_ptr<Component> meshComponent = std::make_shared<MeshComponent>();
-        actor->attachComponent(meshComponent);
-        return meshComponent;
-    };
-    componentRegister["cmx::CameraComponent"] = [](class Actor *actor, const std::string &name) {
-        std::shared_ptr<Component> cameraComponent = std::make_shared<CameraComponent>();
-        actor->attachComponent(cameraComponent);
-        return cameraComponent;
-    };
-    componentRegister["cmx::ViewportUIComponent"] = [](class Actor *actor, const std::string &name) {
-        std::shared_ptr<Component> viewportUIComponent = std::make_shared<ViewportUIComponent>();
-        actor->attachComponent(viewportUIComponent);
-        return viewportUIComponent;
-    };
+    componentRegister["cmx::Component"] = []() { return std::make_shared<Component>(); };
+    componentRegister["cmx::MeshComponent"] = []() { return std::make_shared<MeshComponent>(); };
+    componentRegister["cmx::CameraComponent"] = []() { return std::make_shared<CameraComponent>(); };
+    componentRegister["cmx::ViewportUIComponent"] = []() { return std::make_shared<ViewportUIComponent>(); };
 }
 
 Register::~Register()
@@ -79,8 +63,7 @@ void Register::addActor(std::string name,
     }
 }
 
-void Register::addComponent(std::string name,
-                            std::function<std::shared_ptr<class Component>(class Actor *, const std::string &)> builder)
+void Register::addComponent(std::string name, std::function<std::shared_ptr<class Component>()> builder)
 {
     try
     {
@@ -112,7 +95,7 @@ std::shared_ptr<class Component> Register::attachComponent(const std::string &ty
 {
     try
     {
-        return componentRegister.at(typeName)(actor, componentName);
+        return actor->attachComponent(componentRegister.at(typeName)(), componentName);
     }
     catch (std::out_of_range e)
     {

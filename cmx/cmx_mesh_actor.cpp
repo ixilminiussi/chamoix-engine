@@ -13,6 +13,8 @@ namespace cmx
 
 void MeshActor::onBegin()
 {
+    Actor::onBegin();
+
     _meshComponent = std::make_shared<MeshComponent>();
     attachComponent(_meshComponent);
 }
@@ -21,21 +23,14 @@ void MeshActor::update(float dt)
 {
 }
 
-void MeshActor::updateMesh(std::string &meshName)
+void MeshActor::editor()
 {
-    _meshComponent->setModel(meshName);
-}
-
-void MeshActor::renderSettings()
-{
-    Actor::renderSettings();
+    Actor::editor();
 }
 
 tinyxml2::XMLElement &MeshActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
 {
     tinyxml2::XMLElement &actorElement = Actor::save(doc, parentElement);
-
-    actorElement.SetAttribute("mesh", _meshComponent->getModelName().c_str());
 
     return actorElement;
 }
@@ -43,9 +38,6 @@ tinyxml2::XMLElement &MeshActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLE
 void MeshActor::load(tinyxml2::XMLElement *actorElement)
 {
     Actor::load(actorElement);
-
-    std::string meshName = actorElement->Attribute("mesh");
-    updateMesh(meshName);
 }
 
 } // namespace cmx

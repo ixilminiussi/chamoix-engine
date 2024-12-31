@@ -30,7 +30,7 @@ namespace cmx
 ViewportUIComponent::ViewportUIComponent()
 {
     _cmxRegister = Register::getInstance();
-    _renderZ = std::numeric_limits<int32_t>::max(); // ensures it gets rendered at the very top
+    _renderZ = std::numeric_limits<int8_t>::max(); // ensures it gets rendered at the very top
 }
 
 ViewportUIComponent::~ViewportUIComponent()
@@ -79,7 +79,7 @@ void ViewportUIComponent::renderTopBar()
     {
         if (ImGui::MenuItem(ICON_MS_SAVE " Save", "Ctrl+S"))
         {
-            _parent->getScene()->save();
+            getScene()->save();
         }
         ImGui::EndMenu();
     }
@@ -109,14 +109,14 @@ void ViewportUIComponent::renderTopBar()
 void ViewportUIComponent::renderViewportSettings()
 {
     _showViewportSettings = true;
-    ImGui::Begin("Viewport Settings", &_showViewportSettings);
+    ImGui::Begin("Viewport Settings", &_showViewportSettings, ImGuiWindowFlags_AlwaysAutoResize);
 
-    getParent()->renderSettings();
+    getParent()->editor();
 
     ImGui::SeparatorText("Shortcuts");
     if (_inputManager != nullptr)
     {
-        _inputManager->renderSettings();
+        _inputManager->editor();
     }
 
     ImGui::End();
@@ -126,10 +126,10 @@ void ViewportUIComponent::renderProjectSettings()
 {
     static int activeTab = 0;
 
-    Game *game = getParent()->getScene()->getGame();
+    Game *game = getScene()->getGame();
 
     _showProjectSettings = true;
-    ImGui::Begin("Project Settings", &_showProjectSettings);
+    ImGui::Begin("Project Settings", &_showProjectSettings, ImGuiWindowFlags_AlwaysAutoResize);
 
     if (ImGui::BeginTabBar(""))
     {
@@ -137,7 +137,7 @@ void ViewportUIComponent::renderProjectSettings()
         {
             activeTab = 0;
 
-            game->getInputManager()->renderSettings();
+            game->getInputManager()->editor();
 
             ImGui::EndTabItem();
         }
@@ -151,10 +151,10 @@ void ViewportUIComponent::renderProjectSettings()
 void ViewportUIComponent::renderSceneTree()
 {
     _showSceneTree = true;
-    ImGui::Begin("Scene Tree", &_showSceneTree);
+    ImGui::Begin("Scene Tree", &_showSceneTree, ImGuiWindowFlags_AlwaysAutoResize);
 
     std::vector<std::weak_ptr<Actor>> actorList{};
-    getParent()->getScene()->getAllActorsByType<Actor>(actorList);
+    getScene()->getAllActorsByType<Actor>(actorList);
 
     auto it = actorList.begin();
     int i = 0;
@@ -171,7 +171,7 @@ void ViewportUIComponent::renderSceneTree()
                 ImGui::PopID();
                 continue;
             }
-            if (ImGui::Button(actor->name.c_str()))
+            if (ImGui::Button(actor->name.c_str(), ImVec2(170.0f, 0.0f)))
             {
                 _inspectedActor = *it;
                 renderInspector();
@@ -179,7 +179,7 @@ void ViewportUIComponent::renderSceneTree()
             ImGui::SameLine();
             if (ImGui::Button(ICON_MS_DELETE))
             {
-                getParent()->getScene()->removeActor(actor.get());
+                getScene()->removeActor(actor.get());
                 ImGui::PopID();
                 continue;
             }
@@ -192,8 +192,9 @@ void ViewportUIComponent::renderSceneTree()
     // create new actor
     static const char *selected = _cmxRegister->getActorRegister().begin()->first.c_str();
 
+    ImGui::SeparatorText("New Actor");
     ImGui::PushID(i++);
-    ImGui::SetNextItemWidth(172);
+    ImGui::SetNextItemWidth(203);
     if (ImGui::BeginCombo("##", selected))
     {
         for (const auto &pair : _cmxRegister->getActorRegister())
@@ -216,12 +217,12 @@ void ViewportUIComponent::renderSceneTree()
     ImGui::PopID();
 
     static char buffer[100];
-    ImGui::SetNextItemWidth(140);
+    ImGui::SetNextItemWidth(170);
     ImGui::InputText("##", buffer, 100);
     ImGui::SameLine();
     if (ImGui::Button(ICON_MS_ADD))
     {
-        _cmxRegister->spawnActor(selected, getParent()->getScene(), buffer);
+        _cmxRegister->spawnActor(selected, getScene(), buffer);
     }
 
     ImGui::End();
@@ -230,11 +231,11 @@ void ViewportUIComponent::renderSceneTree()
 void ViewportUIComponent::renderInspector()
 {
     _showInspector = true;
-    ImGui::Begin("Inspector", &_showInspector);
+    ImGui::Begin("Inspector", &_showInspector, ImGuiWindowFlags_AlwaysAutoResize);
 
     if (std::shared_ptr<Actor> actor = _inspectedActor.lock())
     {
-        actor->renderSettings();
+        actor->editor();
     }
     else
     {

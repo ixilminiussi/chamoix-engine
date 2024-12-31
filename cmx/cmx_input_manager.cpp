@@ -139,7 +139,7 @@ void InputManager::load()
     }
 }
 
-void InputManager::renderSettings()
+void InputManager::editor()
 {
     int i = 0;
 
@@ -155,7 +155,7 @@ void InputManager::renderSettings()
             }
             else
             {
-                it->second->renderSettings();
+                it->second->editor();
             }
         }
         it++;

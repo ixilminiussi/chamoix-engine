@@ -3,7 +3,7 @@
 // cmx
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
-#include "cmx_camera_component.h"
+#include "cmx_component.h"
 #include "cmx_game.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_register.h"
@@ -157,15 +157,39 @@ void Scene::updateActors(float dt)
     }
 }
 
+void Scene::removeComponent(std::shared_ptr<Component> component)
+{
+#ifndef NDEBUG
+    if (component->getRenderZ() >= -1)
+#else
+    if (component->getRenderZ() >= 0)
+#endif
+    {
+        _graphicsManager->removeFromQueue(component);
+    }
+
+    auto it = _components.begin();
+
+    while (it != _components.end())
+    {
+        if (*it == component)
+        {
+            _components.erase(it);
+            return;
+        }
+        it++;
+    }
+}
+
 void Scene::addComponent(std::shared_ptr<Component> component)
 {
     _components.push_back(component);
     spdlog::info("Scene '{0}': Added new component '{1}->{2}'", name, component->getParent()->name, component->name);
 
 #ifndef NDEBUG
-    if (component->_renderZ >= -1)
+    if (component->getRenderZ() >= -1)
 #else
-    if (component->_renderZ >= 0)
+    if (component->getRenderZ() >= 0)
 #endif
     {
         _graphicsManager->addToQueue(component);
@@ -174,20 +198,29 @@ void Scene::addComponent(std::shared_ptr<Component> component)
 
 void Scene::updateComponents(float dt)
 {
-    for (auto i = _components.begin(); i < _components.end();)
+    auto it = _components.begin();
+
+    while (it != _components.end())
     {
+        std::shared_ptr<Component> component = *it;
         // if component is deleted, remove it from our list
-        if (i->expired())
+        if (component->getParent() == nullptr)
         {
-            i = _components.erase(i);
+#ifndef NDEBUG
+            if (component->getRenderZ() >= -1)
+#else
+            if (component->getRenderZ() >= 0)
+#endif
+            {
+                _graphicsManager->removeFromQueue(*it);
+            }
+            it = _components.erase(it);
             continue;
         }
 
-        std::shared_ptr<Component> component = i->lock();
-        if (component)
-            component->update(dt);
+        component->update(dt);
 
-        i++;
+        it++;
     }
 }
 

@@ -13,19 +13,33 @@
 namespace cmx
 {
 
+enum Primitives
+{
+    SPHERE,
+    BOX,
+    // PLANE,
+    // TORUS,
+    // CYLINDER,
+    // CONE,
+    // CAPSULE,
+};
+
 class MeshComponent : public Component
 {
   public:
     MeshComponent();
-    MeshComponent(std::shared_ptr<class CmxModel>);
-
     ~MeshComponent() = default;
 
+    void onAttach() override;
+
     void render(class FrameInfo &, VkPipelineLayout) override;
+    void setModel(Primitives);
     void setModel(const std::string &name);
     const std::string &getModelName();
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    void load(tinyxml2::XMLElement *) override;
+    void editor(int i) override;
 
   private:
     std::shared_ptr<class CmxModel> _cmxModel;

@@ -386,7 +386,7 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
     }
 }
 
-void AxisAction::renderSettings()
+void AxisAction::editor()
 {
     int i = 0;
     std::string label;
@@ -417,7 +417,7 @@ void AxisAction::renderSettings()
         for (Axis &axis : axes)
         {
             label = fmt::format("##a{}", i++);
-            axis.renderSettings(label);
+            axis.editor(label);
         }
     }
     if (type == Type::BUTTONS)
@@ -425,12 +425,12 @@ void AxisAction::renderSettings()
         for (Button &button : buttons)
         {
             label = fmt::format("##ab{}", i++);
-            button.renderSettings(label);
+            button.editor(label);
         }
     }
 }
 
-void ButtonAction::renderSettings()
+void ButtonAction::editor()
 {
     int i = 0;
     std::string label;
@@ -459,7 +459,7 @@ void ButtonAction::renderSettings()
     while (it != _buttons.end())
     {
         label = fmt::format("##b{}", i++);
-        it->renderSettings(label);
+        it->editor(label);
 
         ImGui::SameLine();
         label = fmt::format(ICON_MS_REMOVE "##r{}", i++);

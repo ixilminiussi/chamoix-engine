@@ -60,7 +60,7 @@ struct Button
 
     int status{0};
 
-    void renderSettings(const std::string &label);
+    void editor(const std::string &label);
 };
 
 inline bool operator==(const Button &a, const Button &b)
@@ -78,7 +78,7 @@ struct Axis
     float value{0.f};
     float absValue{0.f};
 
-    void renderSettings(const std::string &label);
+    void editor(const std::string &label);
 };
 
 inline bool operator==(const Axis &a, const Axis &b)

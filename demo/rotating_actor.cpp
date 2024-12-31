@@ -39,7 +39,7 @@ void RotatingActor::slowdownToggle(float dt, int val)
     }
 }
 
-void RotatingActor::renderSettings()
+void RotatingActor::editor()
 {
     if (ImGui::CollapsingHeader("Rotation"))
     {
@@ -47,7 +47,7 @@ void RotatingActor::renderSettings()
         ImGui::DragFloat("Fast Speed", &rotationSpeedFast, 0.01f, -10.0f, 10.0f);
     }
 
-    cmx::MeshActor::renderSettings();
+    cmx::MeshActor::editor();
 }
 
 tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)

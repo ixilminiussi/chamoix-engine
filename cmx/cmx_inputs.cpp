@@ -5,7 +5,7 @@
 namespace cmx
 {
 
-void Axis::renderSettings(const std::string &label)
+void Axis::editor(const std::string &label)
 {
     auto findSelected = [&]() {
         int i = 0;
@@ -47,7 +47,7 @@ void Axis::renderSettings(const std::string &label)
     }
 }
 
-void Button::renderSettings(const std::string &label)
+void Button::editor(const std::string &label)
 {
     auto findSelected = [&]() {
         int i = 0;

@@ -18,18 +18,23 @@ namespace cmx
 class AssetsManager final
 {
   public:
-    AssetsManager(class Scene *parent) : _parentScene{parent} {};
+    AssetsManager(class Scene *parent);
     ~AssetsManager() = default;
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
     void load(tinyxml2::XMLElement *);
     void unload();
 
-    void renderSettings();
+    void editor();
 
     void addModel(const std::string &filepath, const std::string &name);
     void removeModel(const std::string &name);
     std::shared_ptr<class CmxModel> getModel(const std::string &name);
+
+    const auto &getModels()
+    {
+        return _models;
+    }
 
   private:
     class Scene *_parentScene;

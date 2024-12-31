@@ -111,7 +111,7 @@ void ViewportActor::load(tinyxml2::XMLElement *actorElement)
     Actor::load(actorElement);
 }
 
-void ViewportActor::renderSettings()
+void ViewportActor::editor()
 {
     ImGui::SliderFloat("movement speed", &_moveSpeed, 0.0f, 100.0f);
     ImGui::SliderFloat("mouse sensitivity", &_mouseSensitivity, 0.0f, 10.0f);

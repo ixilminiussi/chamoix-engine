@@ -30,7 +30,7 @@ class InputAction
 
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) = 0;
     virtual void load(tinyxml2::XMLElement *parentElement) = 0;
-    virtual void renderSettings() = 0;
+    virtual void editor() = 0;
 };
 
 class ButtonAction : public InputAction
@@ -56,7 +56,7 @@ class ButtonAction : public InputAction
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) override;
     void load(tinyxml2::XMLElement *parentElement) override;
-    void renderSettings() override;
+    void editor() override;
 
   private:
     std::vector<Button> _buttons;
@@ -87,7 +87,7 @@ class AxisAction : public InputAction
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) override;
     void load(tinyxml2::XMLElement *parentElement) override;
-    void renderSettings() override;
+    void editor() override;
 
   private:
     Type type;

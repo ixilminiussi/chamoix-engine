@@ -4,12 +4,15 @@
 #include "cmx_assets_manager.h"
 #include "cmx_frame_info.h"
 #include "cmx_model.h"
+#include "cmx_primitives.h"
 #include "cmx_render_system.h"
-#include "tinyxml2.h"
 
 // lib
 #include <GLFW/glfw3.h>
+#include <cstring>
+#include <imgui.h>
 #include <spdlog/spdlog.h>
+#include <tinyxml2.h>
 #include <vulkan/vulkan_core.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -26,25 +29,28 @@ MeshComponent::MeshComponent()
     _renderZ = 1;
 }
 
-MeshComponent::MeshComponent(std::shared_ptr<CmxModel> cmxModel) : _cmxModel(cmxModel)
+void MeshComponent::onAttach()
 {
-    _renderZ = 1;
+    if (_cmxModel.get() == nullptr)
+    {
+        setModel(PRIMITIVE_CUBE);
+    }
 }
 
 void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
 {
-    if (!getParent())
+    if (getParent() == nullptr)
     {
-        spdlog::error("MeshComponent: parent is null");
+        spdlog::critical("MeshComponent: _parent is expired");
         return;
-    };
+    }
 
     if (!getParent()->getVisible())
     {
         return;
     }
 
-    if (!_cmxModel)
+    if (_cmxModel.get() == nullptr)
     {
         spdlog::error("MeshComponent: missing model");
         return;
@@ -66,7 +72,7 @@ void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout
 
 void MeshComponent::setModel(const std::string &name)
 {
-    _cmxModel = getParent()->getScene()->_assetsManager->getModel(name);
+    _cmxModel = getScene()->_assetsManager->getModel(name);
 }
 
 const std::string &MeshComponent::getModelName()
@@ -80,6 +86,40 @@ tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::
     componentElement.SetAttribute("model", _cmxModel->name.c_str());
 
     return componentElement;
+}
+
+void MeshComponent::load(tinyxml2::XMLElement *componentElement)
+{
+    Component::load(componentElement);
+
+    setModel(componentElement->Attribute("model"));
+}
+
+void MeshComponent::editor(int i)
+{
+    const char *selected = _cmxModel->name.c_str();
+    std::shared_ptr<AssetsManager> assetsManager = getScene()->_assetsManager;
+
+    if (ImGui::BeginCombo("Model##", selected))
+    {
+        for (const auto &pair : assetsManager->getModels())
+        {
+            bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+
+            if (ImGui::Selectable(pair.first.c_str(), isSelected))
+            {
+                selected = pair.first.c_str();
+                setModel(pair.first);
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
 }
 
 } // namespace cmx

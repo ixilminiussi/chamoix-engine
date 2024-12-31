@@ -37,6 +37,15 @@ done
 
 echo "Shader compilation complete."
 
+# Copying cmx assets to build directory
+SOURCE_DIR="../assets"
+OUTPUT_DIR="assets/cmx"
+
+mkdir -p "$OUTPUT_DIR"
+
+cp -r $SOURCE_DIR/* $OUTPUT_DIR/
+echo "Cmx assets copied"
+
 # Copying game assets to build directory
 SOURCE_DIR="../$1"
 OUTPUT_DIR="."

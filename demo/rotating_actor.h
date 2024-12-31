@@ -12,7 +12,7 @@ class RotatingActor : public cmx::MeshActor
     void update(float dt) override;
 
     // for viewport
-    void renderSettings() override;
+    void editor() override;
 
     void slowdownToggle(float dt, int val);
 

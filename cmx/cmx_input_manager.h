@@ -37,7 +37,7 @@ class InputManager
     void pollEvents(float dt);
     void setMouseCapture(bool);
 
-    void renderSettings();
+    void editor();
 
   private:
     const std::string _filepath;

@@ -39,12 +39,14 @@ void Actor::move(Scene *scene)
     // TODO: move components as well
 }
 
-void Actor::attachComponent(std::shared_ptr<Component> component, std::string componentName)
+std::shared_ptr<Component> Actor::attachComponent(std::shared_ptr<Component> component, std::string componentName)
 {
     componentName = (componentName.compare("") == 0) ? component->getType() : componentName;
     try
     {
         auto c = _components.at(componentName);
+        spdlog::warn("Actor '{0}': component of same name '{1}' already bound to actor", name, componentName);
+        return c;
     }
     catch (const std::out_of_range &e)
     {
@@ -53,15 +55,13 @@ void Actor::attachComponent(std::shared_ptr<Component> component, std::string co
             component->getParent()->detachComponent(component->name);
         }
         component->name = componentName;
-        component->setParent(this);
+        component->setParent(shared_from_this());
 
         _components[component->name] = component;
         getScene()->addComponent(component);
 
-        return;
+        return component;
     }
-    spdlog::warn("Actor '{0}': component of same name '{1}' already bound to actor", name, componentName);
-    return;
 }
 
 void Actor::detachComponent(const std::string &componentName)
@@ -108,7 +108,7 @@ Transform Actor::getAbsoluteTransform()
     return transform;
 }
 
-void Actor::renderSettings()
+void Actor::editor()
 {
     if (ImGui::CollapsingHeader("Transform"))
     {
@@ -133,7 +133,7 @@ void Actor::renderSettings()
             label = fmt::format("{}##{}", component.first.c_str(), i++);
             if (ImGui::CollapsingHeader(label.c_str()))
             {
-                component.second->renderSettings(i);
+                component.second->editor(i);
             }
         }
     }

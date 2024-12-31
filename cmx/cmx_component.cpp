@@ -1,6 +1,7 @@
 #include "cmx_component.h"
 
 // cmx
+#include "cmx_actor.h"
 #include "cmx_frame_info.h"
 
 // lib
@@ -42,6 +43,16 @@ std::string Component::getType()
     {
         spdlog::critical("Component: Error demangling component type");
         return typeid(this).name();
+    }
+}
+
+void Component::setParent(std::weak_ptr<Actor> actor)
+{
+    if (auto parent = actor.lock())
+    {
+        _parent = actor;
+        _scene = parent->getScene();
+        onAttach();
     }
 }
 

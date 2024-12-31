@@ -16,8 +16,9 @@
 
 ## Assets
 - [ ] textures
-- [ ] models loading
+- [x] models loading
 - [ ] asset manager
+    - [ ] settings menu
 
 ## 2D rendering
 - [ ] textures

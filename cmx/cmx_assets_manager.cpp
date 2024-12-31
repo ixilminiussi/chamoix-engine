@@ -3,12 +3,17 @@
 // cmx
 #include "cmx_game.h"
 #include "cmx_model.h"
+#include "cmx_primitives.h"
 #include "cmx_scene.h"
+
+// std
 #include <cstdlib>
 #include <stdexcept>
 
 namespace cmx
 {
+
+AssetsManager::AssetsManager(class Scene *parent) : _parentScene{parent} {};
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
 {
@@ -29,14 +34,18 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
 
 void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 {
+    addModel("assets/cmx/cube.obj", PRIMITIVE_CUBE);
+    addModel("assets/cmx/cylinder.obj", PRIMITIVE_CYLINDER);
+    addModel("assets/cmx/plane.obj", PRIMITIVE_PLANE);
+    addModel("assets/cmx/sphere.obj", PRIMITIVE_SPHERE);
+    addModel("assets/cmx/torus.obj", PRIMITIVE_TORUS);
+
     if (tinyxml2::XMLElement *assetsElement = parentElement->FirstChildElement("assets"))
     {
         tinyxml2::XMLElement *modelElement = assetsElement->FirstChildElement("model");
         while (modelElement)
         {
-            _models[modelElement->Attribute("name")] =
-                CmxModel::createModelFromFile(_parentScene->getGame()->getDevice(), modelElement->Attribute("filepath"),
-                                              modelElement->Attribute("name"));
+            addModel(modelElement->Attribute("filepath"), modelElement->Attribute("name"));
 
             modelElement = modelElement->NextSiblingElement("model");
         }
@@ -47,7 +56,7 @@ void AssetsManager::unload()
 {
 }
 
-void AssetsManager::renderSettings()
+void AssetsManager::editor()
 {
 }
 
@@ -56,13 +65,12 @@ void AssetsManager::addModel(const std::string &filepath, const std::string &nam
     try
     {
         _models.at(name);
+        spdlog::error("AssetsManager: model of same name '{0}' already exists", name);
     }
     catch (const std::out_of_range e)
     {
         _models[name] = CmxModel::createModelFromFile(_parentScene->getGame()->getDevice(), filepath, name);
     }
-
-    spdlog::error("AssetsManager: model of same name '{0}' already exists", name);
 }
 
 void AssetsManager::removeModel(const std::string &name)

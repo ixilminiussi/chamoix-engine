@@ -5,7 +5,7 @@
 #include "cmx_scene.h"
 
 // lib
-#include "tinyxml2.h"
+#include <tinyxml2.h>
 #include <vulkan/vulkan_core.h>
 
 // std
@@ -20,52 +20,60 @@ class Component
     Component() = default;
     ~Component() = default;
 
+    virtual void onAttach() {};
     virtual void update(float dt) {};
     virtual void render(class FrameInfo &, VkPipelineLayout);
 
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
-    virtual void load(tinyxml2::XMLElement *) {}; // TODO: IMPLEMENT
+    virtual void load(tinyxml2::XMLElement *) {};
 
     // for viewport
-    virtual void renderSettings(int i) {}; // TODO: IMPLEMENT
+    virtual void editor(int i) {};
 
     void despawn();
 
     std::string getType();
 
     // getters and setters :: begin
-    void setParent(class Actor *actor)
-    {
-        _parent = actor;
-    }
+    void setParent(std::weak_ptr<class Actor> actor);
 
     Actor *getParent()
     {
-        return _parent;
+        if (auto parent = _parent.lock())
+        {
+            return parent.get();
+        }
+        return nullptr;
+    }
+
+    int8_t getRenderZ()
+    {
+        return _renderZ;
+    }
+
+    class Scene *getScene()
+    {
+        return _scene;
     }
     // getters and setters :: end
 
     // friend functions
-    friend void Scene::addComponent(std::shared_ptr<Component>);
-    friend bool operator<(std::weak_ptr<Component>, std::shared_ptr<Component>);
+    friend bool operator<(std::shared_ptr<Component>, std::shared_ptr<Component>);
 
     std::string name;
 
   protected:
-    class Actor *_parent = nullptr;
+    std::weak_ptr<class Actor> _parent;
+    class Scene *_scene;
 
-    int32_t _renderZ{-1}; // decides whether or not to add component to render queue:
-                          // -1: no
-                          // >0: yes, render lower values first
+    int8_t _renderZ{-1}; // decides whether or not to add component to render queue:
+                         // -1: no
+                         // >0: yes, render lower values first
 };
 
-inline bool operator<(std::weak_ptr<Component> awk, std::shared_ptr<Component> b)
+inline bool operator<(std::shared_ptr<Component> a, std::shared_ptr<Component> b)
 {
-    if (auto a = awk.lock())
-    {
-        return a->_renderZ < b->_renderZ;
-    }
-    return true;
+    return a->_renderZ < b->_renderZ;
 }
 
 } // namespace cmx

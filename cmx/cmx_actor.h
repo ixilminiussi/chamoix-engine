@@ -23,7 +23,7 @@ enum Positioning
     RELATIVE
 };
 
-class Actor
+class Actor : public std::enable_shared_from_this<Actor>
 {
   public:
     template <class T>
@@ -44,9 +44,9 @@ class Actor
 
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
     virtual void load(tinyxml2::XMLElement *);
-    virtual void renderSettings();
+    virtual void editor();
 
-    void attachComponent(std::shared_ptr<class Component>, std::string name = "");
+    std::shared_ptr<class Component> attachComponent(std::shared_ptr<class Component>, std::string name = "");
     void detachComponent(const std::string &name);
     template <typename T> std::weak_ptr<T> getComponentByType();
     std::weak_ptr<class Component> getComponentByName(const std::string &name);
