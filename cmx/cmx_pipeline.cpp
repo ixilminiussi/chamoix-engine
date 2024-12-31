@@ -193,6 +193,8 @@ void CmxPipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo)
     configInfo.depthStencilInfo.front = {}; // Optional
     configInfo.depthStencilInfo.back = {};  // Optional
 
+    configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
+
     configInfo.dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
     configInfo.dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();

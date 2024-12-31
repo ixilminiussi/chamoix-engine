@@ -14,7 +14,7 @@
 namespace cmx
 {
 
-class Component
+class Component : public std::enable_shared_from_this<Component>
 {
   public:
     Component() = default;
