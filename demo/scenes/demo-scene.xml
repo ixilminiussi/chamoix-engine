@@ -9,23 +9,16 @@
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
     </assets>
-    <actor type="RotatingActor" name="RotatingActor" id="7" visible="true" slowSpeed="0.029999999" fastSpeed="1">
+    <actor type="RigidBodyActor" name="Falling Ball" id="7" visible="true">
         <transform>
-            <position x="0" y="2" z="-3"/>
-            <rotation pitch="0" yaw="0.71209079" roll="0"/>
-            <scale x="3" y="3" z="3"/>
+            <position x="0" y="8" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0"/>
+            <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" model="vase"/>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" model="cmx_sphere"/>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent"/>
     </actor>
-    <actor type="RotatingActor" name="RotatingActor2" id="5" visible="true" slowSpeed="0.029999999" fastSpeed="1">
-        <transform>
-            <position x="0" y="0" z="-3"/>
-            <rotation pitch="0" yaw="0.71209079" roll="0"/>
-            <scale x="10" y="10" z="10"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" model="bunny"/>
-    </actor>
-    <actor type="cmx::MeshActor" name="Floor" id="3" visible="true">
+    <actor type="cmx::MeshActor" name="Floor" id="5" visible="true">
         <transform>
             <position x="0" y="10" z="0"/>
             <rotation pitch="0" yaw="0" roll="0"/>
@@ -33,13 +26,20 @@
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent" model="cmx_plane"/>
     </actor>
-    <actor type="RigidBodyActor" name="Falling Ball" id="1">
+    <actor type="RotatingActor" name="RotatingActor2" id="3" visible="true" slowSpeed="0.029999999" fastSpeed="1">
         <transform>
-            <position x="0" y="7.9997673" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0"/>
-            <scale x="1" y="1" z="1"/>
+            <position x="0" y="0" z="-3"/>
+            <rotation pitch="0" yaw="0.14691778" roll="0"/>
+            <scale x="10" y="10" z="10"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" model="cmx_sphere"/>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent"/>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" model="bunny"/>
+    </actor>
+    <actor type="RotatingActor" name="RotatingActor" id="1" visible="true" slowSpeed="0.029999999" fastSpeed="1">
+        <transform>
+            <position x="0" y="2" z="-3"/>
+            <rotation pitch="0" yaw="0.14691778" roll="0"/>
+            <scale x="3" y="3" z="3"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" model="vase"/>
     </actor>
 </scene>

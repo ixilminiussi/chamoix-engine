@@ -110,6 +110,8 @@ Transform Actor::getAbsoluteTransform()
 
 void Actor::editor()
 {
+    ImGui::Checkbox("is visible", &_isVisible);
+
     if (ImGui::CollapsingHeader("Transform"))
     {
         float *position[3] = {&transform.position.x, &transform.position.y, &transform.position.z};
@@ -145,6 +147,7 @@ tinyxml2::XMLElement &Actor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEleme
     actorElement->SetAttribute("type", getType().c_str());
     actorElement->SetAttribute("name", name.c_str());
     actorElement->SetAttribute("id", _id);
+    actorElement->SetAttribute("visible", _isVisible);
 
     tinyxml2::XMLElement *transformElement = doc.NewElement("transform");
 
@@ -180,6 +183,8 @@ tinyxml2::XMLElement &Actor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEleme
 
 void Actor::load(tinyxml2::XMLElement *actorElement)
 {
+    _isVisible = actorElement->BoolAttribute("visible");
+
     if (tinyxml2::XMLElement *transformElement = actorElement->FirstChildElement("transform"))
     {
         if (tinyxml2::XMLElement *positionElement = transformElement->FirstChildElement("position"))
