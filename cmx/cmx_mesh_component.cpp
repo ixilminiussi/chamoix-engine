@@ -1,9 +1,9 @@
 #include "cmx_mesh_component.h"
 
-#include "cmx/cmx_graphics_manager.h"
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
 #include "cmx_frame_info.h"
+#include "cmx_graphics_manager.h"
 #include "cmx_model.h"
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
@@ -73,7 +73,7 @@ void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout
 
 void MeshComponent::setModel(const std::string &name)
 {
-    _cmxModel = getScene()->_assetsManager->getModel(name);
+    _cmxModel = getScene()->getAssetsManager()->getModel(name);
 }
 
 const std::string &MeshComponent::getModelName()
@@ -99,7 +99,7 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
 void MeshComponent::editor(int i)
 {
     const char *selected = _cmxModel->name.c_str();
-    std::shared_ptr<AssetsManager> assetsManager = getScene()->_assetsManager;
+    std::shared_ptr<AssetsManager> assetsManager = getScene()->getAssetsManager();
 
     if (ImGui::BeginCombo("Model##", selected))
     {

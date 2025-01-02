@@ -3,6 +3,7 @@
 
 // cmx
 #include "cmx_scene.h"
+#include "cmx_transform.h"
 
 // lib
 #include <tinyxml2.h>
@@ -20,6 +21,7 @@ class Component : public std::enable_shared_from_this<Component>
     Component() = default;
     ~Component() = default;
 
+    virtual void onDetach() {};
     virtual void onAttach() {};
     virtual void update(float dt) {};
     virtual void render(class FrameInfo &, VkPipelineLayout);
@@ -35,7 +37,7 @@ class Component : public std::enable_shared_from_this<Component>
     std::string getType();
 
     // getters and setters :: begin
-    void setParent(std::weak_ptr<class Actor> actor);
+    void setParent(std::shared_ptr<class Actor> actor);
 
     Actor *getParent()
     {
@@ -51,6 +53,9 @@ class Component : public std::enable_shared_from_this<Component>
         return _renderZ;
     }
 
+    const Transform &getRelativeTransform();
+    Transform getAbsoluteTransform();
+
     class Scene *getScene()
     {
         return _scene;
@@ -65,6 +70,7 @@ class Component : public std::enable_shared_from_this<Component>
   protected:
     std::weak_ptr<class Actor> _parent;
     class Scene *_scene;
+    Transform _transform{};
 
     int8_t _renderZ{-1}; // decides whether or not to add component to render queue:
                          // -1: no
