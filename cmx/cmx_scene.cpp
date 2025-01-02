@@ -1,11 +1,13 @@
 #include "cmx_scene.h"
 
 // cmx
+#include "cmx/cmx_physics_component.h"
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
 #include "cmx_component.h"
 #include "cmx_game.h"
 #include "cmx_graphics_manager.h"
+#include "cmx_physics_manager.h"
 #include "cmx_register.h"
 #include "cmx_viewport_actor.h"
 
@@ -14,8 +16,8 @@
 #include <stdexcept>
 
 // lib
-#include "tinyxml2.h"
 #include <spdlog/spdlog.h>
+#include <tinyxml2.h>
 
 namespace cmx
 {
@@ -30,7 +32,8 @@ Scene::~Scene()
 void Scene::load()
 {
     _assetsManager = std::make_shared<AssetsManager>(this);
-    _graphicsManager = std::make_unique<GraphicsManager>(getGame()->getRenderSystem());
+    _graphicsManager = std::make_shared<GraphicsManager>(getGame()->getRenderSystem());
+    _physicsManager = std::make_shared<PhysicsManager>();
 
     Register *cmxRegister = Register::getInstance();
 
@@ -128,6 +131,7 @@ std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor> actor)
 
 void Scene::update(float dt)
 {
+    _physicsManager->executeStep(dt);
     updateActors(dt);
     updateComponents(dt);
     _graphicsManager->drawComponents(getCamera());
@@ -213,6 +217,10 @@ void Scene::updateComponents(float dt)
 #endif
             {
                 _graphicsManager->removeFromQueue(*it);
+            }
+            if (auto physicsComponent = std::dynamic_pointer_cast<PhysicsComponent>(component))
+            {
+                _physicsManager->remove(physicsComponent);
             }
             it = _components.erase(it);
             continue;

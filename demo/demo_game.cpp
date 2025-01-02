@@ -1,5 +1,6 @@
 #include "demo_game.h"
 
+#include "rigid_body_actor.h"
 #include "rotating_actor.h"
 #include <cmx/cmx_actor.h>
 #include <cmx/cmx_input_manager.h>
@@ -36,6 +37,9 @@ Demo::Demo()
 
     cmxRegister->addActor("RotatingActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<RotatingActor>(scene, name);
+    });
+    cmxRegister->addActor("RigidBodyActor", [](cmx::Scene *scene, const std::string &name) {
+        return cmx::Actor::spawn<RigidBodyActor>(scene, name);
     });
 }
 

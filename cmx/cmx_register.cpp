@@ -6,6 +6,8 @@
 #include "cmx_component.h"
 #include "cmx_mesh_actor.h"
 #include "cmx_mesh_component.h"
+#include "cmx_physics_actor.h"
+#include "cmx_physics_component.h"
 #include "cmx_viewport_actor.h"
 #include "cmx_viewport_ui_component.h"
 #include <memory>
@@ -28,11 +30,15 @@ Register::Register()
     actorRegister["cmx::ViewportActor"] = [](class Scene *scene, const std::string &name) {
         return Actor::spawn<ViewportActor>(scene, name);
     };
+    actorRegister["cmx::PhysicsActor"] = [](class Scene *scene, const std::string &name) {
+        return Actor::spawn<PhysicsActor>(scene, name);
+    };
 
     componentRegister["cmx::Component"] = []() { return std::make_shared<Component>(); };
     componentRegister["cmx::MeshComponent"] = []() { return std::make_shared<MeshComponent>(); };
     componentRegister["cmx::CameraComponent"] = []() { return std::make_shared<CameraComponent>(); };
     componentRegister["cmx::ViewportUIComponent"] = []() { return std::make_shared<ViewportUIComponent>(); };
+    componentRegister["cmx::PhysicsComponent"] = []() { return std::make_shared<PhysicsComponent>(); };
 }
 
 Register::~Register()

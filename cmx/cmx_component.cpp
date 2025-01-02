@@ -56,4 +56,18 @@ void Component::setParent(std::weak_ptr<Actor> actor)
     }
 }
 
+const Transform &Component::getRelativeTransform()
+{
+    return _transform;
+}
+
+Transform Component::getAbsoluteTransform()
+{
+    if (auto parent = _parent.lock())
+    {
+        return _transform + parent->getAbsoluteTransform();
+    }
+    return _transform;
+}
+
 } // namespace cmx

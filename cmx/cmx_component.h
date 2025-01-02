@@ -37,7 +37,7 @@ class Component : public std::enable_shared_from_this<Component>
     std::string getType();
 
     // getters and setters :: begin
-    void setParent(std::shared_ptr<class Actor> actor);
+    void setParent(std::weak_ptr<class Actor> actor);
 
     Actor *getParent()
     {

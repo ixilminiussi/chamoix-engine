@@ -55,11 +55,23 @@ class Scene
         return _game;
     }
 
+    auto getAssetsManager()
+    {
+        return _assetsManager;
+    }
+
+    auto getGraphicsManager()
+    {
+        return _graphicsManager;
+    }
+
+    auto getPhysicsManager()
+    {
+        return _physicsManager;
+    }
+
     const std::string _xmlPath;
     const std::string name;
-
-    std::shared_ptr<class AssetsManager> _assetsManager;
-    std::unique_ptr<class GraphicsManager> _graphicsManager;
 
   private:
     void updateActors(float dt);
@@ -69,6 +81,10 @@ class Scene
     std::shared_ptr<class Camera> _activeCamera;
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> _actors{};
     std::vector<std::shared_ptr<class Component>> _components{};
+
+    std::shared_ptr<class AssetsManager> _assetsManager;
+    std::shared_ptr<class GraphicsManager> _graphicsManager;
+    std::shared_ptr<class PhysicsManager> _physicsManager;
 
     class Game *_game;
 };

@@ -28,7 +28,7 @@ class PhysicsManager
     std::set<std::shared_ptr<class PhysicsComponent>> _dynamicComponents;
     std::set<std::shared_ptr<class PhysicsComponent>> _staticComponents;
 
-    float _gravity = .89f;
+    float _gravity = .5f;
     float _floor = 10.0f;
 };
 

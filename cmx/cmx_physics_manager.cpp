@@ -19,29 +19,31 @@ PhysicsManager::~PhysicsManager()
 
 void PhysicsManager::executeStep(float dt)
 {
-    auto it = _rigidComponents.begin();
-    while (it != _rigidComponents.end())
+    for (auto component : _rigidComponents)
     {
-        std::shared_ptr<PhysicsComponent> component = *it;
-
         if (PhysicsActor *parent = dynamic_cast<PhysicsActor *>(component->getParent()))
         {
             Transform transform = component->getAbsoluteTransform();
 
-            if (transform.position.y + transform.scale.y < _floor)
+            if (transform.position.y + transform.scale.y < _floor - glm::epsilon<float>())
             {
                 parent->addVelocity(glm::vec3{0.f, _gravity, 0.f});
             }
-            parent->applyVelocity(dt);
 
+            parent->applyVelocity(dt);
             transform = component->getAbsoluteTransform();
-            if (transform.position.y + transform.scale.y >= _floor)
+
+            if (transform.position.y + transform.scale.y > _floor)
             {
                 transform.position.y = _floor - transform.scale.y;
                 component->propagatePosition(transform.position);
 
                 glm::vec3 newVelocity = parent->getVelocity();
                 newVelocity.y *= -component->getAbsorptionCoefficient();
+                if (std::abs(newVelocity.y) <= glm::epsilon<float>())
+                {
+                    newVelocity.y = 0.f;
+                }
                 parent->setVelocity(newVelocity);
             }
         }
