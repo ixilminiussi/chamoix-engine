@@ -1,6 +1,7 @@
 #include "cmx_model.h"
 
 // cmx
+#include "cmx/cmx_buffer.h"
 #include "cmx_utils.h"
 
 // lib
@@ -31,15 +32,15 @@ template <> struct std::hash<cmx::CmxModel::Vertex>
 namespace cmx
 {
 
-CmxModel::CmxModel(CmxDevice &device, const CmxModel::Builder &builder, const std::string &name)
-    : _cmxDevice{device}, name{name}
+CmxModel::CmxModel(std::shared_ptr<CmxDevice> cmxDevice, const CmxModel::Builder &builder, const std::string &name)
+    : _cmxDevice{cmxDevice}, name{name}
 {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
     _filepath = builder.filepath;
 }
 
-std::shared_ptr<CmxModel> CmxModel::createModelFromFile(CmxDevice &device, const std::string &filepath,
+std::shared_ptr<CmxModel> CmxModel::createModelFromFile(std::shared_ptr<CmxDevice> device, const std::string &filepath,
                                                         const std::string &name)
 {
     Builder builder{};
@@ -80,17 +81,17 @@ void CmxModel::createVertexBuffers(const std::vector<Vertex> &vertices)
     VkDeviceSize bufferSize = sizeof(vertices[0]) * _vertexCount;
     uint32_t vertexSize = sizeof(vertices[0]);
 
-    CmxBuffer stagingBuffer{_cmxDevice, vertexSize, _vertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    CmxBuffer stagingBuffer{*_cmxDevice, vertexSize, _vertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
     stagingBuffer.map();
     stagingBuffer.writeToBuffer((void *)vertices.data());
 
-    _vertexBuffer = std::make_unique<CmxBuffer>(_cmxDevice, vertexSize, _vertexCount,
+    _vertexBuffer = std::make_unique<CmxBuffer>(*_cmxDevice, vertexSize, _vertexCount,
                                                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    _cmxDevice.copyBuffer(stagingBuffer.getBuffer(), _vertexBuffer->getBuffer(), bufferSize);
+    _cmxDevice->copyBuffer(stagingBuffer.getBuffer(), _vertexBuffer->getBuffer(), bufferSize);
 }
 
 void CmxModel::createIndexBuffers(const std::vector<uint32_t> &indices)
@@ -104,17 +105,17 @@ void CmxModel::createIndexBuffers(const std::vector<uint32_t> &indices)
     VkDeviceSize bufferSize = sizeof(indices[0]) * _indexCount;
     uint32_t indexSize = sizeof(indices[0]);
 
-    CmxBuffer stagingBuffer{_cmxDevice, indexSize, _indexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    CmxBuffer stagingBuffer{*_cmxDevice, indexSize, _indexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
     stagingBuffer.map();
     stagingBuffer.writeToBuffer((void *)indices.data());
 
-    _indexBuffer = std::make_unique<CmxBuffer>(_cmxDevice, indexSize, _indexCount,
+    _indexBuffer = std::make_unique<CmxBuffer>(*_cmxDevice, indexSize, _indexCount,
                                                VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    _cmxDevice.copyBuffer(stagingBuffer.getBuffer(), _indexBuffer->getBuffer(), bufferSize);
+    _cmxDevice->copyBuffer(stagingBuffer.getBuffer(), _indexBuffer->getBuffer(), bufferSize);
 }
 
 std::vector<VkVertexInputBindingDescription> CmxModel::Vertex::getBindingDescriptions()

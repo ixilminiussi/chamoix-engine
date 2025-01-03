@@ -8,6 +8,8 @@
 #include "cmx_mesh_component.h"
 #include "cmx_physics_actor.h"
 #include "cmx_physics_component.h"
+#include "cmx_point_light_actor.h"
+#include "cmx_point_light_component.h"
 #include "cmx_viewport_actor.h"
 #include "cmx_viewport_ui_component.h"
 #include <memory>
@@ -27,6 +29,9 @@ Register::Register()
     actorRegister["cmx::MeshActor"] = [](class Scene *scene, const std::string &name) {
         return Actor::spawn<MeshActor>(scene, name);
     };
+    actorRegister["cmx::PointLightActor"] = [](class Scene *scene, const std::string &name) {
+        return Actor::spawn<PointLightActor>(scene, name);
+    };
     actorRegister["cmx::ViewportActor"] = [](class Scene *scene, const std::string &name) {
         return Actor::spawn<ViewportActor>(scene, name);
     };
@@ -36,6 +41,7 @@ Register::Register()
 
     componentRegister["cmx::Component"] = []() { return std::make_shared<Component>(); };
     componentRegister["cmx::MeshComponent"] = []() { return std::make_shared<MeshComponent>(); };
+    componentRegister["cmx::PointLightComponent"] = []() { return std::make_shared<PointLightComponent>(); };
     componentRegister["cmx::CameraComponent"] = []() { return std::make_shared<CameraComponent>(); };
     componentRegister["cmx::ViewportUIComponent"] = []() { return std::make_shared<ViewportUIComponent>(); };
     componentRegister["cmx::PhysicsComponent"] = []() { return std::make_shared<PhysicsComponent>(); };

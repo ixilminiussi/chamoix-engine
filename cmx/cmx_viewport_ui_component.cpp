@@ -17,6 +17,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
+#include <cstdlib>
 #include <glm/fwd.hpp>
 #include <spdlog/spdlog.h>
 
@@ -245,12 +246,12 @@ void ViewportUIComponent::renderInspector()
     ImGui::End();
 }
 
-void ViewportUIComponent::initImGUI(RenderSystem *renderSystem)
+void ViewportUIComponent::initImGUI()
 {
     // 1: create descriptor pool for IMGUI
     // the size of the pool is very oversize, but it's copied from imgui demo itself.
-    CmxDevice &cmxDevice = *renderSystem->_cmxDevice.get();
-    CmxWindow &cmxWindow = *renderSystem->_cmxWindow;
+    CmxDevice &cmxDevice = *RenderSystem::getDevice();
+    CmxWindow &cmxWindow = *RenderSystem::_cmxWindow;
 
     _imguiPool = CmxDescriptorPool::Builder(cmxDevice)
                      .setMaxSets(1000)
@@ -285,7 +286,7 @@ void ViewportUIComponent::initImGUI(RenderSystem *renderSystem)
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = renderSystem->_cmxRenderer->getSwapChainRenderPass();
+    init_info.RenderPass = RenderSystem::_cmxRenderer->getSwapChainRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
 

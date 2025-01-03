@@ -5,6 +5,7 @@
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_model.h"
+#include "cmx_model_render_system.h"
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
 
@@ -28,6 +29,7 @@ namespace cmx
 MeshComponent::MeshComponent()
 {
     _renderZ = 1;
+    _requestedRenderSystem = MODEL_RENDER_SYSTEM;
 }
 
 void MeshComponent::onAttach()
@@ -46,11 +48,6 @@ void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout
         return;
     }
 
-    if (!getParent()->getVisible())
-    {
-        return;
-    }
-
     if (_cmxModel.get() == nullptr)
     {
         spdlog::error("MeshComponent: missing model");
@@ -58,7 +55,7 @@ void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout
     }
 
     SimplePushConstantData push{};
-    Transform transform = getParent()->getAbsoluteTransform();
+    Transform transform = getAbsoluteTransform();
 
     push.modelMatrix = transform.mat4();
     push.normalMatrix = transform.normalMatrix();
@@ -121,6 +118,8 @@ void MeshComponent::editor(int i)
 
         ImGui::EndCombo();
     }
+
+    Component::editor(i);
 }
 
 } // namespace cmx

@@ -1,9 +1,12 @@
 #include "cmx_game.h"
 
 // cmx
+#include "cmx/cmx_window.h"
+#include "cmx_billboard_render_system.h"
 #include "cmx_camera_component.h"
 #include "cmx_device.h"
 #include "cmx_input_manager.h"
+#include "cmx_model_render_system.h"
 #include "cmx_render_system.h"
 #include "cmx_viewport_actor.h"
 #include "cmx_viewport_ui_component.h"
@@ -13,6 +16,7 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -25,12 +29,17 @@
 namespace cmx
 {
 
+int Game::WIDTH = 1600;
+int Game::HEIGHT = 1200;
+
+CmxWindow Game::_cmxWindow = CmxWindow{WIDTH, HEIGHT, "chamoix"};
+
 Game::Game()
 {
-    _cmxWindow = std::make_unique<CmxWindow>(WIDTH, HEIGHT, "chamoix");
+    _renderSystems[MODEL_RENDER_SYSTEM] = std::make_shared<ModelRenderSystem>();
+    _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<BillboardRenderSystem>();
 
-    _inputManager = std::make_shared<InputManager>(*_cmxWindow.get());
-    _renderSystem = std::make_shared<RenderSystem>(*_cmxWindow.get());
+    _inputManager = std::make_shared<InputManager>(_cmxWindow);
 }
 
 Game::~Game()
@@ -66,9 +75,22 @@ Scene *Game::getScene()
     return _activeScene;
 }
 
-CmxDevice &Game::getDevice()
+CmxWindow &Game::getWindow()
 {
-    return *_renderSystem->_cmxDevice.get();
+    return _cmxWindow;
+}
+
+std::shared_ptr<CmxDevice> Game::getDevice()
+{
+    try
+    {
+        return RenderSystem::getDevice();
+    }
+    catch (std::out_of_range e)
+    {
+        spdlog::info("Game: cannot call getDevice() before having ran RenderSystem::build(CmxWindow&)");
+        std::exit(EXIT_FAILURE);
+    }
 }
 
 void Game::loadEditor()
@@ -78,8 +100,8 @@ void Game::loadEditor()
     std::weak_ptr<ViewportUIComponent> viewportUIWk = viewportActor->getComponentByType<ViewportUIComponent>();
     if (auto viewportUIComponent = viewportUIWk.lock())
     {
-        viewportUIComponent->initInputManager(*_cmxWindow.get());
-        viewportUIComponent->initImGUI(_renderSystem.get());
+        viewportUIComponent->initInputManager(_cmxWindow);
+        viewportUIComponent->initImGUI();
     }
 
     std::weak_ptr<CameraComponent> cameraWk = viewportActor->getCameraComponent();

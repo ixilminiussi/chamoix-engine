@@ -65,7 +65,7 @@ void AssetsManager::addModel(const std::string &filepath, const std::string &nam
     try
     {
         _models.at(name);
-        spdlog::error("AssetsManager: model of same name '{0}' already exists", name);
+        spdlog::warn("AssetsManager: model of same name '{0}' already exists", name);
     }
     catch (const std::out_of_range e)
     {

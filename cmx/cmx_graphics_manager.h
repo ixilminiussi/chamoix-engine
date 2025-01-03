@@ -3,6 +3,7 @@
 
 // std
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace cmx
@@ -11,7 +12,7 @@ namespace cmx
 class GraphicsManager
 {
   public:
-    GraphicsManager(std::shared_ptr<class RenderSystem> renderSystem) : _renderSystem{renderSystem} {};
+    GraphicsManager(std::unordered_map<uint8_t, std::shared_ptr<class RenderSystem>> &);
 
     void addToQueue(std::shared_ptr<class Component>);
     void removeFromQueue(std::shared_ptr<class Component>);
@@ -19,8 +20,11 @@ class GraphicsManager
     void drawComponents(std::weak_ptr<class Camera>);
 
   private:
-    std::shared_ptr<class RenderSystem> _renderSystem;
+    std::unordered_map<uint8_t, std::shared_ptr<class RenderSystem>> &_renderSystems;
     std::vector<std::shared_ptr<class Component>> _componentRenderQueue{};
+
+    // warning flags
+    bool _noCameraFlag{false};
 };
 
 } // namespace cmx

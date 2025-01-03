@@ -25,7 +25,7 @@ class ViewportUIComponent : public Component
     void renderSceneTree();
     void renderInspector();
 
-    void initImGUI(class RenderSystem *);
+    void initImGUI();
     void initInputManager(class CmxWindow &, const std::string &shortcutsPath = "editor/shortcuts.xml");
 
     class InputManager *getInputManager()

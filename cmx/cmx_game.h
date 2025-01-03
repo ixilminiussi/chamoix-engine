@@ -1,6 +1,9 @@
 #ifndef CMX_GAME
 #define CMX_GAME
 
+// cmx
+#include "cmx_window.h"
+
 // lib
 #include <spdlog/spdlog.h>
 #include <stdexcept>
@@ -38,28 +41,26 @@ class Game
     {
         return _inputManager;
     }
-    std::shared_ptr<class RenderSystem> getRenderSystem() const
+    auto &getRenderSystems()
     {
-        return _renderSystem;
+        return _renderSystems;
     }
-    class CmxDevice &getDevice();
+    std::shared_ptr<class CmxDevice> getDevice();
+    static CmxWindow &getWindow();
     // getters and setters :: end
 
   protected:
     class Scene *_activeScene;
     std::vector<Scene *> _scenes;
 
-    std::unique_ptr<class CmxWindow> _cmxWindow;
+    static CmxWindow _cmxWindow;
 
-    std::shared_ptr<InputManager> _inputManager;
-    std::shared_ptr<RenderSystem> _renderSystem;
+    std::shared_ptr<class InputManager> _inputManager;
+    std::unordered_map<uint8_t, std::shared_ptr<class RenderSystem>> _renderSystems;
 
     // warning flags
     bool __noCameraFlag{false};
 };
-
-inline int Game::WIDTH = 1600;
-inline int Game::HEIGHT = 1200;
 
 } // namespace cmx
 

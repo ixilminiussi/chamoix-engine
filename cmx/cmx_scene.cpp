@@ -32,7 +32,7 @@ Scene::~Scene()
 void Scene::load()
 {
     _assetsManager = std::make_shared<AssetsManager>(this);
-    _graphicsManager = std::make_shared<GraphicsManager>(getGame()->getRenderSystem());
+    _graphicsManager = std::make_shared<GraphicsManager>(getGame()->getRenderSystems());
     _physicsManager = std::make_shared<PhysicsManager>();
 
     Register *cmxRegister = Register::getInstance();

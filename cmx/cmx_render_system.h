@@ -1,65 +1,63 @@
 #ifndef CMX_RENDER_SYSTEM
 #define CMX_RENDER_SYSTEM
 
+#define MODEL_RENDER_SYSTEM 1u
+#define BILLBOARD_RENDER_SYSTEM 0u
+#define NULL_RENDER_SYSTEM 255u
+
 // cmx
 #include "cmx_viewport_ui_component.h"
-
-// lib
-#include <glm/ext/matrix_float4x4.hpp>
-#include <vulkan/vulkan_core.h>
-
-// std
-#include <memory>
-#include <set>
 
 namespace cmx
 {
 
-struct SimplePushConstantData
+struct GlobalUbo
 {
-    glm::mat4 modelMatrix{1.f};
-    glm::mat4 normalMatrix{1.f};
+    glm::mat4 projection{1.f};
+    glm::mat4 view{1.f};
+    glm::vec3 lightPosition{-1.f};
+    glm::vec4 lightColor{1.f};
+    glm::vec4 ambientLight{1.f, 1.f, 1.f, .02f};
 };
 
 class RenderSystem
 {
   public:
-    RenderSystem(class CmxWindow &);
-    ~RenderSystem();
+    RenderSystem();
+    virtual ~RenderSystem();
 
     RenderSystem(const RenderSystem &) = delete;
     RenderSystem &operator=(const RenderSystem &) = delete;
 
-    virtual void initialize();
-    virtual void drawScene(class std::weak_ptr<class Camera>, const std::vector<std::shared_ptr<class Component>> &);
+    static void checkAspectRatio(class Camera *);
+    static FrameInfo *beginRender(class Camera *);
+    static void endRender();
 
-    friend void ViewportUIComponent::initImGUI(RenderSystem *);
+    virtual void initialize() = 0;
+    virtual void render(class FrameInfo *, std::shared_ptr<class Component>) = 0;
 
-    std::unique_ptr<class CmxDevice> _cmxDevice;
+    friend void ViewportUIComponent::initImGUI();
 
-  private:
-    void createPipelineLayout(VkDescriptorSetLayout);
-    void createPipeline(VkRenderPass);
+    static std::shared_ptr<class CmxDevice> getDevice();
 
-    virtual FrameInfo *beginRender(class Camera *);
-    virtual void render(class FrameInfo *, const std::vector<std::shared_ptr<class Component>> &);
-    virtual void endRender();
+  protected:
+    virtual void createPipelineLayout(VkDescriptorSetLayout) = 0;
+    virtual void createPipeline(VkRenderPass) = 0;
 
-    std::unique_ptr<class CmxRenderer> _cmxRenderer;
     std::unique_ptr<class CmxPipeline> _cmxPipeline;
-    class CmxWindow *_cmxWindow;
-
     std::unique_ptr<class CmxDescriptorPool> _globalPool{};
-
     VkPipelineLayout _pipelineLayout;
-    VkCommandBuffer _commandBuffer;
 
-    std::vector<std::unique_ptr<class CmxBuffer>> _uboBuffers;
-    std::vector<VkDescriptorSet> _globalDescriptorSets;
+    static VkCommandBuffer _commandBuffer;
+    static std::unique_ptr<class CmxRenderer> _cmxRenderer;
+    static CmxWindow *_cmxWindow;
+    static std::shared_ptr<class CmxDevice> _cmxDevice;
+    static std::vector<std::unique_ptr<class CmxBuffer>> _uboBuffers;
+    static std::vector<VkDescriptorSet> _globalDescriptorSets;
 
-    // warning flags
-    bool _noCameraFlag{false};
+    static uint8_t _activeSystem;
 };
+
 } // namespace cmx
 
 #endif

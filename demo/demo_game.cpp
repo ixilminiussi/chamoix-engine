@@ -2,10 +2,13 @@
 
 #include "rigid_body_actor.h"
 #include "rotating_actor.h"
+
+// cmx
 #include <cmx/cmx_actor.h>
+#include <cmx/cmx_billboard_render_system.h>
 #include <cmx/cmx_input_manager.h>
+#include <cmx/cmx_model_render_system.h>
 #include <cmx/cmx_register.h>
-#include <cmx/cmx_render_system.h>
 #include <cmx/cmx_scene.h>
 #include <cmx/cmx_window.h>
 
@@ -25,12 +28,6 @@
 #include <cstdlib>
 #include <memory>
 
-struct GlobalUbo
-{
-    glm::mat4 projectionView{1.f};
-    glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
-};
-
 Demo::Demo()
 {
     cmx::Register *cmxRegister = cmx::Register::getInstance();
@@ -49,7 +46,7 @@ Demo::~Demo()
 
 void Demo::run()
 {
-    while (!_cmxWindow->shouldClose())
+    while (!_cmxWindow.shouldClose())
     {
         float dt = glfwGetTime();
         glfwSetTime(0.);
@@ -68,7 +65,8 @@ void Demo::closeWindow(float dt, int val)
 void Demo::load()
 {
     _inputManager->load();
-    _renderSystem->initialize();
+    _renderSystems[MODEL_RENDER_SYSTEM]->initialize();
+    _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
 
     _scenes.push_back(&mainScene);
     setScene(0);

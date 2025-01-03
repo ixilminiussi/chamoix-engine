@@ -1,17 +1,18 @@
 #ifndef CMX_MODEL
 #define CMX_MODEL
 
-#include "cmx_buffer.h"
-#include "cmx_device.h"
 #include "tinyxml2.h"
 
 // lib
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <vulkan/vulkan_core.h>
 
 // std
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace cmx
 {
@@ -43,7 +44,7 @@ class CmxModel
         void loadModel(const std::string &filepath);
     };
 
-    CmxModel(CmxDevice &, const CmxModel::Builder &, const std::string &name);
+    CmxModel(std::shared_ptr<class CmxDevice>, const CmxModel::Builder &, const std::string &name);
     ~CmxModel() = default;
 
     CmxModel(const CmxModel &) = delete;
@@ -51,7 +52,7 @@ class CmxModel
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
 
-    static std::shared_ptr<CmxModel> createModelFromFile(CmxDevice &device, const std::string &filepath,
+    static std::shared_ptr<CmxModel> createModelFromFile(std::shared_ptr<class CmxDevice>, const std::string &filepath,
                                                          const std::string &name);
 
     void bind(VkCommandBuffer);
@@ -63,13 +64,13 @@ class CmxModel
     void createVertexBuffers(const std::vector<Vertex> &);
     void createIndexBuffers(const std::vector<uint32_t> &);
 
-    CmxDevice &_cmxDevice;
+    std::shared_ptr<class CmxDevice> _cmxDevice;
 
-    std::unique_ptr<CmxBuffer> _vertexBuffer;
+    std::unique_ptr<class CmxBuffer> _vertexBuffer;
     uint32_t _vertexCount;
 
     bool _hasIndexBuffer{false};
-    std::unique_ptr<CmxBuffer> _indexBuffer;
+    std::unique_ptr<class CmxBuffer> _indexBuffer;
     uint32_t _indexCount;
 
     std::string _filepath;
