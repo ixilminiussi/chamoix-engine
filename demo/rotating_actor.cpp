@@ -13,7 +13,7 @@
 
 void RotatingActor::onBegin()
 {
-    cmx::MeshActor::onBegin();
+    cmx::Actor::onBegin();
 
     auto inputManager = getScene()->getGame()->getInputManager();
     if (inputManager)
@@ -47,12 +47,12 @@ void RotatingActor::editor()
         ImGui::DragFloat("Fast Speed", &rotationSpeedFast, 0.01f, -10.0f, 10.0f, "%.2f");
     }
 
-    cmx::MeshActor::editor();
+    cmx::Actor::editor();
 }
 
 tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
 {
-    tinyxml2::XMLElement &actorElement = cmx::MeshActor::save(doc, parentElement);
+    tinyxml2::XMLElement &actorElement = cmx::Actor::save(doc, parentElement);
 
     actorElement.SetAttribute("slowSpeed", rotationSpeedSlow);
     actorElement.SetAttribute("fastSpeed", rotationSpeedFast);
@@ -62,7 +62,7 @@ tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::
 
 void RotatingActor::load(tinyxml2::XMLElement *actorElement)
 {
-    cmx::MeshActor::load(actorElement);
+    cmx::Actor::load(actorElement);
 
     rotationSpeedSlow = actorElement->FloatAttribute("slowSpeed");
     rotationSpeedFast = actorElement->FloatAttribute("fastSpeed");

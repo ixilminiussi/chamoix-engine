@@ -16,8 +16,8 @@ namespace cmx
 struct PointLightStruct
 {
     glm::vec3 *position;
-    float *lightIntensity;
     glm::vec3 *lightColor;
+    float *lightIntensity;
 };
 
 class GraphicsManager

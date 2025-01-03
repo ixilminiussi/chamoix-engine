@@ -1,6 +1,7 @@
 #include "cmx_actor.h"
 
 // cmx
+#include "IconsMaterialSymbols.h"
 #include "cmx/cmx_register.h"
 #include "cmx_component.h"
 
@@ -124,10 +125,10 @@ void Actor::editor()
         ImGui::DragFloat3("Rotation", *rotation, 0.1f);
     }
 
+    int i = 0;
     if (_components.size() > 0)
     {
         ImGui::SeparatorText("Components");
-        int i = 0;
         std::string label;
 
         for (auto component : _components)
@@ -138,6 +139,41 @@ void Actor::editor()
                 component.second->editor(i);
             }
         }
+    }
+
+    // create new actor
+    Register *cmxRegister = Register::getInstance();
+    static const char *selected = cmxRegister->getComponentRegister().begin()->first.c_str();
+
+    ImGui::SeparatorText("New Component");
+    ImGui::SetNextItemWidth(203);
+    if (ImGui::BeginCombo("##unique2", selected))
+    {
+        for (const auto &pair : cmxRegister->getComponentRegister())
+        {
+            bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+
+            if (ImGui::Selectable(pair.first.c_str(), isSelected))
+            {
+                selected = pair.first.c_str();
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+
+    static char buffer[100];
+    ImGui::SetNextItemWidth(170);
+    ImGui::InputText("##unique4", buffer, 100);
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_MS_ADD "##unique5"))
+    {
+        cmxRegister->attachComponent(selected, this, buffer);
     }
 }
 

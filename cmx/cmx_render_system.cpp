@@ -61,6 +61,7 @@ FrameInfo *RenderSystem::beginRender(Camera *camera, PointLight pointLights[MAX_
             ubo.pointLights[i].position = pointLights[i].position;
             ubo.pointLights[i].color = pointLights[i].color;
         }
+
         ubo.numLights = numLights;
 
         _uboBuffers[frameIndex]->writeToBuffer(&ubo);

@@ -9,20 +9,69 @@
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
     </assets>
-    <actor type="RigidBodyActor" name="Falling Ball" id="9" visible="true">
+    <actor type="RotatingActor" name="RotatingLights" id="11" visible="true" slowSpeed="-0.029999999" fastSpeed="-1">
         <transform>
-            <position x="0" y="8" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0"/>
+            <position x="0" y="0" z="-3"/>
+            <rotation pitch="0" yaw="1" roll="0"/>
             <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_sphere">
+        <component type="cmx::PointLightComponent" name="VioletLight" visible="true" lightIntensity="1" r="0.54509807" g="0" b="1">
             <transform>
-                <position x="0" y="0" z="0"/>
+                <position x="0" y="0" z="-5"/>
                 <rotation pitch="0" yaw="0" roll="0"/>
                 <scale x="1" y="1" z="1"/>
             </transform>
         </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true">
+        <component type="cmx::PointLightComponent" name="YellowLight" visible="true" lightIntensity="1" r="1" g="1" b="0">
+            <transform>
+                <position x="0" y="0" z="5"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PointLightComponent" name="OrangeLight" visible="true" lightIntensity="1" r="1" g="0.49803922" b="0">
+            <transform>
+                <position x="3.5699999" y="0" z="3.5699999"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PointLightComponent" name="GreenLight" visible="true" lightIntensity="1" r="0" g="1" b="0">
+            <transform>
+                <position x="-3.5699999" y="0" z="3.5699999"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PointLightComponent" name="BlueLight" visible="true" lightIntensity="1" r="0" g="0" b="1">
+            <transform>
+                <position x="-5" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PointLightComponent" name="IndigoLight" visible="true" lightIntensity="1" r="0.29411766" g="0" b="0.50980395">
+            <transform>
+                <position x="-3.5699999" y="0" z="-3.5699999"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PointLightComponent" name="RedLight" visible="true" lightIntensity="1" r="1" g="0" b="0">
+            <transform>
+                <position x="5" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="RotatingActor" name="RotatingActor" id="7" visible="true" slowSpeed="0.029999999" fastSpeed="1">
+        <transform>
+            <position x="0" y="2" z="-3"/>
+            <rotation pitch="0" yaw="0.42741939" roll="0"/>
+            <scale x="3" y="3" z="3"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="vase">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0"/>
@@ -30,7 +79,21 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::MeshActor" name="Floor" id="7" visible="true">
+    <actor type="RotatingActor" name="RotatingActor2" id="5" visible="true" slowSpeed="0.029999999" fastSpeed="1">
+        <transform>
+            <position x="0" y="0" z="-3"/>
+            <rotation pitch="0" yaw="0.42741939" roll="0"/>
+            <scale x="10" y="10" z="10"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="bunny">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::MeshActor" name="Floor" id="3" visible="true">
         <transform>
             <position x="0" y="10" z="0"/>
             <rotation pitch="0" yaw="0" roll="0"/>
@@ -44,41 +107,20 @@
             </transform>
         </component>
     </actor>
-    <actor type="RotatingActor" name="RotatingActor2" id="5" visible="true" slowSpeed="0.029999999" fastSpeed="1">
+    <actor type="RigidBodyActor" name="Falling Ball" id="1" visible="true">
         <transform>
-            <position x="0" y="0" z="-3"/>
-            <rotation pitch="0" yaw="0.85925835" roll="0"/>
-            <scale x="10" y="10" z="10"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="bunny">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="RotatingActor" name="RotatingActor" id="3" visible="true" slowSpeed="0.029999999" fastSpeed="1">
-        <transform>
-            <position x="0" y="2" z="-3"/>
-            <rotation pitch="0" yaw="0.85925835" roll="0"/>
-            <scale x="3" y="3" z="3"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="vase">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="cmx::PointLightActor" name="PointLight" id="1" visible="true">
-        <transform>
-            <position x="0" y="0" z="0"/>
+            <position x="0" y="8" z="0"/>
             <rotation pitch="0" yaw="0" roll="0"/>
             <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_sphere">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0"/>

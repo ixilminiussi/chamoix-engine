@@ -35,5 +35,8 @@ void main()
     {
         discard;
     }
-    outColor = vec4(push.color.xyz, 1.0f - sqrt(distance));
+
+    float intensity = pow(1.0f - distance, 5);
+
+    outColor = vec4(push.color.rgb, intensity);
 }

@@ -33,6 +33,7 @@ class PointLightComponent : public Component
     glm::vec2 _absoluteScaleXY{1.0f};
 
     uint32_t _key;
+    static uint32_t _keyChain;
 };
 
 } // namespace cmx

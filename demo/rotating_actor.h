@@ -1,12 +1,12 @@
 #ifndef ROTATING_ACTOR
 #define ROTATING_ACTOR
 
-#include "cmx/cmx_mesh_actor.h"
+#include "cmx/cmx_actor.h"
 
-class RotatingActor : public cmx::MeshActor
+class RotatingActor : public cmx::Actor
 {
   public:
-    using cmx::MeshActor::MeshActor;
+    using cmx::Actor::Actor;
 
     void onBegin() override;
     void update(float dt) override;

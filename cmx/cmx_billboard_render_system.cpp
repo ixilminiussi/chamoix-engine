@@ -88,7 +88,7 @@ void BillboardRenderSystem::render(FrameInfo *frameInfo, std::shared_ptr<Compone
 void BillboardRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 {
     VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(BillboardPushConstant);
 
@@ -116,6 +116,12 @@ void BillboardRenderSystem::createPipeline(VkRenderPass renderPass)
     pipelineConfig.attributeDescriptions.clear();
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
+
+    pipelineConfig.depthStencilInfo.depthWriteEnable = VK_FALSE;
+    pipelineConfig.colorBlendAttachment.blendEnable = VK_TRUE;
+    pipelineConfig.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    pipelineConfig.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+
     _cmxPipeline = std::make_unique<CmxPipeline>(*_cmxDevice.get(), "shaders/billboard.vert.spv",
                                                  "shaders/billboard.frag.spv", pipelineConfig);
 }

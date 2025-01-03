@@ -69,8 +69,9 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
         int i = 0;
         for (auto pair : _pointLightsMap)
         {
-            pointLights[i] = PointLight{glm::vec4{*pair.second.position, 1.0f},
-                                        glm::vec4{*pair.second.lightColor, *pair.second.lightIntensity}};
+            pointLights[i] = PointLight{glm::vec4(*pair.second.position, 1.0f),
+                                        glm::vec4(*pair.second.lightColor, *pair.second.lightIntensity)};
+            i++;
         }
 
         FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, numPointLights);

@@ -41,7 +41,7 @@ glm::vec3 Transform::right()
 Transform operator+(const Transform &a, const Transform &b)
 {
     Transform c{};
-    c.position = a.position + b.position;
+    c.position = a.position + a.rotation * b.position;
     c.rotation = a.rotation + b.rotation;
     c.scale = a.scale + b.scale;
 

@@ -14,9 +14,11 @@
 namespace cmx
 {
 
+uint32_t PointLightComponent::_keyChain{0u};
+
 PointLightComponent::PointLightComponent()
 {
-    _renderZ = 0;
+    _renderZ = 2;
     _requestedRenderSystem = BILLBOARD_RENDER_SYSTEM;
 }
 
@@ -29,8 +31,8 @@ void PointLightComponent::update(float dt)
 
 void PointLightComponent::onAttach()
 {
-    _key = getParent()->getID();
-    getScene()->getGraphicsManager()->addPointLight(_key, {&_absolutePosition, &_lightIntensity, &_lightColor});
+    _key = _keyChain++;
+    getScene()->getGraphicsManager()->addPointLight(_key, {&_absolutePosition, &_lightColor, &_lightIntensity});
 }
 
 void PointLightComponent::onDetach()
@@ -69,6 +71,11 @@ void PointLightComponent::editor(int i)
 void PointLightComponent::load(tinyxml2::XMLElement *componentElement)
 {
     Component::load(componentElement);
+
+    _lightIntensity = componentElement->FloatAttribute("lightIntensity");
+    _lightColor.r = componentElement->FloatAttribute("r");
+    _lightColor.g = componentElement->FloatAttribute("g");
+    _lightColor.b = componentElement->FloatAttribute("b");
 }
 
 tinyxml2::XMLElement &PointLightComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)

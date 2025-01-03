@@ -123,7 +123,7 @@ std::string Component::getType()
 
 bool Component::getVisible()
 {
-    return _isVisible || getParent()->getVisible();
+    return _isVisible && getParent()->getVisible();
 }
 
 void Component::setParent(std::weak_ptr<Actor> actor)
@@ -145,7 +145,7 @@ Transform Component::getAbsoluteTransform()
 {
     if (auto parent = _parent.lock())
     {
-        return _transform + parent->getAbsoluteTransform();
+        return parent->getAbsoluteTransform() + _transform;
     }
     return _transform;
 }
