@@ -14,6 +14,7 @@ namespace cmx
 GraphicsManager::GraphicsManager(std::unordered_map<uint8_t, std::shared_ptr<RenderSystem>> &renderSystems)
     : _renderSystems{renderSystems}
 {
+    _pointLightsMap.reserve(MAX_POINT_LIGHTS);
 }
 
 void GraphicsManager::addToQueue(std::shared_ptr<Component> component)
@@ -37,6 +38,23 @@ void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
     }
 }
 
+void GraphicsManager::addPointLight(uint32_t id, PointLightStruct pointLight)
+{
+    if (_pointLightsMap.size() < MAX_POINT_LIGHTS)
+    {
+        _pointLightsMap[id] = pointLight;
+    }
+    else
+    {
+        spdlog::error("GraphicsManager: Reached maximum amount of point lights alloded by RenderSystem");
+    }
+}
+
+void GraphicsManager::removePointLight(uint32_t id)
+{
+    _pointLightsMap.erase(id);
+}
+
 void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
 {
     if (auto camera = cameraWk.lock().get())
@@ -44,7 +62,18 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
         _noCameraFlag = false;
 
         RenderSystem::checkAspectRatio(camera);
-        FrameInfo *frameInfo = RenderSystem::beginRender(camera);
+
+        PointLight pointLights[10];
+        int numPointLights = _pointLightsMap.size();
+
+        int i = 0;
+        for (auto pair : _pointLightsMap)
+        {
+            pointLights[i] = PointLight{glm::vec4{*pair.second.position, 1.0f},
+                                        glm::vec4{*pair.second.lightColor, *pair.second.lightIntensity}};
+        }
+
+        FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, numPointLights);
 
         for (auto component : _componentRenderQueue)
         {

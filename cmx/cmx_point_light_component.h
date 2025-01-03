@@ -16,8 +16,23 @@ class PointLightComponent : public Component
     ~PointLightComponent() = default;
 
     void onAttach() override;
+    void onDetach() override;
 
+    void update(float dt) override;
     void render(class FrameInfo &, VkPipelineLayout) override;
+
+    void editor(int i) override;
+    void load(tinyxml2::XMLElement *componentElement) override;
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) override;
+
+  private:
+    float _lightIntensity{1.0f};
+    glm::vec3 _lightColor{1.0f};
+
+    glm::vec3 _absolutePosition{};
+    glm::vec2 _absoluteScaleXY{1.0f};
+
+    uint32_t _key;
 };
 
 } // namespace cmx

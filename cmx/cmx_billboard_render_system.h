@@ -16,6 +16,13 @@
 namespace cmx
 {
 
+struct BillboardPushConstant
+{
+    glm::vec4 position;
+    glm::vec4 color;
+    glm::vec2 scale;
+};
+
 class BillboardRenderSystem : public RenderSystem
 {
   public:

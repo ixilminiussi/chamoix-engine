@@ -14,6 +14,11 @@
 namespace cmx
 {
 
+Component::~Component()
+{
+    onDetach();
+}
+
 void Component::render(FrameInfo &, VkPipelineLayout)
 {
     // TODO: Debug render code here

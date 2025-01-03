@@ -87,10 +87,10 @@ void BillboardRenderSystem::render(FrameInfo *frameInfo, std::shared_ptr<Compone
 
 void BillboardRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 {
-    // VkPushConstantRange pushConstantRange{};
-    // pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    // pushConstantRange.offset = 0;
-    // pushConstantRange.size = sizeof(float);
+    VkPushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(BillboardPushConstant);
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
@@ -98,8 +98,8 @@ void BillboardRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSet
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     if (vkCreatePipelineLayout(_cmxDevice->device(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create pipeline layout!");

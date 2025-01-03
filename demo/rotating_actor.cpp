@@ -43,8 +43,8 @@ void RotatingActor::editor()
 {
     if (ImGui::CollapsingHeader("Rotation"))
     {
-        ImGui::DragFloat("Slow Speed", &rotationSpeedSlow, 0.01f, -10.0f, 10.0f);
-        ImGui::DragFloat("Fast Speed", &rotationSpeedFast, 0.01f, -10.0f, 10.0f);
+        ImGui::DragFloat("Slow Speed", &rotationSpeedSlow, 0.01f, -10.0f, 10.0f, "%.2f");
+        ImGui::DragFloat("Fast Speed", &rotationSpeedFast, 0.01f, -10.0f, 10.0f, "%.2f");
     }
 
     cmx::MeshActor::editor();

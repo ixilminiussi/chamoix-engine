@@ -43,7 +43,7 @@ void RenderSystem::checkAspectRatio(class Camera *camera)
     camera->updateAspectRatio(aspect);
 }
 
-FrameInfo *RenderSystem::beginRender(Camera *camera)
+FrameInfo *RenderSystem::beginRender(Camera *camera, PointLight pointLights[MAX_POINT_LIGHTS], int numLights)
 {
     FrameInfo *frameInfo;
 
@@ -55,6 +55,14 @@ FrameInfo *RenderSystem::beginRender(Camera *camera)
         GlobalUbo ubo{};
         ubo.projection = camera->getProjection();
         ubo.view = camera->getView();
+
+        for (int i = 0; i < numLights; i++)
+        {
+            ubo.pointLights[i].position = pointLights[i].position;
+            ubo.pointLights[i].color = pointLights[i].color;
+        }
+        ubo.numLights = numLights;
+
         _uboBuffers[frameIndex]->writeToBuffer(&ubo);
         _uboBuffers[frameIndex]->flush();
 

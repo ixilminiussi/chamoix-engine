@@ -72,6 +72,11 @@ class Actor : public std::enable_shared_from_this<Actor>
         _parent = actor;
     }
 
+    uint32_t getID()
+    {
+        return _id;
+    }
+
     Transform getAbsoluteTransform();
     // getters and setters :: end
 

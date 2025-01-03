@@ -5,19 +5,27 @@
 #define BILLBOARD_RENDER_SYSTEM 0u
 #define NULL_RENDER_SYSTEM 255u
 
+#define MAX_POINT_LIGHTS 10
+
 // cmx
 #include "cmx_viewport_ui_component.h"
 
 namespace cmx
 {
 
+struct PointLight
+{
+    glm::vec4 position; // ignore w
+    glm::vec4 color;    // a is intensity
+};
+
 struct GlobalUbo
 {
     glm::mat4 projection{1.f};
     glm::mat4 view{1.f};
-    glm::vec3 lightPosition{-1.f};
-    glm::vec4 lightColor{1.f};
     glm::vec4 ambientLight{1.f, 1.f, 1.f, .02f};
+    PointLight pointLights[MAX_POINT_LIGHTS];
+    int numLights;
 };
 
 class RenderSystem
@@ -30,7 +38,7 @@ class RenderSystem
     RenderSystem &operator=(const RenderSystem &) = delete;
 
     static void checkAspectRatio(class Camera *);
-    static FrameInfo *beginRender(class Camera *);
+    static FrameInfo *beginRender(class Camera *, PointLight pointLights[MAX_POINT_LIGHTS], int numLights);
     static void endRender();
 
     virtual void initialize() = 0;
