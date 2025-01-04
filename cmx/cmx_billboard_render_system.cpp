@@ -26,6 +26,7 @@
 #include <glm/gtc/constants.hpp>
 
 // std
+#include <bits/stdc++.h>
 #include <memory>
 #include <stdexcept>
 
@@ -66,7 +67,7 @@ void BillboardRenderSystem::initialize()
     spdlog::info("BillboardRenderSystem: Successfully initialized!");
 }
 
-void BillboardRenderSystem::render(FrameInfo *frameInfo, std::shared_ptr<Component> renderComponent)
+void BillboardRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue)
 {
     if (_activeSystem != BILLBOARD_RENDER_SYSTEM)
     {
@@ -82,7 +83,31 @@ void BillboardRenderSystem::render(FrameInfo *frameInfo, std::shared_ptr<Compone
         vkCmdBindVertexBuffers(frameInfo->commandBuffer, 0, 1, &buffer, offsets);
     }
 
-    renderComponent->render(*frameInfo, _pipelineLayout);
+    glm::vec3 cameraPosition = frameInfo->camera.getPosition();
+
+    // sort billboards by closest to furthest for transparency
+    std::sort(renderQueue.begin(), renderQueue.end(),
+              [cameraPosition](const std::shared_ptr<Component> a, const std::shared_ptr<Component> b) {
+                  if (a->getRenderZ() == b->getRenderZ())
+                  {
+                      glm::vec3 differenceA = cameraPosition - a->getAbsoluteTransform().position;
+                      float distanceSquaredA = glm::dot(differenceA, differenceA);
+
+                      glm::vec3 differenceB = cameraPosition - b->getAbsoluteTransform().position;
+                      float distanceSquaredB = glm::dot(differenceB, differenceB);
+
+                      return distanceSquaredA > distanceSquaredB;
+                  }
+                  return a->getRenderZ() < b->getRenderZ();
+              });
+
+    for (auto renderComponent : renderQueue)
+    {
+        if (renderComponent->getVisible())
+        {
+            renderComponent->render(*frameInfo, _pipelineLayout);
+        }
+    }
 }
 
 void BillboardRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)

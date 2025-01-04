@@ -47,6 +47,10 @@ class Camera
     {
         return _farPlane;
     }
+    glm::vec3 getPosition() const
+    {
+        return glm::vec3(glm::inverse(_viewMatrix)[3]);
+    }
     // getters and setters :: end
 
   private:

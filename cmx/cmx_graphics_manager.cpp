@@ -19,19 +19,22 @@ GraphicsManager::GraphicsManager(std::unordered_map<uint8_t, std::shared_ptr<Ren
 
 void GraphicsManager::addToQueue(std::shared_ptr<Component> component)
 {
-    auto it = std::lower_bound(_componentRenderQueue.begin(), _componentRenderQueue.end(), component);
-    _componentRenderQueue.insert(it, component);
+    uint8_t renderSystemID = component->getRequestedRenderSystem();
+    auto it = std::lower_bound(_componentRenderQueue[renderSystemID].begin(),
+                               _componentRenderQueue[renderSystemID].end(), component);
+    _componentRenderQueue[renderSystemID].insert(it, component);
 }
 
 void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
 {
-    auto it = _componentRenderQueue.begin();
+    uint8_t renderSystemID = component->getRequestedRenderSystem();
+    auto it = _componentRenderQueue[renderSystemID].begin();
 
-    while (it != _componentRenderQueue.end())
+    while (it != _componentRenderQueue[renderSystemID].end())
     {
         if (*it == component)
         {
-            _componentRenderQueue.erase(it);
+            _componentRenderQueue[renderSystemID].erase(it);
             return;
         }
         it++;
@@ -76,20 +79,17 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
 
         FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, numPointLights);
 
-        for (auto component : _componentRenderQueue)
+        for (auto pair : _componentRenderQueue)
         {
             try
             {
-                if (component->getVisible())
-                {
-                    _renderSystems.at(component->getRequestedRenderSystem())->render(frameInfo, component);
-                }
+                _renderSystems.at(pair.first)->render(frameInfo, pair.second);
             }
             catch (std::out_of_range e)
             {
                 spdlog::error("GraphicsManager: Component requesting render system {0} which isn't part of graphics "
                               "manager's list",
-                              component->getRequestedRenderSystem());
+                              pair.first);
             }
         }
 

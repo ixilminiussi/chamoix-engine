@@ -62,7 +62,7 @@ void ModelRenderSystem::initialize()
     spdlog::info("ModelRenderSystem: Successfully initialized!");
 }
 
-void ModelRenderSystem::render(FrameInfo *frameInfo, std::shared_ptr<Component> renderComponent)
+void ModelRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue)
 {
     if (_activeSystem != MODEL_RENDER_SYSTEM)
     {
@@ -74,7 +74,13 @@ void ModelRenderSystem::render(FrameInfo *frameInfo, std::shared_ptr<Component> 
         _activeSystem = MODEL_RENDER_SYSTEM;
     }
 
-    renderComponent->render(*frameInfo, _pipelineLayout);
+    for (auto renderComponent : renderQueue)
+    {
+        if (renderComponent->getVisible())
+        {
+            renderComponent->render(*frameInfo, _pipelineLayout);
+        }
+    }
 }
 
 void ModelRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)

@@ -35,7 +35,7 @@ class BillboardRenderSystem : public RenderSystem
     void createPipelineLayout(VkDescriptorSetLayout) override;
     void createPipeline(VkRenderPass) override;
 
-    void render(class FrameInfo *, std::shared_ptr<class Component>) override;
+    void render(class FrameInfo *, std::vector<std::shared_ptr<class Component>> &) override;
 
     std::unique_ptr<CmxBuffer> _dummyBuffer;
 };
