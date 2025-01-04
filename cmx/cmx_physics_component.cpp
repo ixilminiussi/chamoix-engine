@@ -3,13 +3,14 @@
 // cmx
 #include "cmx_actor.h"
 #include "cmx_physics_manager.h"
+#include "cmx_render_system.h"
 
 namespace cmx
 {
 
 PhysicsComponent::PhysicsComponent()
 {
-    _renderZ = 0;
+    _renderZ = DEBUG_BILLBOARD_Z;
 }
 
 void PhysicsComponent::onDetach()

@@ -28,7 +28,7 @@ namespace cmx
 
 MeshComponent::MeshComponent()
 {
-    _renderZ = 1;
+    _renderZ = DEFAULT_Z;
     _requestedRenderSystem = MODEL_RENDER_SYSTEM;
 }
 

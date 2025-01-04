@@ -1,8 +1,8 @@
 #include "cmx_point_light_component.h"
 
 // cmx
-#include "cmx/cmx_billboard_render_system.h"
 #include "cmx_actor.h"
+#include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_render_system.h"
@@ -18,7 +18,7 @@ uint32_t PointLightComponent::_keyChain{0u};
 
 PointLightComponent::PointLightComponent()
 {
-    _renderZ = 2;
+    _renderZ = TRANSPARENT_BILLBOARD_Z;
     _requestedRenderSystem = BILLBOARD_RENDER_SYSTEM;
 }
 
