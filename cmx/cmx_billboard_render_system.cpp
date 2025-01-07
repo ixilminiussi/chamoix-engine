@@ -7,6 +7,7 @@
 #include "cmx_descriptors.h"
 #include "cmx_device.h"
 #include "cmx_frame_info.h"
+#include "cmx_graphics_manager.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
@@ -67,21 +68,19 @@ void BillboardRenderSystem::initialize()
     spdlog::info("BillboardRenderSystem: Successfully initialized!");
 }
 
-void BillboardRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue)
+void BillboardRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue,
+                                   class GraphicsManager *graphicsManager)
 {
-    if (_activeSystem != BILLBOARD_RENDER_SYSTEM)
-    {
-        _cmxPipeline->bind(frameInfo->commandBuffer);
+    _cmxPipeline->bind(frameInfo->commandBuffer);
 
-        vkCmdBindDescriptorSets(frameInfo->commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1,
-                                &frameInfo->globalDescriptorSet, 0, nullptr);
+    vkCmdBindDescriptorSets(frameInfo->commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1,
+                            &frameInfo->globalDescriptorSet, 0, nullptr);
 
-        _activeSystem = BILLBOARD_RENDER_SYSTEM;
+    _activeSystem = BILLBOARD_RENDER_SYSTEM;
 
-        VkDeviceSize offsets[] = {0};
-        VkBuffer buffer = _dummyBuffer->getBuffer();
-        vkCmdBindVertexBuffers(frameInfo->commandBuffer, 0, 1, &buffer, offsets);
-    }
+    VkDeviceSize offsets[] = {0};
+    VkBuffer buffer = _dummyBuffer->getBuffer();
+    vkCmdBindVertexBuffers(frameInfo->commandBuffer, 0, 1, &buffer, offsets);
 
     glm::vec3 cameraPosition = frameInfo->camera.getPosition();
 
@@ -101,12 +100,22 @@ void BillboardRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared
                   return a->getRenderZ() < b->getRenderZ();
               });
 
-    for (auto renderComponent : renderQueue)
+    auto it = renderQueue.begin();
+    while (it != renderQueue.end())
     {
+        auto renderComponent = *it;
+
+        if (renderComponent->getRequestedRenderSystem() != BILLBOARD_RENDER_SYSTEM)
+        {
+            it = renderQueue.erase(it);
+            graphicsManager->addToQueue(renderComponent);
+            continue;
+        }
         if (renderComponent->getVisible())
         {
             renderComponent->render(*frameInfo, _pipelineLayout);
         }
+        it++;
     }
 }
 

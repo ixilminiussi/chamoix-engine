@@ -46,7 +46,8 @@ class RenderSystem
     static void endRender();
 
     virtual void initialize() = 0;
-    virtual void render(class FrameInfo *, std::vector<std::shared_ptr<class Component>> &) = 0;
+    virtual void render(class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
+                        class GraphicsManager *) = 0;
 
     friend void ViewportUIComponent::initImGUI();
 

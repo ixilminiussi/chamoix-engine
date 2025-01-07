@@ -34,7 +34,7 @@ class ModelRenderSystem : public RenderSystem
     void createPipelineLayout(VkDescriptorSetLayout) override;
     void createPipeline(VkRenderPass) override;
 
-    void render(class FrameInfo *, std::vector<std::shared_ptr<class Component>> &) override;
+    void render(class FrameInfo *, std::vector<std::shared_ptr<class Component>> &, class GraphicsManager *) override;
 };
 
 } // namespace cmx

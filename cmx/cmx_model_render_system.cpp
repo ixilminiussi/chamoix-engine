@@ -1,14 +1,13 @@
 #include "cmx_model_render_system.h"
 
 // cmx
-#include "cmx/cmx_billboard_render_system.h"
-#include "cmx/cmx_render_system.h"
 #include "cmx_buffer.h"
 #include "cmx_camera.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
 #include "cmx_device.h"
 #include "cmx_frame_info.h"
+#include "cmx_graphics_manager.h"
 #include "cmx_pipeline.h"
 #include "cmx_renderer.h"
 #include "cmx_window.h"
@@ -62,24 +61,47 @@ void ModelRenderSystem::initialize()
     spdlog::info("ModelRenderSystem: Successfully initialized!");
 }
 
-void ModelRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue)
+void ModelRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue,
+                               class GraphicsManager *graphicsManager)
 {
-    if (_activeSystem != MODEL_RENDER_SYSTEM)
+    _cmxPipeline->bind(frameInfo->commandBuffer);
+
+    vkCmdBindDescriptorSets(frameInfo->commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1,
+                            &frameInfo->globalDescriptorSet, 0, nullptr);
+
+    glm::vec3 cameraPosition = frameInfo->camera.getPosition();
+
+    std::sort(renderQueue.begin(), renderQueue.end(),
+              [cameraPosition](const std::shared_ptr<Component> a, const std::shared_ptr<Component> b) {
+                  if (a->getRenderZ() == b->getRenderZ())
+                  {
+                      glm::vec3 differenceA = cameraPosition - a->getAbsoluteTransform().position;
+                      float distanceSquaredA = glm::dot(differenceA, differenceA);
+
+                      glm::vec3 differenceB = cameraPosition - b->getAbsoluteTransform().position;
+                      float distanceSquaredB = glm::dot(differenceB, differenceB);
+
+                      return distanceSquaredA < distanceSquaredB;
+                  }
+                  return a->getRenderZ() < b->getRenderZ();
+              });
+
+    auto it = renderQueue.begin();
+    while (it != renderQueue.end())
     {
-        _cmxPipeline->bind(frameInfo->commandBuffer);
+        auto renderComponent = *it;
 
-        vkCmdBindDescriptorSets(frameInfo->commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1,
-                                &frameInfo->globalDescriptorSet, 0, nullptr);
-
-        _activeSystem = MODEL_RENDER_SYSTEM;
-    }
-
-    for (auto renderComponent : renderQueue)
-    {
+        if (renderComponent->getRequestedRenderSystem() != MODEL_RENDER_SYSTEM)
+        {
+            it = renderQueue.erase(it);
+            graphicsManager->addToQueue(renderComponent);
+            continue;
+        }
         if (renderComponent->getVisible())
         {
             renderComponent->render(*frameInfo, _pipelineLayout);
         }
+        it++;
     }
 }
 

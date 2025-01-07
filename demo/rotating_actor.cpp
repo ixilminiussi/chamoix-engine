@@ -6,6 +6,7 @@
 #include "cmx/cmx_mesh_component.h"
 
 // lib
+#include "cmx/cmx_render_system.h"
 #include "imgui.h"
 #include <glm/ext/scalar_constants.hpp>
 #define GLM_ENABLE_EXPERIMENTAL

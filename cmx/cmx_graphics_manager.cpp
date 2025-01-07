@@ -70,7 +70,7 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
         int numPointLights = _pointLightsMap.size();
 
         int i = 0;
-        for (auto pair : _pointLightsMap)
+        for (auto &pair : _pointLightsMap)
         {
             pointLights[i] = PointLight{glm::vec4(*pair.second.position, 1.0f),
                                         glm::vec4(*pair.second.lightColor, *pair.second.lightIntensity)};
@@ -79,11 +79,11 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
 
         FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, numPointLights);
 
-        for (auto pair : _componentRenderQueue)
+        for (auto &pair : _componentRenderQueue)
         {
             try
             {
-                _renderSystems.at(pair.first)->render(frameInfo, pair.second);
+                _renderSystems.at(pair.first)->render(frameInfo, pair.second, this);
             }
             catch (std::out_of_range e)
             {

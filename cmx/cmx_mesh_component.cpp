@@ -2,8 +2,11 @@
 
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
+#include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
+#include "cmx_game.h"
 #include "cmx_graphics_manager.h"
+#include "cmx_input_manager.h"
 #include "cmx_model.h"
 #include "cmx_model_render_system.h"
 #include "cmx_primitives.h"
