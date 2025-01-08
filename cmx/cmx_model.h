@@ -50,7 +50,7 @@ class CmxModel
     CmxModel(const CmxModel &) = delete;
     CmxModel &operator=(const CmxModel &) = delete;
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
     static std::shared_ptr<CmxModel> createModelFromFile(std::shared_ptr<class CmxDevice>, const std::string &filepath,
                                                          const std::string &name);

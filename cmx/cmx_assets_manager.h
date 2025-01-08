@@ -31,19 +31,27 @@ class AssetsManager final
     void removeModel(const std::string &name);
     std::shared_ptr<class CmxModel> getModel(const std::string &name);
 
+    void addTexture(const std::string &filepath, const std::string &name);
+    void removeTexture(const std::string &name);
+    std::shared_ptr<class CmxTexture> getTexture(const std::string &name);
+
     const auto &getModels()
     {
         return _models;
     }
 
+    const auto &getTextures()
+    {
+        return _textures;
+    }
+
   private:
     class Scene *_parentScene;
 
-    // regular pointers, WE are MANAGING the life cycle of these assets
     std::unordered_map<std::string, std::shared_ptr<class CmxModel>> _models;
+    std::unordered_map<std::string, std::shared_ptr<class CmxTexture>> _textures;
     // TODO:
     // fonts
-    // textures
     // sprites
 };
 

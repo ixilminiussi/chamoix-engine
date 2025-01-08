@@ -1,7 +1,7 @@
 #include "cmx_model.h"
 
 // cmx
-#include "cmx/cmx_buffer.h"
+#include "cmx_buffer.h"
 #include "cmx_utils.h"
 
 // lib

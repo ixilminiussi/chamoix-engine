@@ -1,6 +1,7 @@
 #include "cmx_assets_manager.h"
 
 // cmx
+#include "cmx/cmx_texture.h"
 #include "cmx_game.h"
 #include "cmx_model.h"
 #include "cmx_primitives.h"
@@ -23,6 +24,12 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
     {
         tinyxml2::XMLElement &modelElement = pair.second->save(doc, assetsElement);
         modelElement.SetAttribute("name", pair.first.c_str());
+    }
+
+    for (const auto &pair : _textures)
+    {
+        tinyxml2::XMLElement &textureElement = pair.second->save(doc, assetsElement);
+        textureElement.SetAttribute("name", pair.first.c_str());
     }
 
     parentElement->InsertEndChild(assetsElement);
@@ -49,11 +56,20 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 
             modelElement = modelElement->NextSiblingElement("model");
         }
+
+        tinyxml2::XMLElement *textureElement = assetsElement->FirstChildElement("texture");
+        while (textureElement)
+        {
+            addTexture(textureElement->Attribute("filepath"), textureElement->Attribute("name"));
+
+            textureElement = textureElement->NextSiblingElement("texture");
+        }
     }
 }
 
 void AssetsManager::unload()
 {
+    // TODO: implement
 }
 
 void AssetsManager::editor()
@@ -75,6 +91,25 @@ void AssetsManager::addModel(const std::string &filepath, const std::string &nam
 
 void AssetsManager::removeModel(const std::string &name)
 {
+    // TODO: implement
+}
+
+void AssetsManager::addTexture(const std::string &filepath, const std::string &name)
+{
+    try
+    {
+        _textures.at(name);
+        spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
+    }
+    catch (const std::out_of_range e)
+    {
+        _textures[name] = CmxTexture::createTextureFromFile(_parentScene->getGame()->getDevice(), filepath, name);
+    }
+}
+
+void AssetsManager::removeTexture(const std::string &name)
+{
+    // TODO: implement
 }
 
 std::shared_ptr<CmxModel> AssetsManager::getModel(const std::string &name)
@@ -82,6 +117,19 @@ std::shared_ptr<CmxModel> AssetsManager::getModel(const std::string &name)
     try
     {
         return _models.at(name);
+    }
+    catch (const std::out_of_range &e)
+    {
+        spdlog::critical("AssetsManager: No such model named '{0}'", name);
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+std::shared_ptr<class CmxTexture> AssetsManager::getTexture(const std::string &name)
+{
+    try
+    {
+        return _textures.at(name);
     }
     catch (const std::out_of_range &e)
     {

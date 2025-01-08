@@ -1,5 +1,6 @@
 #include "demo_game.h"
 
+#include "cmx/cmx_assets_manager.h"
 #include "rigid_body_actor.h"
 #include "rotating_actor.h"
 
@@ -70,6 +71,8 @@ void Demo::load()
 
     _scenes.push_back(&mainScene);
     setScene(0);
+
+    getScene()->getAssetsManager()->addTexture("assets/texture/bricks.png", "bricks");
 
     getInputManager()->bindButton("exit", &Demo::closeWindow, this);
 }
