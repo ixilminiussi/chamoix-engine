@@ -3,11 +3,6 @@
 ## REFACTOR
 - [x] graphics manager
 - [x] member variable nomenclature
-- [ ] visitor pattern for 
-    - [ ] save
-    - [ ] load
-    - [ ] edit
-- [ ] one directional variable names
 - [ ] fix compilation times
 
 ## UI
@@ -29,7 +24,8 @@
 - [x] 3D actor transforms
 - [x] projection matrices
 - [x] lighting
-- [ ] point lighting
+- [ ] space lighting
+- [x] point lighting
 - [x] models import
 - [ ] textures
 

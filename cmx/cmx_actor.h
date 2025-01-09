@@ -23,7 +23,7 @@ enum Positioning
     RELATIVE
 };
 
-class Actor : public std::enable_shared_from_this<Actor>
+class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 {
   public:
     template <class T>
@@ -77,7 +77,11 @@ class Actor : public std::enable_shared_from_this<Actor>
         return _id;
     }
 
-    Transform getAbsoluteTransform();
+    Transform getAbsoluteTransform() const override;
+    const Transform &getRelativeTransform() const override
+    {
+        return transform;
+    }
     // getters and setters :: end
 
     // friend functions

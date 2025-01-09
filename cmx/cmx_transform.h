@@ -19,11 +19,20 @@ struct Transform
     glm::vec3 scale{1.f, 1.f, 1.f};
     glm::quat rotation{0.f, 0.f, 0.f, 0.f};
 
-    glm::mat4 mat4();
-    glm::mat3 normalMatrix();
-    glm::vec3 forward();
-    glm::vec3 right();
-    glm::vec3 up();
+    glm::mat4 mat4() const;
+    glm::mat3 normalMatrix() const;
+    glm::vec3 forward() const;
+    glm::vec3 right() const;
+    glm::vec3 up() const;
+
+    static Transform ONE;
+};
+
+class Transformable
+{
+  public:
+    virtual const Transform &getRelativeTransform() const = 0;
+    virtual Transform getAbsoluteTransform() const = 0;
 };
 
 Transform operator+(const Transform &a, const Transform &b);

@@ -2,6 +2,7 @@
 #include "cmx_buffer.h"
 
 // lib
+#include <complex>
 #include <cstdlib>
 #include <spdlog/spdlog.h>
 #include <stb_image.h>
@@ -18,9 +19,9 @@ CmxTexture::CmxTexture(std::shared_ptr<class CmxDevice> cmxDevice, const CmxText
                        const std::string &name)
     : _cmxDevice{cmxDevice}, name{name}, _filepath{builder.filepath}
 {
-    _stagingBuffer = std::make_unique<CmxBuffer>(
-        *_cmxDevice, builder.imageSize, static_cast<size_t>(builder.imageSize), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    _stagingBuffer =
+        std::make_unique<CmxBuffer>(*_cmxDevice, builder.imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     _stagingBuffer->map(builder.imageSize, 0);
     _stagingBuffer->writeToBuffer(builder.pixels, static_cast<size_t>(builder.imageSize), 0);
@@ -65,12 +66,14 @@ CmxTexture::CmxTexture(std::shared_ptr<class CmxDevice> cmxDevice, const CmxText
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
         {
             allocInfo.memoryTypeIndex = i;
+            break;
         }
     }
 
     if (vkAllocateMemory(_cmxDevice->device(), &allocInfo, nullptr, &textureImageMemory) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to allocate image memory!");
+        spdlog::error("CmxTexture: failed to allocate image memory!");
+        std::exit(EXIT_FAILURE);
     }
 
     vkBindImageMemory(_cmxDevice->device(), textureImage, textureImageMemory, 0);

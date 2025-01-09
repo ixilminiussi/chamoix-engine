@@ -15,7 +15,7 @@
 namespace cmx
 {
 
-class Component : public std::enable_shared_from_this<Component>
+class Component : public std::enable_shared_from_this<Component>, public Transformable
 {
   public:
     Component() = default;
@@ -58,8 +58,8 @@ class Component : public std::enable_shared_from_this<Component>
         return _requestedRenderSystem;
     }
 
-    const Transform &getRelativeTransform();
-    Transform getAbsoluteTransform();
+    const Transform &getRelativeTransform() const override;
+    Transform getAbsoluteTransform() const override;
 
     class Scene *getScene()
     {

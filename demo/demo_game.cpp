@@ -72,7 +72,7 @@ void Demo::load()
     _scenes.push_back(&mainScene);
     setScene(0);
 
-    getScene()->getAssetsManager()->addTexture("assets/texture/bricks.png", "bricks");
+    getScene()->getAssetsManager()->addTexture("assets/textures/bricks.png", "bricks");
 
     getInputManager()->bindButton("exit", &Demo::closeWindow, this);
 }

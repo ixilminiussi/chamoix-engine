@@ -32,15 +32,15 @@ VkDeviceSize CmxBuffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize min
     return instanceSize;
 }
 
-CmxBuffer::CmxBuffer(CmxDevice &device, VkDeviceSize instanceSize, uint32_t instanceCount,
+CmxBuffer::CmxBuffer(CmxDevice &cmxDevice, VkDeviceSize instanceSize, uint32_t instanceCount,
                      VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags,
                      VkDeviceSize minOffsetAlignment)
-    : _cmxDevice{device}, _instanceSize{instanceSize}, _instanceCount{instanceCount}, _usageFlags{usageFlags},
+    : _cmxDevice{cmxDevice}, _instanceSize{instanceSize}, _instanceCount{instanceCount}, _usageFlags{usageFlags},
       _memoryPropertyFlags{memoryPropertyFlags}
 {
     _alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
     _bufferSize = _alignmentSize * instanceCount;
-    device.createBuffer(_bufferSize, usageFlags, memoryPropertyFlags, _buffer, _memory);
+    cmxDevice.createBuffer(_bufferSize, usageFlags, memoryPropertyFlags, _buffer, _memory);
 }
 
 CmxBuffer::~CmxBuffer()
