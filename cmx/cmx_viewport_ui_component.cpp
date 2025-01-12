@@ -32,7 +32,7 @@ ViewportUIComponent::ViewportUIComponent()
 {
     _cmxRegister = Register::getInstance();
     _renderZ = std::numeric_limits<int8_t>::max(); // ensures it gets rendered at the very top
-    _requestedRenderSystem = TOP_RENDER_SYSTEM;
+    _requestedRenderSystem = EDITOR_RENDER_SYSTEM;
 }
 
 ViewportUIComponent::~ViewportUIComponent()

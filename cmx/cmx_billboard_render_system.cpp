@@ -100,16 +100,14 @@ void BillboardRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::
                   return a->getRenderZ() < b->getRenderZ();
               });
 
-    auto copy = renderQueue;
-
-    auto it = copy.begin();
-    while (it != copy.end())
+    auto it = renderQueue.begin();
+    while (it != renderQueue.end())
     {
         auto renderComponent = *it;
 
         if (renderComponent->getRequestedRenderSystem() != BILLBOARD_RENDER_SYSTEM)
         {
-            it = copy.erase(it);
+            it = renderQueue.erase(it);
             graphicsManager->addToQueue(renderComponent);
             continue;
         }

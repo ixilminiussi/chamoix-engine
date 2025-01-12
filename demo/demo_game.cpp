@@ -1,6 +1,5 @@
 #include "demo_game.h"
 
-#include "cmx/cmx_render_system.h"
 #include "dynamic_body_actor.h"
 #include "rotating_actor.h"
 #include "static_body_actor.h"
@@ -9,8 +8,11 @@
 #include <cmx/cmx_actor.h>
 #include <cmx/cmx_assets_manager.h>
 #include <cmx/cmx_billboard_render_system.h>
+#include <cmx/cmx_edge_render_system.h>
+#include <cmx/cmx_editor_render_system.h>
 #include <cmx/cmx_input_manager.h>
 #include <cmx/cmx_register.h>
+#include <cmx/cmx_render_system.h>
 #include <cmx/cmx_scene.h>
 #include <cmx/cmx_shaded_render_system.h>
 #include <cmx/cmx_window.h>
@@ -75,6 +77,7 @@ void Demo::load()
     _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
 #ifndef NDEBUG
     _renderSystems[EDGE_RENDER_SYSTEM]->initialize();
+    _renderSystems[EDITOR_RENDER_SYSTEM]->initialize();
 #endif
 
     _scenes.push_back(&mainScene);

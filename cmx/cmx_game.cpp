@@ -1,6 +1,7 @@
 #include "cmx_game.h"
 
 // cmx
+#include "cmx/cmx_editor_render_system.h"
 #include "cmx_billboard_render_system.h"
 #include "cmx_camera_component.h"
 #include "cmx_device.h"
@@ -41,6 +42,7 @@ Game::Game()
     _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<BillboardRenderSystem>();
 #ifndef NDEBUG
     _renderSystems[EDGE_RENDER_SYSTEM] = std::make_shared<EdgeRenderSystem>();
+    _renderSystems[EDITOR_RENDER_SYSTEM] = std::make_shared<EditorRenderSystem>();
 #endif
 
     _inputManager = std::make_shared<InputManager>(_cmxWindow);
