@@ -44,7 +44,6 @@ void PhysicsManager::executeStep(float dt)
 
         if (first)
         {
-            shape->updateDimensions();
             shape->swapBuffer();
         }
 
@@ -61,7 +60,6 @@ void PhysicsManager::executeStep(float dt)
 
             if (first)
             {
-                otherShape->updateDimensions();
                 otherShape->swapBuffer();
             }
 

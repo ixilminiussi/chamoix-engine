@@ -24,7 +24,7 @@ struct PointLightStruct
 class GraphicsManager
 {
   public:
-    GraphicsManager(std::unordered_map<uint8_t, std::shared_ptr<class RenderSystem>> &);
+    GraphicsManager(std::map<uint8_t, std::shared_ptr<class RenderSystem>> &);
 
     void addToQueue(std::shared_ptr<class Component>);
     void removeFromQueue(std::shared_ptr<class Component>);
@@ -35,7 +35,7 @@ class GraphicsManager
     void drawComponents(std::weak_ptr<class Camera>);
 
   private:
-    std::unordered_map<uint8_t, std::shared_ptr<class RenderSystem>> &_renderSystems;
+    std::map<uint8_t, std::shared_ptr<class RenderSystem>> &_renderSystems;
     std::map<uint8_t, std::vector<std::shared_ptr<class Component>>> _componentRenderQueue{};
     std::unordered_map<uint32_t, PointLightStruct> _pointLightsMap;
 

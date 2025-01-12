@@ -43,7 +43,7 @@ class PhysicsComponent : public Component
         return _cmxShape;
     }
 
-    void setShape(class CmxShape *cmxShape);
+    void setShape(const std::string &);
 
   protected:
     PhysicsMode _physicsMode{PhysicsMode::STATIC};

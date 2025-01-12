@@ -17,11 +17,11 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
-#include <cstdlib>
 #include <glm/fwd.hpp>
 #include <spdlog/spdlog.h>
 
 // std
+#include <cstdlib>
 #include <limits>
 #include <memory>
 
@@ -32,6 +32,7 @@ ViewportUIComponent::ViewportUIComponent()
 {
     _cmxRegister = Register::getInstance();
     _renderZ = std::numeric_limits<int8_t>::max(); // ensures it gets rendered at the very top
+    _requestedRenderSystem = TOP_RENDER_SYSTEM;
 }
 
 ViewportUIComponent::~ViewportUIComponent()
@@ -236,6 +237,8 @@ void ViewportUIComponent::renderInspector()
 
     if (std::shared_ptr<Actor> actor = _inspectedActor.lock())
     {
+        ImGui::Text(actor->name.c_str());
+        ImGui::Separator();
         actor->editor();
     }
     else

@@ -29,17 +29,8 @@ void Component::editor(int i)
     ImGui::PushID(i);
     ImGui::Checkbox("is visible", &_isVisible);
 
-    if (ImGui::CollapsingHeader("Transform"))
-    {
-        float *position[3] = {&_transform.position.x, &_transform.position.y, &_transform.position.z};
-        ImGui::DragFloat3("Position", *position, 0.1f);
+    _transform.editor();
 
-        float *scale[3] = {&_transform.scale.x, &_transform.scale.y, &_transform.scale.z};
-        ImGui::DragFloat3("Scale", *scale, 0.1f);
-
-        float *rotation[3] = {&_transform.rotation.x, &_transform.rotation.y, &_transform.rotation.z};
-        ImGui::DragFloat3("Rotation", *rotation, 0.1f);
-    }
     ImGui::PopID();
 }
 
@@ -51,27 +42,7 @@ tinyxml2::XMLElement &Component::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLE
     componentElement->SetAttribute("visible", _isVisible);
     parentComponent->InsertEndChild(componentElement);
 
-    tinyxml2::XMLElement *transformElement = doc.NewElement("transform");
-
-    tinyxml2::XMLElement *positionElement = doc.NewElement("position");
-    positionElement->SetAttribute("x", _transform.position.x);
-    positionElement->SetAttribute("y", _transform.position.y);
-    positionElement->SetAttribute("z", _transform.position.z);
-    transformElement->InsertEndChild(positionElement);
-
-    tinyxml2::XMLElement *rotationElement = doc.NewElement("rotation");
-    rotationElement->SetAttribute("pitch", _transform.rotation.x);
-    rotationElement->SetAttribute("yaw", _transform.rotation.y);
-    rotationElement->SetAttribute("roll", _transform.rotation.z);
-    transformElement->InsertEndChild(rotationElement);
-
-    tinyxml2::XMLElement *scaleElement = doc.NewElement("scale");
-    scaleElement->SetAttribute("x", _transform.scale.x);
-    scaleElement->SetAttribute("y", _transform.scale.y);
-    scaleElement->SetAttribute("z", _transform.scale.z);
-    transformElement->InsertEndChild(scaleElement);
-
-    componentElement->InsertEndChild(transformElement);
+    _transform.save(doc, componentElement);
 
     return *componentElement;
 }
@@ -82,24 +53,7 @@ void Component::load(tinyxml2::XMLElement *componentElement)
 
     if (tinyxml2::XMLElement *transformElement = componentElement->FirstChildElement("transform"))
     {
-        if (tinyxml2::XMLElement *positionElement = transformElement->FirstChildElement("position"))
-        {
-            _transform.position.x = positionElement->FloatAttribute("x");
-            _transform.position.y = positionElement->FloatAttribute("y");
-            _transform.position.z = positionElement->FloatAttribute("z");
-        }
-        if (tinyxml2::XMLElement *rotationElement = transformElement->FirstChildElement("rotation"))
-        {
-            _transform.rotation.x = rotationElement->FloatAttribute("x");
-            _transform.rotation.y = rotationElement->FloatAttribute("y");
-            _transform.rotation.z = rotationElement->FloatAttribute("z");
-        }
-        if (tinyxml2::XMLElement *scaleElement = transformElement->FirstChildElement("scale"))
-        {
-            _transform.scale.x = scaleElement->FloatAttribute("x");
-            _transform.scale.y = scaleElement->FloatAttribute("y");
-            _transform.scale.z = scaleElement->FloatAttribute("z");
-        }
+        _transform.load(transformElement);
     }
 }
 

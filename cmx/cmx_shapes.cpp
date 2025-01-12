@@ -100,11 +100,8 @@ void CmxShape::swapBuffer()
     _overlappingComponents[_buffer].clear();
 }
 
-CmxSphere::CmxSphere(const glm::vec3 &center, float radius, Transformable *parent)
-    : _relCenter{center, 1.0}, _relRadius{radius}, CmxShape(parent)
+CmxSphere::CmxSphere(Transformable *parent) : CmxShape(parent)
 {
-    _absCenter = _relCenter;
-    _absRadius = _relRadius;
 }
 
 void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout,
@@ -112,7 +109,7 @@ void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
 {
     EdgePushConstantData push{};
 
-    Transform transform = Transform{_absCenter, glm::vec3{_absRadius}, glm::vec3{0.f}};
+    Transform transform = _parent->getAbsoluteTransform();
     push.modelMatrix = transform.mat4();
     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
 
@@ -131,7 +128,7 @@ bool CmxSphere::overlapsWith(const CmxShape &other) const
 
 bool CmxSphere::overlapsWith(const CmxSphere &other) const
 {
-    return (glm::length(_absCenter - other._absCenter) <= (_absRadius + other._absRadius));
+    return (glm::length(getCenter() - other.getCenter()) <= (getRadius() + other.getRadius()));
 }
 
 bool CmxSphere::overlapsWith(const CmxCuboid &other) const
@@ -139,24 +136,15 @@ bool CmxSphere::overlapsWith(const CmxCuboid &other) const
     return other.overlapsWith(*this);
 }
 
-void CmxSphere::expandToInclude(const glm::vec3 &other)
+glm::vec3 CmxSphere::getCenter() const
 {
-    const glm::mat4 invMat4 = glm::inverse(_parent->getAbsoluteTransform().mat4());
-    glm::vec4 newP = invMat4 * glm::vec4{other, 1.0f};
-    newP.w = 1.0f;
-
-    _relRadius = std::min(glm::length(newP - _relCenter), _relRadius);
+    return _parent->getAbsoluteTransform().position;
 }
 
-void CmxSphere::updateDimensions()
+float CmxSphere::getRadius() const
 {
-    if (_parent == nullptr)
-        return;
-
-    const Transform absTransform = _parent->getAbsoluteTransform();
-    _absCenter = absTransform.mat4() * _relCenter;
-    _absCenter.w = 1.0f;
-    _absRadius = _relRadius * std::max(std::max(absTransform.scale.x, absTransform.scale.y), absTransform.scale.z);
+    Transform transform = _parent->getAbsoluteTransform();
+    return std::max(std::max(transform.scale.x, transform.scale.y), transform.scale.z);
 }
 
 glm::vec3 CmxPolygon::getNormal()
@@ -167,23 +155,22 @@ glm::vec3 CmxPolygon::getNormal()
 void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout,
                        std::shared_ptr<AssetsManager> assetsManager)
 {
-    // manually push all the vertices at this point...
+    EdgePushConstantData push{};
+    Transform transform = _parent->getAbsoluteTransform();
+
+    push.modelMatrix = transform.mat4();
+    push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
+
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
+                       &push);
+
+    assetsManager->getModel(PRIMITIVE_CUBE)->bind(frameInfo.commandBuffer);
+    assetsManager->getModel(PRIMITIVE_CUBE)->draw(frameInfo.commandBuffer);
 }
 
-CmxCuboid::CmxCuboid(const glm::vec3 &cornerA, const glm::vec3 &cornerG, Transformable *parent)
-    : _relA{cornerA, 1.0}, _relB{cornerG.x, cornerA.y, cornerA.z, 1.0f}, _relC{cornerG.x, cornerA.y, cornerG.z, 1.0f},
-      _relD{cornerA.x, cornerA.y, cornerG.z, 1.0f}, _relE{cornerA.x, cornerG.y, cornerA.z, 1.0f},
-      _relF{cornerG.x, cornerG.y, cornerA.z, 1.0f}, _relG{cornerG, 1.0}, _relH{cornerA.x, cornerG.y, cornerG.z, 1.0f},
-      CmxShape(parent)
+CmxCuboid::CmxCuboid(Transformable *parent) : CmxShape(parent)
 {
-    _absA = _relA;
-    _absB = _relB;
-    _absC = _relC;
-    _absD = _relD;
-    _absE = _relE;
-    _absF = _relF;
-    _absG = _relG;
-    _absH = _relH;
 }
 
 bool CmxCuboid::overlapsWith(const CmxShape &other) const
@@ -194,9 +181,11 @@ bool CmxCuboid::overlapsWith(const CmxShape &other) const
 bool CmxCuboid::overlapsWith(const CmxCuboid &other) const
 {
     const Transform &transform = _parent != nullptr ? _parent->getAbsoluteTransform() : Transform::ONE;
-    const glm::mat4 inverseMat4 = glm::inverse(transform.mat4());
 
-    glm::vec4 p = inverseMat4 * other._absA;
+    const glm::mat4 mat4 = transform.mat4();
+    const glm::mat4 inverseMat4 = glm::inverse(mat4);
+
+    glm::vec4 p = other.getA(inverseMat4);
     float minX = p.x, minY = p.y, minZ = p.z, maxX = p.x, maxY = p.y, maxZ = p.z;
 
     auto update = [&minX, &minY, &minZ, &maxX, &maxY, &maxZ](glm::vec4 p) {
@@ -208,25 +197,25 @@ bool CmxCuboid::overlapsWith(const CmxCuboid &other) const
         maxZ = std::max(maxZ, p.z);
     };
 
-    update(inverseMat4 * other._absB);
-    update(inverseMat4 * other._absC);
-    update(inverseMat4 * other._absD);
-    update(inverseMat4 * other._absE);
-    update(inverseMat4 * other._absF);
-    update(inverseMat4 * other._absG);
-    update(inverseMat4 * other._absH);
+    update(other.getB(inverseMat4));
+    update(other.getC(inverseMat4));
+    update(other.getD(inverseMat4));
+    update(other.getE(inverseMat4));
+    update(other.getF(inverseMat4));
+    update(other.getG(inverseMat4));
+    update(other.getH(inverseMat4));
 
-    if (maxX < std::min(_absA.x, _absG.x))
+    if (maxX < std::min(getA(mat4).x, getG(mat4).x))
         return false;
-    if (maxY < std::min(_absA.y, _absG.y))
+    if (maxY < std::min(getA(mat4).y, getG(mat4).y))
         return false;
-    if (maxZ < std::min(_absA.z, _absG.z))
+    if (maxZ < std::min(getA(mat4).z, getG(mat4).z))
         return false;
-    if (minX > std::max(_absA.x, _absG.x))
+    if (minX > std::max(getA(mat4).x, getG(mat4).x))
         return false;
-    if (minY > std::max(_absA.y, _absG.y))
+    if (minY > std::max(getA(mat4).y, getG(mat4).y))
         return false;
-    if (minZ > std::max(_absA.z, _absG.z))
+    if (minZ > std::max(getA(mat4).z, getG(mat4).z))
         return false;
 
     return true;
@@ -238,48 +227,60 @@ bool CmxCuboid::overlapsWith(const CmxSphere &other) const
 
     glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
 
-    glm::vec4 scaledA = scaler * _relA;
-    glm::vec4 scaledG = scaler * _relG;
+    glm::vec4 scaledA = getA(scaler);
+    glm::vec4 scaledG = getG(scaler);
 
-    glm::vec4 newP = glm::inverse(transform.mat4()) * other._absCenter;
+    glm::vec4 newP = glm::inverse(transform.mat4()) * glm::vec4{other.getCenter(), 1.0f};
 
-    if (newP.x + other._absRadius < std::min(scaledA.x, scaledG.x))
+    if (newP.x + other.getRadius() < std::min(scaledA.x, scaledG.x))
         return false;
-    if (newP.x - other._absRadius > std::max(scaledA.x, scaledG.x))
-        return false;
-
-    if (newP.y + other._absRadius < std::min(scaledA.y, scaledG.y))
-        return false;
-    if (newP.y - other._absRadius > std::max(scaledA.y, scaledG.y))
+    if (newP.x - other.getRadius() > std::max(scaledA.x, scaledG.x))
         return false;
 
-    if (newP.z + other._absRadius < std::min(scaledA.z, scaledG.z))
+    if (newP.y + other.getRadius() < std::min(scaledA.y, scaledG.y))
         return false;
-    if (newP.z - other._absRadius > std::max(scaledA.z, scaledG.z))
+    if (newP.y - other.getRadius() > std::max(scaledA.y, scaledG.y))
+        return false;
+
+    if (newP.z + other.getRadius() < std::min(scaledA.z, scaledG.z))
+        return false;
+    if (newP.z - other.getRadius() > std::max(scaledA.z, scaledG.z))
         return false;
 
     return true;
 }
 
-void CmxCuboid::expandToInclude(const glm::vec3 &)
+glm::vec4 CmxCuboid::getA(const glm::mat4 &mat4) const
 {
+    return mat4 * glm::vec4{-1.f, -1.f, -1.f, 1.f};
 }
-
-void CmxCuboid::updateDimensions()
+glm::vec4 CmxCuboid::getB(const glm::mat4 &mat4) const
 {
-    if (_parent == nullptr)
-        return;
-
-    const glm::mat4 mat4 = _parent->getAbsoluteTransform().mat4();
-
-    _absA = mat4 * _relA;
-    _absB = mat4 * _relB;
-    _absC = mat4 * _relC;
-    _absD = mat4 * _relD;
-    _absE = mat4 * _relE;
-    _absF = mat4 * _relF;
-    _absG = mat4 * _relG;
-    _absH = mat4 * _relH;
+    return mat4 * glm::vec4{1.f, -1.f, -1.f, 1.f};
+}
+glm::vec4 CmxCuboid::getC(const glm::mat4 &mat4) const
+{
+    return mat4 * glm::vec4{1.f, -1.f, 1.f, 1.f};
+}
+glm::vec4 CmxCuboid::getD(const glm::mat4 &mat4) const
+{
+    return mat4 * glm::vec4{-1.f, -1.f, 1.f, 1.f};
+}
+glm::vec4 CmxCuboid::getE(const glm::mat4 &mat4) const
+{
+    return mat4 * glm::vec4{-1.f, 1.f, -1.f, 1.f};
+}
+glm::vec4 CmxCuboid::getF(const glm::mat4 &mat4) const
+{
+    return mat4 * glm::vec4{1.f, 1.f, -1.f, 1.f};
+}
+glm::vec4 CmxCuboid::getG(const glm::mat4 &mat4) const
+{
+    return mat4 * glm::vec4{1.f, 1.f, 1.f, 1.f};
+}
+glm::vec4 CmxCuboid::getH(const glm::mat4 &mat4) const
+{
+    return mat4 * glm::vec4{-1.f, 1.f, 1.f, 1.f};
 }
 
 } // namespace cmx

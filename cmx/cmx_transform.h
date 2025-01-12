@@ -2,6 +2,7 @@
 #define CMX_TRANSFORM
 
 // lib
+#include "tinyxml2.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
@@ -17,7 +18,7 @@ struct Transform
 {
     glm::vec3 position{};
     glm::vec3 scale{1.f, 1.f, 1.f};
-    glm::quat rotation{0.f, 0.f, 0.f, 0.f};
+    glm::quat rotation{glm::vec3{0.f}};
 
     glm::mat4 mat4() const;
     glm::mat4 mat4_noScale() const;
@@ -26,7 +27,19 @@ struct Transform
     glm::vec3 right() const;
     glm::vec3 up() const;
 
+    void editor();
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
+    void load(tinyxml2::XMLElement *);
+
     static Transform ONE;
+
+    friend Transform operator+(const Transform &a, const Transform &b);
+
+  private:
+    glm::vec3 _euler{glm::vec3{0.f}};
+    bool _additive = false;
+    bool _wasActive = false;
+    bool _isActive = false;
 };
 
 class Transformable

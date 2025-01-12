@@ -2,7 +2,6 @@
 #define CMX_CAMERA_COMPONENT
 
 #include "cmx_component.h"
-#include <glm/trigonometric.hpp>
 
 // lib
 #define GLM_FORCE_RADIANS
@@ -11,6 +10,7 @@
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/trigonometric.hpp>
 
 namespace cmx
 {

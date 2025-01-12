@@ -3,6 +3,7 @@
 // cmx
 #include "cmx/cmx_billboard_render_system.h"
 #include "cmx/cmx_frame_info.h"
+#include "cmx/cmx_primitives.h"
 #include "cmx_actor.h"
 #include "cmx_physics_manager.h"
 #include "cmx_render_system.h"
@@ -56,9 +57,20 @@ void PhysicsComponent::setRigid()
     getScene()->getPhysicsManager()->add(shared_from_this());
 }
 
-void PhysicsComponent::setShape(CmxShape *cmxShape)
+void PhysicsComponent::setShape(const std::string &type)
 {
-    _cmxShape = std::shared_ptr<CmxShape>(cmxShape);
+    if (type.compare(PRIMITIVE_SPHERE))
+    {
+        _cmxShape = std::shared_ptr<CmxShape>(new CmxSphere(this));
+        return;
+    }
+    if (type.compare(PRIMITIVE_CUBE))
+    {
+        _cmxShape = std::shared_ptr<CmxShape>(new CmxCuboid(this));
+        return;
+    }
+
+    spdlog::warn("PhysicsComponent: Unsupported primitive type '{0}'", type);
 }
 
 void PhysicsComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)

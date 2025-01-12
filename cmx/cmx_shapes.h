@@ -26,9 +26,6 @@ class CmxShape
     virtual bool overlapsWith(const CmxShape &) const = 0;
     virtual bool overlapsWith(const class CmxCuboid &) const = 0;
     virtual bool overlapsWith(const class CmxSphere &) const = 0;
-    virtual void expandToInclude(const glm::vec3 &) {};
-
-    virtual void updateDimensions() = 0;
 
     bool wasOverlapping(class PhysicsComponent *) const;
     bool isOverlapping(class PhysicsComponent *) const;
@@ -48,7 +45,7 @@ class CmxShape
 class CmxSphere : public CmxShape
 {
   public:
-    CmxSphere(const glm::vec3 &center, float radius, Transformable *);
+    CmxSphere(Transformable *);
     ~CmxSphere() {};
 
     virtual void render(const class FrameInfo &, VkPipelineLayout, std::shared_ptr<class AssetsManager>) override;
@@ -56,19 +53,13 @@ class CmxSphere : public CmxShape
     bool overlapsWith(const CmxShape &) const override;
     bool overlapsWith(const CmxSphere &) const override;
     bool overlapsWith(const CmxCuboid &) const override;
-    void expandToInclude(const glm::vec3 &) override;
-
-    void updateDimensions() override;
 
     friend class CmxShape;
     friend class CmxCuboid;
 
-  protected:
-    float _relRadius;
-    glm::vec4 _relCenter;
-
-    float _absRadius;
-    glm::vec4 _absCenter;
+  private:
+    glm::vec3 getCenter() const;
+    float getRadius() const;
 };
 
 struct CmxPolygon
@@ -81,7 +72,7 @@ struct CmxPolygon
 class CmxCuboid : public CmxShape
 {
   public:
-    CmxCuboid(const glm::vec3 &cornerA, const glm::vec3 &cornerG, Transformable *);
+    CmxCuboid(Transformable *);
 
     virtual void render(const class FrameInfo &, VkPipelineLayout, std::shared_ptr<class AssetsManager>) override;
 
@@ -90,17 +81,19 @@ class CmxCuboid : public CmxShape
     bool overlapsWith(const CmxShape &) const override;
     bool overlapsWith(const CmxSphere &) const override;
     bool overlapsWith(const CmxCuboid &) const override;
-    void expandToInclude(const glm::vec3 &) override;
-
-    void updateDimensions() override;
 
     friend class CmxSphere;
     friend class CmxShape;
 
   protected:
-    glm::vec4 _relA, _relB, _relC, _relD, _relE, _relF, _relG, _relH;
-
-    glm::vec4 _absA, _absB, _absC, _absD, _absE, _absF, _absG, _absH;
+    glm::vec4 getA(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getB(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getC(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getD(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getE(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getF(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getG(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getH(const glm::mat4 & = glm::mat4{1.f}) const;
 };
 
 // A---------B

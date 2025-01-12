@@ -1,4 +1,5 @@
 #include "static_body_actor.h"
+#include "cmx/cmx_primitives.h"
 
 // cmx
 #include <cmx/cmx_physics_component.h>
@@ -9,5 +10,5 @@ void StaticBodyActor::onBegin()
     cmx::PhysicsActor::onBegin();
 
     _physicsComponent->setStatic();
-    _physicsComponent->setShape(new cmx::CmxSphere{glm::vec3{}, 1.0f, this});
+    _physicsComponent->setShape(PRIMITIVE_CUBE);
 }

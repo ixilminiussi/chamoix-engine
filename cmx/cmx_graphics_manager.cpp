@@ -11,7 +11,7 @@
 namespace cmx
 {
 
-GraphicsManager::GraphicsManager(std::unordered_map<uint8_t, std::shared_ptr<RenderSystem>> &renderSystems)
+GraphicsManager::GraphicsManager(std::map<uint8_t, std::shared_ptr<RenderSystem>> &renderSystems)
     : _renderSystems{renderSystems}
 {
     _pointLightsMap.reserve(MAX_POINT_LIGHTS);
@@ -20,17 +20,20 @@ GraphicsManager::GraphicsManager(std::unordered_map<uint8_t, std::shared_ptr<Ren
 void GraphicsManager::addToQueue(std::shared_ptr<Component> component)
 {
     uint8_t renderSystemID = component->getRequestedRenderSystem();
-    auto it = std::lower_bound(_componentRenderQueue[renderSystemID].begin(),
-                               _componentRenderQueue[renderSystemID].end(), component);
 
     try
     {
-        _componentRenderQueue.at(renderSystemID).insert(it, component);
+        auto &renderQueue = _renderSystems.at(renderSystemID);
     }
     catch (std::out_of_range e)
     {
         spdlog::error("GraphicsManager: Requesting non-existant render system '{0}'", renderSystemID);
+        return;
     }
+
+    auto it = std::lower_bound(_componentRenderQueue[renderSystemID].begin(),
+                               _componentRenderQueue[renderSystemID].end(), component);
+    _componentRenderQueue[renderSystemID].insert(it, component);
 }
 
 void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)

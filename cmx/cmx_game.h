@@ -56,7 +56,7 @@ class Game
     static CmxWindow _cmxWindow;
 
     std::shared_ptr<class InputManager> _inputManager;
-    std::unordered_map<uint8_t, std::shared_ptr<class RenderSystem>> _renderSystems;
+    std::map<uint8_t, std::shared_ptr<class RenderSystem>> _renderSystems;
 
     // warning flags
     bool __noCameraFlag{false};
