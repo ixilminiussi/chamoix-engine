@@ -47,7 +47,7 @@ void ViewportUIComponent::update(float dt)
     }
 }
 
-void ViewportUIComponent::render(class FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void ViewportUIComponent::render(const class FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
 {
     // imgui new frame
     ImGui_ImplVulkan_NewFrame();

@@ -1,9 +1,12 @@
 #include "cmx_physics_component.h"
 
 // cmx
+#include "cmx/cmx_billboard_render_system.h"
+#include "cmx/cmx_frame_info.h"
 #include "cmx_actor.h"
 #include "cmx_physics_manager.h"
 #include "cmx_render_system.h"
+#include "cmx_shapes.h"
 
 namespace cmx
 {
@@ -11,6 +14,11 @@ namespace cmx
 PhysicsComponent::PhysicsComponent()
 {
     _renderZ = DEBUG_BILLBOARD_Z;
+    _requestedRenderSystem = EDGE_RENDER_SYSTEM;
+}
+
+PhysicsComponent::~PhysicsComponent()
+{
 }
 
 void PhysicsComponent::onDetach()
@@ -46,6 +54,26 @@ void PhysicsComponent::setRigid()
 {
     _physicsMode = PhysicsMode::RIGID;
     getScene()->getPhysicsManager()->add(shared_from_this());
+}
+
+void PhysicsComponent::setShape(CmxShape *cmxShape)
+{
+    _cmxShape = std::shared_ptr<CmxShape>(cmxShape);
+}
+
+void PhysicsComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+{
+    if (getParent() == nullptr)
+    {
+        spdlog::critical("MeshComponent: _parent is expired");
+        return;
+    }
+    if (_cmxShape.get() == nullptr)
+    {
+        return;
+    }
+
+    _cmxShape->render(frameInfo, pipelineLayout, getScene()->getAssetsManager());
 }
 
 } // namespace cmx

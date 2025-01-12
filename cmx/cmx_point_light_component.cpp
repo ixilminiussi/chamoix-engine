@@ -40,7 +40,7 @@ void PointLightComponent::onDetach()
     getScene()->getGraphicsManager()->removePointLight(_key);
 }
 
-void PointLightComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void PointLightComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
 {
     if (getParent() == nullptr)
     {

@@ -68,7 +68,7 @@ void BillboardRenderSystem::initialize()
     spdlog::info("BillboardRenderSystem: Successfully initialized!");
 }
 
-void BillboardRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue,
+void BillboardRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue,
                                    class GraphicsManager *graphicsManager)
 {
     _cmxPipeline->bind(frameInfo->commandBuffer);

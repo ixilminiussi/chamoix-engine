@@ -6,6 +6,8 @@
 namespace cmx
 {
 
+Transform Transform::ONE = Transform{};
+
 glm::mat4 Transform::mat4() const
 {
     glm::mat4 rotationMatrix = glm::toMat4(rotation); // Convert quaternion directly to mat4
@@ -13,6 +15,14 @@ glm::mat4 Transform::mat4() const
     glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
 
     return translationMatrix * rotationMatrix * scaleMatrix; // Combine transformations
+}
+
+glm::mat4 Transform::mat4_noScale() const
+{
+    glm::mat4 rotationMatrix = glm::toMat4(rotation); // Convert quaternion directly to mat4
+    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), position);
+
+    return translationMatrix * rotationMatrix; // Combine transformations
 }
 
 glm::mat3 Transform::normalMatrix() const
@@ -44,7 +54,7 @@ Transform operator+(const Transform &a, const Transform &b)
     glm::mat4 mat4 = a.mat4();
     c.position = mat4 * glm::vec4{b.position, 1.0f};
     c.rotation = a.rotation + b.rotation;
-    c.scale = a.scale + b.scale;
+    c.scale = a.scale * b.scale;
 
     return c;
 }

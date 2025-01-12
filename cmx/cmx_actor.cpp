@@ -96,7 +96,7 @@ std::weak_ptr<Component> Actor::getComponentByName(const std::string &name)
     return component;
 }
 
-Transform Actor::getAbsoluteTransform()
+Transform Actor::getAbsoluteTransform() const
 {
     if (positioning == Positioning::RELATIVE)
     {

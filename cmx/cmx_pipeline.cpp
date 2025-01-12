@@ -6,6 +6,7 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
@@ -28,7 +29,14 @@ CmxPipeline::~CmxPipeline()
 
 void CmxPipeline::bind(VkCommandBuffer commandBuffer)
 {
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline);
+    try
+    {
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline);
+    }
+    catch (std::exception e)
+    {
+        spdlog::error("{0}", e.what());
+    }
 }
 
 std::vector<char> CmxPipeline::readFile(const std::string &filepath)
@@ -147,7 +155,7 @@ void CmxPipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo)
     configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
     configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
     configInfo.rasterizationInfo.lineWidth = 1.0f;
-    configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+    configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
     configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
     configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
     configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
@@ -192,8 +200,6 @@ void CmxPipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo)
     configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
     configInfo.depthStencilInfo.front = {}; // Optional
     configInfo.depthStencilInfo.back = {};  // Optional
-
-    configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
 
     configInfo.dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
     configInfo.dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;

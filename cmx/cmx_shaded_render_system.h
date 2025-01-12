@@ -1,5 +1,5 @@
-#ifndef CMX_MODEL_RENDER_SYSTEM
-#define CMX_MODEL_RENDER_SYSTEM
+#ifndef CMX_SHADED_RENDER_SYSTEM
+#define CMX_SHADED_RENDER_SYSTEM
 
 // cmx
 #include "cmx_render_system.h"
@@ -22,11 +22,11 @@ struct SimplePushConstantData
     glm::mat4 normalMatrix{1.f};
 };
 
-class ModelRenderSystem : public RenderSystem
+class ShadedRenderSystem : public RenderSystem
 {
   public:
     using RenderSystem::RenderSystem;
-    ~ModelRenderSystem() = default;
+    ~ShadedRenderSystem() = default;
 
     void initialize() override;
 
@@ -34,7 +34,8 @@ class ModelRenderSystem : public RenderSystem
     void createPipelineLayout(VkDescriptorSetLayout) override;
     void createPipeline(VkRenderPass) override;
 
-    void render(class FrameInfo *, std::vector<std::shared_ptr<class Component>> &, class GraphicsManager *) override;
+    void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
+                class GraphicsManager *) override;
 };
 
 } // namespace cmx

@@ -1,13 +1,14 @@
 #ifndef CMX_RENDER_SYSTEM
 #define CMX_RENDER_SYSTEM
 
-#define MODEL_RENDER_SYSTEM 1u
-#define BILLBOARD_RENDER_SYSTEM 0u
+#define SHADED_RENDER_SYSTEM 0u
+#define BILLBOARD_RENDER_SYSTEM 1u
+#define EDGE_RENDER_SYSTEM 2u
 #define NULL_RENDER_SYSTEM 255u
 
 #define TRANSPARENT_BILLBOARD_Z 100u
 #define DEFAULT_Z 1u
-#define DEBUG_BILLBOARD_Z 0u
+#define DEBUG_BILLBOARD_Z 10u
 
 #define MAX_POINT_LIGHTS 10
 
@@ -46,7 +47,7 @@ class RenderSystem
     static void endRender();
 
     virtual void initialize() = 0;
-    virtual void render(class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
+    virtual void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                         class GraphicsManager *) = 0;
 
     friend void ViewportUIComponent::initImGUI();

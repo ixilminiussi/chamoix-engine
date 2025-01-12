@@ -3,7 +3,12 @@
 // cmx
 #include "cmx_physics_actor.h"
 #include "cmx_physics_component.h"
+#include "cmx_shapes.h"
+
+// lib
 #include <glm/ext/scalar_constants.hpp>
+
+// std
 #include <memory>
 
 namespace cmx
@@ -19,39 +24,81 @@ PhysicsManager::~PhysicsManager()
 
 void PhysicsManager::executeStep(float dt)
 {
-    for (auto component : _rigidComponents)
+    auto advance = [&](auto &it) {
+        it++;
+        if (it == _dynamicComponents.end())
+        {
+            it = _staticComponents.begin();
+        }
+    };
+
+    bool first = true;
+
+    for (auto it = _dynamicComponents.begin(); it != _dynamicComponents.end(); it++)
     {
-        if (PhysicsActor *parent = dynamic_cast<PhysicsActor *>(component->getParent()))
-        {
-            Transform transform = component->getAbsoluteTransform();
+        std::shared_ptr<PhysicsComponent> physicsComponent = *it;
+        std::shared_ptr<CmxShape> shape = physicsComponent->getShape();
 
-            if (transform.position.y + transform.scale.y < _floor - glm::epsilon<float>())
+        if (shape.get() == nullptr)
+            continue;
+
+        if (first)
+        {
+            shape->updateDimensions();
+            shape->swapBuffer();
+        }
+
+        auto itAlt = it;
+
+        advance(itAlt);
+
+        for (; itAlt != _staticComponents.end(); advance(itAlt))
+        {
+            std::shared_ptr<CmxShape> otherShape = (*itAlt)->getShape();
+
+            if (otherShape.get() == nullptr)
+                continue;
+
+            if (first)
             {
-                parent->addVelocity(glm::vec3{0.f, _gravity, 0.f});
+                otherShape->updateDimensions();
+                otherShape->swapBuffer();
             }
 
-            parent->applyVelocity(dt);
-            transform = component->getAbsoluteTransform();
-
-            if (transform.position.y + transform.scale.y > _floor)
+            if (shape->overlapsWith(*otherShape))
             {
-                transform.position.y = _floor - transform.scale.y;
-                component->propagatePosition(transform.position);
+                shape->addOverlappingComponent(itAlt->get());
+                otherShape->addOverlappingComponent(physicsComponent.get());
 
-                glm::vec3 newVelocity = parent->getVelocity();
-                newVelocity.y *= -component->getAbsorptionCoefficient();
-                if (std::abs(newVelocity.y) <= glm::epsilon<float>())
+                if (!shape->wasOverlapping(itAlt->get()))
                 {
-                    newVelocity.y = 0.f;
+                    if (auto parent = dynamic_cast<PhysicsActor *>(physicsComponent->getParent()))
+                    {
+                        parent->onBeginOverlap(physicsComponent.get(), itAlt->get(), (*itAlt)->getParent());
+                    }
+                    if (auto parent = dynamic_cast<PhysicsActor *>((*itAlt)->getParent()))
+                    {
+                        parent->onBeginOverlap(itAlt->get(), physicsComponent.get(), physicsComponent->getParent());
+                    }
                 }
-                parent->setVelocity(newVelocity);
+            }
+            else
+            {
+                if (shape->wasOverlapping(itAlt->get()))
+                {
+                    if (auto parent = dynamic_cast<PhysicsActor *>(physicsComponent->getParent()))
+                    {
+                        parent->onEndOverlap(physicsComponent.get(), itAlt->get(), (*itAlt)->getParent());
+                    }
+                    if (auto parent = dynamic_cast<PhysicsActor *>((*itAlt)->getParent()))
+                    {
+                        parent->onEndOverlap(itAlt->get(), physicsComponent.get(), physicsComponent->getParent());
+                    }
+                }
             }
         }
-        else
-        {
-            spdlog::warn("PhysicsManager: Parent actor of RigidBodyComponent is not a PhysicsActor and therefore "
-                         "cannot be moved");
-        }
+
+        first = false;
     }
 }
 

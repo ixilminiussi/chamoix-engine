@@ -36,7 +36,7 @@ class GraphicsManager
 
   private:
     std::unordered_map<uint8_t, std::shared_ptr<class RenderSystem>> &_renderSystems;
-    std::unordered_map<uint8_t, std::vector<std::shared_ptr<class Component>>> _componentRenderQueue{};
+    std::map<uint8_t, std::vector<std::shared_ptr<class Component>>> _componentRenderQueue{};
     std::unordered_map<uint32_t, PointLightStruct> _pointLightsMap;
 
     // warning flags

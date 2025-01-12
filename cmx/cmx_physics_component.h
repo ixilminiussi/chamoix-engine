@@ -15,6 +15,9 @@ class PhysicsComponent : public Component
 {
   public:
     PhysicsComponent();
+    ~PhysicsComponent();
+
+    void render(const class FrameInfo &, VkPipelineLayout) override;
 
     void onDetach() override;
     void onAttach() override;
@@ -35,9 +38,17 @@ class PhysicsComponent : public Component
         return _absorptionCoefficient;
     }
 
+    const std::shared_ptr<class CmxShape> getShape()
+    {
+        return _cmxShape;
+    }
+
+    void setShape(class CmxShape *cmxShape);
+
   protected:
     PhysicsMode _physicsMode{PhysicsMode::STATIC};
     float _absorptionCoefficient{0.2f};
+    std::shared_ptr<class CmxShape> _cmxShape;
 };
 
 } // namespace cmx

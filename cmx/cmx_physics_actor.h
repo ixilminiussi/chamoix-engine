@@ -2,6 +2,8 @@
 #define CMX_PHYSICS_ACTOR
 
 #include "cmx_actor.h"
+
+// lib
 #include <glm/ext/vector_float3.hpp>
 
 namespace cmx
@@ -15,9 +17,9 @@ class PhysicsActor : public Actor
     void onBegin() override;
 
     virtual void onBeginOverlap(class PhysicsComponent *ownedComponent, class PhysicsComponent *overlappingComponent,
-                                PhysicsActor *overlappingActor) {};
+                                Actor *overlappingActor) {};
     virtual void onEndOverlap(class PhysicsComponent *ownedComponent, class PhysicsComponent *overlappingComponent,
-                              PhysicsActor *overlappingActor) {};
+                              Actor *overlappingActor) {};
 
     void setVelocity(glm::vec3);
     void addVelocity(glm::vec3);

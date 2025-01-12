@@ -107,25 +107,4 @@
             </transform>
         </component>
     </actor>
-    <actor type="RigidBodyActor" name="Falling Ball" id="1" visible="true">
-        <transform>
-            <position x="0" y="8" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0"/>
-            <scale x="1" y="1" z="1"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_sphere">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
 </scene>

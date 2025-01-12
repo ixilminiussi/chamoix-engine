@@ -4,7 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 add_library(demo
     demo_game.cpp
     rotating_actor.cpp
-    rigid_body_actor.cpp
+    static_body_actor.cpp
+    dynamic_body_actor.cpp
 )
 
 target_include_directories(demo PUBLIC

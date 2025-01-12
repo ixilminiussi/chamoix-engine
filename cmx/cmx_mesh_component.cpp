@@ -8,9 +8,9 @@
 #include "cmx_graphics_manager.h"
 #include "cmx_input_manager.h"
 #include "cmx_model.h"
-#include "cmx_model_render_system.h"
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
+#include "cmx_shaded_render_system.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -32,7 +32,7 @@ namespace cmx
 MeshComponent::MeshComponent()
 {
     _renderZ = DEFAULT_Z;
-    _requestedRenderSystem = MODEL_RENDER_SYSTEM;
+    _requestedRenderSystem = SHADED_RENDER_SYSTEM;
 }
 
 void MeshComponent::onAttach()
@@ -43,7 +43,7 @@ void MeshComponent::onAttach()
     }
 }
 
-void MeshComponent::render(FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void MeshComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
 {
     if (getParent() == nullptr)
     {

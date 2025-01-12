@@ -1,16 +1,18 @@
 #include "demo_game.h"
 
-#include "cmx/cmx_assets_manager.h"
-#include "rigid_body_actor.h"
+#include "cmx/cmx_render_system.h"
+#include "dynamic_body_actor.h"
 #include "rotating_actor.h"
+#include "static_body_actor.h"
 
 // cmx
 #include <cmx/cmx_actor.h>
+#include <cmx/cmx_assets_manager.h>
 #include <cmx/cmx_billboard_render_system.h>
 #include <cmx/cmx_input_manager.h>
-#include <cmx/cmx_model_render_system.h>
 #include <cmx/cmx_register.h>
 #include <cmx/cmx_scene.h>
+#include <cmx/cmx_shaded_render_system.h>
 #include <cmx/cmx_window.h>
 
 // lib
@@ -36,8 +38,11 @@ Demo::Demo()
     cmxRegister->addActor("RotatingActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<RotatingActor>(scene, name);
     });
-    cmxRegister->addActor("RigidBodyActor", [](cmx::Scene *scene, const std::string &name) {
-        return cmx::Actor::spawn<RigidBodyActor>(scene, name);
+    cmxRegister->addActor("StaticBodyActor", [](cmx::Scene *scene, const std::string &name) {
+        return cmx::Actor::spawn<StaticBodyActor>(scene, name);
+    });
+    cmxRegister->addActor("DynamicBodyActor", [](cmx::Scene *scene, const std::string &name) {
+        return cmx::Actor::spawn<DynamicBodyActor>(scene, name);
     });
 }
 
@@ -66,8 +71,11 @@ void Demo::closeWindow(float dt, int val)
 void Demo::load()
 {
     _inputManager->load();
-    _renderSystems[MODEL_RENDER_SYSTEM]->initialize();
+    _renderSystems[SHADED_RENDER_SYSTEM]->initialize();
     _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
+#ifndef NDEBUG
+    _renderSystems[EDGE_RENDER_SYSTEM]->initialize();
+#endif
 
     _scenes.push_back(&mainScene);
     setScene(0);

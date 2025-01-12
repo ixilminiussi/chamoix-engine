@@ -22,7 +22,15 @@ void GraphicsManager::addToQueue(std::shared_ptr<Component> component)
     uint8_t renderSystemID = component->getRequestedRenderSystem();
     auto it = std::lower_bound(_componentRenderQueue[renderSystemID].begin(),
                                _componentRenderQueue[renderSystemID].end(), component);
-    _componentRenderQueue[renderSystemID].insert(it, component);
+
+    try
+    {
+        _componentRenderQueue.at(renderSystemID).insert(it, component);
+    }
+    catch (std::out_of_range e)
+    {
+        spdlog::error("GraphicsManager: Requesting non-existant render system '{0}'", renderSystemID);
+    }
 }
 
 void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
@@ -77,15 +85,23 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
             i++;
         }
 
-        FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, numPointLights);
+        const FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, numPointLights);
 
+        i = 0;
         for (auto &pair : _componentRenderQueue)
         {
             try
             {
-                _renderSystems.at(pair.first)->render(frameInfo, pair.second, this);
+                if (pair.first == EDGE_RENDER_SYSTEM)
+                {
+                    _renderSystems.at(pair.first)->render(frameInfo, pair.second, this);
+                }
+                else
+                {
+                    _renderSystems.at(pair.first)->render(frameInfo, pair.second, this);
+                }
             }
-            catch (std::out_of_range e)
+            catch (const std::out_of_range &e)
             {
                 spdlog::error("GraphicsManager: Component requesting render system {0} which isn't part of graphics "
                               "manager's list",

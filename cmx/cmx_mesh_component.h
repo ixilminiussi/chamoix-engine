@@ -32,7 +32,7 @@ class MeshComponent : public Component
 
     void onAttach() override;
 
-    void render(class FrameInfo &, VkPipelineLayout) override;
+    void render(const class FrameInfo &, VkPipelineLayout) override;
     void setModel(Primitives);
     void setModel(const std::string &name);
     const std::string &getModelName();

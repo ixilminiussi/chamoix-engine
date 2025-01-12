@@ -19,7 +19,7 @@ Component::~Component()
     onDetach();
 }
 
-void Component::render(FrameInfo &, VkPipelineLayout)
+void Component::render(const FrameInfo &, VkPipelineLayout)
 {
     // TODO: Debug render code here
 }
@@ -136,12 +136,12 @@ void Component::setParent(std::weak_ptr<Actor> actor)
     }
 }
 
-const Transform &Component::getRelativeTransform()
+const Transform &Component::getRelativeTransform() const
 {
     return _transform;
 }
 
-Transform Component::getAbsoluteTransform()
+Transform Component::getAbsoluteTransform() const
 {
     if (auto parent = _parent.lock())
     {

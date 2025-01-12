@@ -14,7 +14,7 @@ class ViewportUIComponent : public Component
     ~ViewportUIComponent();
 
     void update(float dt) override;
-    void render(class FrameInfo &, VkPipelineLayout) override;
+    void render(const class FrameInfo &, VkPipelineLayout) override;
 
     void load();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) override;

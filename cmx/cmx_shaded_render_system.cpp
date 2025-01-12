@@ -1,4 +1,4 @@
-#include "cmx_model_render_system.h"
+#include "cmx_shaded_render_system.h"
 
 // cmx
 #include "cmx_buffer.h"
@@ -9,6 +9,7 @@
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_pipeline.h"
+#include "cmx_render_system.h"
 #include "cmx_renderer.h"
 #include "cmx_window.h"
 
@@ -31,7 +32,7 @@
 namespace cmx
 {
 
-void ModelRenderSystem::initialize()
+void ShadedRenderSystem::initialize()
 {
     _globalPool = CmxDescriptorPool::Builder(*_cmxDevice.get())
                       .setMaxSets(CmxSwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -58,11 +59,11 @@ void ModelRenderSystem::initialize()
     createPipelineLayout(globalSetLayout->getDescriptorSetLayout());
     createPipeline(_cmxRenderer->getSwapChainRenderPass());
 
-    spdlog::info("ModelRenderSystem: Successfully initialized!");
+    spdlog::info("ShadedRenderSystem: Successfully initialized!");
 }
 
-void ModelRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue,
-                               class GraphicsManager *graphicsManager)
+void ShadedRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue,
+                                class GraphicsManager *graphicsManager)
 {
     _cmxPipeline->bind(frameInfo->commandBuffer);
 
@@ -91,7 +92,7 @@ void ModelRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr
     {
         auto renderComponent = *it;
 
-        if (renderComponent->getRequestedRenderSystem() != MODEL_RENDER_SYSTEM)
+        if (renderComponent->getRequestedRenderSystem() != SHADED_RENDER_SYSTEM)
         {
             it = renderQueue.erase(it);
             graphicsManager->addToQueue(renderComponent);
@@ -105,7 +106,7 @@ void ModelRenderSystem::render(FrameInfo *frameInfo, std::vector<std::shared_ptr
     }
 }
 
-void ModelRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+void ShadedRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -126,7 +127,7 @@ void ModelRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayo
     }
 }
 
-void ModelRenderSystem::createPipeline(VkRenderPass renderPass)
+void ShadedRenderSystem::createPipeline(VkRenderPass renderPass)
 {
     assert(_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
@@ -134,8 +135,8 @@ void ModelRenderSystem::createPipeline(VkRenderPass renderPass)
     CmxPipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
-    _cmxPipeline = std::make_unique<CmxPipeline>(*_cmxDevice.get(), "shaders/shader.vert.spv",
-                                                 "shaders/shader.frag.spv", pipelineConfig);
+    _cmxPipeline = std::make_unique<CmxPipeline>(*_cmxDevice.get(), "shaders/shaded.vert.spv",
+                                                 "shaders/shaded.frag.spv", pipelineConfig);
 }
 
 } // namespace cmx

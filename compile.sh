@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of shader filenames to compile
-SHADERS=("shader.vert" "shader.frag" "billboard.vert" "billboard.frag")
+SHADERS=("shaded.vert" "shaded.frag" "mesh.vert" "mesh.frag" "billboard.vert" "billboard.frag")
 
 # Source and output directories (update these paths as needed)
 SOURCE_DIR="../shaders"   # Folder where your shaders are located

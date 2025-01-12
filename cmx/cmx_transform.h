@@ -20,6 +20,7 @@ struct Transform
     glm::quat rotation{0.f, 0.f, 0.f, 0.f};
 
     glm::mat4 mat4() const;
+    glm::mat4 mat4_noScale() const;
     glm::mat3 normalMatrix() const;
     glm::vec3 forward() const;
     glm::vec3 right() const;

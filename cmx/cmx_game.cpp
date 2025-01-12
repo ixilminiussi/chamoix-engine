@@ -1,15 +1,16 @@
 #include "cmx_game.h"
 
 // cmx
-#include "cmx/cmx_window.h"
 #include "cmx_billboard_render_system.h"
 #include "cmx_camera_component.h"
 #include "cmx_device.h"
+#include "cmx_edge_render_system.h"
 #include "cmx_input_manager.h"
-#include "cmx_model_render_system.h"
 #include "cmx_render_system.h"
+#include "cmx_shaded_render_system.h"
 #include "cmx_viewport_actor.h"
 #include "cmx_viewport_ui_component.h"
+#include "cmx_window.h"
 
 // lib
 #include <GLFW/glfw3.h>
@@ -36,8 +37,11 @@ CmxWindow Game::_cmxWindow = CmxWindow{WIDTH, HEIGHT, "chamoix"};
 
 Game::Game()
 {
-    _renderSystems[MODEL_RENDER_SYSTEM] = std::make_shared<ModelRenderSystem>();
+    _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<ShadedRenderSystem>();
     _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<BillboardRenderSystem>();
+#ifndef NDEBUG
+    _renderSystems[EDGE_RENDER_SYSTEM] = std::make_shared<EdgeRenderSystem>();
+#endif
 
     _inputManager = std::make_shared<InputManager>(_cmxWindow);
 }
