@@ -2,7 +2,6 @@
 
 // cmx
 #include "cmx_mesh_component.h"
-#include "imgui.h"
 
 // lib
 #include <glm/ext/scalar_constants.hpp>
@@ -18,10 +17,6 @@ void MeshActor::onBegin()
 
     _meshComponent = std::make_shared<MeshComponent>();
     attachComponent(_meshComponent);
-}
-
-void MeshActor::update(float dt)
-{
 }
 
 } // namespace cmx

@@ -4,7 +4,6 @@
 // std
 #include <map>
 #include <memory>
-#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -33,6 +32,8 @@ class GraphicsManager
     void removePointLight(uint32_t);
 
     void drawComponents(std::weak_ptr<class Camera>);
+
+    void editor();
 
   private:
     std::map<uint8_t, std::shared_ptr<class RenderSystem>> &_renderSystems;

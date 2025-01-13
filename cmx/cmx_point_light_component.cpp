@@ -1,7 +1,6 @@
 #include "cmx_point_light_component.h"
 
 // cmx
-#include "cmx_actor.h"
 #include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"

@@ -1,12 +1,7 @@
 #include "cmx_mesh_component.h"
 
-#include "cmx_actor.h"
 #include "cmx_assets_manager.h"
-#include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
-#include "cmx_game.h"
-#include "cmx_graphics_manager.h"
-#include "cmx_input_manager.h"
 #include "cmx_model.h"
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
@@ -73,7 +68,14 @@ void MeshComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipeline
 
 void MeshComponent::setModel(const std::string &name)
 {
-    _cmxModel = getScene()->getAssetsManager()->getModel(name);
+    if (getScene() != nullptr)
+    {
+        _cmxModel = getScene()->getAssetsManager()->getModel(name);
+    }
+    else
+    {
+        spdlog::error("MeshComponent: Cannot setModel before attaching to Scene object");
+    }
 }
 
 const std::string &MeshComponent::getModelName()

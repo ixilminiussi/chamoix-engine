@@ -10,7 +10,6 @@
 
 // std
 #include <memory>
-#include <set>
 #include <vector>
 
 namespace cmx
@@ -36,6 +35,7 @@ class ShadedRenderSystem : public RenderSystem
 
     void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                 class GraphicsManager *) override;
+    virtual void editor(int i) override;
 };
 
 } // namespace cmx

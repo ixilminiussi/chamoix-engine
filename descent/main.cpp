@@ -1,0 +1,30 @@
+#include "descent_game.h"
+
+// cmx
+#include <cmx/cmx_editor.h>
+
+// std
+#include <cstdlib>
+
+int main()
+{
+    Descent app{};
+
+    try
+    {
+        app.load();
+#ifndef NDEBUG
+        cmx::CmxEditor *editor = cmx::CmxEditor::getInstance();
+        editor->load(app.getWindow());
+        editor->attachScene(app.getScene());
+#endif
+        app.run();
+    }
+    catch (const std::exception &e)
+    {
+        spdlog::error("{0}", e.what());
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}

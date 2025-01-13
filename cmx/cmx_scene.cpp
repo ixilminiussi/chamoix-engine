@@ -1,15 +1,14 @@
 #include "cmx_scene.h"
 
 // cmx
-#include "cmx/cmx_physics_component.h"
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
 #include "cmx_component.h"
 #include "cmx_game.h"
 #include "cmx_graphics_manager.h"
+#include "cmx_physics_component.h"
 #include "cmx_physics_manager.h"
 #include "cmx_register.h"
-#include "cmx_viewport_actor.h"
 
 // std
 #include <memory>
@@ -163,11 +162,7 @@ void Scene::updateActors(float dt)
 
 void Scene::removeComponent(std::shared_ptr<Component> component)
 {
-#ifndef NDEBUG
-    if (component->getRenderZ() >= -1)
-#else
     if (component->getRenderZ() >= 0)
-#endif
     {
         _graphicsManager->removeFromQueue(component);
     }
@@ -190,11 +185,7 @@ void Scene::addComponent(std::shared_ptr<Component> component)
     _components.push_back(component);
     spdlog::info("Scene '{0}': Added new component '{1}->{2}'", name, component->getParent()->name, component->name);
 
-#ifndef NDEBUG
-    if (component->getRenderZ() >= -1)
-#else
     if (component->getRenderZ() >= 0)
-#endif
     {
         _graphicsManager->addToQueue(component);
     }
@@ -210,11 +201,7 @@ void Scene::updateComponents(float dt)
         // if component is deleted, remove it from our list
         if (component->getParent() == nullptr)
         {
-#ifndef NDEBUG
-            if (component->getRenderZ() >= -1)
-#else
             if (component->getRenderZ() >= 0)
-#endif
             {
                 _graphicsManager->removeFromQueue(*it);
             }
@@ -251,10 +238,6 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 
     for (auto actorPair : _actors)
     {
-        if (std::shared_ptr<ViewportActor> viewport = std::dynamic_pointer_cast<ViewportActor>(actorPair.second))
-        {
-            continue;
-        }
         actorPair.second->save(doc, sceneElement);
     }
 

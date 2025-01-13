@@ -12,9 +12,8 @@ class MeshActor : public Actor
     using Actor::Actor;
 
     void onBegin() override;
-    void update(float dt) override;
 
-  private:
+  protected:
     std::shared_ptr<class MeshComponent> _meshComponent;
 };
 

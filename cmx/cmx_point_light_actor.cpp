@@ -2,7 +2,6 @@
 
 // cmx
 #include "cmx_point_light_component.h"
-#include "imgui.h"
 
 // lib
 #include <glm/ext/scalar_constants.hpp>

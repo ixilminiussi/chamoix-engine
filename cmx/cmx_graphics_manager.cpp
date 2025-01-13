@@ -1,8 +1,10 @@
 #include "cmx_graphics_manager.h"
 
 // cmx
+#include "cmx/cmx_editor.h"
 #include "cmx/cmx_frame_info.h"
 #include "cmx_render_system.h"
+#include "imgui.h"
 
 // lib
 #include <spdlog/spdlog.h>
@@ -95,14 +97,7 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
         {
             try
             {
-                if (pair.first == EDGE_RENDER_SYSTEM)
-                {
-                    _renderSystems.at(pair.first)->render(frameInfo, pair.second, this);
-                }
-                else
-                {
-                    _renderSystems.at(pair.first)->render(frameInfo, pair.second, this);
-                }
+                _renderSystems.at(pair.first)->render(frameInfo, pair.second, this);
             }
             catch (const std::out_of_range &e)
             {
@@ -111,6 +106,11 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
                               pair.first);
             }
         }
+
+#ifndef NDEBUG
+        CmxEditor *editor = CmxEditor::getInstance();
+        editor->render(*frameInfo);
+#endif
 
         RenderSystem::endRender();
     }
@@ -121,6 +121,16 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
             spdlog::warn("GraphicsManager: No active camera");
             _noCameraFlag = true;
         }
+    }
+}
+
+void GraphicsManager::editor()
+{
+    int i = 0;
+
+    for (auto pair : _renderSystems)
+    {
+        pair.second->editor(i++);
     }
 }
 

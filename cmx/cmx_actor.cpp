@@ -1,17 +1,17 @@
 #include "cmx_actor.h"
 
 // cmx
-#include "IconsMaterialSymbols.h"
-#include "cmx/cmx_register.h"
 #include "cmx_component.h"
+#include "cmx_register.h"
 
 // lib
-#include "imgui.h"
-#include "tinyxml2.h"
+#include <IconsMaterialSymbols.h>
+#include <imgui.h>
 #include <spdlog/spdlog.h>
+#include <tinyxml2.h>
 
 // std
-#include "cxxabi.h"
+#include <cxxabi.h>
 #include <memory>
 #include <spdlog/common.h>
 

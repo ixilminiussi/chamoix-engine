@@ -8,7 +8,6 @@
 // std
 #include <memory>
 #include <string>
-#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 

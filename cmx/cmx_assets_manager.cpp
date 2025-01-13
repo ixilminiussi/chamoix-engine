@@ -1,11 +1,11 @@
 #include "cmx_assets_manager.h"
 
 // cmx
-#include "cmx/cmx_texture.h"
 #include "cmx_game.h"
 #include "cmx_model.h"
 #include "cmx_primitives.h"
 #include "cmx_scene.h"
+#include "cmx_texture.h"
 
 // std
 #include <cstdlib>

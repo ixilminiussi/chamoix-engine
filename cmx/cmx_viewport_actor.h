@@ -1,7 +1,8 @@
 #ifndef CMX_VIEWPORT_ACTOR
 #define CMX_VIEWPORT_ACTOR
 
-#include "cmx_actor.h"
+// cmx
+#include <cmx/cmx_transform.h>
 
 // std
 #include <memory>
@@ -9,36 +10,37 @@
 namespace cmx
 {
 
-class ViewportActor : public cmx::Actor
+class ViewportActor
 {
   public:
-    using Actor::Actor;
+    ViewportActor();
 
-    void onBegin() override;
-    void update(float dt) override;
+    void update(float dt);
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
-    void load(tinyxml2::XMLElement *) override;
-    void editor() override;
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
+    void load(tinyxml2::XMLElement *);
+    void editor();
 
     void onMovementInput(float dt, glm::vec2);
-    void onJumpInput(float dt);
     void onMouseMovement(float dt, glm::vec2);
     void select(float dt, int val);
     void deselect(float dt);
 
-    std::weak_ptr<class CameraComponent> getCameraComponent()
+    std::shared_ptr<class Camera> getCamera()
     {
-        return _cameraComponent;
+        return _camera;
     }
 
     float _moveSpeed{4.5f};
-    float _mouseSensitivity{0.5f};
+    float _mouseSensitivity{5.f};
 
   private:
-    std::shared_ptr<class CameraComponent> _cameraComponent;
+    std::shared_ptr<class Camera> _camera;
     bool _selected{false};
-    glm::vec3 _viewVector{transform.forward()};
+
+    Transform _transform{};
+
+    glm::vec3 _viewVector{_transform.forward()};
 };
 
 } // namespace cmx

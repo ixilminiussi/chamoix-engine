@@ -1,3 +1,4 @@
+#include "cmx/cmx_editor.h"
 #include "demo_game.h"
 
 // std
@@ -10,7 +11,11 @@ int main()
     try
     {
         app.load();
-        app.loadEditor();
+#ifndef NDEBUG
+        cmx::CmxEditor *editor = cmx::CmxEditor::getInstance();
+        editor->load(app.getWindow());
+        editor->attachScene(app.getScene());
+#endif
         app.run();
     }
     catch (const std::exception &e)

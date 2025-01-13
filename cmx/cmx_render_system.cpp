@@ -10,6 +10,7 @@
 #include "cmx_pipeline.h"
 #include "cmx_renderer.h"
 #include "cmx_window.h"
+#include "imgui.h"
 #include <cstdlib>
 #include <vulkan/vulkan_core.h>
 
@@ -35,6 +36,13 @@ RenderSystem::RenderSystem()
 RenderSystem::~RenderSystem()
 {
     vkDestroyPipelineLayout(_cmxDevice->device(), _pipelineLayout, nullptr);
+}
+
+void RenderSystem::editor(int i)
+{
+    ImGui::PushID(i);
+    ImGui::Checkbox("##", &_visible);
+    ImGui::PopID();
 }
 
 void RenderSystem::checkAspectRatio(class Camera *camera)

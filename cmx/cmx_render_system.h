@@ -1,10 +1,10 @@
 #ifndef CMX_RENDER_SYSTEM
 #define CMX_RENDER_SYSTEM
 
+#include <vulkan/vulkan_core.h>
 #define SHADED_RENDER_SYSTEM 0u
 #define BILLBOARD_RENDER_SYSTEM 1u
 #define EDGE_RENDER_SYSTEM 2u
-#define EDITOR_RENDER_SYSTEM 255u
 #define NULL_RENDER_SYSTEM 255u
 
 #define TRANSPARENT_BILLBOARD_Z 100u
@@ -14,7 +14,7 @@
 #define MAX_POINT_LIGHTS 10
 
 // cmx
-#include "cmx_viewport_ui_component.h"
+#include "cmx_viewport_ui.h"
 
 namespace cmx
 {
@@ -51,9 +51,15 @@ class RenderSystem
     virtual void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                         class GraphicsManager *) = 0;
 
-    friend void ViewportUIComponent::initImGUI();
+    friend void ViewportUI::initImGUI();
+
+    virtual void editor(int i);
 
     static std::shared_ptr<class CmxDevice> getDevice();
+    VkPipelineLayout getPipelineLayout() const
+    {
+        return _pipelineLayout;
+    }
 
   protected:
     virtual void createPipelineLayout(VkDescriptorSetLayout) = 0;
@@ -63,9 +69,11 @@ class RenderSystem
     std::unique_ptr<class CmxDescriptorPool> _globalPool{};
     VkPipelineLayout _pipelineLayout;
 
+    bool _visible{true};
+
     static VkCommandBuffer _commandBuffer;
     static std::unique_ptr<class CmxRenderer> _cmxRenderer;
-    static CmxWindow *_cmxWindow;
+    static class CmxWindow *_cmxWindow;
     static std::shared_ptr<class CmxDevice> _cmxDevice;
     static std::vector<std::unique_ptr<class CmxBuffer>> _uboBuffers;
     static std::vector<VkDescriptorSet> _globalDescriptorSets;

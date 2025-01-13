@@ -1,12 +1,13 @@
 #include "cmx_input_manager.h"
 
 // cmx
+#include "cmx_game.h"
 #include "cmx_input_action.h"
 #include "cmx_window.h"
-#include "imgui.h"
 
 // lib
 #include "IconsMaterialSymbols.h"
+#include "imgui.h"
 #include "tinyxml2.h"
 #include <GLFW/glfw3.h>
 
@@ -69,8 +70,8 @@ void InputManager::pollEvents(float dt)
 
 void InputManager::setMouseCapture(bool b)
 {
-    (b) ? glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-        : glfwSetInputMode(_window.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    (b) ? glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED)
+        : glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 void InputManager::save()

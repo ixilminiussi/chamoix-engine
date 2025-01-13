@@ -1,20 +1,19 @@
 #include "cmx_billboard_render_system.h"
 
 // cmx
+#include "IconsMaterialSymbols.h"
 #include "cmx_buffer.h"
 #include "cmx_camera.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
-#include "cmx_device.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
-#include "cmx_window.h"
+#include "imgui.h"
 
 // lib
-#include "imgui.h"
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <glm/ext/scalar_constants.hpp>
@@ -71,6 +70,9 @@ void BillboardRenderSystem::initialize()
 void BillboardRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::shared_ptr<Component>> &renderQueue,
                                    class GraphicsManager *graphicsManager)
 {
+    if (!_visible)
+        return;
+
     _cmxPipeline->bind(frameInfo->commandBuffer);
 
     vkCmdBindDescriptorSets(frameInfo->commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1,
@@ -158,6 +160,13 @@ void BillboardRenderSystem::createPipeline(VkRenderPass renderPass)
 
     _cmxPipeline = std::make_unique<CmxPipeline>(*_cmxDevice.get(), "shaders/billboard.vert.spv",
                                                  "shaders/billboard.frag.spv", pipelineConfig);
+}
+
+void BillboardRenderSystem::editor(int i)
+{
+    ImGui::PushID(i);
+    ImGui::Checkbox("Billboard##", &_visible);
+    ImGui::PopID();
 }
 
 } // namespace cmx

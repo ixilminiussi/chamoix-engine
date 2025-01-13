@@ -11,7 +11,6 @@
 
 // std
 #include <memory>
-#include <set>
 
 namespace cmx
 {
@@ -39,6 +38,7 @@ class BillboardRenderSystem : public RenderSystem
                 class GraphicsManager *) override;
 
     std::unique_ptr<CmxBuffer> _dummyBuffer;
+    virtual void editor(int i) override;
 };
 
 } // namespace cmx

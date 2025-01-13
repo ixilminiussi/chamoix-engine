@@ -1,16 +1,12 @@
 #include "cmx_game.h"
 
 // cmx
-#include "cmx/cmx_editor_render_system.h"
 #include "cmx_billboard_render_system.h"
-#include "cmx_camera_component.h"
 #include "cmx_device.h"
 #include "cmx_edge_render_system.h"
 #include "cmx_input_manager.h"
 #include "cmx_render_system.h"
 #include "cmx_shaded_render_system.h"
-#include "cmx_viewport_actor.h"
-#include "cmx_viewport_ui_component.h"
 #include "cmx_window.h"
 
 // lib
@@ -40,10 +36,7 @@ Game::Game()
 {
     _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<ShadedRenderSystem>();
     _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<BillboardRenderSystem>();
-#ifndef NDEBUG
     _renderSystems[EDGE_RENDER_SYSTEM] = std::make_shared<EdgeRenderSystem>();
-    _renderSystems[EDITOR_RENDER_SYSTEM] = std::make_shared<EditorRenderSystem>();
-#endif
 
     _inputManager = std::make_shared<InputManager>(_cmxWindow);
 }
@@ -96,24 +89,6 @@ std::shared_ptr<CmxDevice> Game::getDevice()
     {
         spdlog::info("Game: cannot call getDevice() before having ran RenderSystem::build(CmxWindow&)");
         std::exit(EXIT_FAILURE);
-    }
-}
-
-void Game::loadEditor()
-{
-    std::shared_ptr<ViewportActor> viewportActor = Actor::spawn<ViewportActor>(getScene(), "ViewportActor");
-
-    std::weak_ptr<ViewportUIComponent> viewportUIWk = viewportActor->getComponentByType<ViewportUIComponent>();
-    if (auto viewportUIComponent = viewportUIWk.lock())
-    {
-        viewportUIComponent->initInputManager(_cmxWindow);
-        viewportUIComponent->initImGUI();
-    }
-
-    std::weak_ptr<CameraComponent> cameraWk = viewportActor->getCameraComponent();
-    if (auto cameraComponent = cameraWk.lock())
-    {
-        getScene()->setCamera(cameraComponent->getCamera());
     }
 }
 

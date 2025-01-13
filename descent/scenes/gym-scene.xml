@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene name="gym">
+    <assets>
+        <model filepath="assets/cmx/container.obj" name="cmx_container"/>
+        <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
+        <model filepath="assets/models/bunny.obj" name="bunny"/>
+        <model filepath="assets/cmx/sphere.obj" name="cmx_sphere"/>
+        <model filepath="assets/models/smooth_vase.obj" name="vase"/>
+        <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
+        <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
+        <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
+        <texture filepath="assets/textures/bricks.png" name="bricks"/>
+    </assets>
+    <actor type="cmx::PointLightActor" name="RedLight" id="9" visible="true">
+        <transform>
+            <position x="8" y="-8" z="8"/>
+            <rotation pitch="0" yaw="0" roll="0"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true" lightIntensity="10" r="1" g="0.39215687" b="0.39215687">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::PointLightActor" name="BlueLight" id="5" visible="true">
+        <transform>
+            <position x="-8" y="-8" z="-8"/>
+            <rotation pitch="0" yaw="0" roll="0"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true" lightIntensity="10" r="0.39215687" g="0.39215687" b="1">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="WallActor" name="Pillar" id="3" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0"/>
+            <scale x="2" y="10" z="2"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="RoomActor" name="Room" id="1" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0"/>
+            <scale x="20" y="10" z="20"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_container">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+</scene>

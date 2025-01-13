@@ -1,10 +1,9 @@
 #include "cmx_viewport_actor.h"
 
 // cmx
-#include "cmx_camera_component.h"
+#include "cmx_camera.h"
 #include "cmx_game.h"
 #include "cmx_input_manager.h"
-#include "cmx_viewport_ui_component.h"
 #include "imgui.h"
 
 // lib
@@ -24,18 +23,14 @@
 namespace cmx
 {
 
-void ViewportActor::onBegin()
+ViewportActor::ViewportActor()
 {
-    transform.position = {0.f, 0.f, 0.f};
-    transform.scale = {1.f, 1.f, 1.f};
-
-    _cameraComponent = std::make_shared<CameraComponent>();
-    attachComponent(_cameraComponent, "ViewportCamera");
-    attachComponent(std::make_shared<ViewportUIComponent>(), "ViewportUI");
+    _camera = std::make_shared<Camera>();
 }
 
 void ViewportActor::update(float dt)
 {
+    _camera->setViewDirection(_transform.position, _transform.forward(), _transform.up());
 }
 
 void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
@@ -48,13 +43,8 @@ void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
 
     movement *= _moveSpeed;
 
-    transform.position += transform.forward() * movement.y * dt;
-    transform.position += transform.right() * -movement.x * dt;
-}
-
-void ViewportActor::onJumpInput(float dt)
-{
-    spdlog::info("jumping");
+    _transform.position += _transform.forward() * movement.y * dt;
+    _transform.position += _transform.right() * -movement.x * dt;
 }
 
 void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
@@ -78,11 +68,11 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     glm::quat pitch = glm::angleAxis(-pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate around the X-axis
 
     // Combine the new rotations: yaw first, then pitch relative to yaw
-    transform.rotation = yaw * transform.rotation;   // Apply yaw
-    transform.rotation = transform.rotation * pitch; // Apply pitch in local space
+    _transform.rotation = yaw * _transform.rotation;   // Apply yaw
+    _transform.rotation = _transform.rotation * pitch; // Apply pitch in local space
 
     // Ensure the quaternion remains normalized
-    transform.rotation = glm::normalize(transform.rotation);
+    _transform.rotation = glm::normalize(_transform.rotation);
 }
 
 void ViewportActor::select(float dt, int val)
@@ -90,25 +80,13 @@ void ViewportActor::select(float dt, int val)
     if (val == 1)
     {
         _selected = true;
-        getScene()->getGame()->getInputManager()->setMouseCapture(true);
+        InputManager::setMouseCapture(true);
     }
     else
     {
         _selected = false;
-        getScene()->getGame()->getInputManager()->setMouseCapture(false);
+        InputManager::setMouseCapture(false);
     }
-}
-
-tinyxml2::XMLElement &ViewportActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
-{
-    tinyxml2::XMLElement &actorElement = Actor::save(doc, parentElement);
-
-    return actorElement;
-}
-
-void ViewportActor::load(tinyxml2::XMLElement *actorElement)
-{
-    Actor::load(actorElement);
 }
 
 void ViewportActor::editor()

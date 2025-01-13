@@ -9,7 +9,6 @@
 #include <cmx/cmx_assets_manager.h>
 #include <cmx/cmx_billboard_render_system.h>
 #include <cmx/cmx_edge_render_system.h>
-#include <cmx/cmx_editor_render_system.h>
 #include <cmx/cmx_input_manager.h>
 #include <cmx/cmx_register.h>
 #include <cmx/cmx_render_system.h>
@@ -31,7 +30,6 @@
 
 // std
 #include <cstdlib>
-#include <memory>
 
 Demo::Demo()
 {
@@ -75,10 +73,7 @@ void Demo::load()
     _inputManager->load();
     _renderSystems[SHADED_RENDER_SYSTEM]->initialize();
     _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
-#ifndef NDEBUG
     _renderSystems[EDGE_RENDER_SYSTEM]->initialize();
-    _renderSystems[EDITOR_RENDER_SYSTEM]->initialize();
-#endif
 
     _scenes.push_back(&mainScene);
     setScene(0);

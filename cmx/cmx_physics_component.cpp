@@ -1,11 +1,10 @@
 #include "cmx_physics_component.h"
 
 // cmx
-#include "cmx/cmx_billboard_render_system.h"
-#include "cmx/cmx_frame_info.h"
-#include "cmx/cmx_primitives.h"
 #include "cmx_actor.h"
+#include "cmx_frame_info.h"
 #include "cmx_physics_manager.h"
+#include "cmx_primitives.h"
 #include "cmx_render_system.h"
 #include "cmx_shapes.h"
 
@@ -59,14 +58,19 @@ void PhysicsComponent::setRigid()
 
 void PhysicsComponent::setShape(const std::string &type)
 {
-    if (type.compare(PRIMITIVE_SPHERE))
+    if (type.compare(PRIMITIVE_SPHERE) == 0)
     {
         _cmxShape = std::shared_ptr<CmxShape>(new CmxSphere(this));
         return;
     }
-    if (type.compare(PRIMITIVE_CUBE))
+    if (type.compare(PRIMITIVE_CUBE) == 0)
     {
         _cmxShape = std::shared_ptr<CmxShape>(new CmxCuboid(this));
+        return;
+    }
+    if (type.compare(PRIMITIVE_CONTAINER) == 0)
+    {
+        _cmxShape = std::shared_ptr<CmxShape>(new CmxContainer(this));
         return;
     }
 

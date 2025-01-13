@@ -35,7 +35,7 @@ class InputManager
     void bindButton(const std::string &name, void (T::*callbackFunction)(float, int), T *instance);
     void addInput(const std::string &name, class InputAction *);
     void pollEvents(float dt);
-    void setMouseCapture(bool);
+    static void setMouseCapture(bool);
 
     void editor();
 

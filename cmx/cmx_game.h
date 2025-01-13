@@ -6,7 +6,6 @@
 
 // lib
 #include <spdlog/spdlog.h>
-#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
 // std
@@ -29,7 +28,6 @@ class Game
     Game &operator=(const Game &) = delete;
 
     virtual void load() {};
-    void loadEditor();
 
     virtual void run() {};
 
