@@ -24,6 +24,7 @@ class ViewportUI
     void renderSceneTree();
     void renderInspector();
     void renderGraphicsManager();
+    void renderPlayButton();
 
     void attachScene(class Scene *scene)
     {

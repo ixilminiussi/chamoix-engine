@@ -1,6 +1,7 @@
 #include "cmx_viewport_ui.h"
 
 // cmx
+#include "cmx/cmx_editor.h"
 #include "cmx_actor.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
@@ -61,6 +62,7 @@ void ViewportUI::render(const class FrameInfo &frameInfo)
     if (_showInspector)
         renderInspector();
 
+    renderPlayButton();
     renderGraphicsManager();
 
     ImGui::Render();
@@ -268,6 +270,27 @@ void ViewportUI::renderGraphicsManager()
     _attachedScene->getGraphicsManager()->editor();
 
     ImGui::End();
+}
+
+void ViewportUI::renderPlayButton()
+{
+    //     ImGuiIO &io = ImGui::GetIO();
+    //
+    //     ImVec2 centerPos = ImVec2(io.DisplaySize.x - 300.0f, 30.0f);
+    //
+    //     ImGui::SetNextWindowPos(centerPos, ImGuiCond_Always);
+    //
+    //     ImGui::Begin("##", nullptr,
+    //                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
+    //                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+    //
+    //     if (ImGui::Button(ICON_MS_PLAY_ARROW "F9"))
+    //     {
+    //         CmxEditor *editor = CmxEditor::getInstance();
+    //         editor->toggle(0.f, 0);
+    //     }
+    //
+    //     ImGui::End();
 }
 
 void ViewportUI::initImGUI()
