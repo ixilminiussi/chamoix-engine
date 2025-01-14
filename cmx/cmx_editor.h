@@ -16,6 +16,7 @@ class CmxEditor
 
     void load(class CmxWindow &);
     void attachScene(class Scene *);
+    void toggle(float dt, int);
     void update(float dt);
     void render(const class FrameInfo &);
 
@@ -33,7 +34,9 @@ class CmxEditor
 
     std::shared_ptr<class ViewportActor> _viewportActor;
     std::unique_ptr<class ViewportUI> _viewportUI;
-    std::unique_ptr<class InputManager> _inputManager;
+    std::shared_ptr<class InputManager> _inputManager;
+
+    class Scene *_scene;
 
     static bool _active;
 };

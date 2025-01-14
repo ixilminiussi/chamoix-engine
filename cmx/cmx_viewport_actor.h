@@ -26,6 +26,15 @@ class ViewportActor
     void select(float dt, int val);
     void deselect(float dt);
 
+    void lock()
+    {
+        _locked = true;
+    };
+    void unlock()
+    {
+        _locked = false;
+    };
+
     std::shared_ptr<class Camera> getCamera()
     {
         return _camera;
@@ -39,6 +48,8 @@ class ViewportActor
     bool _selected{false};
 
     Transform _transform{};
+
+    bool _locked{false};
 
     glm::vec3 _viewVector{_transform.forward()};
 };

@@ -30,16 +30,21 @@ Scene::~Scene()
 
 void Scene::load()
 {
-    _assetsManager = std::make_shared<AssetsManager>(this);
-    _graphicsManager = std::make_shared<GraphicsManager>(getGame()->getRenderSystems());
-    _physicsManager = std::make_shared<PhysicsManager>();
+    loadFrom(_xmlPath);
+}
+
+void Scene::loadFrom(const std::string &filepath)
+{
+    _assetsManager = std::make_unique<AssetsManager>(this);
+    _graphicsManager = std::make_unique<GraphicsManager>(getGame()->getRenderSystems());
+    _physicsManager = std::make_unique<PhysicsManager>();
 
     Register *cmxRegister = Register::getInstance();
 
     tinyxml2::XMLDocument doc;
-    if (doc.LoadFile(_xmlPath.c_str()) == tinyxml2::XML_SUCCESS)
+    if (doc.LoadFile(filepath.c_str()) == tinyxml2::XML_SUCCESS)
     {
-        spdlog::info("Scene: Loading new scene from {0}...", _xmlPath);
+        spdlog::info("Scene: Loading new scene from {0}...", filepath);
 
         tinyxml2::XMLElement *rootElement = doc.RootElement();
 
@@ -66,12 +71,14 @@ void Scene::load()
     }
     else
     {
-        spdlog::error("Scene: Couldn't load scene from {0}, {1}", _xmlPath, doc.ErrorStr());
+        spdlog::error("Scene: Couldn't load scene from {0}, {1}", filepath, doc.ErrorStr());
     }
 }
 
 void Scene::unload()
 {
+    _actors = std::unordered_map<uint32_t, std::shared_ptr<Actor>>{};
+    _components = std::vector<std::shared_ptr<Component>>{};
 }
 
 std::weak_ptr<Actor> Scene::getActorByName(const std::string &name)

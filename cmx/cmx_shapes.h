@@ -21,7 +21,7 @@ class CmxShape
   public:
     CmxShape(Transformable *parent);
 
-    virtual void render(const class FrameInfo &, VkPipelineLayout, std::shared_ptr<class AssetsManager>) {};
+    virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) {};
 
     virtual bool overlapsWith(const CmxShape &) const = 0;
     virtual bool overlapsWith(const class CmxCuboid &) const = 0;
@@ -49,7 +49,7 @@ class CmxSphere : public CmxShape
     CmxSphere(Transformable *);
     ~CmxSphere() {};
 
-    virtual void render(const class FrameInfo &, VkPipelineLayout, std::shared_ptr<class AssetsManager>) override;
+    virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) override;
 
     bool overlapsWith(const CmxShape &) const override;
     bool overlapsWith(const CmxSphere &) const override;
@@ -77,7 +77,7 @@ class CmxCuboid : public CmxShape
   public:
     CmxCuboid(Transformable *);
 
-    virtual void render(const class FrameInfo &, VkPipelineLayout, std::shared_ptr<class AssetsManager>) override;
+    virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) override;
 
     ~CmxCuboid() {};
 
@@ -106,7 +106,7 @@ class CmxContainer : public CmxCuboid
   public:
     CmxContainer(Transformable *);
 
-    virtual void render(const class FrameInfo &, VkPipelineLayout, std::shared_ptr<class AssetsManager>) override;
+    virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) override;
 
     ~CmxContainer() {};
 

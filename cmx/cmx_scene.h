@@ -34,6 +34,7 @@ class Scene
     tinyxml2::XMLElement &save();
     tinyxml2::XMLElement &saveAs(const char *filepath);
     void load();
+    void loadFrom(const std::string &filepath);
     void unload();
 
     void update(float dt);
@@ -57,17 +58,17 @@ class Scene
 
     auto getAssetsManager()
     {
-        return _assetsManager;
+        return _assetsManager.get();
     }
 
     auto getGraphicsManager()
     {
-        return _graphicsManager;
+        return _graphicsManager.get();
     }
 
     auto getPhysicsManager()
     {
-        return _physicsManager;
+        return _physicsManager.get();
     }
 
     const std::string _xmlPath;
@@ -82,9 +83,9 @@ class Scene
     std::unordered_map<uint32_t, std::shared_ptr<class Actor>> _actors{};
     std::vector<std::shared_ptr<class Component>> _components{};
 
-    std::shared_ptr<class AssetsManager> _assetsManager;
-    std::shared_ptr<class GraphicsManager> _graphicsManager;
-    std::shared_ptr<class PhysicsManager> _physicsManager;
+    std::unique_ptr<class AssetsManager> _assetsManager;
+    std::unique_ptr<class GraphicsManager> _graphicsManager;
+    std::unique_ptr<class PhysicsManager> _physicsManager;
 
     class Game *_game;
 };

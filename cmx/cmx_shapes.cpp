@@ -104,8 +104,7 @@ CmxSphere::CmxSphere(Transformable *parent) : CmxShape{parent}
 {
 }
 
-void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout,
-                       std::shared_ptr<AssetsManager> assetsManager)
+void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
 
@@ -157,8 +156,7 @@ glm::vec3 CmxPolygon::getNormal()
     return glm::normalize(glm::cross(*b - *a, *c - *a));
 }
 
-void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout,
-                       std::shared_ptr<AssetsManager> assetsManager)
+void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
     Transform transform = _parent->getAbsoluteTransform();
@@ -298,7 +296,7 @@ CmxContainer::CmxContainer(Transformable *parent) : CmxCuboid{parent}
 }
 
 void CmxContainer::render(const class FrameInfo &frameInfo, VkPipelineLayout pipelineLayout,
-                          std::shared_ptr<class AssetsManager> assetsManager)
+                          class AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
     Transform transform = _parent->getAbsoluteTransform();

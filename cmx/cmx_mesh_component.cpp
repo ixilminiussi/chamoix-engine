@@ -101,7 +101,7 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
 void MeshComponent::editor(int i)
 {
     const char *selected = _cmxModel->name.c_str();
-    std::shared_ptr<AssetsManager> assetsManager = getScene()->getAssetsManager();
+    AssetsManager *assetsManager = getScene()->getAssetsManager();
 
     if (ImGui::BeginCombo("Model##", selected))
     {

@@ -31,7 +31,7 @@ CmxEditor::CmxEditor()
 
 void CmxEditor::initInputManager(CmxWindow &cmxWindow, const std::string &shortcutsPath)
 {
-    _inputManager = std::make_unique<InputManager>(cmxWindow, shortcutsPath);
+    _inputManager = std::make_shared<InputManager>(cmxWindow, shortcutsPath);
     _inputManager->load();
 }
 
@@ -40,28 +40,48 @@ void CmxEditor::load(CmxWindow &cmxWindow)
     initInputManager(cmxWindow);
 
     _viewportActor = std::make_shared<ViewportActor>();
-    _viewportUI = std::make_unique<ViewportUI>(_viewportActor);
+    _viewportUI = std::make_unique<ViewportUI>(_viewportActor, _inputManager);
     _viewportUI->initImGUI();
 
     _inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, _viewportActor.get());
     _inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, _viewportActor.get());
     _inputManager->bindButton("viewport toggle", &ViewportActor::select, _viewportActor.get());
+    _inputManager->bindButton("editor toggle", &CmxEditor::toggle, this);
 }
 
 void CmxEditor::attachScene(Scene *scene)
 {
-    scene->setCamera(_viewportActor->getCamera());
+    _scene = scene;
+    _scene->setCamera(_viewportActor->getCamera());
 
-    _viewportUI->attachScene(scene);
+    _viewportUI->attachScene(_scene);
 
     _active = true;
+}
+
+void CmxEditor::toggle(float dt, int)
+{
+    spdlog::info("toggled");
+    if (_active)
+    {
+        _scene->saveAs("editor/temp.xml");
+        _active = false;
+        _viewportActor->lock();
+    }
+    else
+    {
+        _scene->unload();
+        _scene->loadFrom("editor/temp.xml");
+        _active = true;
+        _viewportActor->unlock();
+        _scene->setCamera(_viewportActor->getCamera());
+    }
 }
 
 void CmxEditor::update(float dt)
 {
     _inputManager->pollEvents(dt);
     _viewportActor->update(dt);
-    _viewportUI->update(dt);
 }
 
 void CmxEditor::render(const FrameInfo &frameInfo)

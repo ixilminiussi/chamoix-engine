@@ -77,6 +77,9 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
 
 void ViewportActor::select(float dt, int val)
 {
+    if (_locked)
+        return;
+
     if (val == 1)
     {
         _selected = true;

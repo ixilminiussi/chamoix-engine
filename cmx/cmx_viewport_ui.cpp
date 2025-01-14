@@ -28,7 +28,8 @@
 namespace cmx
 {
 
-ViewportUI::ViewportUI(std::shared_ptr<ViewportActor> viewportActor) : _viewportActor{viewportActor}
+ViewportUI::ViewportUI(std::shared_ptr<ViewportActor> viewportActor, std::shared_ptr<InputManager> inputManager)
+    : _viewportActor{viewportActor}, _inputManager{inputManager}
 {
     _cmxRegister = Register::getInstance();
 }
@@ -36,14 +37,6 @@ ViewportUI::ViewportUI(std::shared_ptr<ViewportActor> viewportActor) : _viewport
 ViewportUI::~ViewportUI()
 {
     ImGui_ImplVulkan_Shutdown();
-}
-
-void ViewportUI::update(float dt)
-{
-    if (_inputManager != nullptr)
-    {
-        _inputManager->pollEvents(dt);
-    }
 }
 
 void ViewportUI::render(const class FrameInfo &frameInfo)
