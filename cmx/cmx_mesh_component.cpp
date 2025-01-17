@@ -124,6 +124,8 @@ void MeshComponent::editor(int i)
         ImGui::EndCombo();
     }
 
+    ImGui::ColorEdit3("Color##", (float *)&_color);
+
     Component::editor(i);
 }
 

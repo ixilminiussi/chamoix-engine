@@ -1,8 +1,7 @@
 #version 450
 
-layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec3 fragPositionWorld;
-layout(location = 2) in vec3 fragNormalWorld;
+layout(location = 0) in vec3 fragPositionWorld;
+layout(location = 1) in vec3 fragNormalWorld;
 
 layout(location = 0) out vec4 outColor;
 
@@ -47,5 +46,5 @@ void main()
         diffuseLight += intensity * cosAngIncidence;
     }
 
-    outColor = vec4(diffuseLight * fragColor, 1.0f);
+    outColor = vec4(diffuseLight * vec3(1.f), 1.0f);
 }

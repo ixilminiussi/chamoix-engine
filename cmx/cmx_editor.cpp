@@ -65,6 +65,9 @@ void CmxEditor::toggle(float dt, int)
     if (_active)
     {
         _scene->saveAs("editor/temp.xml");
+        _scene->unload();
+        _scene->loadFrom("editor/temp.xml");
+
         _active = false;
         _viewportActor->lock();
     }
@@ -72,6 +75,7 @@ void CmxEditor::toggle(float dt, int)
     {
         _scene->unload();
         _scene->loadFrom("editor/temp.xml");
+
         _active = true;
         _viewportActor->unlock();
         _scene->setCamera(_viewportActor->getCamera());

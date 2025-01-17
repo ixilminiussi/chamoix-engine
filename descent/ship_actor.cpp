@@ -27,6 +27,10 @@ void ShipActor::onBegin()
 
 void ShipActor::update(float dt)
 {
+    if (!_manualTilting)
+    {
+        tiltToLocked(dt);
+    }
 }
 
 void ShipActor::tiltToLocked(float dt)

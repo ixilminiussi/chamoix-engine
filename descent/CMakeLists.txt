@@ -5,6 +5,7 @@ add_library(demo
     descent_game.cpp
     wall_actor.cpp
     room_actor.cpp
+    ship_actor.cpp
 )
 
 target_include_directories(demo PUBLIC

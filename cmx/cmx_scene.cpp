@@ -1,6 +1,7 @@
 #include "cmx_scene.h"
 
 // cmx
+#include "cmx/cmx_camera.h"
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
 #include "cmx_component.h"
@@ -73,6 +74,9 @@ void Scene::loadFrom(const std::string &filepath)
     {
         spdlog::error("Scene: Couldn't load scene from {0}, {1}", filepath, doc.ErrorStr());
     }
+
+    _activeCamera = std::make_shared<Camera>();
+    _activeCamera->setViewDirection(glm::vec3{0.f}, glm::vec3{0.f, 0.f, 1.f});
 }
 
 void Scene::unload()

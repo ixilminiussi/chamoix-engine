@@ -43,6 +43,7 @@ class MeshComponent : public Component
 
   private:
     std::shared_ptr<class CmxModel> _cmxModel;
+    glm::vec3 _color;
 };
 
 } // namespace cmx
