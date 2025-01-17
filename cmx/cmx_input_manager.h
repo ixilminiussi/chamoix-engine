@@ -52,7 +52,7 @@ inline void InputManager::bindAxis(const std::string &name, void (T::*callbackFu
     auto mappedInput = _inputDictionary.find(name);
     if (mappedInput == _inputDictionary.end())
     {
-        spdlog::warn("InputManager: attempt at binding non existant input '{0}'", name);
+        spdlog::warn("InputManager: attempt at binding non existant input [{0}]", name);
         return;
     }
     else
@@ -63,7 +63,7 @@ inline void InputManager::bindAxis(const std::string &name, void (T::*callbackFu
             else
                 spdlog::warn("InputManager: action being called on deleted object");
         });
-        spdlog::info("InputManager: '{0}' bound to new function", name);
+        spdlog::info("InputManager: [{0}] bound to new function", name);
     }
 }
 
@@ -73,7 +73,7 @@ inline void InputManager::bindButton(const std::string &name, void (T::*callback
     auto mappedInput = _inputDictionary.find(name);
     if (mappedInput == _inputDictionary.end())
     {
-        spdlog::warn("InputManager: attempt at binding non existant input '{0}'", name);
+        spdlog::warn("InputManager: attempt at binding non existant input [{0}]", name);
         return;
     }
     else
@@ -84,7 +84,7 @@ inline void InputManager::bindButton(const std::string &name, void (T::*callback
             else
                 spdlog::warn("InputManager: action being called on deleted object");
         });
-        spdlog::info("InputManager: '{0}' bound to new function", name);
+        spdlog::info("InputManager: [{0}] bound to new function", name);
     }
 }
 

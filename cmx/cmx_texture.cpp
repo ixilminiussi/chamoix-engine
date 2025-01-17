@@ -84,18 +84,42 @@ CmxTexture::CmxTexture(CmxDevice *device, const CmxTexture::Builder &builder, co
     stbi_image_free(builder.pixels);
 }
 
-std::shared_ptr<CmxTexture> CmxTexture::createTextureFromFile(CmxDevice *device, const std::string &filepath,
-                                                              const std::string &name)
+CmxTexture::~CmxTexture()
+{
+    if (!_freed)
+    {
+        spdlog::error("CmxTexture: forgot to free texture {0} before deletion", name);
+    }
+}
+
+CmxTexture *CmxTexture::createTextureFromFile(CmxDevice *device, const std::string &filepath, const std::string &name)
 {
     Builder builder{};
     builder.loadTexture(filepath);
 
     spdlog::info("CmxTexture: '{0}' loaded", filepath);
-    return std::make_shared<CmxTexture>(device, builder, name);
+    return new CmxTexture(device, builder, name);
 }
 
 void CmxTexture::bind(VkCommandBuffer)
 {
+}
+
+void CmxTexture::free()
+{
+    delete _stagingBuffer.release();
+
+    CmxDevice *device = RenderSystem::getDevice();
+    if (device)
+    {
+        vkFreeMemory(device->device(), textureImageMemory, nullptr);
+    }
+    else
+    {
+        spdlog::warn("CmxTexture: Cannot properly free texture without device, make sure device is being deleted last");
+    }
+
+    _freed = true;
 }
 
 void CmxTexture::Builder::loadTexture(const std::string &filepath)

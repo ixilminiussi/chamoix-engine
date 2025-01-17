@@ -39,7 +39,7 @@ class Game
     {
         return _inputManager.get();
     }
-    auto &getRenderSystems()
+    std::map<uint8_t, std::shared_ptr<class RenderSystem>> &getRenderSystems()
     {
         return _renderSystems;
     }

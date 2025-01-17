@@ -73,7 +73,7 @@ class Scene
     }
 
     const std::string _xmlPath;
-    const std::string name;
+    std::string name;
 
   private:
     void updateActors(float dt);
@@ -95,8 +95,8 @@ template <typename T> inline void Scene::getAllActorsByType(std::vector<std::wea
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
-        spdlog::error("'{0}' is not of base type 'Actor', 'getAllActorsByType<{1}>' will return nothing",
-                      typeid(T).name(), typeid(T).name());
+        spdlog::error("Scene {0}: '{1}' is not of base type 'Actor', 'getAllActorsByType<{2}>' will return nothing",
+                      name, typeid(T).name(), typeid(T).name());
         return;
     }
 
@@ -113,8 +113,9 @@ template <typename T> inline void Scene::getAllComponentsByType(std::vector<std:
 {
     if constexpr (!std::is_base_of<Component, T>::value)
     {
-        spdlog::error("'{0}' is not of base type 'Components', 'getAllComponentsByType<{1}>' will return nothing",
-                      typeid(T).name(), typeid(T).name());
+        spdlog::error(
+            "Scene {0}: '{1}' is not of base type 'Components', 'getAllComponentsByType<{2}>' will return nothing",
+            name, typeid(T).name(), typeid(T).name());
         return;
     }
     for (auto component : _components)

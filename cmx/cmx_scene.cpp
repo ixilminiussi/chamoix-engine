@@ -49,9 +49,10 @@ void Scene::loadFrom(const std::string &filepath)
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(filepath.c_str()) == tinyxml2::XML_SUCCESS)
     {
-        spdlog::info("Scene: Loading new scene from {0}...", filepath);
+        spdlog::info("Scene: Loading new scene from `{0}`...", filepath);
 
         tinyxml2::XMLElement *rootElement = doc.RootElement();
+        name = std::string(rootElement->Attribute("name"));
 
         _assetsManager->load(rootElement);
 
@@ -67,23 +68,31 @@ void Scene::loadFrom(const std::string &filepath)
             }
             catch (std::out_of_range e)
             {
-                spdlog::error("Scene: No actor type '{0}' in register of actors", actorElement->Attribute("type"));
+                spdlog::error("Scene {0}: No actor type <{1}> in register of actors", name,
+                              actorElement->Attribute("type"));
             }
             actorElement = actorElement->NextSiblingElement("actor");
         }
 
-        spdlog::info("Scene: Completed loading new scene...");
+        spdlog::info("Scene {0}: Succesfully loaded new scene!");
     }
     else
     {
-        spdlog::error("Scene: Couldn't load scene from {0}, {1}", filepath, doc.ErrorStr());
+        spdlog::error("Scene {0}: Couldn't load scene from `{1}`, {2}", name, filepath, doc.ErrorStr());
     }
 }
 
 void Scene::unload()
 {
+    spdlog::info("Scene {0}: Unloading scene...", name);
+    _assetsManager->unload();
+    delete _assetsManager.release();
+    delete _graphicsManager.release();
+    delete _physicsManager.release();
+
     _actors = std::unordered_map<uint32_t, std::shared_ptr<Actor>>{};
     _components = std::vector<std::shared_ptr<Component>>{};
+    spdlog::info("Scene {0}: Succesfully unloaded scene!");
 }
 
 std::weak_ptr<Actor> Scene::getActorByName(const std::string &name)
@@ -108,7 +117,7 @@ std::weak_ptr<Actor> Scene::getActorByID(uint32_t id)
     }
     catch (const std::out_of_range &e)
     {
-        spdlog::warn("Scene '{0}': Attempt to get actor from invalid id: '{1}''", name, id);
+        spdlog::warn("Scene {0}: Attempt to get actor from invalid id: {1}'", name, id);
     }
 
     return actor;
@@ -133,7 +142,7 @@ std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor> actor)
     // expensive operation so we only use it in debug mode
     if (!getActorByName(actor->name).expired())
     {
-        spdlog::warn("Scene '{0}': An actor with name '{1}' already exists", name, actor->name);
+        spdlog::warn("Scene {0}: An actor with name <{1}> already exists", name, actor->name);
 
         return (getActorByName(actor->name).lock());
     }
@@ -141,7 +150,7 @@ std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor> actor)
 
     actor->onBegin();
     _actors[actor->_id] = actor;
-    spdlog::info("Scene '{0}': Added new Actor '{1}'", name, actor->name);
+    spdlog::info("Scene {0}: Added new Actor <{1}>", name, actor->name);
 
     return actor;
 }
@@ -166,12 +175,12 @@ void Scene::removeActor(Actor *actor)
     }
     catch (const std::out_of_range &e)
     {
-        spdlog::warn("Scene '{0}': Attempt to remove non-managed actor '{1}''", name, actor->name);
+        spdlog::warn("Scene {0}: Attempt to remove non-managed actor <{1}>'", name, actor->name);
     }
 
     _actors.erase(actor->_id);
 
-    spdlog::info("Scene '{0}': Removed actor '{1}'", name, actor->name);
+    spdlog::info("Scene {0}: Removed actor <{1}>", name, actor->name);
 }
 
 void Scene::updateActors(float dt)
@@ -205,7 +214,7 @@ void Scene::removeComponent(std::shared_ptr<Component> component)
 void Scene::addComponent(std::shared_ptr<Component> component)
 {
     _components.push_back(component);
-    spdlog::info("Scene '{0}': Added new component '{1}->{2}'", name, component->getParent()->name, component->name);
+    spdlog::info("Scene {0}: Added new component <{1}->{2}>", name, component->getParent()->name, component->name);
 
     if (component->getRenderZ() >= 0)
     {
@@ -248,7 +257,7 @@ tinyxml2::XMLElement &Scene::save()
 
 tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 {
-    spdlog::info("Scene: saving scene to {0}...", filepath);
+    spdlog::info("Scene {0}: saving scene to `{1}`...", name, filepath);
 
     tinyxml2::XMLDocument doc;
     doc.InsertFirstChild(doc.NewDeclaration());
@@ -267,10 +276,10 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 
     if (doc.SaveFile(filepath) != tinyxml2::XML_SUCCESS)
     {
-        spdlog::error("FILE SAVING: {0}", doc.ErrorStr());
+        spdlog::error("Scene {0}: {1}", name, doc.ErrorStr());
     };
 
-    spdlog::info("Scene: saving success!", filepath);
+    spdlog::info("Scene {0}: Succesfully saved to `{1}`!", name, filepath);
     return *sceneElement;
 }
 

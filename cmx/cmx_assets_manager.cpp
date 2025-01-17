@@ -40,6 +40,10 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
     return *assetsElement;
 }
 
+AssetsManager::~AssetsManager()
+{
+}
+
 void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 {
     addModel("assets/cmx/cube.obj", PRIMITIVE_CUBE);
@@ -70,7 +74,35 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 
 void AssetsManager::unload()
 {
-    // TODO: implement
+    spdlog::info("AssetsManager: Unloading assets manager...");
+    {
+        auto it = _models.begin();
+
+        while (it != _models.end())
+        {
+            (*it).second->free();
+            delete (*it).second.release();
+            spdlog::info("AssetsManager: Unloaded model [{0}]", (*it).first);
+            it++;
+        }
+
+        _models.clear();
+    }
+
+    {
+        auto it = _textures.begin();
+
+        while (it != _textures.end())
+        {
+            (*it).second->free();
+            delete (*it).second.release();
+            spdlog::info("AssetsManager: Unloaded texture [{0}]", (*it).first);
+            it++;
+        }
+
+        _textures.clear();
+    }
+    spdlog::info("AssetsManager: Successfully unloaded assets manager!");
 }
 
 void AssetsManager::editor()
@@ -89,7 +121,7 @@ void AssetsManager::addModel(const std::string &filepath, const std::string &nam
         CmxDevice *device = RenderSystem::getDevice();
         if (device)
         {
-            _models[name] = CmxModel::createModelFromFile(device, filepath, name);
+            _models[name] = std::unique_ptr<CmxModel>(CmxModel::createModelFromFile(device, filepath, name));
         }
     }
 }
@@ -111,7 +143,7 @@ void AssetsManager::addTexture(const std::string &filepath, const std::string &n
         CmxDevice *device = RenderSystem::getDevice();
         if (device)
         {
-            _textures[name] = CmxTexture::createTextureFromFile(device, filepath, name);
+            _textures[name] = std::unique_ptr<CmxTexture>(CmxTexture::createTextureFromFile(device, filepath, name));
         }
     }
 }
@@ -121,11 +153,11 @@ void AssetsManager::removeTexture(const std::string &name)
     // TODO: implement
 }
 
-std::shared_ptr<CmxModel> AssetsManager::getModel(const std::string &name)
+CmxModel *AssetsManager::getModel(const std::string &name)
 {
     try
     {
-        return _models.at(name);
+        return _models.at(name).get();
     }
     catch (const std::out_of_range &e)
     {
@@ -134,11 +166,11 @@ std::shared_ptr<CmxModel> AssetsManager::getModel(const std::string &name)
     }
 }
 
-std::shared_ptr<class CmxTexture> AssetsManager::getTexture(const std::string &name)
+CmxTexture *AssetsManager::getTexture(const std::string &name)
 {
     try
     {
-        return _textures.at(name);
+        return _textures.at(name).get();
     }
     catch (const std::out_of_range &e)
     {

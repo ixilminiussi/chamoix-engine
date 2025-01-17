@@ -34,7 +34,29 @@ RenderSystem::RenderSystem()
 
 RenderSystem::~RenderSystem()
 {
+    delete _cmxPipeline.release();
+
+    delete _globalPool.release();
+
     vkDestroyPipelineLayout(_cmxDevice->device(), _pipelineLayout, nullptr);
+}
+
+void RenderSystem::globalRelease()
+{
+    spdlog::info("global release");
+    delete _cmxRenderer.release();
+
+    // vkFreeCommandBuffers(_cmxDevice->device(), _cmxDevice->getCommandPool(), , _commandBuffer);
+
+    auto it = _uboBuffers.begin();
+    while (it != _uboBuffers.end())
+    {
+        delete (*it).release();
+        it++;
+    }
+
+    delete _cmxDevice.release();
+    delete _cmxWindow;
 }
 
 void RenderSystem::editor(int i)

@@ -47,6 +47,8 @@ class RenderSystem
     static FrameInfo *beginRender(class Camera *, PointLight pointLights[MAX_POINT_LIGHTS], int numLights);
     static void endRender();
 
+    static void globalRelease();
+
     virtual void initialize() = 0;
     virtual void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                         class GraphicsManager *) = 0;
@@ -71,10 +73,10 @@ class RenderSystem
 
     bool _visible{true};
 
-    static VkCommandBuffer _commandBuffer;
     static std::unique_ptr<class CmxRenderer> _cmxRenderer;
-    static class CmxWindow *_cmxWindow;
     static std::unique_ptr<class CmxDevice> _cmxDevice;
+    static class CmxWindow *_cmxWindow;
+    static VkCommandBuffer _commandBuffer;
     static std::vector<std::unique_ptr<class CmxBuffer>> _uboBuffers;
     static std::vector<VkDescriptorSet> _globalDescriptorSets;
 

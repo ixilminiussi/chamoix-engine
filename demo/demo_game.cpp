@@ -20,6 +20,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
+#include <memory>
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
@@ -44,6 +45,14 @@ Demo::Demo()
     cmxRegister->addActor("DynamicBodyActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<DynamicBodyActor>(scene, name);
     });
+
+    _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<cmx::ShadedRenderSystem>();
+    _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<cmx::BillboardRenderSystem>();
+    _renderSystems[EDGE_RENDER_SYSTEM] = std::make_shared<cmx::EdgeRenderSystem>();
+
+    _renderSystems[SHADED_RENDER_SYSTEM]->initialize();
+    _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
+    _renderSystems[EDGE_RENDER_SYSTEM]->initialize();
 }
 
 Demo::~Demo()
@@ -63,22 +72,12 @@ void Demo::run()
     }
 }
 
-void Demo::closeWindow(float dt, int val)
-{
-    std::exit(EXIT_SUCCESS);
-}
-
 void Demo::load()
 {
     _inputManager->load();
-    _renderSystems[SHADED_RENDER_SYSTEM]->initialize();
-    _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
-    _renderSystems[EDGE_RENDER_SYSTEM]->initialize();
 
     _scenes.push_back(&mainScene);
     setScene(0);
 
     getScene()->getAssetsManager()->addTexture("assets/textures/bricks.png", "bricks");
-
-    getInputManager()->bindButton("exit", &Demo::closeWindow, this);
 }

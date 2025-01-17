@@ -46,7 +46,7 @@ std::shared_ptr<Component> Actor::attachComponent(std::shared_ptr<Component> com
     try
     {
         auto c = _components.at(componentName);
-        spdlog::warn("Actor '{0}': component of same name '{1}' already bound to actor", name, componentName);
+        spdlog::warn("Actor {0}: component of same name <{1}> already bound to actor", name, componentName);
         return c;
     }
     catch (const std::out_of_range &e)
@@ -73,12 +73,12 @@ void Actor::detachComponent(const std::string &componentName)
     }
     catch (const std::out_of_range &e)
     {
-        spdlog::warn("Actor '{0}': Attempt to remove unheld component '{1}''", name, componentName);
+        spdlog::warn("Actor {0}: Attempt to remove unheld component <{1}>'", name, componentName);
     }
 
     _components.erase(componentName);
 
-    spdlog::info("Actor '{0}': Removed component '{1}'", name, componentName);
+    spdlog::info("Actor {0}: Removed component <{1}>", name, componentName);
 }
 
 std::weak_ptr<Component> Actor::getComponentByName(const std::string &name)
@@ -90,7 +90,7 @@ std::weak_ptr<Component> Actor::getComponentByName(const std::string &name)
     }
     catch (const std::out_of_range &e)
     {
-        spdlog::warn("Scene '{0}': Attempt to get component from invalid id: '{1}''", name, _id);
+        spdlog::warn("Actor {0}: Attempt to get component from invalid id: {1}'", name, _id);
     }
 
     return component;
@@ -221,7 +221,7 @@ std::string Actor::getType()
     }
     else
     {
-        spdlog::critical("Component: Error demangling component type");
+        spdlog::critical("Actor {0}: Error demangling component type", name);
         return typeid(this).name();
     }
 }

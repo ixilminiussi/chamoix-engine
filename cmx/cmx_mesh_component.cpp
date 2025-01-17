@@ -32,7 +32,7 @@ MeshComponent::MeshComponent()
 
 void MeshComponent::onAttach()
 {
-    if (_cmxModel.get() == nullptr)
+    if (!_cmxModel)
     {
         setModel(PRIMITIVE_CUBE);
     }
@@ -46,7 +46,7 @@ void MeshComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipeline
         return;
     }
 
-    if (_cmxModel.get() == nullptr)
+    if (!_cmxModel)
     {
         spdlog::error("MeshComponent: missing model");
         return;
@@ -78,9 +78,13 @@ void MeshComponent::setModel(const std::string &name)
     }
 }
 
-const std::string &MeshComponent::getModelName()
+std::string MeshComponent::getModelName()
 {
-    return _cmxModel->name;
+    if (_cmxModel)
+    {
+        return _cmxModel->name;
+    }
+    return "Missing model";
 }
 
 tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)

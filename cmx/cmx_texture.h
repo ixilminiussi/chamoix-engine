@@ -28,17 +28,17 @@ class CmxTexture
     };
 
     CmxTexture(class CmxDevice *, const CmxTexture::Builder &, const std::string &name);
-    ~CmxTexture() = default;
+    ~CmxTexture();
 
     CmxTexture(const CmxTexture &) = delete;
     CmxTexture &operator=(const CmxTexture &) = delete;
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
-    static std::shared_ptr<CmxTexture> createTextureFromFile(class CmxDevice *, const std::string &filepath,
-                                                             const std::string &name);
+    static CmxTexture *createTextureFromFile(class CmxDevice *, const std::string &filepath, const std::string &name);
 
     void bind(VkCommandBuffer);
+    void free();
 
     const std::string name;
 
@@ -48,6 +48,8 @@ class CmxTexture
     VkDeviceMemory textureImageMemory;
 
     std::string _filepath;
+
+    bool _freed{false};
 };
 
 } // namespace cmx

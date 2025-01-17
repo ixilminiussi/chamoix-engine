@@ -45,10 +45,10 @@ void InputManager::addInput(const std::string &name, InputAction *newInput)
     catch (const std::out_of_range &e)
     {
         _inputDictionary[name] = newInput;
-        spdlog::info("InputManager: New input '{0}' added", name.c_str());
+        spdlog::info("InputManager: New input [{0}] added", name.c_str());
         return;
     }
-    spdlog::error("InputManager: Attempt at rebinding existing input '{0}'", name.c_str());
+    spdlog::error("InputManager: Attempt at rebinding existing input [{0}]", name.c_str());
 }
 
 void InputManager::pollEvents(float dt)
@@ -81,7 +81,7 @@ void InputManager::save()
 
 void InputManager::saveAs(const std::string &customFilepath)
 {
-    spdlog::info("InputManager: saving state to {0}", customFilepath);
+    spdlog::info("InputManager: saving state to `{0}`", customFilepath);
 
     tinyxml2::XMLDocument doc;
     doc.InsertFirstChild(doc.NewDeclaration());
@@ -98,7 +98,7 @@ void InputManager::saveAs(const std::string &customFilepath)
 
     if (doc.SaveFile(customFilepath.c_str()) != tinyxml2::XML_SUCCESS)
     {
-        spdlog::error("FILE SAVING: {0}", doc.ErrorStr());
+        spdlog::error("InputManager: {0}", doc.ErrorStr());
     };
 
     spdlog::info("InputManager: saving success!", _filepath);
@@ -110,7 +110,7 @@ void InputManager::load()
 
     if (doc.LoadFile(_filepath.c_str()) == tinyxml2::XML_SUCCESS)
     {
-        spdlog::info("InputManager: Loading input manager from {0}...", _filepath);
+        spdlog::info("InputManager: Loading input manager from `{0}`...", _filepath);
 
         tinyxml2::XMLElement *rootElement = doc.RootElement();
         if (tinyxml2::XMLElement *inputsElement = doc.FirstChildElement("inputs"))

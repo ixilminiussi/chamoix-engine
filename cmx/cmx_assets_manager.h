@@ -19,7 +19,7 @@ class AssetsManager final
 {
   public:
     AssetsManager(class Scene *parent);
-    ~AssetsManager() = default;
+    ~AssetsManager();
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
     void load(tinyxml2::XMLElement *);
@@ -29,11 +29,11 @@ class AssetsManager final
 
     void addModel(const std::string &filepath, const std::string &name);
     void removeModel(const std::string &name);
-    std::shared_ptr<class CmxModel> getModel(const std::string &name);
+    class CmxModel *getModel(const std::string &name);
 
     void addTexture(const std::string &filepath, const std::string &name);
     void removeTexture(const std::string &name);
-    std::shared_ptr<class CmxTexture> getTexture(const std::string &name);
+    class CmxTexture *getTexture(const std::string &name);
 
     const auto &getModels()
     {
@@ -48,8 +48,8 @@ class AssetsManager final
   private:
     class Scene *_parentScene;
 
-    std::unordered_map<std::string, std::shared_ptr<class CmxModel>> _models;
-    std::unordered_map<std::string, std::shared_ptr<class CmxTexture>> _textures;
+    std::unordered_map<std::string, std::unique_ptr<class CmxModel>> _models;
+    std::unordered_map<std::string, std::unique_ptr<class CmxTexture>> _textures;
     // TODO:
     // fonts
     // sprites

@@ -40,14 +40,21 @@ CmxModel::CmxModel(CmxDevice *device, const CmxModel::Builder &builder, const st
     _filepath = builder.filepath;
 }
 
-std::shared_ptr<CmxModel> CmxModel::createModelFromFile(CmxDevice *device, const std::string &filepath,
-                                                        const std::string &name)
+CmxModel::~CmxModel()
+{
+    if (!_freed)
+    {
+        spdlog::error("CmxModel: forgot to free model {0} before deletion", name);
+    }
+}
+
+CmxModel *CmxModel::createModelFromFile(CmxDevice *device, const std::string &filepath, const std::string &name)
 {
     Builder builder{};
     builder.loadModel(filepath);
 
     spdlog::info("CmxModel: '{0}' loaded with {1} vertices", filepath, builder.vertices.size());
-    return std::make_shared<CmxModel>(device, builder, name);
+    return new CmxModel(device, builder, name);
 }
 
 void CmxModel::bind(VkCommandBuffer commandBuffer)
@@ -72,6 +79,14 @@ void CmxModel::draw(VkCommandBuffer commandBuffer)
     {
         vkCmdDraw(commandBuffer, _vertexCount, 1, 0, 0);
     }
+}
+
+void CmxModel::free()
+{
+    delete _vertexBuffer.release();
+    delete _indexBuffer.release();
+
+    _freed = true;
 }
 
 void CmxModel::createVertexBuffers(CmxDevice *device, const std::vector<Vertex> &vertices)

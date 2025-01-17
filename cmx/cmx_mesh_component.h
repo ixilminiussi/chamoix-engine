@@ -35,14 +35,14 @@ class MeshComponent : public Component
     void render(const class FrameInfo &, VkPipelineLayout) override;
     void setModel(Primitives);
     void setModel(const std::string &name);
-    const std::string &getModelName();
+    std::string getModelName();
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
 
   private:
-    std::shared_ptr<class CmxModel> _cmxModel;
+    class CmxModel *_cmxModel;
     glm::vec3 _color;
 };
 

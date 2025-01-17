@@ -48,6 +48,14 @@ Descent::Descent()
     cmxRegister->addActor("ShipActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<ShipActor>(scene, name);
     });
+
+    _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<cmx::ShadedRenderSystem>();
+    _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<cmx::BillboardRenderSystem>();
+    _renderSystems[EDGE_RENDER_SYSTEM] = std::make_shared<cmx::EdgeRenderSystem>();
+
+    _renderSystems[SHADED_RENDER_SYSTEM]->initialize();
+    _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
+    _renderSystems[EDGE_RENDER_SYSTEM]->initialize();
 }
 
 Descent::~Descent()
@@ -76,24 +84,19 @@ void Descent::run()
 #endif
         getScene()->render();
     }
-}
 
-void Descent::closeWindow(float dt, int val)
-{
-    std::exit(EXIT_SUCCESS);
+    getScene()->unload();
+
+    _renderSystems.clear();
+    cmx::RenderSystem::globalRelease();
 }
 
 void Descent::load()
 {
     _inputManager->load();
-    _renderSystems[SHADED_RENDER_SYSTEM]->initialize();
-    _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
-    _renderSystems[EDGE_RENDER_SYSTEM]->initialize();
 
     _scenes.push_back(&mainScene);
     setScene(0);
 
     getScene()->getAssetsManager()->addTexture("assets/textures/bricks.png", "bricks");
-
-    getInputManager()->bindButton("exit", &Descent::closeWindow, this);
 }

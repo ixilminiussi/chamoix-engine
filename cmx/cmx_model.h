@@ -45,18 +45,19 @@ class CmxModel
     };
 
     CmxModel(class CmxDevice *, const CmxModel::Builder &, const std::string &name);
-    ~CmxModel() = default;
+    ~CmxModel();
 
     CmxModel(const CmxModel &) = delete;
     CmxModel &operator=(const CmxModel &) = delete;
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
-    static std::shared_ptr<CmxModel> createModelFromFile(class CmxDevice *, const std::string &filepath,
-                                                         const std::string &name);
+    static CmxModel *createModelFromFile(class CmxDevice *, const std::string &filepath, const std::string &name);
 
     void bind(VkCommandBuffer);
     void draw(VkCommandBuffer);
+
+    void free();
 
     const std::string name;
 
@@ -72,6 +73,8 @@ class CmxModel
     uint32_t _indexCount;
 
     std::string _filepath;
+
+    bool _freed{false};
 };
 
 } // namespace cmx

@@ -1,12 +1,9 @@
 #include "cmx_game.h"
 
 // cmx
-#include "cmx_billboard_render_system.h"
+#include "cmx/cmx_scene.h"
 #include "cmx_device.h"
-#include "cmx_edge_render_system.h"
 #include "cmx_input_manager.h"
-#include "cmx_render_system.h"
-#include "cmx_shaded_render_system.h"
 #include "cmx_window.h"
 
 // lib
@@ -34,10 +31,6 @@ CmxWindow Game::_cmxWindow = CmxWindow{WIDTH, HEIGHT, "chamoix"};
 
 Game::Game()
 {
-    _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<ShadedRenderSystem>();
-    _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<BillboardRenderSystem>();
-    _renderSystems[EDGE_RENDER_SYSTEM] = std::make_shared<EdgeRenderSystem>();
-
     _inputManager = std::make_unique<InputManager>(_cmxWindow);
 }
 
@@ -47,20 +40,18 @@ Game::~Game()
 
 void Game::setScene(int i)
 {
+    if (_activeScene)
     {
-        if (_activeScene)
-        {
-            _activeScene->unload();
-        }
-        try
-        {
-            _activeScene = _scenes.at(i);
-            _activeScene->load();
-        }
-        catch (const std::out_of_range &e)
-        {
-            spdlog::error("Scene: no scene at index {0}", i);
-        }
+        _activeScene->unload();
+    }
+    try
+    {
+        _activeScene = _scenes.at(i);
+        _activeScene->load();
+    }
+    catch (const std::out_of_range &e)
+    {
+        spdlog::error("Scene: no scene at index {0}", i);
     }
 }
 
