@@ -35,15 +35,14 @@ class Game
     class Scene *getScene();
     void setScene(int i);
 
-    std::shared_ptr<class InputManager> getInputManager() const
+    class InputManager *getInputManager() const
     {
-        return _inputManager;
+        return _inputManager.get();
     }
     auto &getRenderSystems()
     {
         return _renderSystems;
     }
-    std::shared_ptr<class CmxDevice> getDevice();
     static CmxWindow &getWindow();
     // getters and setters :: end
 
@@ -53,7 +52,7 @@ class Game
 
     static CmxWindow _cmxWindow;
 
-    std::shared_ptr<class InputManager> _inputManager;
+    std::unique_ptr<class InputManager> _inputManager;
     std::map<uint8_t, std::shared_ptr<class RenderSystem>> _renderSystems;
 
     // warning flags

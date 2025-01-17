@@ -16,7 +16,8 @@ void ShipActor::onBegin()
     _cameraComponent = std::make_shared<cmx::CameraComponent>();
     attachComponent(_cameraComponent);
 
-    if (auto inputManager = getScene()->getGame()->getInputManager())
+    cmx::InputManager *inputManager = getScene()->getGame()->getInputManager();
+    if (inputManager)
     {
         inputManager->bindAxis("Movement", &ShipActor::onMovementInput, this);
         inputManager->bindAxis("View", &ShipActor::onViewInput, this);

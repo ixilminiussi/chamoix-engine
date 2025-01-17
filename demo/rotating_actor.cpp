@@ -16,7 +16,7 @@ void RotatingActor::onBegin()
 {
     cmx::Actor::onBegin();
 
-    auto inputManager = getScene()->getGame()->getInputManager();
+    cmx::InputManager *inputManager = getScene()->getGame()->getInputManager();
     if (inputManager)
     {
         inputManager->bindButton("slowdown toggle", &RotatingActor::slowdownToggle, this);

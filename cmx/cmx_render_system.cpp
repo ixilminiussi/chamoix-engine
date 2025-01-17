@@ -21,9 +21,8 @@ uint8_t RenderSystem::_activeSystem = NULL_RENDER_SYSTEM;
 
 VkCommandBuffer RenderSystem::_commandBuffer = (VkCommandBuffer_T *)(0);
 CmxWindow *RenderSystem::_cmxWindow = &Game::getWindow();
-std::shared_ptr<CmxDevice> RenderSystem::_cmxDevice = std::unique_ptr<CmxDevice>(new CmxDevice(*_cmxWindow));
-std::unique_ptr<CmxRenderer> RenderSystem::_cmxRenderer =
-    std::unique_ptr<CmxRenderer>(new CmxRenderer(*_cmxWindow, *_cmxDevice.get()));
+std::unique_ptr<CmxDevice> RenderSystem::_cmxDevice = std::make_unique<CmxDevice>(*_cmxWindow);
+std::unique_ptr<CmxRenderer> RenderSystem::_cmxRenderer = std::make_unique<CmxRenderer>(*_cmxWindow, *_cmxDevice.get());
 std::vector<std::unique_ptr<CmxBuffer>> RenderSystem::_uboBuffers =
     std::vector<std::unique_ptr<CmxBuffer>>{CmxSwapChain::MAX_FRAMES_IN_FLIGHT};
 std::vector<VkDescriptorSet> RenderSystem::_globalDescriptorSets =
@@ -91,9 +90,9 @@ void RenderSystem::endRender()
     vkDeviceWaitIdle(_cmxDevice->device());
 }
 
-std::shared_ptr<CmxDevice> RenderSystem::getDevice()
+CmxDevice *RenderSystem::getDevice()
 {
-    return _cmxDevice;
+    return _cmxDevice.get();
 }
 
 } // namespace cmx

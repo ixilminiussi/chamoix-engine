@@ -1,5 +1,8 @@
 #include "cmx_texture.h"
+
+// cmx
 #include "cmx_buffer.h"
+#include "cmx_render_system.h"
 
 // lib
 #include <spdlog/spdlog.h>
@@ -13,12 +16,14 @@
 namespace cmx
 {
 
-CmxTexture::CmxTexture(std::shared_ptr<class CmxDevice> cmxDevice, const CmxTexture::Builder &builder,
-                       const std::string &name)
-    : _cmxDevice{cmxDevice}, name{name}, _filepath{builder.filepath}
+CmxTexture::CmxTexture(CmxDevice *device, const CmxTexture::Builder &builder, const std::string &name)
+    : name{name}, _filepath{builder.filepath}
 {
+    if (!device)
+        return;
+
     _stagingBuffer =
-        std::make_unique<CmxBuffer>(*_cmxDevice, builder.imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        std::make_unique<CmxBuffer>(*device, builder.imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     _stagingBuffer->map(builder.imageSize, 0);
@@ -41,14 +46,14 @@ CmxTexture::CmxTexture(std::shared_ptr<class CmxDevice> cmxDevice, const CmxText
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.flags = 0;
 
-    if (vkCreateImage(_cmxDevice->device(), &imageInfo, nullptr, &textureImage) != VK_SUCCESS)
+    if (vkCreateImage(device->device(), &imageInfo, nullptr, &textureImage) != VK_SUCCESS)
     {
         spdlog::error("CmxTexture: failed to create image!");
         std::exit(EXIT_FAILURE);
     }
 
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(_cmxDevice->device(), textureImage, &memRequirements);
+    vkGetImageMemoryRequirements(device->device(), textureImage, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -56,7 +61,7 @@ CmxTexture::CmxTexture(std::shared_ptr<class CmxDevice> cmxDevice, const CmxText
     VkPhysicalDeviceMemoryProperties memProperties;
 
     // find memory type
-    vkGetPhysicalDeviceMemoryProperties(_cmxDevice->physicalDevice(), &memProperties);
+    vkGetPhysicalDeviceMemoryProperties(device->physicalDevice(), &memProperties);
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
     {
         if ((memRequirements.memoryTypeBits & (1 << i)) &&
@@ -68,19 +73,19 @@ CmxTexture::CmxTexture(std::shared_ptr<class CmxDevice> cmxDevice, const CmxText
         }
     }
 
-    if (vkAllocateMemory(_cmxDevice->device(), &allocInfo, nullptr, &textureImageMemory) != VK_SUCCESS)
+    if (vkAllocateMemory(device->device(), &allocInfo, nullptr, &textureImageMemory) != VK_SUCCESS)
     {
         spdlog::error("CmxTexture: failed to allocate image memory!");
         std::exit(EXIT_FAILURE);
     }
 
-    vkBindImageMemory(_cmxDevice->device(), textureImage, textureImageMemory, 0);
+    vkBindImageMemory(device->device(), textureImage, textureImageMemory, 0);
 
     stbi_image_free(builder.pixels);
 }
 
-std::shared_ptr<CmxTexture> CmxTexture::createTextureFromFile(std::shared_ptr<class CmxDevice> device,
-                                                              const std::string &filepath, const std::string &name)
+std::shared_ptr<CmxTexture> CmxTexture::createTextureFromFile(CmxDevice *device, const std::string &filepath,
+                                                              const std::string &name)
 {
     Builder builder{};
     builder.loadTexture(filepath);

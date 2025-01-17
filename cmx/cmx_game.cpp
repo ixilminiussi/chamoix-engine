@@ -38,7 +38,7 @@ Game::Game()
     _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<BillboardRenderSystem>();
     _renderSystems[EDGE_RENDER_SYSTEM] = std::make_shared<EdgeRenderSystem>();
 
-    _inputManager = std::make_shared<InputManager>(_cmxWindow);
+    _inputManager = std::make_unique<InputManager>(_cmxWindow);
 }
 
 Game::~Game()
@@ -77,19 +77,6 @@ Scene *Game::getScene()
 CmxWindow &Game::getWindow()
 {
     return _cmxWindow;
-}
-
-std::shared_ptr<CmxDevice> Game::getDevice()
-{
-    try
-    {
-        return RenderSystem::getDevice();
-    }
-    catch (std::out_of_range e)
-    {
-        spdlog::info("Game: cannot call getDevice() before having ran RenderSystem::build(CmxWindow&)");
-        std::exit(EXIT_FAILURE);
-    }
 }
 
 } // namespace cmx

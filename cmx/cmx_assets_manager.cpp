@@ -1,6 +1,7 @@
 #include "cmx_assets_manager.h"
 
 // cmx
+#include "cmx/cmx_render_system.h"
 #include "cmx_game.h"
 #include "cmx_model.h"
 #include "cmx_primitives.h"
@@ -85,7 +86,11 @@ void AssetsManager::addModel(const std::string &filepath, const std::string &nam
     }
     catch (const std::out_of_range e)
     {
-        _models[name] = CmxModel::createModelFromFile(_parentScene->getGame()->getDevice(), filepath, name);
+        CmxDevice *device = RenderSystem::getDevice();
+        if (device)
+        {
+            _models[name] = CmxModel::createModelFromFile(device, filepath, name);
+        }
     }
 }
 
@@ -103,7 +108,11 @@ void AssetsManager::addTexture(const std::string &filepath, const std::string &n
     }
     catch (const std::out_of_range e)
     {
-        _textures[name] = CmxTexture::createTextureFromFile(_parentScene->getGame()->getDevice(), filepath, name);
+        CmxDevice *device = RenderSystem::getDevice();
+        if (device)
+        {
+            _textures[name] = CmxTexture::createTextureFromFile(device, filepath, name);
+        }
     }
 }
 

@@ -39,7 +39,7 @@ void CmxSwapChain::init()
 
 CmxSwapChain::~CmxSwapChain()
 {
-    for (auto imageView : _swapChainImageViews)
+    for (VkImageView imageView : _swapChainImageViews)
     {
         vkDestroyImageView(_cmxDevice.device(), imageView, nullptr);
     }
@@ -58,7 +58,7 @@ CmxSwapChain::~CmxSwapChain()
         vkFreeMemory(_cmxDevice.device(), _depthImageMemorys[i], nullptr);
     }
 
-    for (auto framebuffer : _swapChainFramebuffers)
+    for (VkFramebuffer framebuffer : _swapChainFramebuffers)
     {
         vkDestroyFramebuffer(_cmxDevice.device(), framebuffer, nullptr);
     }
@@ -390,7 +390,7 @@ void CmxSwapChain::createSyncObjects()
 
 VkSurfaceFormatKHR CmxSwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats)
 {
-    for (const auto &availableFormat : availableFormats)
+    for (const VkSurfaceFormatKHR &availableFormat : availableFormats)
     {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
             availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
@@ -404,7 +404,7 @@ VkSurfaceFormatKHR CmxSwapChain::chooseSwapSurfaceFormat(const std::vector<VkSur
 
 VkPresentModeKHR CmxSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes)
 {
-    for (const auto &availablePresentMode : availablePresentModes)
+    for (const VkPresentModeKHR &availablePresentMode : availablePresentModes)
     {
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
         {
@@ -413,7 +413,7 @@ VkPresentModeKHR CmxSwapChain::chooseSwapPresentMode(const std::vector<VkPresent
         }
     }
 
-    // for (const auto &availablePresentMode : availablePresentModes) {
+    // for (const VkPresentModeKHR &availablePresentMode : availablePresentModes) {
     //   if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
     //     spdlog::info("Present mode: Immediate");
     //     return availablePresentMode;

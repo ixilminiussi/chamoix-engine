@@ -10,7 +10,7 @@ namespace cmx
 class ViewportUI
 {
   public:
-    ViewportUI(std::shared_ptr<class ViewportActor>, std::shared_ptr<class InputManager>);
+    ViewportUI();
     ~ViewportUI();
 
     void render(const class FrameInfo &);
@@ -33,16 +33,10 @@ class ViewportUI
 
     void initImGUI();
 
-    class InputManager *getInputManager()
-    {
-        return _inputManager.get();
-    }
-
   private:
     bool _initialized{false};
     std::unique_ptr<class CmxDescriptorPool> _imguiPool;
 
-    std::shared_ptr<class InputManager> _inputManager;
     bool _showViewportSettings{false};
     bool _showProjectSettings{false};
     bool _showSceneTree{true};
@@ -51,8 +45,6 @@ class ViewportUI
 
     class Scene *_attachedScene;
     class Register *_cmxRegister;
-
-    std::shared_ptr<ViewportActor> _viewportActor;
 };
 
 } // namespace cmx

@@ -44,7 +44,7 @@ class CmxModel
         void loadModel(const std::string &filepath);
     };
 
-    CmxModel(std::shared_ptr<class CmxDevice>, const CmxModel::Builder &, const std::string &name);
+    CmxModel(class CmxDevice *, const CmxModel::Builder &, const std::string &name);
     ~CmxModel() = default;
 
     CmxModel(const CmxModel &) = delete;
@@ -52,7 +52,7 @@ class CmxModel
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
-    static std::shared_ptr<CmxModel> createModelFromFile(std::shared_ptr<class CmxDevice>, const std::string &filepath,
+    static std::shared_ptr<CmxModel> createModelFromFile(class CmxDevice *, const std::string &filepath,
                                                          const std::string &name);
 
     void bind(VkCommandBuffer);
@@ -61,10 +61,8 @@ class CmxModel
     const std::string name;
 
   private:
-    void createVertexBuffers(const std::vector<Vertex> &);
-    void createIndexBuffers(const std::vector<uint32_t> &);
-
-    std::shared_ptr<class CmxDevice> _cmxDevice;
+    void createVertexBuffers(class CmxDevice *, const std::vector<Vertex> &);
+    void createIndexBuffers(class CmxDevice *, const std::vector<uint32_t> &);
 
     std::unique_ptr<class CmxBuffer> _vertexBuffer;
     uint32_t _vertexCount;

@@ -88,8 +88,8 @@ void CmxPipeline::createGraphicsPipeline(const std::string &vertFilepath, const 
     shaderStages[1].pNext = nullptr;
     shaderStages[1].pSpecializationInfo = nullptr;
 
-    auto &bindingDescriptions = configInfo.bindingDescriptions;
-    auto &attributeDescriptions = configInfo.attributeDescriptions;
+    const std::vector<VkVertexInputBindingDescription> &bindingDescriptions = configInfo.bindingDescriptions;
+    const std::vector<VkVertexInputAttributeDescription> &attributeDescriptions = configInfo.attributeDescriptions;
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

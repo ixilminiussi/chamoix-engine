@@ -27,7 +27,7 @@ void Axis::editor(const std::string &label)
     ImGui::SetNextItemWidth(200);
     if (ImGui::BeginCombo(label.c_str(), CMX_AXIS_DICTIONARY[currentItem].first))
     {
-        for (auto &pair : CMX_AXIS_DICTIONARY)
+        for (const std::pair<const char *, Axis *> &pair : CMX_AXIS_DICTIONARY)
         {
             bool isSelected = (*pair.second == *this);
 
@@ -52,7 +52,7 @@ void Button::editor(const std::string &label)
     auto findSelected = [&]() {
         int i = 0;
 
-        for (auto &pair : CMX_BUTTON_DICTIONARY)
+        for (const std::pair<const char *, Button *> &pair : CMX_BUTTON_DICTIONARY)
         {
             if (*this == *pair.second)
             {
@@ -67,7 +67,7 @@ void Button::editor(const std::string &label)
     ImGui::SetNextItemWidth(200);
     if (ImGui::BeginCombo(label.c_str(), CMX_BUTTON_DICTIONARY[findSelected()].first))
     {
-        for (auto &pair : CMX_BUTTON_DICTIONARY)
+        for (const std::pair<const char *, Button *> &pair : CMX_BUTTON_DICTIONARY)
         {
             bool isSelected = (*pair.second == *this);
 

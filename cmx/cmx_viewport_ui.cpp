@@ -29,8 +29,7 @@
 namespace cmx
 {
 
-ViewportUI::ViewportUI(std::shared_ptr<ViewportActor> viewportActor, std::shared_ptr<InputManager> inputManager)
-    : _viewportActor{viewportActor}, _inputManager{inputManager}
+ViewportUI::ViewportUI()
 {
     _cmxRegister = Register::getInstance();
 }
@@ -115,12 +114,17 @@ void ViewportUI::renderViewportSettings()
     _showViewportSettings = true;
     ImGui::Begin("Viewport Settings", &_showViewportSettings, ImGuiWindowFlags_AlwaysAutoResize);
 
-    _viewportActor->editor();
-
-    ImGui::SeparatorText("Shortcuts");
-    if (_inputManager != nullptr)
+    if (CmxEditor *editor = CmxEditor::getInstance())
     {
-        _inputManager->editor();
+        if (ViewportActor *viewportActor = editor->getViewportActor())
+        {
+            viewportActor->editor();
+        }
+        ImGui::SeparatorText("Shortcuts");
+        if (InputManager *inputManager = editor->getInputManager())
+        {
+            inputManager->editor();
+        }
     }
 
     ImGui::End();

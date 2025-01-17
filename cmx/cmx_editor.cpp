@@ -31,7 +31,7 @@ CmxEditor::CmxEditor()
 
 void CmxEditor::initInputManager(CmxWindow &cmxWindow, const std::string &shortcutsPath)
 {
-    _inputManager = std::make_shared<InputManager>(cmxWindow, shortcutsPath);
+    _inputManager = std::make_unique<InputManager>(cmxWindow, shortcutsPath);
     _inputManager->load();
 }
 
@@ -39,8 +39,8 @@ void CmxEditor::load(CmxWindow &cmxWindow)
 {
     initInputManager(cmxWindow);
 
-    _viewportActor = std::make_shared<ViewportActor>();
-    _viewportUI = std::make_unique<ViewportUI>(_viewportActor, _inputManager);
+    _viewportActor = std::make_unique<ViewportActor>();
+    _viewportUI = std::make_unique<ViewportUI>();
     _viewportUI->initImGUI();
 
     _inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, _viewportActor.get());

@@ -55,7 +55,7 @@ class RenderSystem
 
     virtual void editor(int i);
 
-    static std::shared_ptr<class CmxDevice> getDevice();
+    static class CmxDevice *getDevice();
     VkPipelineLayout getPipelineLayout() const
     {
         return _pipelineLayout;
@@ -74,7 +74,7 @@ class RenderSystem
     static VkCommandBuffer _commandBuffer;
     static std::unique_ptr<class CmxRenderer> _cmxRenderer;
     static class CmxWindow *_cmxWindow;
-    static std::shared_ptr<class CmxDevice> _cmxDevice;
+    static std::unique_ptr<class CmxDevice> _cmxDevice;
     static std::vector<std::unique_ptr<class CmxBuffer>> _uboBuffers;
     static std::vector<VkDescriptorSet> _globalDescriptorSets;
 

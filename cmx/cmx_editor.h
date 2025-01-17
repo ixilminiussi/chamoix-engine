@@ -22,6 +22,15 @@ class CmxEditor
 
     void initInputManager(class CmxWindow &, const std::string &shortcutsPath = "editor/shortcuts.xml");
 
+    class InputManager *getInputManager()
+    {
+        return _inputManager.get();
+    }
+    class ViewportActor *getViewportActor()
+    {
+        return _viewportActor.get();
+    }
+
     static bool isActive()
     {
         return _active;
@@ -32,9 +41,9 @@ class CmxEditor
 
     static CmxEditor *_instance;
 
-    std::shared_ptr<class ViewportActor> _viewportActor;
+    std::unique_ptr<class ViewportActor> _viewportActor;
     std::unique_ptr<class ViewportUI> _viewportUI;
-    std::shared_ptr<class InputManager> _inputManager;
+    std::unique_ptr<class InputManager> _inputManager;
 
     class Scene *_scene;
 
