@@ -8,6 +8,7 @@
 
 // std
 #include <glm/ext/scalar_constants.hpp>
+#include <glm/gtc/constants.hpp>
 #include <memory>
 
 void ShipActor::onBegin()
@@ -38,7 +39,6 @@ void ShipActor::update(float dt)
 
 void ShipActor::tiltToLocked(float dt)
 {
-    return;
     glm::vec3 right = transform.right();
     glm::vec3 forward = transform.forward();
     static glm::vec3 globalUp{0.f, 1.f, 0.f};
@@ -48,11 +48,11 @@ void ShipActor::tiltToLocked(float dt)
     float sign = glm::dot(cross, forward) >= 0.0f ? 1.0f : -1.0f;
 
     float currentRoll = angle * sign;
-    float goalRoll = cmx::snapTo(currentRoll, 0.f, glm::half_pi<float>(), -glm::half_pi<float>(), glm::pi<float>(),
-                                 -glm::pi<float>());
+    float goalRoll = cmx::snapTo(currentRoll, 0.f, -glm::two_pi<float>(), glm::two_pi<float>(), glm::half_pi<float>(),
+                                 -glm::half_pi<float>(), glm::pi<float>(), -glm::pi<float>());
 
-    float lerpedRoll = cmx::lerp(currentRoll, goalRoll, dt * _rollSpeed);
-    glm::quat angledRoll = glm::angleAxis(lerpedRoll - currentRoll, transform.forward());
+    float lerpedRoll = cmx::lerp(currentRoll, goalRoll, std::clamp(dt * _rollSpeed, 0.f, 1.f));
+    glm::quat angledRoll = glm::angleAxis(currentRoll - lerpedRoll, transform.forward());
 
     transform.rotation = angledRoll * transform.rotation;
 }
@@ -100,13 +100,11 @@ void ShipActor::onTiltInput(float dt, glm::vec2 axis)
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
-    float rollAngle = axis.x * _mouseSensitivity * dt;
+    float rollAngle = axis.x * _manualRollSpeed * dt;
 
-    glm::quat roll = glm::angleAxis(rollAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::quat roll = glm::angleAxis(rollAngle, transform.forward());
 
     transform.rotation = roll * transform.rotation;
-
-    transform.rotation = glm::normalize(transform.rotation);
 
     _manualTilting = true;
 }

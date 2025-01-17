@@ -36,7 +36,8 @@ class ShipActor : public cmx::PhysicsActor
     float _liftSpeed{2.f};
     float _mouseSensitivity{0.1f};
 
-    float _rollSpeed{10.f};
+    float _rollSpeed{5.f};
+    float _manualRollSpeed{2.f};
 
     bool _manualTilting{false};
 };

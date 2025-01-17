@@ -10,6 +10,12 @@
         <axis code="0" source="MOUSE" id="1"/>
         <axis code="1" source="MOUSE" id="1"/>
     </axisAction>
+    <axisAction modifierX="3" modifierY="-3" type="BUTTONS" name="View Keyboard">
+        <button code="262" source="KEYBOARD" id="0"/>
+        <button code="263" source="KEYBOARD" id="0"/>
+        <button code="265" source="KEYBOARD" id="0"/>
+        <button code="264" source="KEYBOARD" id="0"/>
+    </axisAction>
     <axisAction modifierX="1" modifierY="1" type="BUTTONS" name="Lift">
         <button code="-1" source="KEYBOARD" id="0"/>
         <button code="0" source="KEYBOARD" id="0"/>

@@ -360,7 +360,7 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
 {
     const char *typeString = axisActionElement->Attribute("type");
     _modifierX = axisActionElement->FloatAttribute("modifierX");
-    _modifierX = axisActionElement->FloatAttribute("modifierY");
+    _modifierY = axisActionElement->FloatAttribute("modifierY");
 
     if (strcmp(typeString, "AXES") == 0)
     {
