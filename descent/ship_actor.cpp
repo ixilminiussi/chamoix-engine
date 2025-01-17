@@ -4,6 +4,7 @@
 #include <cmx/cmx_camera_component.h>
 #include <cmx/cmx_game.h>
 #include <cmx/cmx_input_manager.h>
+#include <cmx/cmx_math.h>
 
 // std
 #include <glm/ext/scalar_constants.hpp>
@@ -26,6 +27,26 @@ void ShipActor::onBegin()
 
 void ShipActor::update(float dt)
 {
+}
+
+void ShipActor::tiltToLocked(float dt)
+{
+    glm::vec3 right = transform.right();
+    glm::vec3 forward = transform.forward();
+    static glm::vec3 globalUp{0.f, 1.f, 0.f};
+
+    float angle = glm::acos(glm::dot(right, globalUp));
+    glm::vec3 cross = glm::cross(right, globalUp);
+    float sign = glm::dot(cross, forward) >= 0.0f ? 1.0f : -1.0f;
+
+    float currentRoll = angle * sign;
+    float goalRoll = cmx::snapTo(currentRoll, 0.f, glm::half_pi<float>(), -glm::half_pi<float>(), glm::pi<float>(),
+                                 -glm::pi<float>());
+
+    float lerpedRoll = cmx::lerp(currentRoll, goalRoll, dt * _rollSpeed);
+    glm::quat angledRoll = glm::angleAxis(lerpedRoll - currentRoll, transform.forward());
+
+    transform.rotation = angledRoll * transform.rotation;
 }
 
 void ShipActor::onBeginOverlap(class cmx::PhysicsComponent *ownedComponent,
@@ -88,12 +109,12 @@ void ShipActor::onTiltInput(float dt, glm::vec2 axis)
 
     transform.rotation = glm::normalize(transform.rotation);
 
-    _tilting = true;
+    _manualTilting = true;
 }
 
 void ShipActor::onTiltInputEnd(float dt, int val)
 {
-    _tilting = false;
+    _manualTilting = false;
 }
 
 void ShipActor::onLiftInput(float dt, glm::vec2 axis)

@@ -28,6 +28,8 @@ class ShipActor : public cmx::PhysicsActor
     void select();
 
   protected:
+    void tiltToLocked(float dt);
+
     std::shared_ptr<cmx::CameraComponent> _cameraComponent;
 
     glm::vec3 _velocity;
@@ -36,9 +38,11 @@ class ShipActor : public cmx::PhysicsActor
     float _liftSpeed{2.f};
     float _mouseSensitivity{5.f};
 
+    float _rollSpeed{10.f};
+
     bool _selected{false};
 
-    bool _tilting{false};
+    bool _manualTilting{false};
 };
 
 #endif
