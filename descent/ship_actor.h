@@ -25,8 +25,6 @@ class ShipActor : public cmx::PhysicsActor
     void onTiltInputEnd(float dt, int);
     void onLiftInput(float dt, glm::vec2);
 
-    void select();
-
   protected:
     void tiltToLocked(float dt);
 
@@ -39,8 +37,6 @@ class ShipActor : public cmx::PhysicsActor
     float _mouseSensitivity{5.f};
 
     float _rollSpeed{10.f};
-
-    bool _selected{false};
 
     bool _manualTilting{false};
 };

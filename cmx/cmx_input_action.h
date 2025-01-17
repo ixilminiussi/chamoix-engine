@@ -97,6 +97,9 @@ class AxisAction : public InputAction
     std::vector<std::function<void(float, glm::vec2)>> functions;
 
     glm::vec2 value{0.f};
+
+    float _modifierX{1.f};
+    float _modifierY{1.f};
 };
 
 } // namespace cmx

@@ -243,9 +243,10 @@ void AxisAction::poll(const CmxWindow &window, float dt)
 
     if (glm::length(value) > glm::epsilon<float>())
     {
+        glm::vec2 modifierApplied{value.x * _modifierX, value.y * _modifierY};
         for (std::function<void(float, glm::vec2)> func : functions)
         {
-            func(dt, value);
+            func(dt, modifierApplied);
         }
     }
 }
@@ -312,6 +313,8 @@ void AxisAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
 tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
 {
     tinyxml2::XMLElement *inputActionElement = doc.NewElement("axisAction");
+    inputActionElement->SetAttribute("modifierX", _modifierX);
+    inputActionElement->SetAttribute("modifierY", _modifierY);
 
     switch (type)
     {
@@ -352,6 +355,8 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
 void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
 {
     const char *typeString = axisActionElement->Attribute("type");
+    _modifierX = axisActionElement->FloatAttribute("modifierX");
+    _modifierX = axisActionElement->FloatAttribute("modifierY");
 
     if (strcmp(typeString, "AXES") == 0)
     {
@@ -414,19 +419,29 @@ void AxisAction::editor()
 
     if (type == Type::AXES)
     {
-        for (Axis &axis : axes)
-        {
-            label = fmt::format("##a{}", i++);
-            axis.editor(label);
-        }
+        label = fmt::format("##a{}", i++);
+        axes[0].editor(label);
+        label = fmt::format("modifier##a{}", i++);
+        ImGui::InputFloat(label.c_str(), &_modifierX);
+        label = fmt::format("##a{}", i++);
+        axes[1].editor(label);
+        label = fmt::format("modifier##a{}", i++);
+        ImGui::InputFloat(label.c_str(), &_modifierY);
     }
     if (type == Type::BUTTONS)
     {
-        for (Button &button : buttons)
-        {
-            label = fmt::format("##ab{}", i++);
-            button.editor(label);
-        }
+        label = fmt::format("##a{}", i++);
+        buttons[0].editor(label);
+        label = fmt::format("##a{}", i++);
+        buttons[1].editor(label);
+        label = fmt::format("modifier##a{}", i++);
+        ImGui::InputFloat(label.c_str(), &_modifierX);
+        label = fmt::format("##a{}", i++);
+        buttons[1].editor(label);
+        label = fmt::format("##a{}", i++);
+        buttons[2].editor(label);
+        label = fmt::format("modifier##a{}", i++);
+        ImGui::InputFloat(label.c_str(), &_modifierY);
     }
 }
 

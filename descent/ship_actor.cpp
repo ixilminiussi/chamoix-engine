@@ -19,10 +19,13 @@ void ShipActor::onBegin()
     {
         inputManager->bindAxis("Movement", &ShipActor::onMovementInput, this);
         inputManager->bindAxis("View", &ShipActor::onViewInput, this);
+        inputManager->bindAxis("View Keyboard", &ShipActor::onViewInput, this);
         inputManager->bindAxis("Tilt", &ShipActor::onTiltInput, this);
         inputManager->bindAxis("Lift", &ShipActor::onLiftInput, this);
         inputManager->bindButton("Tilt end", &ShipActor::onTiltInputEnd, this);
     }
+
+    getScene()->setCamera(_cameraComponent->getCamera());
 }
 
 void ShipActor::update(float dt)
@@ -65,9 +68,6 @@ void ShipActor::onEndOverlap(class cmx::PhysicsComponent *ownedComponent,
 
 void ShipActor::onMovementInput(float dt, glm::vec2 axis)
 {
-    if (!_selected)
-        return;
-
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
@@ -79,9 +79,6 @@ void ShipActor::onMovementInput(float dt, glm::vec2 axis)
 
 void ShipActor::onViewInput(float dt, glm::vec2 axis)
 {
-    if (!_selected)
-        return;
-
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
@@ -99,9 +96,6 @@ void ShipActor::onViewInput(float dt, glm::vec2 axis)
 
 void ShipActor::onTiltInput(float dt, glm::vec2 axis)
 {
-    if (!_selected)
-        return;
-
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
@@ -123,19 +117,10 @@ void ShipActor::onTiltInputEnd(float dt, int val)
 
 void ShipActor::onLiftInput(float dt, glm::vec2 axis)
 {
-    if (!_selected)
-        return;
-
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
     axis *= _liftSpeed;
 
     transform.position += transform.up() * axis.y * dt;
-}
-
-void ShipActor::select()
-{
-    _selected = true;
-    getScene()->setCamera(_cameraComponent->getCamera());
 }

@@ -2,6 +2,7 @@
 
 // cmx
 #include "cmx/cmx_camera.h"
+#include "cmx/cmx_editor.h"
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
 #include "cmx_component.h"
@@ -115,6 +116,12 @@ std::weak_ptr<Actor> Scene::getActorByID(uint32_t id)
 
 void Scene::setCamera(std::shared_ptr<Camera> camera)
 {
+#ifndef NDEBUG
+    if (CmxEditor::isActive())
+    {
+        return;
+    }
+#endif
     _activeCamera = camera;
     spdlog::info("Scene: new active Camera");
 }
@@ -144,6 +151,10 @@ void Scene::update(float dt)
     _physicsManager->executeStep(dt);
     updateActors(dt);
     updateComponents(dt);
+}
+
+void Scene::render()
+{
     _graphicsManager->drawComponents(getCamera());
 }
 

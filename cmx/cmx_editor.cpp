@@ -12,7 +12,7 @@ namespace cmx
 {
 
 CmxEditor *CmxEditor::_instance{nullptr};
-bool CmxEditor::_active{false};
+bool CmxEditor::_active{true};
 
 CmxEditor *CmxEditor::getInstance()
 {
@@ -52,7 +52,10 @@ void CmxEditor::load(CmxWindow &cmxWindow)
 void CmxEditor::attachScene(Scene *scene)
 {
     _scene = scene;
+
+    _active = false;
     _scene->setCamera(_viewportActor->getCamera());
+    _active = true;
 
     _viewportUI->attachScene(_scene);
 
@@ -66,26 +69,32 @@ void CmxEditor::toggle(float dt, int)
     {
         _scene->saveAs("editor/temp.xml");
         _scene->unload();
-        _scene->loadFrom("editor/temp.xml");
 
         _active = false;
         _viewportActor->lock();
+
+        _scene->loadFrom("editor/temp.xml");
     }
     else
     {
         _scene->unload();
+
         _scene->loadFrom("editor/temp.xml");
+        _scene->setCamera(_viewportActor->getCamera());
 
         _active = true;
         _viewportActor->unlock();
-        _scene->setCamera(_viewportActor->getCamera());
     }
 }
 
 void CmxEditor::update(float dt)
 {
     _inputManager->pollEvents(dt);
-    _viewportActor->update(dt);
+
+    if (_active)
+    {
+        _viewportActor->update(dt);
+    }
 }
 
 void CmxEditor::render(const FrameInfo &frameInfo)

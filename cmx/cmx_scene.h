@@ -38,6 +38,7 @@ class Scene
     void unload();
 
     void update(float dt);
+    void render();
 
     std::shared_ptr<Actor> addActor(std::shared_ptr<class Actor>);
     void removeActor(class Actor *);

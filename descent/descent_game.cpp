@@ -2,6 +2,7 @@
 
 #include "cmx/cmx_editor.h"
 #include "room_actor.h"
+#include "ship_actor.h"
 #include "wall_actor.h"
 
 // cmx
@@ -43,6 +44,10 @@ Descent::Descent()
     cmxRegister->addActor("RoomActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<RoomActor>(scene, name);
     });
+
+    cmxRegister->addActor("ShipActor", [](cmx::Scene *scene, const std::string &name) {
+        return cmx::Actor::spawn<ShipActor>(scene, name);
+    });
 }
 
 Descent::~Descent()
@@ -61,8 +66,15 @@ void Descent::run()
 
 #ifndef NDEBUG
         editor->update(dt);
+        if (!cmx::CmxEditor::isActive())
+        {
 #endif
-        getScene()->update(dt);
+            getInputManager()->pollEvents(dt);
+            getScene()->update(dt);
+#ifndef NDEBUG
+        }
+#endif
+        getScene()->render();
     }
 }
 

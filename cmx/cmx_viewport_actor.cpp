@@ -1,6 +1,7 @@
 #include "cmx_viewport_actor.h"
 
 // cmx
+#include "cmx/cmx_editor.h"
 #include "cmx_camera.h"
 #include "cmx_game.h"
 #include "cmx_input_manager.h"
@@ -35,7 +36,7 @@ void ViewportActor::update(float dt)
 
 void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
 {
-    if (!_selected)
+    if (!_selected || !CmxEditor::isActive())
         return;
 
     if (glm::length(movement) <= glm::epsilon<float>())
@@ -49,7 +50,7 @@ void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
 
 void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
 {
-    if (!_selected)
+    if (!_selected || !CmxEditor::isActive())
         return;
 
     // Calculate pitch (around X-axis) and yaw (around Y-axis)
