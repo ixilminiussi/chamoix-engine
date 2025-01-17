@@ -212,18 +212,21 @@ void AxisAction::poll(const CmxWindow &window, float dt)
             {
                 double x, y;
                 glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
+                x *= window.getExtent().width * 0.01f;
                 axes[i].value = float(x);
             }
             if (axes[i] == CMX_MOUSE_AXIS_Y_ABSOLUTE)
             {
                 double x, y;
                 glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
+                y *= window.getExtent().height * 0.01f;
                 axes[i].value = float(y);
             }
             if (axes[i] == CMX_MOUSE_AXIS_X_RELATIVE)
             {
                 double x, y;
                 glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
+                x *= window.getExtent().width * 0.01f;
                 axes[i].value = float(x) - axes[i].absValue;
                 axes[i].absValue = float(x);
             }
@@ -231,6 +234,7 @@ void AxisAction::poll(const CmxWindow &window, float dt)
             {
                 double x, y;
                 glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
+                y *= window.getExtent().height * 0.01f;
                 axes[i].value = float(y) - axes[i].absValue;
                 axes[i].absValue = float(y);
             }
@@ -419,27 +423,27 @@ void AxisAction::editor()
 
     if (type == Type::AXES)
     {
-        label = fmt::format("##a{}", i++);
+        label = fmt::format("X##a{}", i++);
         axes[0].editor(label);
         label = fmt::format("modifier##a{}", i++);
         ImGui::InputFloat(label.c_str(), &_modifierX);
-        label = fmt::format("##a{}", i++);
+        label = fmt::format("Y##a{}", i++);
         axes[1].editor(label);
         label = fmt::format("modifier##a{}", i++);
         ImGui::InputFloat(label.c_str(), &_modifierY);
     }
     if (type == Type::BUTTONS)
     {
-        label = fmt::format("##a{}", i++);
+        label = fmt::format("R##a{}", i++);
         buttons[0].editor(label);
-        label = fmt::format("##a{}", i++);
+        label = fmt::format("L##a{}", i++);
         buttons[1].editor(label);
         label = fmt::format("modifier##a{}", i++);
         ImGui::InputFloat(label.c_str(), &_modifierX);
-        label = fmt::format("##a{}", i++);
-        buttons[1].editor(label);
-        label = fmt::format("##a{}", i++);
+        label = fmt::format("U##a{}", i++);
         buttons[2].editor(label);
+        label = fmt::format("D##a{}", i++);
+        buttons[3].editor(label);
         label = fmt::format("modifier##a{}", i++);
         ImGui::InputFloat(label.c_str(), &_modifierY);
     }

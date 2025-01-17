@@ -96,7 +96,7 @@ void ViewportActor::select(float dt, int val)
 void ViewportActor::editor()
 {
     ImGui::SliderFloat("movement speed", &_moveSpeed, 0.0f, 100.0f);
-    ImGui::SliderFloat("mouse sensitivity", &_mouseSensitivity, 0.0f, 10.0f);
+    ImGui::SliderFloat("mouse sensitivity", &_mouseSensitivity, 0.0f, 2.0f);
 }
 
 } // namespace cmx

@@ -41,7 +41,7 @@ class ViewportActor
     }
 
     float _moveSpeed{4.5f};
-    float _mouseSensitivity{5.f};
+    float _mouseSensitivity{0.1f};
 
   private:
     std::shared_ptr<class Camera> _camera;

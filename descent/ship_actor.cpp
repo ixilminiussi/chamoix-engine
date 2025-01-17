@@ -38,6 +38,7 @@ void ShipActor::update(float dt)
 
 void ShipActor::tiltToLocked(float dt)
 {
+    return;
     glm::vec3 right = transform.right();
     glm::vec3 forward = transform.forward();
     static glm::vec3 globalUp{0.f, 1.f, 0.f};
@@ -82,11 +83,11 @@ void ShipActor::onViewInput(float dt, glm::vec2 axis)
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
-    float yawAngle = axis.x * _mouseSensitivity * dt;
-    float pitchAngle = -axis.y * _mouseSensitivity * dt;
+    float yawAngle = -axis.x * _mouseSensitivity * dt;
+    float pitchAngle = axis.y * _mouseSensitivity * dt;
 
-    glm::quat yaw = glm::angleAxis(yawAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::quat pitch = glm::angleAxis(-pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::quat yaw = glm::angleAxis(yawAngle, transform.up());
+    glm::quat pitch = glm::angleAxis(pitchAngle, transform.right());
 
     transform.rotation = yaw * transform.rotation;
     transform.rotation = pitch * transform.rotation;

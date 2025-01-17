@@ -41,6 +41,9 @@ void Scene::loadFrom(const std::string &filepath)
     _graphicsManager = std::make_unique<GraphicsManager>(getGame()->getRenderSystems());
     _physicsManager = std::make_unique<PhysicsManager>();
 
+    _activeCamera = std::make_shared<Camera>();
+    _activeCamera->setViewDirection(glm::vec3{0.f}, glm::vec3{0.f, 0.f, 1.f});
+
     Register *cmxRegister = Register::getInstance();
 
     tinyxml2::XMLDocument doc;
@@ -75,9 +78,6 @@ void Scene::loadFrom(const std::string &filepath)
     {
         spdlog::error("Scene: Couldn't load scene from {0}, {1}", filepath, doc.ErrorStr());
     }
-
-    _activeCamera = std::make_shared<Camera>();
-    _activeCamera->setViewDirection(glm::vec3{0.f}, glm::vec3{0.f, 0.f, 1.f});
 }
 
 void Scene::unload()
