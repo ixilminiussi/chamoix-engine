@@ -10,9 +10,13 @@
 #include "cmx_pipeline.h"
 #include "cmx_renderer.h"
 #include "cmx_window.h"
-#include "imgui.h"
-#include <cstdlib>
+
+// lib
+#include <imgui.h>
 #include <vulkan/vulkan_core.h>
+
+// std
+#include <cstdlib>
 
 namespace cmx
 {
@@ -35,7 +39,6 @@ RenderSystem::RenderSystem()
 RenderSystem::~RenderSystem()
 {
     delete _cmxPipeline.release();
-
     delete _globalPool.release();
 
     vkDestroyPipelineLayout(_cmxDevice->device(), _pipelineLayout, nullptr);

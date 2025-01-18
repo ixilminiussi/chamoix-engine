@@ -1,6 +1,5 @@
 #include "descent_game.h"
 
-#include "cmx/cmx_editor.h"
 #include "room_actor.h"
 #include "ship_actor.h"
 #include "wall_actor.h"
@@ -10,6 +9,7 @@
 #include <cmx/cmx_assets_manager.h>
 #include <cmx/cmx_billboard_render_system.h>
 #include <cmx/cmx_edge_render_system.h>
+#include <cmx/cmx_editor.h>
 #include <cmx/cmx_input_manager.h>
 #include <cmx/cmx_register.h>
 #include <cmx/cmx_render_system.h>

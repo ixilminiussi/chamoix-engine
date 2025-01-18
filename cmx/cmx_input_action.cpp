@@ -1,13 +1,13 @@
 #include "cmx_input_action.h"
 
 // cmx
-#include "IconsMaterialSymbols.h"
 #include "cmx_inputs.h"
 #include "cmx_window.h"
 #include "imgui.h"
 
 // lib
 #include <GLFW/glfw3.h>
+#include <IconsMaterialSymbols.h>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
 #include <spdlog/spdlog.h>

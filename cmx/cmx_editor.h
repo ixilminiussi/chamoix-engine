@@ -1,10 +1,12 @@
 #ifndef CMX_EDITOR
 #define CMX_EDITOR
 
+// lib
+#include <vulkan/vulkan_core.h>
+
 // std
 #include <memory>
 #include <string>
-#include <vulkan/vulkan_core.h>
 
 namespace cmx
 {

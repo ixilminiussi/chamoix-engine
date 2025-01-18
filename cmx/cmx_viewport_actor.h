@@ -2,8 +2,8 @@
 #define CMX_VIEWPORT_ACTOR
 
 // cmx
-#include "cmx/cmx_input_manager.h"
-#include <cmx/cmx_transform.h>
+#include "cmx_input_manager.h"
+#include "cmx_transform.h"
 
 // std
 #include <memory>

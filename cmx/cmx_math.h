@@ -1,17 +1,21 @@
 #ifndef CMX_MATH
 #define CMX_MATH
 
-#include <cstdlib>
+// lib
 #include <glm/ext/vector_float3.hpp>
+
+// std
+#include <cstdlib>
+
 namespace cmx
 {
 
-float snapTo(float value)
+inline float snapTo(float value)
 {
     return value;
 }
 
-float snapTo(float value, float first)
+inline float snapTo(float value, float first)
 {
     return first;
 }

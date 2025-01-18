@@ -5,7 +5,7 @@
 #include "cmx_inputs.h"
 
 // lib
-#include "tinyxml2.h"
+#include <tinyxml2.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>

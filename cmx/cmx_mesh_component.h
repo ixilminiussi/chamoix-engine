@@ -7,9 +7,6 @@
 // lib
 #include <vulkan/vulkan_core.h>
 
-// std
-#include <memory>
-
 namespace cmx
 {
 

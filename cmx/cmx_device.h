@@ -1,9 +1,10 @@
 #ifndef CMX_DEVICE
 #define CMX_DEVICE
 
+// cmx
 #include "cmx_window.h"
 
-// std lib headers
+// std
 #include <vector>
 #include <vulkan/vulkan_core.h>
 

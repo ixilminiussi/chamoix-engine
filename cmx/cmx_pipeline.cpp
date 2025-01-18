@@ -1,14 +1,17 @@
 #include "cmx_pipeline.h"
 
+// cmx
 #include "cmx_model.h"
+
+// lib
+#include <spdlog/spdlog.h>
+#include <vulkan/vulkan_core.h>
 
 // std
 #include <cassert>
 #include <fstream>
 #include <iostream>
-#include <spdlog/spdlog.h>
 #include <stdexcept>
-#include <vulkan/vulkan_core.h>
 
 namespace cmx
 {

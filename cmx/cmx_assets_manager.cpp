@@ -1,10 +1,10 @@
 #include "cmx_assets_manager.h"
 
 // cmx
-#include "cmx/cmx_render_system.h"
 #include "cmx_game.h"
 #include "cmx_model.h"
 #include "cmx_primitives.h"
+#include "cmx_render_system.h"
 #include "cmx_scene.h"
 #include "cmx_texture.h"
 

@@ -10,8 +10,12 @@
 #include "cmx_physics_component.h"
 #include "cmx_point_light_actor.h"
 #include "cmx_point_light_component.h"
-#include <memory>
+
+// lib
 #include <spdlog/spdlog.h>
+
+// std
+#include <memory>
 #include <stdexcept>
 
 namespace cmx

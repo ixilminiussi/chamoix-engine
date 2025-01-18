@@ -1,14 +1,14 @@
 #ifndef CMX_GRAPHICS_MANAGER
 #define CMX_GRAPHICS_MANAGER
 
+// lib
+#include <glm/ext/vector_float3.hpp>
+
 // std
 #include <map>
 #include <memory>
 #include <unordered_map>
 #include <vector>
-
-// lib
-#include <glm/ext/vector_float3.hpp>
 
 namespace cmx
 {

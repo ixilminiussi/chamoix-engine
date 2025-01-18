@@ -1,6 +1,7 @@
 #ifndef CMX_CAMERA_COMPONENT
 #define CMX_CAMERA_COMPONENT
 
+// cmx
 #include "cmx_component.h"
 
 // lib

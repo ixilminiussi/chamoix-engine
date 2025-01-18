@@ -7,13 +7,13 @@
 // lib
 #include <IconsMaterialSymbols.h>
 #include <imgui.h>
+#include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 #include <tinyxml2.h>
 
 // std
 #include <cxxabi.h>
 #include <memory>
-#include <spdlog/common.h>
 
 namespace cmx
 {

@@ -1,10 +1,10 @@
 #include "cmx_viewport_ui.h"
 
 // cmx
-#include "cmx/cmx_editor.h"
 #include "cmx_actor.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
+#include "cmx_editor.h"
 #include "cmx_frame_info.h"
 #include "cmx_game.h"
 #include "cmx_graphics_manager.h"

@@ -7,6 +7,9 @@
 #include <cmx/cmx_input_action.h>
 #include <cmx/cmx_input_manager.h>
 #include <cmx/cmx_math.h>
+#include <cmx/cmx_physics_actor.h>
+#include <cmx/cmx_physics_component.h>
+#include <cmx/cmx_shapes.h>
 
 // std
 #include <glm/ext/scalar_constants.hpp>
@@ -15,6 +18,8 @@
 
 void ShipActor::onBegin()
 {
+    cmx::PhysicsActor::onBegin();
+
     _cameraComponent = std::make_shared<cmx::CameraComponent>();
     attachComponent(_cameraComponent);
 
@@ -113,9 +118,27 @@ void ShipActor::tiltToLocked(float dt)
     transform.rotation = angledRoll * transform.rotation;
 }
 
-void ShipActor::onBeginOverlap(class cmx::PhysicsComponent *ownedComponent,
-                               class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor)
+void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
+                               cmx::Actor *overlappingActor)
 {
+    float maxStep = _velocity.length();
+
+    glm::vec3 startingPosition = transform.position;
+
+    glm::vec3 step = -glm::normalize(_velocity);
+
+    while (maxStep >= 0)
+    {
+        transform.position += step;
+        maxStep--;
+
+        if (!ownedComponent->getShape()->overlapsWith(*overlappingComponent->getShape()))
+        {
+            return;
+        }
+    }
+
+    transform.position = startingPosition;
 }
 
 void ShipActor::onEndOverlap(class cmx::PhysicsComponent *ownedComponent,

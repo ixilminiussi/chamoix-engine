@@ -1,8 +1,8 @@
 #include "cmx_physics_component.h"
 
 // cmx
-#include "cmx/cmx_editor.h"
 #include "cmx_actor.h"
+#include "cmx_editor.h"
 #include "cmx_frame_info.h"
 #include "cmx_physics_manager.h"
 #include "cmx_primitives.h"

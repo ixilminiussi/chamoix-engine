@@ -1,10 +1,9 @@
 #include "cmx_graphics_manager.h"
 
 // cmx
-#include "cmx/cmx_editor.h"
-#include "cmx/cmx_frame_info.h"
+#include "cmx_editor.h"
+#include "cmx_frame_info.h"
 #include "cmx_render_system.h"
-#include "imgui.h"
 
 // lib
 #include <spdlog/spdlog.h>

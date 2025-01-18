@@ -2,7 +2,7 @@
 #define CMX_ASSET_MANAGER
 
 // lib
-#include "tinyxml2.h"
+#include <tinyxml2.h>
 
 // std
 #include <memory>

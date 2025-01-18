@@ -1,12 +1,14 @@
 #include "cmx_device.h"
 
-// std headers
+// lib
+#include <spdlog/spdlog.h>
+#include <vulkan/vulkan_core.h>
+
+// std
 #include <cstring>
 #include <iostream>
 #include <set>
-#include <spdlog/spdlog.h>
 #include <unordered_set>
-#include <vulkan/vulkan_core.h>
 
 namespace cmx
 {

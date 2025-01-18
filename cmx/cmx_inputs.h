@@ -1,14 +1,14 @@
 #ifndef CMX_INPUTS
 #define CMX_INPUTS
 
+// lib
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 // std
 #include <cstring>
 #include <spdlog/spdlog.h>
 #include <string>
-
-// lib
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
 namespace cmx
 {

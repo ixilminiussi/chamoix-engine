@@ -1,7 +1,9 @@
 #include "cmx_window.h"
 
-// std
+// lib
 #include <GLFW/glfw3.h>
+
+// std
 #include <stdexcept>
 
 namespace cmx
