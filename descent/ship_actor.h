@@ -26,16 +26,17 @@ class ShipActor : public cmx::PhysicsActor
     void onLiftInput(float dt, glm::vec2);
 
   protected:
-    void decelerate(float dt, glm::vec3 direction);
+    void movementDecelerate(float dt, glm::vec3 direction);
+    void lookingDecelerate(float dt, glm::vec2 direction);
+
     void resetInputs();
     void tiltToLocked(float dt);
 
     std::shared_ptr<cmx::CameraComponent> _cameraComponent;
 
-    glm::vec3 _velocity{0.f};
-
-    float _movementSpeed{3.f};
-    float _movementAcceleration{3.f};
+    glm::vec3 _movementVelocity{0.f};
+    float _movementSpeed{10.f};
+    float _movementAcceleration{10.f};
     float _movementDecelerationLerp{.5f};
 
     bool _movingLeft{false};
@@ -44,6 +45,16 @@ class ShipActor : public cmx::PhysicsActor
     bool _movingBackward{false};
     bool _movingUp{false};
     bool _movingDown{false};
+
+    glm::vec2 _lookingVelocity{0.f};
+    float _lookingSpeed{2.f};
+    float _lookingAcceleration{.5f};
+    float _lookingDecelerationLerp{1.f};
+
+    bool _lookingUp{false};
+    bool _lookingDown{false};
+    bool _lookingRight{false};
+    bool _lookingLeft{false};
 
     float _mouseSensitivity{0.1f};
 

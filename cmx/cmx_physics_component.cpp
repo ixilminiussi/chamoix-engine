@@ -8,6 +8,7 @@
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
 #include "cmx_shapes.h"
+#include "imgui.h"
 
 namespace cmx
 {
@@ -99,6 +100,54 @@ void PhysicsComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipel
     }
 
     _cmxShape->render(frameInfo, pipelineLayout, getScene()->getAssetsManager());
+}
+
+tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+{
+    tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
+    std::string name = _cmxShape->getName();
+    componentElement.SetAttribute("shape", name.c_str());
+
+    return componentElement;
+}
+
+void PhysicsComponent::load(tinyxml2::XMLElement *componentElement)
+{
+    Component::load(componentElement);
+
+    setShape(componentElement->Attribute("shape"));
+}
+
+void PhysicsComponent::editor(int i)
+{
+    std::string selected = _cmxShape->getName();
+    AssetsManager *assetsManager = getScene()->getAssetsManager();
+
+    auto selectable = [&](const std::string &option) {
+        bool isSelected = selected.compare(option) == 0;
+
+        if (ImGui::Selectable(option.c_str(), isSelected))
+        {
+            selected = option;
+            setShape(option);
+        }
+
+        if (isSelected)
+        {
+            ImGui::SetItemDefaultFocus();
+        }
+    };
+
+    if (ImGui::BeginCombo("Shape##", selected.c_str()))
+    {
+        selectable(PRIMITIVE_SPHERE);
+        selectable(PRIMITIVE_CUBE);
+        selectable(PRIMITIVE_CONTAINER);
+
+        ImGui::EndCombo();
+    }
+
+    Component::editor(i);
 }
 
 } // namespace cmx

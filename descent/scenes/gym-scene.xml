@@ -10,13 +10,13 @@
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
     </assets>
-    <actor type="ShipActor" name="Ship" id="29" visible="true">
+    <actor type="cmx::PointLightActor" name="RedLight" id="9" visible="true">
         <transform>
-            <position x="0" y="0" z="0"/>
+            <position x="8" y="-8" z="8"/>
             <rotation pitch="0" yaw="0" roll="0"/>
             <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::CameraComponent" name="cmx::CameraComponent" visible="true" fov="80" nearPlane="0.1" farPlane="1000">
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true" lightIntensity="10" r="1" g="0.39215687" b="0.39215687">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0"/>
@@ -24,49 +24,7 @@
             </transform>
         </component>
     </actor>
-    <actor type="RoomActor" name="Room" id="27" visible="true">
-        <transform>
-            <position x="0" y="0" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0"/>
-            <scale x="20" y="10" z="20"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_container" r="1" g="1" b="1">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="WallActor" name="Pillar" id="25" visible="true">
-        <transform>
-            <position x="0" y="0" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0"/>
-            <scale x="2" y="10" z="2"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" r="1" g="1" b="1">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="cmx::PointLightActor" name="BlueLight" id="23" visible="true">
+    <actor type="cmx::PointLightActor" name="BlueLight" id="7" visible="true">
         <transform>
             <position x="-8" y="-8" z="-8"/>
             <rotation pitch="0" yaw="0" roll="0"/>
@@ -80,13 +38,62 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::PointLightActor" name="RedLight" id="21" visible="true">
+    <actor type="WallActor" name="Pillar" id="5" visible="true">
         <transform>
-            <position x="8" y="-8" z="8"/>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0"/>
+            <scale x="2" y="10" z="2"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" r="1" g="1" b="1">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true" shape="cmx_cube">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="RoomActor" name="Room" id="3" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0"/>
+            <scale x="20" y="10" z="20"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_container" r="1" g="1" b="1">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true" shape="cmx_container">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="ShipActor" name="Ship" id="1" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0"/>
             <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true" lightIntensity="10" r="1" g="0.39215687" b="0.39215687">
+        <component type="cmx::CameraComponent" name="cmx::CameraComponent" visible="true" fov="80" nearPlane="0.1" farPlane="1000">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true" shape="cmx_sphere">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0"/>

@@ -45,6 +45,10 @@ class PhysicsComponent : public Component
 
     void setShape(const std::string &);
 
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    void load(tinyxml2::XMLElement *) override;
+    void editor(int i) override;
+
   protected:
     PhysicsMode _physicsMode{PhysicsMode::STATIC};
     float _absorptionCoefficient{0.2f};

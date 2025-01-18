@@ -49,53 +49,106 @@ void ShipActor::update(float dt)
         tiltToLocked(dt);
     }
 
-    if (_velocity.length() > _movementSpeed)
+    if (glm::length(_movementVelocity) > _movementSpeed)
     {
-        _velocity = glm::normalize(_velocity) * _movementSpeed;
+        _movementVelocity = glm::normalize(_movementVelocity) * _movementSpeed;
     }
 
-    if (_velocity.length() > glm::epsilon<float>())
+    if (glm::length(_movementVelocity) > glm::epsilon<float>())
     {
         if (!_movingForward)
         {
-            decelerate(dt, transform.forward());
+            movementDecelerate(dt, transform.forward());
         }
         if (!_movingBackward)
         {
-            decelerate(dt, -transform.forward());
+            movementDecelerate(dt, -transform.forward());
         }
         if (!_movingRight)
         {
-            decelerate(dt, -transform.right());
+            movementDecelerate(dt, -transform.right());
         }
         if (!_movingLeft)
         {
-            decelerate(dt, transform.right());
+            movementDecelerate(dt, transform.right());
         }
         if (!_movingUp)
         {
-            decelerate(dt, transform.up());
+            movementDecelerate(dt, transform.up());
         }
         if (!_movingDown)
         {
-            decelerate(dt, -transform.up());
+            movementDecelerate(dt, -transform.up());
         }
 
-        transform.position += _velocity * dt;
+        transform.position += _movementVelocity * dt;
+    }
+
+    if (glm::length(_lookingVelocity) > _lookingSpeed)
+    {
+        spdlog::info("test: {0}", glm::length(_lookingVelocity));
+        _lookingVelocity = glm::normalize(_lookingVelocity) * _lookingSpeed;
+    }
+
+    if (glm::length(_lookingVelocity) > glm::epsilon<float>())
+    {
+        if (!_lookingRight)
+        {
+            lookingDecelerate(dt, {1.f, 0.f});
+        }
+        if (!_lookingLeft)
+        {
+            lookingDecelerate(dt, {-1.f, 0.f});
+        }
+        if (!_lookingUp)
+        {
+            lookingDecelerate(dt, {0.f, 1.f});
+        }
+        else
+        {
+            spdlog::info("Up");
+        }
+        if (!_lookingDown)
+        {
+            lookingDecelerate(dt, {0.f, -1.f});
+        }
+        else
+        {
+            spdlog::info("Down");
+        }
+
+        glm::quat yaw = glm::angleAxis(-_lookingVelocity.x * dt, transform.up());
+        glm::quat pitch = glm::angleAxis(_lookingVelocity.y * dt, transform.right());
+
+        transform.rotation = yaw * transform.rotation;
+        transform.rotation = pitch * transform.rotation;
+
+        transform.rotation = glm::normalize(transform.rotation);
     }
 
     resetInputs();
 }
 
-void ShipActor::decelerate(float dt, glm::vec3 direction)
+void ShipActor::movementDecelerate(float dt, glm::vec3 direction)
 {
-    float rate = glm::dot(_velocity, direction);
+    float rate = glm::dot(_movementVelocity, direction);
     if (rate <= 0)
         return;
 
-    rate = cmx::lerp(rate, 0.f, std::clamp(dt * _movementDecelerationLerp, 0.f, 1.f));
+    rate = cmx::lerp(0.f, rate, std::clamp(_movementDecelerationLerp, 0.f, 1.f));
 
-    _velocity -= rate * direction * dt;
+    _movementVelocity -= rate * direction * dt;
+}
+
+void ShipActor::lookingDecelerate(float dt, glm::vec2 direction)
+{
+    float rate = glm::dot(_lookingVelocity, direction);
+    if (rate <= 0)
+        return;
+
+    rate = cmx::lerp(0.f, rate, std::clamp(_lookingDecelerationLerp, 0.f, 1.f));
+
+    _lookingVelocity -= rate * direction * dt;
 }
 
 void ShipActor::tiltToLocked(float dt)
@@ -121,11 +174,11 @@ void ShipActor::tiltToLocked(float dt)
 void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
                                cmx::Actor *overlappingActor)
 {
-    float maxStep = _velocity.length();
+    float maxStep = glm::length(_movementVelocity);
 
     glm::vec3 startingPosition = transform.position;
 
-    glm::vec3 step = -glm::normalize(_velocity);
+    glm::vec3 step = -glm::normalize(_movementVelocity);
 
     while (maxStep >= 0)
     {
@@ -154,6 +207,11 @@ void ShipActor::resetInputs()
     _movingBackward = false;
     _movingUp = false;
     _movingDown = false;
+
+    _lookingUp = false;
+    _lookingDown = false;
+    _lookingLeft = false;
+    _lookingRight = false;
 }
 
 void ShipActor::onMovementInput(float dt, glm::vec2 axis)
@@ -163,11 +221,11 @@ void ShipActor::onMovementInput(float dt, glm::vec2 axis)
 
     if (axis.x > 0)
     {
-        _movingRight = true;
+        _movingLeft = true;
     }
     if (axis.x < 0)
     {
-        _movingLeft = true;
+        _movingRight = true;
     }
     if (axis.y > 0)
     {
@@ -180,8 +238,8 @@ void ShipActor::onMovementInput(float dt, glm::vec2 axis)
 
     axis *= _movementAcceleration;
 
-    _velocity += transform.forward() * axis.y * dt;
-    _velocity += transform.right() * -axis.x * dt;
+    _movementVelocity += transform.forward() * axis.y * dt;
+    _movementVelocity += transform.right() * -axis.x * dt;
 }
 
 void ShipActor::onViewInput(float dt, glm::vec2 axis)
@@ -189,16 +247,26 @@ void ShipActor::onViewInput(float dt, glm::vec2 axis)
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
-    float yawAngle = -axis.x * _mouseSensitivity * dt;
-    float pitchAngle = axis.y * _mouseSensitivity * dt;
+    if (axis.x > 0)
+    {
+        _lookingRight = true;
+    }
+    if (axis.x < 0)
+    {
+        _lookingLeft = true;
+    }
+    if (axis.y < 0)
+    {
+        _lookingUp = true;
+    }
+    if (axis.y > 0)
+    {
+        _lookingDown = true;
+    }
 
-    glm::quat yaw = glm::angleAxis(yawAngle, transform.up());
-    glm::quat pitch = glm::angleAxis(pitchAngle, transform.right());
+    axis *= _lookingAcceleration;
 
-    transform.rotation = yaw * transform.rotation;
-    transform.rotation = pitch * transform.rotation;
-
-    transform.rotation = glm::normalize(transform.rotation);
+    _lookingVelocity += axis * dt;
 }
 
 void ShipActor::onTiltInput(float dt, glm::vec2 axis)
@@ -236,5 +304,5 @@ void ShipActor::onLiftInput(float dt, glm::vec2 axis)
 
     axis *= _movementAcceleration;
 
-    _velocity += transform.up() * axis.y * dt;
+    _movementVelocity += transform.up() * axis.y * dt;
 }

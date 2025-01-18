@@ -31,7 +31,7 @@ class CameraComponent : public Component
         return _camera;
     }
 
-  private:
+  protected:
     std::shared_ptr<class Camera> _camera;
 };
 

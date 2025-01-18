@@ -2,7 +2,6 @@
 
 // cmx
 #include "cmx_buffer.h"
-#include "cmx_render_system.h"
 #include "cmx_utils.h"
 
 // lib

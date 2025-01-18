@@ -32,6 +32,8 @@ class CmxShape
     bool isOverlapping(class PhysicsComponent *) const;
     bool isOverlapping() const;
 
+    virtual std::string getName() const = 0;
+
     void addOverlappingComponent(class PhysicsComponent *);
     void reassess();
     void swapBuffer();
@@ -51,10 +53,12 @@ class CmxSphere : public CmxShape
 
     virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) override;
 
-    bool overlapsWith(const CmxShape &) const override;
-    bool overlapsWith(const CmxSphere &) const override;
-    bool overlapsWith(const CmxCuboid &) const override;
-    bool overlapsWith(const CmxContainer &) const override;
+    virtual bool overlapsWith(const CmxShape &) const override;
+    virtual bool overlapsWith(const CmxSphere &) const override;
+    virtual bool overlapsWith(const CmxCuboid &) const override;
+    virtual bool overlapsWith(const CmxContainer &) const override;
+
+    virtual std::string getName() const override;
 
     friend class CmxShape;
     friend class CmxContainer;
@@ -81,10 +85,12 @@ class CmxCuboid : public CmxShape
 
     ~CmxCuboid() {};
 
-    bool overlapsWith(const CmxShape &) const override;
-    bool overlapsWith(const CmxSphere &) const override;
-    bool overlapsWith(const CmxCuboid &) const override;
-    bool overlapsWith(const CmxContainer &) const override;
+    virtual bool overlapsWith(const CmxShape &) const override;
+    virtual bool overlapsWith(const CmxSphere &) const override;
+    virtual bool overlapsWith(const CmxCuboid &) const override;
+    virtual bool overlapsWith(const CmxContainer &) const override;
+
+    virtual std::string getName() const override;
 
     friend class CmxSphere;
     friend class CmxContainer;
@@ -110,10 +116,12 @@ class CmxContainer : public CmxCuboid
 
     ~CmxContainer() {};
 
-    bool overlapsWith(const CmxShape &) const override;
-    bool overlapsWith(const CmxSphere &) const override;
-    bool overlapsWith(const CmxCuboid &) const override;
-    bool overlapsWith(const CmxContainer &) const override;
+    virtual bool overlapsWith(const CmxShape &) const override;
+    virtual bool overlapsWith(const CmxSphere &) const override;
+    virtual bool overlapsWith(const CmxCuboid &) const override;
+    virtual bool overlapsWith(const CmxContainer &) const override;
+
+    virtual std::string getName() const override;
 
     friend class CmxSphere;
     friend class CmxCuboid;

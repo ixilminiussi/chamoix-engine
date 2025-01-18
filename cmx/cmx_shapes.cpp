@@ -11,7 +11,6 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <glm/matrix.hpp>
-#include <memory>
 #include <spdlog/spdlog.h>
 
 namespace cmx
@@ -104,6 +103,11 @@ CmxSphere::CmxSphere(Transformable *parent) : CmxShape{parent}
 {
 }
 
+std::string CmxSphere::getName() const
+{
+    return PRIMITIVE_SPHERE;
+}
+
 void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
@@ -156,6 +160,15 @@ glm::vec3 CmxPolygon::getNormal()
     return glm::normalize(glm::cross(*b - *a, *c - *a));
 }
 
+CmxCuboid::CmxCuboid(Transformable *parent) : CmxShape{parent}
+{
+}
+
+std::string CmxCuboid::getName() const
+{
+    return PRIMITIVE_CUBE;
+}
+
 void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
@@ -170,10 +183,6 @@ void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
 
     assetsManager->getModel(PRIMITIVE_CUBE)->bind(frameInfo.commandBuffer);
     assetsManager->getModel(PRIMITIVE_CUBE)->draw(frameInfo.commandBuffer);
-}
-
-CmxCuboid::CmxCuboid(Transformable *parent) : CmxShape{parent}
-{
 }
 
 bool CmxCuboid::overlapsWith(const CmxShape &other) const
@@ -293,6 +302,11 @@ glm::vec4 CmxCuboid::getH(const glm::mat4 &mat4) const
 
 CmxContainer::CmxContainer(Transformable *parent) : CmxCuboid{parent}
 {
+}
+
+std::string CmxContainer::getName() const
+{
+    return PRIMITIVE_CONTAINER;
 }
 
 void CmxContainer::render(const class FrameInfo &frameInfo, VkPipelineLayout pipelineLayout,

@@ -2,6 +2,7 @@
 
 // cmx
 #include "cmx_physics_component.h"
+#include "cmx_primitives.h"
 
 // lib
 #include <glm/ext/scalar_constants.hpp>
@@ -16,6 +17,7 @@ void PhysicsActor::onBegin()
 
     _physicsComponent = std::make_shared<PhysicsComponent>();
     attachComponent(_physicsComponent);
+    _physicsComponent->setShape(PRIMITIVE_SPHERE);
 }
 
 void PhysicsActor::setVelocity(glm::vec3 velocity)
