@@ -112,6 +112,7 @@ void CmxTexture::free()
     CmxDevice *device = RenderSystem::getDevice();
     if (device)
     {
+        vkDestroyImage(device->device(), textureImage, nullptr);
         vkFreeMemory(device->device(), textureImageMemory, nullptr);
     }
     else

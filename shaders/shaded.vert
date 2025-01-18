@@ -7,6 +7,7 @@ layout(location = 3) in vec2 uv;
 
 layout(location = 0) out vec3 fragPositionWorld;
 layout(location = 1) out vec3 fragNormalWorld;
+// layout(location = 2) out vec3 fragColor;
 
 struct PointLight
 {
@@ -38,4 +39,5 @@ void main()
 
     fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
     fragPositionWorld = worldPosition.xyz;
+    // fragColor = color;
 }

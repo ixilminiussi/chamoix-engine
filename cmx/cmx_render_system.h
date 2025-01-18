@@ -47,7 +47,7 @@ class RenderSystem
     static FrameInfo *beginRender(class Camera *, PointLight pointLights[MAX_POINT_LIGHTS], int numLights);
     static void endRender();
 
-    static void globalRelease();
+    static void closeWindow();
 
     virtual void initialize() = 0;
     virtual void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,

@@ -1,14 +1,19 @@
 #include "cmx_swap_chain.h"
 
+// cmx
+#include "cmx_render_system.h"
+
+// lib
+#include <spdlog/spdlog.h>
+#include <vulkan/vulkan_core.h>
+
 // std
 #include <array>
 #include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <stdexcept>
-#include <vulkan/vulkan_core.h>
 
 namespace cmx
 {
@@ -39,9 +44,35 @@ void CmxSwapChain::init()
 
 CmxSwapChain::~CmxSwapChain()
 {
-    for (VkImageView imageView : _swapChainImageViews)
+    if (!_freed)
     {
-        vkDestroyImageView(_cmxDevice.device(), imageView, nullptr);
+        spdlog::error("CmxSwapChain: forgot to free before deletion");
+    }
+}
+
+void CmxSwapChain::free()
+{
+    for (VkFramebuffer framebuffer : _swapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(_cmxDevice.device(), framebuffer, nullptr);
+    }
+    _swapChainFramebuffers.clear();
+
+    vkDestroyRenderPass(_cmxDevice.device(), _renderPass, nullptr);
+
+    for (int i = 0; i < _depthImages.size(); i++)
+    {
+        vkDestroyImageView(_cmxDevice.device(), _depthImageViews[i], nullptr);
+        vkDestroyImage(_cmxDevice.device(), _depthImages[i], nullptr);
+        vkFreeMemory(_cmxDevice.device(), _depthImageMemories[i], nullptr);
+    }
+    _depthImageViews.clear();
+    _depthImages.clear();
+    _depthImageMemories.clear();
+
+    for (int i = 0; i < _swapChainImageViews.size(); i++)
+    {
+        vkDestroyImageView(_cmxDevice.device(), _swapChainImageViews[i], nullptr);
     }
     _swapChainImageViews.clear();
 
@@ -51,20 +82,6 @@ CmxSwapChain::~CmxSwapChain()
         _swapChain = nullptr;
     }
 
-    for (int i = 0; i < _depthImages.size(); i++)
-    {
-        vkDestroyImageView(_cmxDevice.device(), _depthImageViews[i], nullptr);
-        vkDestroyImage(_cmxDevice.device(), _depthImages[i], nullptr);
-        vkFreeMemory(_cmxDevice.device(), _depthImageMemorys[i], nullptr);
-    }
-
-    for (VkFramebuffer framebuffer : _swapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(_cmxDevice.device(), framebuffer, nullptr);
-    }
-
-    vkDestroyRenderPass(_cmxDevice.device(), _renderPass, nullptr);
-
     // cleanup synchronization objects
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -72,6 +89,10 @@ CmxSwapChain::~CmxSwapChain()
         vkDestroySemaphore(_cmxDevice.device(), _imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(_cmxDevice.device(), _inFlightFences[i], nullptr);
     }
+
+    _freed = true;
+
+    spdlog::info("CmxSwapChain: freed");
 }
 
 VkResult CmxSwapChain::acquireNextImage(uint32_t *imageIndex)
@@ -319,7 +340,7 @@ void CmxSwapChain::createDepthResources()
     VkExtent2D swapChainExtent = getSwapChainExtent();
 
     _depthImages.resize(imageCount());
-    _depthImageMemorys.resize(imageCount());
+    _depthImageMemories.resize(imageCount());
     _depthImageViews.resize(imageCount());
 
     for (int i = 0; i < _depthImages.size(); i++)
@@ -341,7 +362,7 @@ void CmxSwapChain::createDepthResources()
         imageInfo.flags = 0;
 
         _cmxDevice.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _depthImages[i],
-                                       _depthImageMemorys[i]);
+                                       _depthImageMemories[i]);
 
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

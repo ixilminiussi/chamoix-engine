@@ -29,7 +29,7 @@ class CmxBuffer
     VkDescriptorBufferInfo descriptorInfoForIndex(int index);
     VkResult invalidateIndex(int index);
 
-    VkBuffer getBuffer() const
+    const VkBuffer &getBuffer() const
     {
         return _buffer;
     }

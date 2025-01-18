@@ -32,7 +32,21 @@ CmxRenderer::CmxRenderer(CmxWindow &cmxWindow, CmxDevice &cmxDevice) : _cmxWindo
 
 CmxRenderer::~CmxRenderer()
 {
+    if (!_freed)
+    {
+        spdlog::error("CmxRenderer: forgot to free before deletion");
+    }
+}
+
+void CmxRenderer::free()
+{
+    _cmxSwapChain->free();
+    delete _cmxSwapChain.release();
+
     freeCommandBuffers();
+
+    _freed = true;
+    spdlog::info("CmxRenderer: freed");
 }
 
 void CmxRenderer::recreateSwapChain()

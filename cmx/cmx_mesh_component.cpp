@@ -57,6 +57,7 @@ void MeshComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipeline
 
     push.modelMatrix = transform.mat4();
     push.normalMatrix = transform.normalMatrix();
+    push.normalMatrix[3] = glm::vec4(_color, 1.0f);
 
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData),
@@ -91,6 +92,9 @@ tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
     componentElement.SetAttribute("model", _cmxModel->name.c_str());
+    componentElement.SetAttribute("r", _color.r);
+    componentElement.SetAttribute("g", _color.g);
+    componentElement.SetAttribute("b", _color.b);
 
     return componentElement;
 }
@@ -100,6 +104,9 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
     Component::load(componentElement);
 
     setModel(componentElement->Attribute("model"));
+    _color.r = componentElement->FloatAttribute("r");
+    _color.g = componentElement->FloatAttribute("g");
+    _color.b = componentElement->FloatAttribute("b");
 }
 
 void MeshComponent::editor(int i)

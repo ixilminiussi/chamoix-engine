@@ -22,6 +22,8 @@ class CmxRenderer
     CmxRenderer(CmxWindow &, CmxDevice &);
     ~CmxRenderer();
 
+    void free();
+
     // getters and setters :: begin
     VkRenderPass getSwapChainRenderPass() const
     {
@@ -72,6 +74,8 @@ class CmxRenderer
     uint32_t _currentImageIndex;
     int _currentFrameIndex{0};
     bool _isFrameStarted{false};
+
+    bool _freed{false};
 };
 
 } // namespace cmx

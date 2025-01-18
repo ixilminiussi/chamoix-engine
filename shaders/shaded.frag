@@ -2,6 +2,7 @@
 
 layout(location = 0) in vec3 fragPositionWorld;
 layout(location = 1) in vec3 fragNormalWorld;
+// layout(location = 2) in vec3 fragColor;
 
 layout(location = 0) out vec4 outColor;
 
@@ -24,7 +25,7 @@ ubo;
 layout(push_constant) uniform Push
 {
     mat4 modelMatrix;
-    mat4 normalMatrix;
+    mat4 normalMatrix; // + color on last column
 }
 push;
 
@@ -46,5 +47,5 @@ void main()
         diffuseLight += intensity * cosAngIncidence;
     }
 
-    outColor = vec4(diffuseLight * vec3(1.f), 1.0f);
+    outColor = vec4(diffuseLight * push.normalMatrix[3].xyz, 1.0f);
 }

@@ -25,6 +25,8 @@ class CmxSwapChain
     CmxSwapChain(const CmxSwapChain &) = delete;
     CmxSwapChain &operator=(const CmxSwapChain &) = delete;
 
+    void free();
+
     VkFramebuffer getFrameBuffer(int index)
     {
         return _swapChainFramebuffers[index];
@@ -95,12 +97,11 @@ class CmxSwapChain
     VkRenderPass _renderPass;
 
     std::vector<VkImage> _depthImages;
-    std::vector<VkDeviceMemory> _depthImageMemorys;
+    std::vector<VkDeviceMemory> _depthImageMemories;
     std::vector<VkImageView> _depthImageViews;
     std::vector<VkImage> _swapChainImages;
     std::vector<VkImageView> _swapChainImageViews;
 
-    CmxDevice &_cmxDevice;
     VkExtent2D _windowExtent;
 
     VkSwapchainKHR _swapChain;
@@ -111,6 +112,10 @@ class CmxSwapChain
     std::vector<VkFence> _inFlightFences;
     std::vector<VkFence> _imagesInFlight;
     size_t _currentFrame = 0;
+
+    CmxDevice &_cmxDevice;
+
+    bool _freed{};
 };
 
 } // namespace cmx

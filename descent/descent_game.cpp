@@ -88,7 +88,7 @@ void Descent::run()
     getScene()->unload();
 
     _renderSystems.clear();
-    cmx::RenderSystem::globalRelease();
+    cmx::RenderSystem::closeWindow();
 }
 
 void Descent::load()
@@ -98,5 +98,5 @@ void Descent::load()
     _scenes.push_back(&mainScene);
     setScene(0);
 
-    getScene()->getAssetsManager()->addTexture("assets/textures/bricks.png", "bricks");
+    // getScene()->getAssetsManager()->addTexture("assets/textures/bricks.png", "bricks");
 }

@@ -41,12 +41,13 @@ RenderSystem::~RenderSystem()
     vkDestroyPipelineLayout(_cmxDevice->device(), _pipelineLayout, nullptr);
 }
 
-void RenderSystem::globalRelease()
+void RenderSystem::closeWindow()
 {
     spdlog::info("global release");
+    _cmxRenderer->free();
     delete _cmxRenderer.release();
 
-    // vkFreeCommandBuffers(_cmxDevice->device(), _cmxDevice->getCommandPool(), , _commandBuffer);
+    // vkFreeCommandBuffers(_cmxDevice->device(), _cmxDevice->getCommandPool(), 1u, &_commandBuffer);
 
     auto it = _uboBuffers.begin();
     while (it != _uboBuffers.end())

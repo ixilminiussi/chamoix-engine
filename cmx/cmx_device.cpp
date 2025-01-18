@@ -6,6 +6,7 @@
 #include <set>
 #include <spdlog/spdlog.h>
 #include <unordered_set>
+#include <vulkan/vulkan_core.h>
 
 namespace cmx
 {

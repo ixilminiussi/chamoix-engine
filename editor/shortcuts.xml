@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inputs>
-    <buttonAction type="PRESSED" name="editor toggle">
-        <button code="298" source="KEYBOARD" id="0"/>
-    </buttonAction>
-    <axisAction type="AXES" name="viewport rotation">
+    <axisAction modifierX="1" modifierY="1" type="AXES" name="viewport rotation">
         <axis code="0" source="MOUSE" id="1"/>
         <axis code="1" source="MOUSE" id="1"/>
     </axisAction>
-    <axisAction type="BUTTONS" name="viewport movement">
+    <axisAction modifierX="1" modifierY="1" type="BUTTONS" name="viewport movement">
         <button code="68" source="KEYBOARD" id="0"/>
         <button code="65" source="KEYBOARD" id="0"/>
         <button code="87" source="KEYBOARD" id="0"/>
@@ -15,5 +12,8 @@
     </axisAction>
     <buttonAction type="TOGGLE" name="viewport toggle">
         <button code="0" source="MOUSE" id="0"/>
+    </buttonAction>
+    <buttonAction type="PRESSED" name="editor toggle">
+        <button code="298" source="KEYBOARD" id="0"/>
     </buttonAction>
 </inputs>
