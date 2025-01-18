@@ -18,7 +18,6 @@ class PointLightComponent : public Component
     void onAttach() override;
     void onDetach() override;
 
-    void update(float dt) override;
     void render(const class FrameInfo &, VkPipelineLayout) override;
 
     void editor(int i) override;

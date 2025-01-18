@@ -21,16 +21,14 @@ PointLightComponent::PointLightComponent()
     _requestedRenderSystem = BILLBOARD_RENDER_SYSTEM;
 }
 
-void PointLightComponent::update(float dt)
-{
-    Transform absoluteTransform = getAbsoluteTransform();
-    _absolutePosition = absoluteTransform.position;
-    _absoluteScaleXY = glm::vec2(absoluteTransform.scale.x, absoluteTransform.scale.y);
-}
-
 void PointLightComponent::onAttach()
 {
     _key = _keyChain++;
+
+    Transform absoluteTransform = getAbsoluteTransform();
+    _absolutePosition = absoluteTransform.position;
+    _absoluteScaleXY = glm::vec2(absoluteTransform.scale.x, absoluteTransform.scale.y);
+
     getScene()->getGraphicsManager()->addPointLight(_key, {&_absolutePosition, &_lightColor, &_lightIntensity});
 }
 
@@ -46,6 +44,10 @@ void PointLightComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pi
         spdlog::critical("MeshComponent: _parent is expired");
         return;
     }
+
+    Transform absoluteTransform = getAbsoluteTransform();
+    _absolutePosition = absoluteTransform.position;
+    _absoluteScaleXY = glm::vec2(absoluteTransform.scale.x, absoluteTransform.scale.y);
 
     BillboardPushConstant pushConstant;
     pushConstant.position = glm::vec4(_absolutePosition, 1.0f);
