@@ -1,6 +1,7 @@
 #include "cmx_physics_component.h"
 
 // cmx
+#include "cmx/cmx_editor.h"
 #include "cmx_actor.h"
 #include "cmx_frame_info.h"
 #include "cmx_physics_manager.h"
@@ -79,6 +80,14 @@ void PhysicsComponent::setShape(const std::string &type)
 
 void PhysicsComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
 {
+#ifndef NDEBUG
+    if (!CmxEditor::isActive())
+    {
+        return;
+    }
+#else
+    return;
+#endif
     if (getParent() == nullptr)
     {
         spdlog::critical("MeshComponent: _parent is expired");

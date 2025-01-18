@@ -2,6 +2,7 @@
 #define CMX_VIEWPORT_ACTOR
 
 // cmx
+#include "cmx/cmx_input_manager.h"
 #include <cmx/cmx_transform.h>
 
 // std
@@ -33,6 +34,7 @@ class ViewportActor
     void unlock()
     {
         _locked = false;
+        InputManager::setMouseCapture(false);
     };
 
     std::shared_ptr<class Camera> getCamera()

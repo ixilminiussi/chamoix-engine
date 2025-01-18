@@ -2,7 +2,9 @@
 
 // cmx
 #include <cmx/cmx_camera_component.h>
+#include <cmx/cmx_editor.h>
 #include <cmx/cmx_game.h>
+#include <cmx/cmx_input_action.h>
 #include <cmx/cmx_input_manager.h>
 #include <cmx/cmx_math.h>
 
@@ -28,6 +30,11 @@ void ShipActor::onBegin()
     }
 
     getScene()->setCamera(_cameraComponent->getCamera());
+
+#ifndef NDEBUG
+    if (!cmx::CmxEditor::isActive())
+#endif
+        cmx::InputManager::setMouseCapture(true);
 }
 
 void ShipActor::update(float dt)
@@ -36,6 +43,54 @@ void ShipActor::update(float dt)
     {
         tiltToLocked(dt);
     }
+
+    if (_velocity.length() > _movementSpeed)
+    {
+        _velocity = glm::normalize(_velocity) * _movementSpeed;
+    }
+
+    if (_velocity.length() > glm::epsilon<float>())
+    {
+        if (!_movingForward)
+        {
+            decelerate(dt, transform.forward());
+        }
+        if (!_movingBackward)
+        {
+            decelerate(dt, -transform.forward());
+        }
+        if (!_movingRight)
+        {
+            decelerate(dt, -transform.right());
+        }
+        if (!_movingLeft)
+        {
+            decelerate(dt, transform.right());
+        }
+        if (!_movingUp)
+        {
+            decelerate(dt, transform.up());
+        }
+        if (!_movingDown)
+        {
+            decelerate(dt, -transform.up());
+        }
+
+        transform.position += _velocity * dt;
+    }
+
+    resetInputs();
+}
+
+void ShipActor::decelerate(float dt, glm::vec3 direction)
+{
+    float rate = glm::dot(_velocity, direction);
+    if (rate <= 0)
+        return;
+
+    rate = cmx::lerp(rate, 0.f, std::clamp(dt * _movementDecelerationLerp, 0.f, 1.f));
+
+    _velocity -= rate * direction * dt;
 }
 
 void ShipActor::tiltToLocked(float dt)
@@ -68,15 +123,42 @@ void ShipActor::onEndOverlap(class cmx::PhysicsComponent *ownedComponent,
 {
 }
 
+void ShipActor::resetInputs()
+{
+    _movingLeft = false;
+    _movingRight = false;
+    _movingForward = false;
+    _movingBackward = false;
+    _movingUp = false;
+    _movingDown = false;
+}
+
 void ShipActor::onMovementInput(float dt, glm::vec2 axis)
 {
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
-    axis *= _movementSpeed;
+    if (axis.x > 0)
+    {
+        _movingRight = true;
+    }
+    if (axis.x < 0)
+    {
+        _movingLeft = true;
+    }
+    if (axis.y > 0)
+    {
+        _movingForward = true;
+    }
+    if (axis.y < 0)
+    {
+        _movingBackward = true;
+    }
 
-    transform.position += transform.forward() * axis.y * dt;
-    transform.position += transform.right() * -axis.x * dt;
+    axis *= _movementAcceleration;
+
+    _velocity += transform.forward() * axis.y * dt;
+    _velocity += transform.right() * -axis.x * dt;
 }
 
 void ShipActor::onViewInput(float dt, glm::vec2 axis)
@@ -120,7 +202,16 @@ void ShipActor::onLiftInput(float dt, glm::vec2 axis)
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
-    axis *= _liftSpeed;
+    if (axis.y > 0)
+    {
+        _movingUp = true;
+    }
+    if (axis.y < 0)
+    {
+        _movingDown = true;
+    }
 
-    transform.position += transform.up() * axis.y * dt;
+    axis *= _movementAcceleration;
+
+    _velocity += transform.up() * axis.y * dt;
 }

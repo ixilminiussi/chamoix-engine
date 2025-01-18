@@ -89,8 +89,10 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
         switch (button.source)
         {
         case InputSource::KEYBOARD:
+#ifndef NDEBUG
             if (!ImGui::GetIO().WantCaptureKeyboard)
             {
+#endif
                 button.status = glfwGetKey(window.getGLFWwindow(), button.code);
 
                 if (_buttonType == Type::SHORTCUT)
@@ -101,11 +103,15 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
                 {
                     newStatus |= button.status;
                 }
+#ifndef NDEBUG
             }
+#endif
             break;
         case InputSource::MOUSE:
+#ifndef NDEBUG
             if (!ImGui::GetIO().WantCaptureMouse)
             {
+#endif
                 button.status = glfwGetMouseButton(window.getGLFWwindow(), button.code);
                 if (_buttonType == Type::SHORTCUT)
                 {
@@ -115,7 +121,9 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
                 {
                     newStatus |= button.status;
                 }
+#ifndef NDEBUG
             }
+#endif
             break;
         case InputSource::GAMEPAD:
             // TODO: Gamepad support
@@ -181,16 +189,16 @@ void AxisAction::poll(const CmxWindow &window, float dt)
             switch (buttons[i].source)
             {
             case InputSource::KEYBOARD:
+#ifndef NDEBUG
                 if (!ImGui::GetIO().WantCaptureKeyboard)
-                {
+#endif
                     buttons[i].status = glfwGetKey(window.getGLFWwindow(), buttons[i].code);
-                }
                 break;
             case InputSource::MOUSE:
+#ifndef NDEBUG
                 if (!ImGui::GetIO().WantCaptureMouse)
-                {
+#endif
                     buttons[i].status = glfwGetMouseButton(window.getGLFWwindow(), buttons[i].code);
-                }
                 break;
             case InputSource::GAMEPAD:
                 // TODO: Gamepad support

@@ -45,9 +45,9 @@ void PointLightComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pi
         return;
     }
 
-    Transform absoluteTransform = getAbsoluteTransform();
-    _absolutePosition = absoluteTransform.position;
-    _absoluteScaleXY = glm::vec2(absoluteTransform.scale.x, absoluteTransform.scale.y);
+    Transform transform = getAbsoluteTransform();
+    _absolutePosition = transform.position;
+    _absoluteScaleXY = glm::vec2(transform.scale.x, transform.scale.y);
 
     BillboardPushConstant pushConstant;
     pushConstant.position = glm::vec4(_absolutePosition, 1.0f);

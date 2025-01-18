@@ -70,8 +70,15 @@ void InputManager::pollEvents(float dt)
 
 void InputManager::setMouseCapture(bool b)
 {
-    (b) ? glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED)
-        : glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    if (b)
+    {
+        glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetCursorPos(Game::getWindow().getGLFWwindow(), 0, 0);
+    }
+    else
+    {
+        glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
 }
 
 void InputManager::save()
