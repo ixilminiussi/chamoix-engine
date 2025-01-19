@@ -18,6 +18,7 @@ add_executable(VulkanTest descent/main.cpp)  # Assuming main.cpp is at the root 
 # Link necessary libraries and internal modules
 target_link_libraries(VulkanTest PRIVATE
     cmx
+    descent
 )
 
 add_custom_target(clean_all

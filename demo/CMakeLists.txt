@@ -8,8 +8,8 @@ add_library(demo
     dynamic_body_actor.cpp
 )
 
-target_include_directories(demo PUBLIC
+target_include_directories(demo PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(demo PUBLIC cmx tinyxml2 imgui spdlog)
+target_link_libraries(demo PRIVATE cmx tinyxml2 imgui spdlog)
