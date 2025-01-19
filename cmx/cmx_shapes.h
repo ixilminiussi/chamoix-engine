@@ -16,7 +16,7 @@
 namespace cmx
 {
 
-class CmxShape
+class CmxShape : public Transformable
 {
   public:
     CmxShape(Transformable *parent);
@@ -27,6 +27,9 @@ class CmxShape
     virtual bool overlapsWith(const class CmxCuboid &) const = 0;
     virtual bool overlapsWith(const class CmxContainer &) const = 0;
     virtual bool overlapsWith(const class CmxSphere &) const = 0;
+
+    Transform getAbsoluteTransform() const override;
+    const Transform &getRelativeTransform() const override;
 
     bool wasOverlapping(class PhysicsComponent *) const;
     bool isOverlapping(class PhysicsComponent *) const;

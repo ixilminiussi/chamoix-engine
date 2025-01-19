@@ -22,6 +22,20 @@ CmxShape::CmxShape(Transformable *parent) : _parent{parent}
     _overlappingComponents[1] = {};
 }
 
+Transform CmxShape::getAbsoluteTransform() const
+{
+    if (_parent)
+    {
+        return _parent->getAbsoluteTransform();
+    }
+    return Transform::ONE;
+}
+
+const Transform &CmxShape::getRelativeTransform() const
+{
+    return Transform::ONE;
+}
+
 bool CmxShape::wasOverlapping(PhysicsComponent *component) const
 {
     auto search = _overlappingComponents[_alternativeBuffer].find(component);
@@ -70,7 +84,6 @@ void CmxShape::reassess()
         {
             if (auto ourComponent = dynamic_cast<PhysicsComponent *>(_parent))
             {
-                spdlog::info("yes");
                 if (auto ourActor = dynamic_cast<PhysicsActor *>(ourComponent->getParent()))
                 {
                     if (*previousIt != nullptr)
@@ -112,7 +125,8 @@ void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
 {
     EdgePushConstantData push{};
 
-    Transform transform = _parent->getAbsoluteTransform();
+    Transform transform = getAbsoluteTransform();
+
     push.modelMatrix = transform.mat4();
     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
 
@@ -146,12 +160,13 @@ bool CmxSphere::overlapsWith(const CmxContainer &other) const
 
 glm::vec3 CmxSphere::getCenter() const
 {
-    return _parent->getAbsoluteTransform().position;
+    return getAbsoluteTransform().position;
 }
 
 float CmxSphere::getRadius() const
 {
-    Transform transform = _parent->getAbsoluteTransform();
+    Transform transform = getAbsoluteTransform();
+
     return std::max(std::max(transform.scale.x, transform.scale.y), transform.scale.z);
 }
 
@@ -172,7 +187,8 @@ std::string CmxCuboid::getName() const
 void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
-    Transform transform = _parent->getAbsoluteTransform();
+
+    Transform transform = getAbsoluteTransform();
 
     push.modelMatrix = transform.mat4();
     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
@@ -192,7 +208,7 @@ bool CmxCuboid::overlapsWith(const CmxShape &other) const
 
 bool CmxCuboid::overlapsWith(const CmxCuboid &other) const
 {
-    const Transform &transform = _parent != nullptr ? _parent->getAbsoluteTransform() : Transform::ONE;
+    Transform transform = getAbsoluteTransform();
 
     const glm::mat4 mat4 = transform.mat4();
     const glm::mat4 inverseMat4 = glm::inverse(mat4);
@@ -235,28 +251,30 @@ bool CmxCuboid::overlapsWith(const CmxCuboid &other) const
 
 bool CmxCuboid::overlapsWith(const CmxSphere &other) const
 {
-    const Transform &transform = _parent != nullptr ? _parent->getAbsoluteTransform() : Transform::ONE;
+    Transform transform = getAbsoluteTransform();
 
     glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
 
     glm::vec4 scaledA = getA(scaler);
     glm::vec4 scaledG = getG(scaler);
 
-    glm::vec4 newP = glm::inverse(transform.mat4()) * glm::vec4{other.getCenter(), 1.0f};
+    glm::vec4 newP = glm::inverse(transform.mat4_noScale()) * glm::vec4{other.getCenter(), 1.0f};
 
-    if (newP.x + other.getRadius() < std::min(scaledA.x, scaledG.x))
-        return false;
-    if (newP.x - other.getRadius() > std::max(scaledA.x, scaledG.x))
-        return false;
+    float radius = other.getRadius();
 
-    if (newP.y + other.getRadius() < std::min(scaledA.y, scaledG.y))
+    if (newP.x + radius < std::min(scaledA.x, scaledG.x))
         return false;
-    if (newP.y - other.getRadius() > std::max(scaledA.y, scaledG.y))
+    if (newP.x - radius > std::max(scaledA.x, scaledG.x))
         return false;
 
-    if (newP.z + other.getRadius() < std::min(scaledA.z, scaledG.z))
+    if (newP.y + radius < std::min(scaledA.y, scaledG.y))
         return false;
-    if (newP.z - other.getRadius() > std::max(scaledA.z, scaledG.z))
+    if (newP.y - radius > std::max(scaledA.y, scaledG.y))
+        return false;
+
+    if (newP.z + radius < std::min(scaledA.z, scaledG.z))
+        return false;
+    if (newP.z - radius > std::max(scaledA.z, scaledG.z))
         return false;
 
     return true;
@@ -313,7 +331,8 @@ void CmxContainer::render(const class FrameInfo &frameInfo, VkPipelineLayout pip
                           class AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
-    Transform transform = _parent->getAbsoluteTransform();
+
+    Transform transform = getAbsoluteTransform();
 
     push.modelMatrix = transform.mat4();
     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
@@ -333,7 +352,7 @@ bool CmxContainer::overlapsWith(const CmxShape &other) const
 
 bool CmxContainer::overlapsWith(const CmxCuboid &other) const
 {
-    const Transform &transform = _parent != nullptr ? _parent->getAbsoluteTransform() : Transform::ONE;
+    Transform transform = getAbsoluteTransform();
 
     const glm::mat4 mat4 = transform.mat4();
     const glm::mat4 inverseMat4 = glm::inverse(mat4);
@@ -376,28 +395,30 @@ bool CmxContainer::overlapsWith(const CmxCuboid &other) const
 
 bool CmxContainer::overlapsWith(const CmxSphere &other) const
 {
-    const Transform &transform = _parent != nullptr ? _parent->getAbsoluteTransform() : Transform::ONE;
+    Transform transform = getAbsoluteTransform();
 
     glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
 
     glm::vec4 scaledA = getA(scaler);
     glm::vec4 scaledG = getG(scaler);
 
-    glm::vec4 newP = glm::inverse(transform.mat4()) * glm::vec4{other.getCenter(), 1.0f};
+    glm::vec4 newP = glm::inverse(transform.mat4_noScale()) * glm::vec4{other.getCenter(), 1.0f};
 
-    if (newP.x + other.getRadius() > std::max(scaledA.x, scaledG.x))
-        return true;
-    if (newP.x - other.getRadius() < std::min(scaledA.x, scaledG.x))
-        return true;
+    float radius = other.getRadius();
 
-    if (newP.y + other.getRadius() > std::max(scaledA.y, scaledG.y))
+    if (newP.x + radius > std::max(scaledA.x, scaledG.x))
         return true;
-    if (newP.y - other.getRadius() < std::min(scaledA.y, scaledG.y))
+    if (newP.x - radius < std::min(scaledA.x, scaledG.x))
         return true;
 
-    if (newP.z + other.getRadius() > std::max(scaledA.z, scaledG.z))
+    if (newP.y + radius > std::max(scaledA.y, scaledG.y))
         return true;
-    if (newP.z - other.getRadius() < std::min(scaledA.z, scaledG.z))
+    if (newP.y - radius < std::min(scaledA.y, scaledG.y))
+        return true;
+
+    if (newP.z + radius > std::max(scaledA.z, scaledG.z))
+        return true;
+    if (newP.z - radius < std::min(scaledA.z, scaledG.z))
         return true;
 
     return false;

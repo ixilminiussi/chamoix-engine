@@ -35,6 +35,8 @@ void ShipActor::onBegin()
 
     getScene()->setCamera(_cameraComponent->getCamera());
 
+    _physicsComponent->setDynamic();
+
 #ifndef NDEBUG
     if (!cmx::CmxEditor::isActive())
 #endif
@@ -178,29 +180,13 @@ void ShipActor::tiltToLocked(float dt)
 void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
                                cmx::Actor *overlappingActor)
 {
-    float maxStep = glm::length(_movementVelocity);
-
-    glm::vec3 startingPosition = transform.position;
-
-    glm::vec3 step = -glm::normalize(_movementVelocity);
-
-    while (maxStep >= 0)
-    {
-        transform.position += step;
-        maxStep--;
-
-        if (!ownedComponent->getShape()->overlapsWith(*overlappingComponent->getShape()))
-        {
-            return;
-        }
-    }
-
-    transform.position = startingPosition;
+    spdlog::info("on");
 }
 
 void ShipActor::onEndOverlap(class cmx::PhysicsComponent *ownedComponent,
                              class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor)
 {
+    spdlog::info("off");
 }
 
 void ShipActor::resetInputs()
