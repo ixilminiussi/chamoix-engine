@@ -18,15 +18,6 @@ add_executable(VulkanTest descent/main.cpp)  # Assuming main.cpp is at the root 
 # Link necessary libraries and internal modules
 target_link_libraries(VulkanTest PRIVATE
     cmx
-    demo
-)
-
-# Define custom targets for 'test' and 'clean'
-add_custom_target(test
-    COMMAND ${CMAKE_COMMAND} -E env bash ${CMAKE_SOURCE_DIR}/compile.sh descent
-    COMMAND VulkanTest
-    DEPENDS VulkanTest
-    COMMENT "Running VulkanTest"
 )
 
 add_custom_target(clean_all
