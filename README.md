@@ -3,8 +3,19 @@ Chamoix engine is my little vulkan/glfw/imgui game engine for 3d games with the 
 
 ## Compile instructions
 *(tested only on linux)*
-- make sure your .external/ folder includes iconfonts, imgui, stb, tinyobjloader and tinyxml2
-- install x11, glfw, vulkan
+
+### Cloning
+ensure your `.external/` directories are populated by the correct submodules, if not you may need to run
+
+``` bash
+git submodule update --init --recursive
+```
+or clone using
+``` bash
+git clone --recurse-submodules https://github.com/ixilminiussi/chamoix-engine.git
+```
+
+### Compilation
 
 ``` bash
 mkdir build
