@@ -31,7 +31,6 @@ void ShipActor::onBegin()
         inputManager->bindAxis("View Keyboard", &ShipActor::onViewInput, this);
         inputManager->bindAxis("Tilt", &ShipActor::onTiltInput, this);
         inputManager->bindAxis("Lift", &ShipActor::onLiftInput, this);
-        inputManager->bindButton("Tilt end", &ShipActor::onTiltInputEnd, this);
     }
 
     getScene()->setCamera(_cameraComponent->getCamera());
@@ -47,6 +46,18 @@ void ShipActor::update(float dt)
     if (!_manualTilting)
     {
         tiltToLocked(dt);
+    }
+
+    if (_manualTilting && std::abs(_tiltingVelocity) > _tiltingSpeed)
+    {
+        _tiltingVelocity = _tiltingSpeed * (_tiltingVelocity / std::abs(_tiltingVelocity));
+    }
+
+    if (_manualTilting && std::abs(_tiltingVelocity) > glm::epsilon<float>())
+    {
+        glm::quat roll = glm::angleAxis(-_tiltingVelocity * dt, transform.forward());
+
+        transform.rotation = roll * transform.rotation;
     }
 
     if (glm::length(_movementVelocity) > _movementSpeed)
@@ -86,7 +97,6 @@ void ShipActor::update(float dt)
 
     if (glm::length(_lookingVelocity) > _lookingSpeed)
     {
-        spdlog::info("test: {0}", glm::length(_lookingVelocity));
         _lookingVelocity = glm::normalize(_lookingVelocity) * _lookingSpeed;
     }
 
@@ -104,17 +114,9 @@ void ShipActor::update(float dt)
         {
             lookingDecelerate(dt, {0.f, 1.f});
         }
-        else
-        {
-            spdlog::info("Up");
-        }
         if (!_lookingDown)
         {
             lookingDecelerate(dt, {0.f, -1.f});
-        }
-        else
-        {
-            spdlog::info("Down");
         }
 
         glm::quat yaw = glm::angleAxis(-_lookingVelocity.x * dt, transform.up());
@@ -122,8 +124,6 @@ void ShipActor::update(float dt)
 
         transform.rotation = yaw * transform.rotation;
         transform.rotation = pitch * transform.rotation;
-
-        transform.rotation = glm::normalize(transform.rotation);
     }
 
     resetInputs();
@@ -135,9 +135,9 @@ void ShipActor::movementDecelerate(float dt, glm::vec3 direction)
     if (rate <= 0)
         return;
 
-    rate = cmx::lerp(0.f, rate, std::clamp(_movementDecelerationLerp, 0.f, 1.f));
+    rate = cmx::lerp(0.f, rate, std::clamp(_movementDecelerationLerp * dt, 0.f, 1.f));
 
-    _movementVelocity -= rate * direction * dt;
+    _movementVelocity -= rate * direction;
 }
 
 void ShipActor::lookingDecelerate(float dt, glm::vec2 direction)
@@ -146,9 +146,9 @@ void ShipActor::lookingDecelerate(float dt, glm::vec2 direction)
     if (rate <= 0)
         return;
 
-    rate = cmx::lerp(0.f, rate, std::clamp(_lookingDecelerationLerp, 0.f, 1.f));
+    rate = cmx::lerp(0.f, rate, std::clamp(dt * _lookingDecelerationLerp, 0.f, 1.f));
 
-    _lookingVelocity -= rate * direction * dt;
+    _lookingVelocity -= rate * direction;
 }
 
 void ShipActor::tiltToLocked(float dt)
@@ -165,8 +165,10 @@ void ShipActor::tiltToLocked(float dt)
     float goalRoll = cmx::snapTo(currentRoll, 0.f, -glm::two_pi<float>(), glm::two_pi<float>(), glm::half_pi<float>(),
                                  -glm::half_pi<float>(), glm::pi<float>(), -glm::pi<float>());
 
-    float lerpedRoll = cmx::lerp(currentRoll, goalRoll, std::clamp(dt * _rollSpeed, 0.f, 1.f));
+    float lerpedRoll = cmx::lerp(currentRoll, goalRoll, std::clamp(dt * _tiltingLockingLerp, 0.f, 1.f));
+
     glm::quat angledRoll = glm::angleAxis(currentRoll - lerpedRoll, transform.forward());
+    _tiltingVelocity = currentRoll - lerpedRoll;
 
     transform.rotation = angledRoll * transform.rotation;
 }
@@ -212,6 +214,8 @@ void ShipActor::resetInputs()
     _lookingDown = false;
     _lookingLeft = false;
     _lookingRight = false;
+
+    _manualTilting = false;
 }
 
 void ShipActor::onMovementInput(float dt, glm::vec2 axis)
@@ -236,10 +240,10 @@ void ShipActor::onMovementInput(float dt, glm::vec2 axis)
         _movingBackward = true;
     }
 
-    axis *= _movementAcceleration;
+    axis *= _movementAcceleration * dt;
 
-    _movementVelocity += transform.forward() * axis.y * dt;
-    _movementVelocity += transform.right() * -axis.x * dt;
+    _movementVelocity += transform.forward() * axis.y;
+    _movementVelocity += transform.right() * -axis.x;
 }
 
 void ShipActor::onViewInput(float dt, glm::vec2 axis)
@@ -264,9 +268,9 @@ void ShipActor::onViewInput(float dt, glm::vec2 axis)
         _lookingDown = true;
     }
 
-    axis *= _lookingAcceleration;
+    axis *= _lookingAcceleration * dt;
 
-    _lookingVelocity += axis * dt;
+    _lookingVelocity += axis;
 }
 
 void ShipActor::onTiltInput(float dt, glm::vec2 axis)
@@ -274,18 +278,11 @@ void ShipActor::onTiltInput(float dt, glm::vec2 axis)
     if (glm::length(axis) <= glm::epsilon<float>())
         return;
 
-    float rollAngle = axis.x * _manualRollSpeed * dt;
-
-    glm::quat roll = glm::angleAxis(rollAngle, transform.forward());
-
-    transform.rotation = roll * transform.rotation;
-
     _manualTilting = true;
-}
 
-void ShipActor::onTiltInputEnd(float dt, int val)
-{
-    _manualTilting = false;
+    axis.x *= _tiltingAcceleration * dt;
+
+    _tiltingVelocity += axis.x;
 }
 
 void ShipActor::onLiftInput(float dt, glm::vec2 axis)
@@ -302,7 +299,7 @@ void ShipActor::onLiftInput(float dt, glm::vec2 axis)
         _movingDown = true;
     }
 
-    axis *= _movementAcceleration;
+    axis *= _movementAcceleration * dt;
 
-    _movementVelocity += transform.up() * axis.y * dt;
+    _movementVelocity += transform.up() * axis.y;
 }

@@ -37,7 +37,7 @@ class ShipActor : public cmx::PhysicsActor
     glm::vec3 _movementVelocity{0.f};
     float _movementSpeed{10.f};
     float _movementAcceleration{10.f};
-    float _movementDecelerationLerp{.5f};
+    float _movementDecelerationLerp{2.f};
 
     bool _movingLeft{false};
     bool _movingRight{false};
@@ -49,19 +49,21 @@ class ShipActor : public cmx::PhysicsActor
     glm::vec2 _lookingVelocity{0.f};
     float _lookingSpeed{2.f};
     float _lookingAcceleration{.5f};
-    float _lookingDecelerationLerp{1.f};
+    float _lookingDecelerationLerp{2.f};
 
     bool _lookingUp{false};
     bool _lookingDown{false};
     bool _lookingRight{false};
     bool _lookingLeft{false};
 
-    float _mouseSensitivity{0.1f};
-
-    float _rollSpeed{5.f};
-    float _manualRollSpeed{2.f};
+    float _tiltingVelocity{0.f};
+    float _tiltingSpeed{2.f};
+    float _tiltingAcceleration{.5f};
+    float _tiltingLockingLerp{2.f};
 
     bool _manualTilting{false};
+
+    float _mouseSensitivity{0.1f};
 };
 
 #endif

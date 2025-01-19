@@ -31,8 +31,4 @@
     <buttonAction type="RELEASED" name="exit">
         <button code="256" source="KEYBOARD" id="0"/>
     </buttonAction>
-    <buttonAction type="RELEASED" name="Tilt end">
-        <button code="81" source="KEYBOARD" id="0"/>
-        <button code="69" source="KEYBOARD" id="0"/>
-    </buttonAction>
 </inputs>
