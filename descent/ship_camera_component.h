@@ -11,7 +11,16 @@ class ShipCameraComponent : public cmx::CameraComponent
 
     void update(float dt) override;
 
+    void setTilt(float force);
+
   protected:
+    void bob();
+
+    float _maxTilt = 20.f;
+    float _bobbingRange = .1;
+    float _bobbingSpeed = 4.f;
+
+    float _cummulatedTime{0.f};
 };
 
 #endif

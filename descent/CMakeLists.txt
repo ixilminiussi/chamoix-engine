@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 
 add_library(descent
     descent_game.cpp
+    ship_camera_component.cpp
     wall_actor.cpp
     room_actor.cpp
     ship_actor.cpp

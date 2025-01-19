@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inputs>
-    <axisAction modifierX="1" modifierY="1" type="BUTTONS" name="Movement">
-        <button code="68" source="KEYBOARD" id="0"/>
-        <button code="65" source="KEYBOARD" id="0"/>
-        <button code="87" source="KEYBOARD" id="0"/>
-        <button code="83" source="KEYBOARD" id="0"/>
+    <buttonAction type="PRESSED" name="Shoot">
+        <button code="32" source="KEYBOARD" id="0"/>
+        <button code="0" source="MOUSE" id="1"/>
+    </buttonAction>
+    <axisAction modifierX="1" modifierY="1" type="BUTTONS" name="Tilt">
+        <button code="69" source="KEYBOARD" id="0"/>
+        <button code="81" source="KEYBOARD" id="0"/>
+        <button code="0" source="KEYBOARD" id="0"/>
+        <button code="32764" source="GAMEPAD" id="0"/>
     </axisAction>
-    <axisAction modifierX="1" modifierY="1" type="AXES" name="View">
-        <axis code="0" source="MOUSE" id="1"/>
-        <axis code="1" source="MOUSE" id="1"/>
+    <axisAction modifierX="1" modifierY="1" type="BUTTONS" name="Lift">
+        <button code="-1" source="KEYBOARD" id="0"/>
+        <button code="0" source="KEYBOARD" id="0"/>
+        <button code="340" source="KEYBOARD" id="0"/>
+        <button code="341" source="KEYBOARD" id="0"/>
     </axisAction>
     <axisAction modifierX="4" modifierY="-4" type="BUTTONS" name="View Keyboard">
         <button code="262" source="KEYBOARD" id="0"/>
@@ -16,17 +22,15 @@
         <button code="265" source="KEYBOARD" id="0"/>
         <button code="264" source="KEYBOARD" id="0"/>
     </axisAction>
-    <axisAction modifierX="1" modifierY="1" type="BUTTONS" name="Lift">
-        <button code="-1" source="KEYBOARD" id="0"/>
-        <button code="0" source="KEYBOARD" id="0"/>
-        <button code="32" source="KEYBOARD" id="0"/>
-        <button code="341" source="KEYBOARD" id="0"/>
+    <axisAction modifierX="1" modifierY="1" type="AXES" name="View">
+        <axis code="0" source="MOUSE" id="1"/>
+        <axis code="1" source="MOUSE" id="1"/>
     </axisAction>
-    <axisAction modifierX="1" modifierY="1" type="BUTTONS" name="Tilt">
-        <button code="69" source="KEYBOARD" id="0"/>
-        <button code="81" source="KEYBOARD" id="0"/>
-        <button code="0" source="KEYBOARD" id="0"/>
-        <button code="32764" source="GAMEPAD" id="0"/>
+    <axisAction modifierX="1" modifierY="1" type="BUTTONS" name="Movement">
+        <button code="68" source="KEYBOARD" id="0"/>
+        <button code="65" source="KEYBOARD" id="0"/>
+        <button code="87" source="KEYBOARD" id="0"/>
+        <button code="83" source="KEYBOARD" id="0"/>
     </axisAction>
     <buttonAction type="RELEASED" name="exit">
         <button code="256" source="KEYBOARD" id="0"/>

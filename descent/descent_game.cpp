@@ -40,14 +40,13 @@ Descent::Descent()
     cmxRegister->addActor("WallActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<WallActor>(scene, name);
     });
-
     cmxRegister->addActor("RoomActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<RoomActor>(scene, name);
     });
-
     cmxRegister->addActor("ShipActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<ShipActor>(scene, name);
     });
+    cmxRegister->addComponent("ShipCameraComponent", []() { return std::make_shared<ShipCameraComponent>(); });
 
     _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<cmx::ShadedRenderSystem>();
     _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<cmx::BillboardRenderSystem>();

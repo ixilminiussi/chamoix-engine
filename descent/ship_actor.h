@@ -1,7 +1,9 @@
 #ifndef SHIP_ACTOR
 #define SHIP_ACTOR
 
-#include <cmx/cmx_camera_component.h>
+#include "ship_camera_component.h"
+
+// cmx
 #include <cmx/cmx_physics_actor.h>
 
 class ShipActor : public cmx::PhysicsActor
@@ -32,10 +34,10 @@ class ShipActor : public cmx::PhysicsActor
     void resetInputs();
     void tiltToLocked(float dt);
 
-    std::shared_ptr<cmx::CameraComponent> _cameraComponent;
+    std::shared_ptr<ShipCameraComponent> _cameraComponent;
 
     glm::vec3 _movementVelocity{0.f};
-    float _movementSpeed{10.f};
+    float _movementSpeed{20.f};
     float _movementAcceleration{10.f};
     float _movementDecelerationLerp{2.f};
 
@@ -57,8 +59,8 @@ class ShipActor : public cmx::PhysicsActor
     bool _lookingLeft{false};
 
     float _tiltingVelocity{0.f};
-    float _tiltingSpeed{2.f};
-    float _tiltingAcceleration{.5f};
+    float _tiltingSpeed{3.f};
+    float _tiltingAcceleration{1.f};
     float _tiltingLockingLerp{2.f};
 
     bool _manualTilting{false};

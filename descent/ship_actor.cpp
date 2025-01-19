@@ -20,7 +20,7 @@ void ShipActor::onBegin()
 {
     cmx::PhysicsActor::onBegin();
 
-    _cameraComponent = std::make_shared<cmx::CameraComponent>();
+    _cameraComponent = std::make_shared<ShipCameraComponent>();
     attachComponent(_cameraComponent);
 
     cmx::InputManager *inputManager = getScene()->getGame()->getInputManager();
@@ -125,6 +125,8 @@ void ShipActor::update(float dt)
         transform.rotation = yaw * transform.rotation;
         transform.rotation = pitch * transform.rotation;
     }
+
+    _cameraComponent->setTilt(_lookingVelocity.x / _lookingSpeed);
 
     resetInputs();
 }
