@@ -17,7 +17,7 @@ class PhysicsActor : public Actor
     void onBegin() override;
 
     virtual void onBeginOverlap(class PhysicsComponent *ownedComponent, class PhysicsComponent *overlappingComponent,
-                                Actor *overlappingActor) {};
+                                Actor *overlappingActor, const class HitInfo &hitInfo) {};
     virtual void onEndOverlap(class PhysicsComponent *ownedComponent, class PhysicsComponent *overlappingComponent,
                               Actor *overlappingActor) {};
 

@@ -8,6 +8,7 @@
 #include "cmx_primitives.h"
 
 // lib
+#include <glm/ext/scalar_constants.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <glm/matrix.hpp>
@@ -138,24 +139,53 @@ void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
     assetsManager->getModel(PRIMITIVE_SPHERE)->draw(frameInfo.commandBuffer);
 }
 
-bool CmxSphere::overlapsWith(const CmxShape &other) const
+bool CmxSphere::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
 {
-    return other.overlapsWith(*this);
+    bool b = other.overlapsWith(*this, hitInfo);
+
+    if (b)
+    {
+        hitInfo.flip();
+        return true;
+    }
+
+    return false;
 }
 
-bool CmxSphere::overlapsWith(const CmxSphere &other) const
+bool CmxSphere::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
 {
-    return (glm::length(getCenter() - other.getCenter()) <= (getRadius() + other.getRadius()));
+    hitInfo.normal = (other.getCenter() - getCenter());
+    float minDist = getRadius() + other.getRadius();
+    hitInfo.depth = minDist - glm::length(hitInfo.normal);
+    hitInfo.normal = (hitInfo.depth <= glm::epsilon<float>()) ? hitInfo.normal : glm::normalize(hitInfo.normal);
+
+    return hitInfo.depth > 0.f;
 }
 
-bool CmxSphere::overlapsWith(const CmxCuboid &other) const
+bool CmxSphere::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
 {
-    return other.overlapsWith(*this);
+    bool b = other.overlapsWith(*this, hitInfo);
+
+    if (b)
+    {
+        hitInfo.flip();
+        return true;
+    }
+
+    return false;
 }
 
-bool CmxSphere::overlapsWith(const CmxContainer &other) const
+bool CmxSphere::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
 {
-    return other.overlapsWith(*this);
+    bool b = other.overlapsWith(*this, hitInfo);
+
+    if (b)
+    {
+        hitInfo.flip();
+        return true;
+    }
+
+    return false;
 }
 
 glm::vec3 CmxSphere::getCenter() const
@@ -170,9 +200,96 @@ float CmxSphere::getRadius() const
     return std::max(std::max(transform.scale.x, transform.scale.y), transform.scale.z);
 }
 
-glm::vec3 CmxPolygon::getNormal()
+CmxPlane::CmxPlane(Transformable *parent) : CmxShape{parent}
 {
-    return glm::normalize(glm::cross(*b - *a, *c - *a));
+}
+
+std::string CmxPlane::getName() const
+{
+    return PRIMITIVE_PLANE;
+}
+
+void CmxPlane::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
+{
+    EdgePushConstantData push{};
+
+    Transform transform = getAbsoluteTransform();
+
+    push.modelMatrix = transform.mat4();
+    push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
+
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
+                       &push);
+
+    if (CmxModel *model = assetsManager->getModel(PRIMITIVE_PLANE))
+    {
+        model->bind(frameInfo.commandBuffer);
+        model->draw(frameInfo.commandBuffer);
+    }
+}
+
+bool CmxPlane::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
+{
+    bool b = other.overlapsWith(*this, hitInfo);
+
+    if (b)
+    {
+        hitInfo.flip();
+        return true;
+    }
+
+    return false;
+}
+
+bool CmxPlane::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
+{
+    return false;
+}
+
+bool CmxPlane::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
+{
+    return false;
+}
+
+bool CmxPlane::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
+{
+    Transform transform = getAbsoluteTransform();
+
+    glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
+
+    glm::vec4 scaledMin = getMin(scaler);
+    glm::vec4 scaledMax = getMax(scaler);
+
+    glm::mat4 noScale = transform.mat4_noScale();
+    glm::vec4 newCenter = glm::inverse(noScale) * glm::vec4{other.getCenter(), 1.0f};
+
+    // OBB
+    // get closest point
+    glm::vec4 closestPoint{1.f};
+    closestPoint.x = (newCenter.x < scaledMin.x)   ? scaledMin.x
+                     : (newCenter.x > scaledMax.x) ? scaledMax.x
+                                                   : newCenter.x;
+    closestPoint.z = (newCenter.z < scaledMin.z)   ? scaledMin.z
+                     : (newCenter.z > scaledMax.z) ? scaledMax.z
+                                                   : newCenter.z;
+    closestPoint.y = scaledMin.y;
+
+    hitInfo.normal = glm::vec3(noScale * (newCenter - closestPoint));
+    hitInfo.depth = other.getRadius() - glm::length(hitInfo.normal);
+    hitInfo.normal = (hitInfo.depth <= glm::epsilon<float>()) ? hitInfo.normal : glm::normalize(hitInfo.normal);
+
+    return hitInfo.depth > 0;
+}
+
+glm::vec4 CmxPlane::getMin(const glm::mat4 &mat4) const
+{
+    return mat4 * glm::vec4{-1.f, 0.f, -1.f, 1.f};
+}
+
+glm::vec4 CmxPlane::getMax(const glm::mat4 &mat4) const
+{
+    return mat4 * glm::vec4{1.f, 0.f, 1.f, 1.f};
 }
 
 CmxCuboid::CmxCuboid(Transformable *parent) : CmxShape{parent}
@@ -197,236 +314,76 @@ void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
                        &push);
 
-    assetsManager->getModel(PRIMITIVE_CUBE)->bind(frameInfo.commandBuffer);
-    assetsManager->getModel(PRIMITIVE_CUBE)->draw(frameInfo.commandBuffer);
+    if (CmxModel *model = assetsManager->getModel(PRIMITIVE_CUBE))
+    {
+        model->bind(frameInfo.commandBuffer);
+        model->draw(frameInfo.commandBuffer);
+    }
 }
 
-bool CmxCuboid::overlapsWith(const CmxShape &other) const
+bool CmxCuboid::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
 {
-    return other.overlapsWith(*this);
+    bool b = other.overlapsWith(*this, hitInfo);
+
+    if (b)
+    {
+        hitInfo.flip();
+        return true;
+    }
+
+    return false;
 }
 
-bool CmxCuboid::overlapsWith(const CmxCuboid &other) const
+bool CmxCuboid::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
 {
-    Transform transform = getAbsoluteTransform();
-
-    const glm::mat4 mat4 = transform.mat4();
-    const glm::mat4 inverseMat4 = glm::inverse(mat4);
-
-    glm::vec4 p = other.getA(inverseMat4);
-    float minX = p.x, minY = p.y, minZ = p.z, maxX = p.x, maxY = p.y, maxZ = p.z;
-
-    auto update = [&minX, &minY, &minZ, &maxX, &maxY, &maxZ](glm::vec4 p) {
-        minX = std::min(minX, p.x);
-        minY = std::min(minY, p.y);
-        minZ = std::min(minZ, p.z);
-        maxX = std::max(maxX, p.x);
-        maxY = std::max(maxY, p.y);
-        maxZ = std::max(maxZ, p.z);
-    };
-
-    update(other.getB(inverseMat4));
-    update(other.getC(inverseMat4));
-    update(other.getD(inverseMat4));
-    update(other.getE(inverseMat4));
-    update(other.getF(inverseMat4));
-    update(other.getG(inverseMat4));
-    update(other.getH(inverseMat4));
-
-    if (maxX < std::min(getA(mat4).x, getG(mat4).x))
-        return false;
-    if (maxY < std::min(getA(mat4).y, getG(mat4).y))
-        return false;
-    if (maxZ < std::min(getA(mat4).z, getG(mat4).z))
-        return false;
-    if (minX > std::max(getA(mat4).x, getG(mat4).x))
-        return false;
-    if (minY > std::max(getA(mat4).y, getG(mat4).y))
-        return false;
-    if (minZ > std::max(getA(mat4).z, getG(mat4).z))
-        return false;
-
-    return true;
+    return false;
 }
 
-bool CmxCuboid::overlapsWith(const CmxSphere &other) const
+bool CmxCuboid::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
+{
+    return false;
+}
+
+bool CmxCuboid::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
 {
     Transform transform = getAbsoluteTransform();
 
     glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
 
-    glm::vec4 scaledA = getA(scaler);
-    glm::vec4 scaledG = getG(scaler);
+    glm::vec4 scaledMin = getMin(scaler);
+    glm::vec4 scaledMax = getMax(scaler);
 
-    glm::vec4 newP = glm::inverse(transform.mat4_noScale()) * glm::vec4{other.getCenter(), 1.0f};
+    glm::mat4 noScale = transform.mat4_noScale();
+    glm::vec4 newCenter = glm::inverse(noScale) * glm::vec4{other.getCenter(), 1.0f};
 
-    float radius = other.getRadius();
+    // OBB
+    // get closest point
+    glm::vec4 closestPoint{1.f};
+    closestPoint.x = (newCenter.x < scaledMin.x)   ? scaledMin.x
+                     : (newCenter.x > scaledMax.x) ? scaledMax.x
+                                                   : newCenter.x;
+    closestPoint.y = (newCenter.y < scaledMin.y)   ? scaledMin.y
+                     : (newCenter.y > scaledMax.y) ? scaledMax.y
+                                                   : newCenter.y;
+    closestPoint.z = (newCenter.z < scaledMin.z)   ? scaledMin.z
+                     : (newCenter.z > scaledMax.z) ? scaledMax.z
+                                                   : newCenter.z;
 
-    if (newP.x + radius < std::min(scaledA.x, scaledG.x))
-        return false;
-    if (newP.x - radius > std::max(scaledA.x, scaledG.x))
-        return false;
+    hitInfo.normal = glm::vec3(noScale * (newCenter - closestPoint));
+    hitInfo.depth = other.getRadius() - glm::length(hitInfo.normal);
+    hitInfo.normal = (hitInfo.depth <= glm::epsilon<float>()) ? hitInfo.normal : glm::normalize(hitInfo.normal);
 
-    if (newP.y + radius < std::min(scaledA.y, scaledG.y))
-        return false;
-    if (newP.y - radius > std::max(scaledA.y, scaledG.y))
-        return false;
-
-    if (newP.z + radius < std::min(scaledA.z, scaledG.z))
-        return false;
-    if (newP.z - radius > std::max(scaledA.z, scaledG.z))
-        return false;
-
-    return true;
+    return hitInfo.depth > 0;
 }
 
-bool CmxCuboid::overlapsWith(const CmxContainer &other) const
-{
-    return other.overlapsWith(*this);
-}
-
-glm::vec4 CmxCuboid::getA(const glm::mat4 &mat4) const
+glm::vec4 CmxCuboid::getMin(const glm::mat4 &mat4) const
 {
     return mat4 * glm::vec4{-1.f, -1.f, -1.f, 1.f};
 }
-glm::vec4 CmxCuboid::getB(const glm::mat4 &mat4) const
-{
-    return mat4 * glm::vec4{1.f, -1.f, -1.f, 1.f};
-}
-glm::vec4 CmxCuboid::getC(const glm::mat4 &mat4) const
-{
-    return mat4 * glm::vec4{1.f, -1.f, 1.f, 1.f};
-}
-glm::vec4 CmxCuboid::getD(const glm::mat4 &mat4) const
-{
-    return mat4 * glm::vec4{-1.f, -1.f, 1.f, 1.f};
-}
-glm::vec4 CmxCuboid::getE(const glm::mat4 &mat4) const
-{
-    return mat4 * glm::vec4{-1.f, 1.f, -1.f, 1.f};
-}
-glm::vec4 CmxCuboid::getF(const glm::mat4 &mat4) const
-{
-    return mat4 * glm::vec4{1.f, 1.f, -1.f, 1.f};
-}
-glm::vec4 CmxCuboid::getG(const glm::mat4 &mat4) const
+
+glm::vec4 CmxCuboid::getMax(const glm::mat4 &mat4) const
 {
     return mat4 * glm::vec4{1.f, 1.f, 1.f, 1.f};
-}
-glm::vec4 CmxCuboid::getH(const glm::mat4 &mat4) const
-{
-    return mat4 * glm::vec4{-1.f, 1.f, 1.f, 1.f};
-}
-
-CmxContainer::CmxContainer(Transformable *parent) : CmxCuboid{parent}
-{
-}
-
-std::string CmxContainer::getName() const
-{
-    return PRIMITIVE_CONTAINER;
-}
-
-void CmxContainer::render(const class FrameInfo &frameInfo, VkPipelineLayout pipelineLayout,
-                          class AssetsManager *assetsManager)
-{
-    EdgePushConstantData push{};
-
-    Transform transform = getAbsoluteTransform();
-
-    push.modelMatrix = transform.mat4();
-    push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
-
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
-                       &push);
-
-    assetsManager->getModel(PRIMITIVE_CONTAINER)->bind(frameInfo.commandBuffer);
-    assetsManager->getModel(PRIMITIVE_CONTAINER)->draw(frameInfo.commandBuffer);
-}
-
-bool CmxContainer::overlapsWith(const CmxShape &other) const
-{
-    return other.overlapsWith(*this);
-}
-
-bool CmxContainer::overlapsWith(const CmxCuboid &other) const
-{
-    Transform transform = getAbsoluteTransform();
-
-    const glm::mat4 mat4 = transform.mat4();
-    const glm::mat4 inverseMat4 = glm::inverse(mat4);
-
-    glm::vec4 p = other.getA(inverseMat4);
-    float minX = p.x, minY = p.y, minZ = p.z, maxX = p.x, maxY = p.y, maxZ = p.z;
-
-    auto update = [&minX, &minY, &minZ, &maxX, &maxY, &maxZ](glm::vec4 p) {
-        minX = std::min(minX, p.x);
-        minY = std::min(minY, p.y);
-        minZ = std::min(minZ, p.z);
-        maxX = std::max(maxX, p.x);
-        maxY = std::max(maxY, p.y);
-        maxZ = std::max(maxZ, p.z);
-    };
-
-    update(other.getB(inverseMat4));
-    update(other.getC(inverseMat4));
-    update(other.getD(inverseMat4));
-    update(other.getE(inverseMat4));
-    update(other.getF(inverseMat4));
-    update(other.getG(inverseMat4));
-    update(other.getH(inverseMat4));
-
-    if (minX < std::min(getA(mat4).x, getG(mat4).x))
-        return true;
-    if (minY < std::min(getA(mat4).y, getG(mat4).y))
-        return true;
-    if (minZ < std::min(getA(mat4).z, getG(mat4).z))
-        return true;
-    if (maxX > std::max(getA(mat4).x, getG(mat4).x))
-        return true;
-    if (maxY > std::max(getA(mat4).y, getG(mat4).y))
-        return true;
-    if (maxZ > std::max(getA(mat4).z, getG(mat4).z))
-        return true;
-
-    return false;
-}
-
-bool CmxContainer::overlapsWith(const CmxSphere &other) const
-{
-    Transform transform = getAbsoluteTransform();
-
-    glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
-
-    glm::vec4 scaledA = getA(scaler);
-    glm::vec4 scaledG = getG(scaler);
-
-    glm::vec4 newP = glm::inverse(transform.mat4_noScale()) * glm::vec4{other.getCenter(), 1.0f};
-
-    float radius = other.getRadius();
-
-    if (newP.x + radius > std::max(scaledA.x, scaledG.x))
-        return true;
-    if (newP.x - radius < std::min(scaledA.x, scaledG.x))
-        return true;
-
-    if (newP.y + radius > std::max(scaledA.y, scaledG.y))
-        return true;
-    if (newP.y - radius < std::min(scaledA.y, scaledG.y))
-        return true;
-
-    if (newP.z + radius > std::max(scaledA.z, scaledG.z))
-        return true;
-    if (newP.z - radius < std::min(scaledA.z, scaledG.z))
-        return true;
-
-    return false;
-}
-
-bool CmxContainer::overlapsWith(const CmxContainer &other) const
-{
-    return true;
 }
 
 } // namespace cmx

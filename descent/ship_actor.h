@@ -16,8 +16,8 @@ class ShipActor : public cmx::PhysicsActor
     void update(float dt) override;
 
     virtual void onBeginOverlap(class cmx::PhysicsComponent *ownedComponent,
-                                class cmx::PhysicsComponent *overlappingComponent,
-                                cmx::Actor *overlappingActor) override;
+                                class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor,
+                                const cmx::HitInfo &) override;
     virtual void onEndOverlap(class cmx::PhysicsComponent *ownedComponent,
                               class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor) override;
 
@@ -66,6 +66,8 @@ class ShipActor : public cmx::PhysicsActor
     bool _manualTilting{false};
 
     float _mouseSensitivity{0.1f};
+
+    float _lastDt;
 };
 
 #endif

@@ -63,7 +63,8 @@ void PhysicsManager::executeStep(float dt)
                 otherShape->swapBuffer();
             }
 
-            if (shape->overlapsWith(*otherShape))
+            HitInfo hitInfo{};
+            if (shape->overlapsWith(*otherShape, hitInfo))
             {
                 shape->addOverlappingComponent(itAlt->get());
                 otherShape->addOverlappingComponent(physicsComponent.get());
@@ -72,11 +73,13 @@ void PhysicsManager::executeStep(float dt)
                 {
                     if (auto parent = dynamic_cast<PhysicsActor *>(physicsComponent->getParent()))
                     {
-                        parent->onBeginOverlap(physicsComponent.get(), itAlt->get(), (*itAlt)->getParent());
+                        parent->onBeginOverlap(physicsComponent.get(), itAlt->get(), (*itAlt)->getParent(), hitInfo);
                     }
                     if (auto parent = dynamic_cast<PhysicsActor *>((*itAlt)->getParent()))
                     {
-                        parent->onBeginOverlap(itAlt->get(), physicsComponent.get(), physicsComponent->getParent());
+                        hitInfo.flip();
+                        parent->onBeginOverlap(itAlt->get(), physicsComponent.get(), physicsComponent->getParent(),
+                                               hitInfo);
                     }
                 }
             }

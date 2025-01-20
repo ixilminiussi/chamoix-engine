@@ -70,9 +70,9 @@ void PhysicsComponent::setShape(const std::string &type)
         _cmxShape = std::shared_ptr<CmxShape>(new CmxCuboid(this));
         return;
     }
-    if (type.compare(PRIMITIVE_CONTAINER) == 0)
+    if (type.compare(PRIMITIVE_PLANE) == 0)
     {
-        _cmxShape = std::shared_ptr<CmxShape>(new CmxContainer(this));
+        _cmxShape = std::shared_ptr<CmxShape>(new CmxPlane(this));
         return;
     }
 
@@ -142,7 +142,7 @@ void PhysicsComponent::editor(int i)
     {
         selectable(PRIMITIVE_SPHERE);
         selectable(PRIMITIVE_CUBE);
-        selectable(PRIMITIVE_CONTAINER);
+        selectable(PRIMITIVE_PLANE);
 
         ImGui::EndCombo();
     }

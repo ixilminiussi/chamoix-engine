@@ -16,6 +16,19 @@
 namespace cmx
 {
 
+struct HitInfo
+{
+    glm::vec3 normal{0.f};
+    float depth{0.f};
+
+    void flip();
+};
+
+inline void HitInfo::flip()
+{
+    normal = -normal;
+}
+
 class CmxShape : public Transformable
 {
   public:
@@ -23,10 +36,10 @@ class CmxShape : public Transformable
 
     virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) {};
 
-    virtual bool overlapsWith(const CmxShape &) const = 0;
-    virtual bool overlapsWith(const class CmxCuboid &) const = 0;
-    virtual bool overlapsWith(const class CmxContainer &) const = 0;
-    virtual bool overlapsWith(const class CmxSphere &) const = 0;
+    virtual bool overlapsWith(const CmxShape &, HitInfo &) const = 0;
+    virtual bool overlapsWith(const class CmxSphere &, HitInfo &) const = 0;
+    virtual bool overlapsWith(const class CmxPlane &, HitInfo &) const = 0;
+    virtual bool overlapsWith(const class CmxCuboid &, HitInfo &) const = 0;
 
     Transform getAbsoluteTransform() const override;
     const Transform &getRelativeTransform() const override;
@@ -56,27 +69,34 @@ class CmxSphere : public CmxShape
 
     virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) override;
 
-    virtual bool overlapsWith(const CmxShape &) const override;
-    virtual bool overlapsWith(const CmxSphere &) const override;
-    virtual bool overlapsWith(const CmxCuboid &) const override;
-    virtual bool overlapsWith(const CmxContainer &) const override;
+    virtual bool overlapsWith(const CmxShape &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxSphere &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxPlane &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxCuboid &, HitInfo &) const override;
 
     virtual std::string getName() const override;
 
-    friend class CmxShape;
-    friend class CmxContainer;
-    friend class CmxCuboid;
-
-  private:
     glm::vec3 getCenter() const;
     float getRadius() const;
 };
 
-struct CmxPolygon
+struct CmxPlane : public CmxShape
 {
-    glm::vec3 *a, *b, *c;
+    CmxPlane(Transformable *);
 
-    glm::vec3 getNormal();
+    virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) override;
+
+    ~CmxPlane() {};
+
+    virtual bool overlapsWith(const CmxShape &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxSphere &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxPlane &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxCuboid &, HitInfo &) const override;
+
+    virtual std::string getName() const override;
+
+    glm::vec4 getMin(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getMax(const glm::mat4 & = glm::mat4{1.f}) const;
 };
 
 class CmxCuboid : public CmxShape
@@ -88,47 +108,15 @@ class CmxCuboid : public CmxShape
 
     ~CmxCuboid() {};
 
-    virtual bool overlapsWith(const CmxShape &) const override;
-    virtual bool overlapsWith(const CmxSphere &) const override;
-    virtual bool overlapsWith(const CmxCuboid &) const override;
-    virtual bool overlapsWith(const CmxContainer &) const override;
+    virtual bool overlapsWith(const CmxShape &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxSphere &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxPlane &, HitInfo &) const override;
+    virtual bool overlapsWith(const CmxCuboid &, HitInfo &) const override;
 
     virtual std::string getName() const override;
 
-    friend class CmxSphere;
-    friend class CmxContainer;
-    friend class CmxShape;
-
-  protected:
-    glm::vec4 getA(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getB(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getC(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getD(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getE(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getF(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getG(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getH(const glm::mat4 & = glm::mat4{1.f}) const;
-};
-
-class CmxContainer : public CmxCuboid
-{
-  public:
-    CmxContainer(Transformable *);
-
-    virtual void render(const class FrameInfo &, VkPipelineLayout, class AssetsManager *) override;
-
-    ~CmxContainer() {};
-
-    virtual bool overlapsWith(const CmxShape &) const override;
-    virtual bool overlapsWith(const CmxSphere &) const override;
-    virtual bool overlapsWith(const CmxCuboid &) const override;
-    virtual bool overlapsWith(const CmxContainer &) const override;
-
-    virtual std::string getName() const override;
-
-    friend class CmxSphere;
-    friend class CmxCuboid;
-    friend class CmxShape;
+    glm::vec4 getMin(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getMax(const glm::mat4 & = glm::mat4{1.f}) const;
 };
 
 // A---------B

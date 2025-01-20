@@ -35,12 +35,12 @@ void ShipActor::onBegin()
 
     getScene()->setCamera(_cameraComponent->getCamera());
 
-    _physicsComponent->setDynamic();
-
 #ifndef NDEBUG
     if (!cmx::CmxEditor::isActive())
 #endif
         cmx::InputManager::setMouseCapture(true);
+
+    _physicsComponent->setDynamic();
 }
 
 void ShipActor::update(float dt)
@@ -130,6 +130,8 @@ void ShipActor::update(float dt)
 
     _cameraComponent->setTilt(_lookingVelocity.x / _lookingSpeed);
 
+    _lastDt = dt;
+
     resetInputs();
 }
 
@@ -178,15 +180,18 @@ void ShipActor::tiltToLocked(float dt)
 }
 
 void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
-                               cmx::Actor *overlappingActor)
+                               cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
 {
-    spdlog::info("on");
+    if (glm::length(hitInfo.normal) >= 1.0f)
+    {
+        transform.position += hitInfo.depth * hitInfo.normal;
+        _velocity *= hitInfo.normal;
+    }
 }
 
 void ShipActor::onEndOverlap(class cmx::PhysicsComponent *ownedComponent,
                              class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor)
 {
-    spdlog::info("off");
 }
 
 void ShipActor::resetInputs()

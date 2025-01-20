@@ -77,6 +77,11 @@ std::string Component::getType()
 
 bool Component::getVisible()
 {
+    if (getParent() == nullptr)
+    {
+        return false;
+    }
+
     return _isVisible && getParent()->getVisible();
 }
 
