@@ -183,11 +183,9 @@ void ShipActor::tiltToLocked(float dt)
 void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
                                cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
 {
-    if (glm::length(hitInfo.normal) >= 1.0f)
-    {
-        _transform.position += hitInfo.depth * hitInfo.normal;
-        _movementVelocity *= hitInfo.normal;
-    }
+    _transform.position -= (hitInfo.depth + glm::epsilon<float>()) * hitInfo.normal;
+    _movementVelocity = _movementVelocity - 1.5f * glm::dot(_movementVelocity, hitInfo.normal) * hitInfo.normal;
+    _physicsComponent->getShape()->reassess();
 }
 
 void ShipActor::onEndOverlap(class cmx::PhysicsComponent *ownedComponent,

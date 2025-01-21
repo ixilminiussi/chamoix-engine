@@ -36,6 +36,8 @@ class ShipActor : public cmx::PhysicsActor
 
     std::shared_ptr<ShipCameraComponent> _cameraComponent;
 
+    float _bounciness;
+
     glm::vec3 _movementVelocity{0.f};
     float _movementSpeed{20.f};
     float _movementAcceleration{10.f};
