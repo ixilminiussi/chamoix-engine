@@ -22,11 +22,7 @@ class PhysicsComponent : public Component
     void onDetach() override;
     void onAttach() override;
 
-    void setStatic();
-    void setDynamic();
-    void setRigid();
-
-    void propagatePosition(const glm::vec3 &position);
+    void setPhysicsMode(PhysicsMode);
 
     PhysicsMode getPhysicsMode()
     {

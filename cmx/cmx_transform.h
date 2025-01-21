@@ -45,8 +45,19 @@ struct Transform
 class Transformable
 {
   public:
+    Transformable() : _transform{Transform::ONE} {};
+    Transformable(const Transform &transform) : _transform{transform} {};
+    ~Transformable() = default;
+
     virtual const Transform &getRelativeTransform() const = 0;
     virtual Transform getAbsoluteTransform() const = 0;
+
+    void setPosition(const glm::vec3 &position);
+    void setRotation(const glm::quat &rotation);
+    void setScale(const glm::vec3 &scale);
+
+  protected:
+    Transform _transform;
 };
 
 Transform operator+(const Transform &a, const Transform &b);

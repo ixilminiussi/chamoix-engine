@@ -2,18 +2,25 @@
 #define ROOM_ACTOR
 
 #include "cmx/cmx_mesh_component.h"
+#include "cmx/cmx_physics_component.h"
 #include <cmx/cmx_mesh_actor.h>
 #include <cmx/cmx_physics_actor.h>
 
-class RoomActor : public cmx::PhysicsActor
+class RoomActor : public cmx::Actor
 {
   public:
-    using cmx::PhysicsActor::PhysicsActor;
+    using cmx::Actor::Actor;
 
     void onBegin() override;
 
   protected:
     std::shared_ptr<class cmx::MeshComponent> _meshComponent;
+    std::shared_ptr<class cmx::PhysicsComponent> _floorCollision;
+    std::shared_ptr<class cmx::PhysicsComponent> _ceilingCollision;
+    std::shared_ptr<class cmx::PhysicsComponent> _wall1Collision;
+    std::shared_ptr<class cmx::PhysicsComponent> _wall2Collision;
+    std::shared_ptr<class cmx::PhysicsComponent> _wall3Collision;
+    std::shared_ptr<class cmx::PhysicsComponent> _wall4Collision;
 };
 
 #endif

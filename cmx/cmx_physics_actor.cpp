@@ -20,27 +20,4 @@ void PhysicsActor::onBegin()
     _physicsComponent->setShape(PRIMITIVE_SPHERE);
 }
 
-void PhysicsActor::setVelocity(glm::vec3 velocity)
-{
-    _velocity = velocity;
-}
-
-void PhysicsActor::addVelocity(glm::vec3 force)
-{
-    _velocity += force;
-}
-
-void PhysicsActor::applyVelocity(float dt)
-{
-    transform.position += _velocity * dt;
-}
-
-glm::vec3 PhysicsActor::getNormalizedVelocity()
-{
-    if (_velocity.length() <= glm::epsilon<float>())
-        return glm::vec3{0.f, 0.f, 0.f};
-
-    return glm::normalize(_velocity);
-}
-
 } // namespace cmx

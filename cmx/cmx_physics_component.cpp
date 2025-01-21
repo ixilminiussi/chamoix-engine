@@ -1,6 +1,7 @@
 #include "cmx_physics_component.h"
 
 // cmx
+#include "cmx/cmx_physics.h"
 #include "cmx_actor.h"
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
@@ -32,29 +33,9 @@ void PhysicsComponent::onAttach()
     getScene()->getPhysicsManager()->add(shared_from_this());
 }
 
-void PhysicsComponent::propagatePosition(const glm::vec3 &position)
+void PhysicsComponent::setPhysicsMode(PhysicsMode newMode)
 {
-    if (auto parent = _parent.lock())
-    {
-        parent->transform.position = position - _transform.position;
-    }
-}
-
-void PhysicsComponent::setStatic()
-{
-    _physicsMode = PhysicsMode::STATIC;
-    getScene()->getPhysicsManager()->add(shared_from_this());
-}
-
-void PhysicsComponent::setDynamic()
-{
-    _physicsMode = PhysicsMode::DYNAMIC;
-    getScene()->getPhysicsManager()->add(shared_from_this());
-}
-
-void PhysicsComponent::setRigid()
-{
-    _physicsMode = PhysicsMode::RIGID;
+    _physicsMode = newMode;
     getScene()->getPhysicsManager()->add(shared_from_this());
 }
 
@@ -120,31 +101,61 @@ void PhysicsComponent::load(tinyxml2::XMLElement *componentElement)
 
 void PhysicsComponent::editor(int i)
 {
-    std::string selected = _cmxShape->getName();
-    AssetsManager *assetsManager = getScene()->getAssetsManager();
-
-    auto selectable = [&](const std::string &option) {
-        bool isSelected = selected.compare(option) == 0;
-
-        if (ImGui::Selectable(option.c_str(), isSelected))
-        {
-            selected = option;
-            setShape(option);
-        }
-
-        if (isSelected)
-        {
-            ImGui::SetItemDefaultFocus();
-        }
-    };
-
-    if (ImGui::BeginCombo("Shape##", selected.c_str()))
     {
-        selectable(PRIMITIVE_SPHERE);
-        selectable(PRIMITIVE_CUBE);
-        selectable(PRIMITIVE_PLANE);
+        std::string selected = (_cmxShape.get() != nullptr) ? _cmxShape->getName() : "";
 
-        ImGui::EndCombo();
+        auto selectable = [&](const std::string &option) {
+            bool isSelected = selected.compare(option) == 0;
+
+            if (ImGui::Selectable(option.c_str(), isSelected))
+            {
+                selected = option;
+                setShape(option);
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        };
+
+        if (ImGui::BeginCombo("Shape##", selected.c_str()))
+        {
+            selectable(PRIMITIVE_SPHERE);
+            selectable(PRIMITIVE_CUBE);
+            selectable(PRIMITIVE_PLANE);
+
+            ImGui::EndCombo();
+        }
+    }
+
+    {
+        std::string selected = physicsModeToString(_physicsMode);
+
+        auto selectable = [&](PhysicsMode physicsMode) {
+            std::string option = physicsModeToString(physicsMode);
+            bool isSelected = selected.compare(option) == 0;
+
+            if (ImGui::Selectable(option.c_str(), isSelected))
+            {
+                selected = option;
+                setPhysicsMode(physicsMode);
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        };
+
+        if (ImGui::BeginCombo("PhysicsMode##", selected.c_str()))
+        {
+            selectable(PhysicsMode::STATIC);
+            selectable(PhysicsMode::DYNAMIC);
+            selectable(PhysicsMode::RIGID);
+
+            ImGui::EndCombo();
+        }
     }
 
     Component::editor(i);

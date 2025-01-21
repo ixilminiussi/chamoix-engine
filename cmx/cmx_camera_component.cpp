@@ -11,8 +11,8 @@ CameraComponent::CameraComponent() : _camera{std::make_shared<Camera>()} {};
 
 void CameraComponent::update(float dt)
 {
-    _camera->setViewDirection(getParent()->transform.position, getParent()->transform.forward(),
-                              getParent()->transform.up());
+    Transform absoluteTransform = getAbsoluteTransform();
+    _camera->setViewDirection(absoluteTransform.position, absoluteTransform.forward(), absoluteTransform.up());
 }
 
 tinyxml2::XMLElement &CameraComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)

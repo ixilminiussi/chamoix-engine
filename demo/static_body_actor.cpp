@@ -9,6 +9,6 @@ void StaticBodyActor::onBegin()
 {
     cmx::PhysicsActor::onBegin();
 
-    _physicsComponent->setStatic();
+    _physicsComponent->setPhysicsMode(cmx::PhysicsMode::STATIC);
     _physicsComponent->setShape(PRIMITIVE_CUBE);
 }

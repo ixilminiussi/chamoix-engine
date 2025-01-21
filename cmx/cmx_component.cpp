@@ -85,12 +85,13 @@ bool Component::getVisible()
     return _isVisible && getParent()->getVisible();
 }
 
-void Component::setParent(std::weak_ptr<Actor> actor)
+void Component::setParent(Actor *actor)
 {
-    if (auto parent = actor.lock())
+    _parent = actor;
+
+    if (_parent != nullptr)
     {
-        _parent = actor;
-        _scene = parent->getScene();
+        _scene = _parent->getScene();
         onAttach();
     }
 }
@@ -102,9 +103,9 @@ const Transform &Component::getRelativeTransform() const
 
 Transform Component::getAbsoluteTransform() const
 {
-    if (auto parent = _parent.lock())
+    if (_parent)
     {
-        return parent->getAbsoluteTransform() + _transform;
+        return _parent->getAbsoluteTransform() + _transform;
     }
     return _transform;
 }

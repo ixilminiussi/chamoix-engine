@@ -54,17 +54,21 @@ glm::vec3 Transform::right() const
 Transform operator+(const Transform &a, const Transform &b)
 {
     Transform c{};
-    glm::mat4 mat4 = a.mat4();
-    c.position = mat4 * glm::vec4{b.position, 1.0f};
+    glm::mat4 matA = a.mat4();
+    glm::mat4 matB = b.mat4();
+    glm::mat4 combined = matA * matB;
+
+    c.position = glm::vec3(combined[3]); // Extract translation
     c.rotation = a.rotation * b.rotation;
-    c.scale = a.scale * b.scale;
+    c.scale = glm::vec3(glm::length(glm::vec3(combined[0])), glm::length(glm::vec3(combined[1])),
+                        glm::length(glm::vec3(combined[2])));
 
     return c;
 }
 
 void Transform::editor()
 {
-    if (ImGui::CollapsingHeader("Transform"))
+    if (ImGui::TreeNode("Transform"))
     {
         float *positionFloat[3] = {&(this->position.x), &(this->position.y), &(this->position.z)};
         ImGui::DragFloat3("Position", *positionFloat, 0.1f);
@@ -77,20 +81,22 @@ void Transform::editor()
         _isActive = ImGui::IsItemActive();
         ImGui::SameLine();
         ImGui::Checkbox("Additive", &_additive);
+
+        ImGui::TreePop();
     }
 
     if (!_additive)
     {
         if (_isActive)
         {
-            rotation = glm::quat{_euler};
+            rotation = glm::quat{glm::radians(_euler)};
         }
     }
     else
     {
         if (_wasActive && !_isActive)
         {
-            rotation = glm::quat{_euler} * rotation;
+            rotation = glm::quat{glm::radians(_euler)} * rotation;
             rotation = glm::normalize(rotation);
             _euler = glm::vec3{0.f, 0.f, 0.f};
         }
@@ -112,6 +118,7 @@ tinyxml2::XMLElement &Transform::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLE
     rotationElement->SetAttribute("pitch", rotation.x);
     rotationElement->SetAttribute("yaw", rotation.y);
     rotationElement->SetAttribute("roll", rotation.z);
+    rotationElement->SetAttribute("w", rotation.w);
     transformElement->InsertEndChild(rotationElement);
 
     tinyxml2::XMLElement *scaleElement = doc.NewElement("scale");
@@ -135,9 +142,12 @@ void Transform::load(tinyxml2::XMLElement *transformElement)
     }
     if (tinyxml2::XMLElement *rotationElement = transformElement->FirstChildElement("rotation"))
     {
-        rotation.x = rotationElement->FloatAttribute("x");
-        rotation.y = rotationElement->FloatAttribute("y");
-        rotation.z = rotationElement->FloatAttribute("z");
+        rotation.x = rotationElement->FloatAttribute("pitch");
+        rotation.y = rotationElement->FloatAttribute("yaw");
+        rotation.z = rotationElement->FloatAttribute("roll");
+        rotation.w = rotationElement->FloatAttribute("w");
+
+        rotation = glm::normalize(rotation);
     }
     if (tinyxml2::XMLElement *scaleElement = transformElement->FirstChildElement("scale"))
     {
@@ -145,6 +155,22 @@ void Transform::load(tinyxml2::XMLElement *transformElement)
         scale.y = scaleElement->FloatAttribute("y");
         scale.z = scaleElement->FloatAttribute("z");
     }
+}
+
+void Transformable::setPosition(const glm::vec3 &position)
+{
+    _transform.position = position;
+}
+
+void Transformable::setRotation(const glm::quat &rotation)
+{
+    _transform.rotation = rotation;
+    _transform.rotation = glm::normalize(_transform.rotation);
+}
+
+void Transformable::setScale(const glm::vec3 &scale)
+{
+    _transform.scale = scale;
 }
 
 } // namespace cmx

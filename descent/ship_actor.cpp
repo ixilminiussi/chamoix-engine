@@ -7,6 +7,7 @@
 #include <cmx/cmx_input_action.h>
 #include <cmx/cmx_input_manager.h>
 #include <cmx/cmx_math.h>
+#include <cmx/cmx_physics.h>
 #include <cmx/cmx_physics_actor.h>
 #include <cmx/cmx_physics_component.h>
 #include <cmx/cmx_shapes.h>
@@ -40,7 +41,7 @@ void ShipActor::onBegin()
 #endif
         cmx::InputManager::setMouseCapture(true);
 
-    _physicsComponent->setDynamic();
+    _physicsComponent->setPhysicsMode(cmx::PhysicsMode::DYNAMIC);
 }
 
 void ShipActor::update(float dt)
@@ -57,9 +58,9 @@ void ShipActor::update(float dt)
 
     if (_manualTilting && std::abs(_tiltingVelocity) > glm::epsilon<float>())
     {
-        glm::quat roll = glm::angleAxis(-_tiltingVelocity * dt, transform.forward());
+        glm::quat roll = glm::angleAxis(-_tiltingVelocity * dt, _transform.forward());
 
-        transform.rotation = roll * transform.rotation;
+        _transform.rotation = roll * _transform.rotation;
     }
 
     if (glm::length(_movementVelocity) > _movementSpeed)
@@ -71,30 +72,30 @@ void ShipActor::update(float dt)
     {
         if (!_movingForward)
         {
-            movementDecelerate(dt, transform.forward());
+            movementDecelerate(dt, _transform.forward());
         }
         if (!_movingBackward)
         {
-            movementDecelerate(dt, -transform.forward());
+            movementDecelerate(dt, -_transform.forward());
         }
         if (!_movingRight)
         {
-            movementDecelerate(dt, -transform.right());
+            movementDecelerate(dt, -_transform.right());
         }
         if (!_movingLeft)
         {
-            movementDecelerate(dt, transform.right());
+            movementDecelerate(dt, _transform.right());
         }
         if (!_movingUp)
         {
-            movementDecelerate(dt, transform.up());
+            movementDecelerate(dt, _transform.up());
         }
         if (!_movingDown)
         {
-            movementDecelerate(dt, -transform.up());
+            movementDecelerate(dt, -_transform.up());
         }
 
-        transform.position += _movementVelocity * dt;
+        _transform.position += _movementVelocity * dt;
     }
 
     if (glm::length(_lookingVelocity) > _lookingSpeed)
@@ -121,11 +122,11 @@ void ShipActor::update(float dt)
             lookingDecelerate(dt, {0.f, -1.f});
         }
 
-        glm::quat yaw = glm::angleAxis(-_lookingVelocity.x * dt, transform.up());
-        glm::quat pitch = glm::angleAxis(_lookingVelocity.y * dt, transform.right());
+        glm::quat yaw = glm::angleAxis(-_lookingVelocity.x * dt, _transform.up());
+        glm::quat pitch = glm::angleAxis(_lookingVelocity.y * dt, _transform.right());
 
-        transform.rotation = yaw * transform.rotation;
-        transform.rotation = pitch * transform.rotation;
+        _transform.rotation = yaw * _transform.rotation;
+        _transform.rotation = pitch * _transform.rotation;
     }
 
     _cameraComponent->setTilt(_lookingVelocity.x / _lookingSpeed);
@@ -159,8 +160,8 @@ void ShipActor::lookingDecelerate(float dt, glm::vec2 direction)
 
 void ShipActor::tiltToLocked(float dt)
 {
-    glm::vec3 right = transform.right();
-    glm::vec3 forward = transform.forward();
+    glm::vec3 right = _transform.right();
+    glm::vec3 forward = _transform.forward();
     static glm::vec3 globalUp{0.f, 1.f, 0.f};
 
     float angle = glm::acos(glm::dot(right, globalUp));
@@ -173,10 +174,10 @@ void ShipActor::tiltToLocked(float dt)
 
     float lerpedRoll = cmx::lerp(currentRoll, goalRoll, std::clamp(dt * _tiltingLockingLerp, 0.f, 1.f));
 
-    glm::quat angledRoll = glm::angleAxis(currentRoll - lerpedRoll, transform.forward());
+    glm::quat angledRoll = glm::angleAxis(currentRoll - lerpedRoll, forward);
     _tiltingVelocity = currentRoll - lerpedRoll;
 
-    transform.rotation = angledRoll * transform.rotation;
+    _transform.rotation = angledRoll * _transform.rotation;
 }
 
 void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
@@ -184,8 +185,8 @@ void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::Physi
 {
     if (glm::length(hitInfo.normal) >= 1.0f)
     {
-        transform.position += hitInfo.depth * hitInfo.normal;
-        _velocity *= hitInfo.normal;
+        _transform.position += hitInfo.depth * hitInfo.normal;
+        _movementVelocity *= hitInfo.normal;
     }
 }
 
@@ -235,8 +236,8 @@ void ShipActor::onMovementInput(float dt, glm::vec2 axis)
 
     axis *= _movementAcceleration * dt;
 
-    _movementVelocity += transform.forward() * axis.y;
-    _movementVelocity += transform.right() * -axis.x;
+    _movementVelocity += _transform.forward() * axis.y;
+    _movementVelocity += _transform.right() * -axis.x;
 }
 
 void ShipActor::onViewInput(float dt, glm::vec2 axis)
@@ -294,5 +295,5 @@ void ShipActor::onLiftInput(float dt, glm::vec2 axis)
 
     axis *= _movementAcceleration * dt;
 
-    _movementVelocity += transform.up() * axis.y;
+    _movementVelocity += _transform.up() * axis.y;
 }

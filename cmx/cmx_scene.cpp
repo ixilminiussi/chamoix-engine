@@ -236,7 +236,8 @@ void Scene::updateComponents(float dt)
             {
                 _graphicsManager->removeFromQueue(*it);
             }
-            if (auto physicsComponent = std::dynamic_pointer_cast<PhysicsComponent>(component))
+            if (std::shared_ptr<PhysicsComponent> physicsComponent =
+                    std::dynamic_pointer_cast<PhysicsComponent>(component))
             {
                 _physicsManager->remove(physicsComponent);
             }

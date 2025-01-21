@@ -6,6 +6,7 @@
 #include "cmx_physics_actor.h"
 #include "cmx_physics_component.h"
 #include "cmx_primitives.h"
+#include "imgui.h"
 
 // lib
 #include <glm/ext/scalar_constants.hpp>
@@ -135,8 +136,11 @@ void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
                        &push);
 
-    assetsManager->getModel(PRIMITIVE_SPHERE)->bind(frameInfo.commandBuffer);
-    assetsManager->getModel(PRIMITIVE_SPHERE)->draw(frameInfo.commandBuffer);
+    if (CmxModel *model = assetsManager->getModel(PRIMITIVE_SPHERE))
+    {
+        model->bind(frameInfo.commandBuffer);
+        model->draw(frameInfo.commandBuffer);
+    }
 }
 
 bool CmxSphere::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const

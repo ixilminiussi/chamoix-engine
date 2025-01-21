@@ -21,20 +21,10 @@ class PhysicsActor : public Actor
     virtual void onEndOverlap(class PhysicsComponent *ownedComponent, class PhysicsComponent *overlappingComponent,
                               Actor *overlappingActor) {};
 
-    void setVelocity(glm::vec3);
-    void addVelocity(glm::vec3);
-    void applyVelocity(float dt);
-    const glm::vec3 &getVelocity()
-    {
-        return _velocity;
-    }
-    glm::vec3 getNormalizedVelocity();
-
   protected:
     std::shared_ptr<class PhysicsComponent> _physicsComponent;
 
     float _mass{10.f};
-    glm::vec3 _velocity{0.f, 0.f, 0.f};
 };
 
 } // namespace cmx

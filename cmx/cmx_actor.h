@@ -80,7 +80,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     Transform getAbsoluteTransform() const override;
     const Transform &getRelativeTransform() const override
     {
-        return transform;
+        return _transform;
     }
     // getters and setters :: end
 
@@ -91,7 +91,6 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 
     const std::string name;
 
-    Transform transform;
     Positioning positioning{Positioning::RELATIVE};
 
   protected:

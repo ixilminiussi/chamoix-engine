@@ -37,15 +37,11 @@ class Component : public std::enable_shared_from_this<Component>, public Transfo
     std::string getType();
 
     // getters and setters :: begin
-    void setParent(std::weak_ptr<class Actor> actor);
+    void setParent(class Actor *actor);
 
-    Actor *getParent()
+    class Actor *getParent()
     {
-        if (auto parent = _parent.lock())
-        {
-            return parent.get();
-        }
-        return nullptr;
+        return _parent;
     }
 
     int8_t getRenderZ()
@@ -75,9 +71,8 @@ class Component : public std::enable_shared_from_this<Component>, public Transfo
     std::string name;
 
   protected:
-    std::weak_ptr<class Actor> _parent;
-    class Scene *_scene;
-    Transform _transform{};
+    class Actor *_parent{nullptr};
+    class Scene *_scene{nullptr};
 
     bool _isVisible{true};
     int8_t _renderZ{-1}; // decides whether or not to add component to render queue:
