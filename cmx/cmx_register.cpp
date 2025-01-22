@@ -59,8 +59,7 @@ Register *Register::getInstance()
     return _instance;
 }
 
-void Register::addActor(std::string name,
-                        std::function<std::shared_ptr<Actor>(class Scene *, const std::string &)> builder)
+void Register::addActor(std::string name, std::function<Actor *(class Scene *, const std::string &)> builder)
 {
     try
     {
@@ -86,8 +85,7 @@ void Register::addComponent(std::string name, std::function<std::shared_ptr<clas
     }
 }
 
-std::shared_ptr<class Actor> Register::spawnActor(const std::string &typeName, class Scene *scene,
-                                                  const std::string &actorName)
+Actor *Register::spawnActor(const std::string &typeName, class Scene *scene, const std::string &actorName)
 {
     try
     {

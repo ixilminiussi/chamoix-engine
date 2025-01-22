@@ -44,7 +44,7 @@ class ViewportUI
     bool _showProjectSettings{false};
     bool _showSceneTree{true};
     bool _showInspector{false};
-    std::weak_ptr<Actor> _inspectedActor;
+    Actor *_inspectedActor;
 
     class Scene *_attachedScene;
     class Register *_cmxRegister;

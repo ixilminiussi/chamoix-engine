@@ -1,6 +1,7 @@
 #include "cmx_game.h"
 
 // cmx
+#include "cmx_actor.h"
 #include "cmx_input_manager.h"
 #include "cmx_scene.h"
 #include "cmx_window.h"

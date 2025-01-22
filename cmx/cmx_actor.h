@@ -27,10 +27,9 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 {
   public:
     template <class T>
-    static std::shared_ptr<T> spawn(class Scene *, const std::string &name, const Transform &transform = Transform{});
+    static T *spawn(class Scene *, const std::string &name, const Transform &transform = Transform{});
 
     void despawn();
-    void move(class Scene *);
 
     Actor() = delete;
     virtual ~Actor();
@@ -85,9 +84,9 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     // getters and setters :: end
 
     // friend functions
-    friend std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor>);
+    friend void Scene::addActor(Actor *);
     friend void Scene::removeActor(Actor *);
-    friend std::weak_ptr<Actor> Scene::getActorByName(const std::string &);
+    friend Actor *Scene::getActorByName(const std::string &);
 
     const std::string name;
 
@@ -108,8 +107,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 
 inline uint32_t Actor::currentID = 0;
 
-template <typename T>
-inline std::shared_ptr<T> Actor::spawn(Scene *scene, const std::string &name, const Transform &transform)
+template <typename T> inline T *Actor::spawn(Scene *scene, const std::string &name, const Transform &transform)
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
@@ -120,10 +118,10 @@ inline std::shared_ptr<T> Actor::spawn(Scene *scene, const std::string &name, co
     currentID++;
 
     Actor *actor = new T{scene, currentID++, name, transform};
-    auto actorSharedPtr = std::shared_ptr<Actor>(actor);
 
-    actorSharedPtr = scene->addActor(actorSharedPtr);
-    return std::dynamic_pointer_cast<T>(actorSharedPtr);
+    scene->addActor(actor);
+
+    return (T *)actor;
 }
 
 template <typename T> inline std::weak_ptr<T> Actor::getComponentByType()

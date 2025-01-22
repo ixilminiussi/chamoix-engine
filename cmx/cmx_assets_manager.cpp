@@ -1,6 +1,7 @@
 #include "cmx_assets_manager.h"
 
 // cmx
+#include "cmx_actor.h"
 #include "cmx_game.h"
 #include "cmx_model.h"
 #include "cmx_primitives.h"

@@ -171,7 +171,7 @@ void ViewportUI::renderSceneTree()
     _showSceneTree = true;
     ImGui::Begin("Scene Tree", &_showSceneTree, ImGuiWindowFlags_AlwaysAutoResize);
 
-    std::vector<std::weak_ptr<Actor>> actorList{};
+    std::vector<Actor *> actorList{};
     _attachedScene->getAllActorsByType<Actor>(actorList);
 
     auto it = actorList.begin();
@@ -181,7 +181,8 @@ void ViewportUI::renderSceneTree()
     while (it != actorList.end())
     {
         ImGui::PushID(i++);
-        if (std::shared_ptr<Actor> actor = it->lock())
+        Actor *actor = *it;
+        if (actor)
         {
             if (ImGui::Button(actor->name.c_str(), ImVec2(170.0f, 0.0f)))
             {
@@ -191,7 +192,7 @@ void ViewportUI::renderSceneTree()
             ImGui::SameLine();
             if (ImGui::Button(ICON_MS_DELETE))
             {
-                _attachedScene->removeActor(actor.get());
+                _attachedScene->removeActor(actor);
                 ImGui::PopID();
                 continue;
             }
@@ -245,7 +246,8 @@ void ViewportUI::renderInspector()
     _showInspector = true;
     ImGui::Begin("Inspector", &_showInspector, ImGuiWindowFlags_AlwaysAutoResize);
 
-    if (std::shared_ptr<Actor> actor = _inspectedActor.lock())
+    Actor *actor = _inspectedActor;
+    if (actor)
     {
         ImGui::Text("%s", actor->name.c_str());
         ImGui::Separator();

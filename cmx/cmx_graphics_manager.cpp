@@ -1,6 +1,7 @@
 #include "cmx_graphics_manager.h"
 
 // cmx
+#include "cmx_actor.h"
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
 #include "cmx_render_system.h"

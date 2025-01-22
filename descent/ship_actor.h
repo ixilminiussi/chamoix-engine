@@ -15,11 +15,10 @@ class ShipActor : public cmx::PhysicsActor
 
     void update(float dt) override;
 
-    virtual void onBeginOverlap(class cmx::PhysicsComponent *ownedComponent,
-                                class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor,
-                                const cmx::HitInfo &) override;
-    virtual void onEndOverlap(class cmx::PhysicsComponent *ownedComponent,
-                              class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor) override;
+    void onBeginOverlap(class cmx::PhysicsComponent *ownedComponent, class cmx::PhysicsComponent *overlappingComponent,
+                        cmx::Actor *overlappingActor, const cmx::HitInfo &) override;
+    void onEndOverlap(class cmx::PhysicsComponent *ownedComponent, class cmx::PhysicsComponent *overlappingComponent,
+                      cmx::Actor *overlappingActor) override;
 
     void onMovementInput(float dt, glm::vec2);
     void onViewInput(float dt, glm::vec2);
@@ -36,7 +35,7 @@ class ShipActor : public cmx::PhysicsActor
 
     std::shared_ptr<ShipCameraComponent> _cameraComponent;
 
-    float _bounciness;
+    float _bounciness{1.5f};
 
     glm::vec3 _movementVelocity{0.f};
     float _movementSpeed{20.f};

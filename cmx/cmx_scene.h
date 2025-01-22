@@ -21,9 +21,9 @@ class Scene
     Scene(const std::string &xmlPath, class Game *, const std::string &name);
     ~Scene();
 
-    std::weak_ptr<class Actor> getActorByName(const std::string &name);
-    std::weak_ptr<class Actor> getActorByID(uint32_t id);
-    template <typename T> void getAllActorsByType(std::vector<std::weak_ptr<class Actor>> &actorList);
+    class Actor *getActorByName(const std::string &name);
+    class Actor *getActorByID(uint32_t id);
+    template <typename T> void getAllActorsByType(std::vector<class Actor *> &actorList);
     template <typename T> void getAllComponentsByType(std::vector<std::weak_ptr<class Component>> &componentList);
 
     std::vector<std::shared_ptr<class Component>> &getAllComponents()
@@ -40,7 +40,7 @@ class Scene
     void update(float dt);
     void render();
 
-    std::shared_ptr<Actor> addActor(std::shared_ptr<class Actor>);
+    void addActor(class Actor *);
     void removeActor(class Actor *);
     void addComponent(std::shared_ptr<class Component>);
     void removeComponent(std::shared_ptr<class Component>);
@@ -81,7 +81,7 @@ class Scene
     void draw();
 
     std::shared_ptr<class Camera> _activeCamera;
-    std::unordered_map<uint32_t, std::shared_ptr<class Actor>> _actors{};
+    std::unordered_map<uint32_t, class Actor *> _actors{};
     std::vector<std::shared_ptr<class Component>> _components{};
 
     std::unique_ptr<class AssetsManager> _assetsManager;
@@ -91,7 +91,7 @@ class Scene
     class Game *_game;
 };
 
-template <typename T> inline void Scene::getAllActorsByType(std::vector<std::weak_ptr<Actor>> &actorList)
+template <typename T> inline void Scene::getAllActorsByType(std::vector<Actor *> &actorList)
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
@@ -102,7 +102,7 @@ template <typename T> inline void Scene::getAllActorsByType(std::vector<std::wea
 
     for (auto pair : _actors)
     {
-        if (auto actor = std::dynamic_pointer_cast<T>(pair.second))
+        if (T *actor = dynamic_cast<T *>(pair.second))
         {
             actorList.push_back(actor);
         }

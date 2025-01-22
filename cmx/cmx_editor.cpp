@@ -1,6 +1,7 @@
 #include "cmx_editor.h"
 
 // cmx
+#include "cmx_actor.h"
 #include "cmx_input_manager.h"
 #include "cmx_viewport_actor.h"
 #include "cmx_viewport_ui.h"

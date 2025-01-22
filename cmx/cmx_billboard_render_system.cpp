@@ -1,6 +1,7 @@
 #include "cmx_billboard_render_system.h"
 
 // cmx
+#include "cmx_actor.h"
 #include "cmx_buffer.h"
 #include "cmx_camera.h"
 #include "cmx_component.h"

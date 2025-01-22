@@ -1,6 +1,9 @@
 #ifndef CMX_GRAPHICS_MANAGER
 #define CMX_GRAPHICS_MANAGER
 
+// cmx
+#include "cmx_actor.h"
+
 // lib
 #include <glm/ext/vector_float3.hpp>
 

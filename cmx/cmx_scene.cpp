@@ -74,7 +74,7 @@ void Scene::loadFrom(const std::string &filepath)
             actorElement = actorElement->NextSiblingElement("actor");
         }
 
-        spdlog::info("Scene {0}: Succesfully loaded new scene!");
+        spdlog::info("Scene {0}: Succesfully loaded new scene!", name);
     }
     else
     {
@@ -90,14 +90,14 @@ void Scene::unload()
     delete _graphicsManager.release();
     delete _physicsManager.release();
 
-    _actors = std::unordered_map<uint32_t, std::shared_ptr<Actor>>{};
+    _actors = std::unordered_map<uint32_t, Actor *>{};
     _components = std::vector<std::shared_ptr<Component>>{};
     spdlog::info("Scene {0}: Succesfully unloaded scene!");
 }
 
-std::weak_ptr<Actor> Scene::getActorByName(const std::string &name)
+Actor *Scene::getActorByName(const std::string &name)
 {
-    for (auto pair : _actors)
+    for (auto &pair : _actors)
     {
         if (pair.second->name == name)
         {
@@ -105,12 +105,12 @@ std::weak_ptr<Actor> Scene::getActorByName(const std::string &name)
         }
     }
 
-    return std::weak_ptr<Actor>();
+    return nullptr;
 }
 
-std::weak_ptr<Actor> Scene::getActorByID(uint32_t id)
+Actor *Scene::getActorByID(uint32_t id)
 {
-    std::weak_ptr<Actor> actor;
+    Actor *actor = nullptr;
     try
     {
         actor = _actors.at(id);
@@ -135,24 +135,27 @@ void Scene::setCamera(std::shared_ptr<Camera> camera)
     spdlog::info("Scene: new active Camera");
 }
 
-std::shared_ptr<Actor> Scene::addActor(std::shared_ptr<Actor> actor)
+void Scene::addActor(class Actor *actor)
 {
 #ifdef DEBUG
 #else
     // expensive operation so we only use it in debug mode
-    if (!getActorByName(actor->name).expired())
+    if (getActorByName(actor->name) != nullptr)
     {
         spdlog::warn("Scene {0}: An actor with name <{1}> already exists", name, actor->name);
-
-        return (getActorByName(actor->name).lock());
+        return;
     }
 #endif
 
-    actor->onBegin();
-    _actors[actor->_id] = actor;
-    spdlog::info("Scene {0}: Added new Actor <{1}>", name, actor->name);
+    if (!actor)
+    {
+        spdlog::warn("Scene {0}: Attempt at adding uninitialized actor", name);
+        return;
+    }
 
-    return actor;
+    _actors[actor->_id] = actor;
+    actor->onBegin();
+    spdlog::info("Scene {0}: Added new Actor <{1}>", name, actor->name);
 }
 
 void Scene::update(float dt)
@@ -171,7 +174,7 @@ void Scene::removeActor(Actor *actor)
 {
     try
     {
-        _actors.at(actor->_id) = nullptr;
+        delete _actors.at(actor->_id);
     }
     catch (const std::out_of_range &e)
     {
@@ -185,9 +188,18 @@ void Scene::removeActor(Actor *actor)
 
 void Scene::updateActors(float dt)
 {
-    for (auto pair : _actors)
+    auto it = _actors.begin();
+
+    while (it != _actors.end())
     {
-        pair.second->update(dt);
+        if ((*it).second == nullptr)
+        {
+            it = _actors.erase(it);
+            continue;
+        }
+
+        (*it).second->update(dt);
+        it++;
     }
 }
 
@@ -268,7 +280,7 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 
     _assetsManager->save(doc, sceneElement);
 
-    for (auto actorPair : _actors)
+    for (auto &actorPair : _actors)
     {
         actorPair.second->save(doc, sceneElement);
     }

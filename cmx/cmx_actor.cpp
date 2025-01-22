@@ -31,14 +31,11 @@ Actor::~Actor()
 void Actor::despawn()
 {
     getScene()->removeActor(this);
-    // TODO: remove components as well
-}
 
-void Actor::move(Scene *scene)
-{
-    getScene()->addActor(std::shared_ptr<Actor>(this));
-    getScene()->removeActor(this);
-    // TODO: move components as well
+    for (auto &pair : _components)
+    {
+        pair.second->setParent(nullptr);
+    }
 }
 
 std::shared_ptr<Component> Actor::attachComponent(std::shared_ptr<Component> component, std::string componentName)
