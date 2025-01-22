@@ -16,17 +16,21 @@ class BulletActor : public cmx::PhysicsActor
 
     void editor() override {}; // should not be edited
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override {}; // cannot be saved
-    void load(tinyxml2::XMLElement *) override {};                                           // cannot be saved
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *e) override
+    {
+        return *e;
+    }; // cannot be saved
+    void load(tinyxml2::XMLElement *) override {}; // cannot be saved
 
-    void set(const glm::vec3 &direction)
+    void setDirection(const glm::vec3 &direction)
     {
         _direction = direction;
     }
 
   protected:
-    float _bulletSpeed;
+    float _bulletSpeed = 40.f;
     glm::vec3 _direction{0.f};
+    float _scale{.4f};
 };
 
 #endif

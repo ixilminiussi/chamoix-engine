@@ -32,6 +32,7 @@ class InputManager
     void bindAxis(const std::string &name, void (T::*callbackFunction)(float, glm::vec2), T *instance);
     template <typename T>
     void bindButton(const std::string &name, void (T::*callbackFunction)(float, int), T *instance);
+    void unbindAll();
     void addInput(const std::string &name, class InputAction *);
     void pollEvents(float dt);
     static void setMouseCapture(bool);

@@ -145,6 +145,9 @@ void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
 
 bool CmxSphere::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     bool b = other.overlapsWith(*this, hitInfo);
 
     if (b)
@@ -158,6 +161,9 @@ bool CmxSphere::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
 
 bool CmxSphere::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     hitInfo.normal = (other.getCenter() - getCenter());
     float minDist = getRadius() + other.getRadius();
     hitInfo.depth = minDist - glm::length(hitInfo.normal);
@@ -168,6 +174,9 @@ bool CmxSphere::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
 
 bool CmxSphere::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     bool b = other.overlapsWith(*this, hitInfo);
 
     if (b)
@@ -181,6 +190,9 @@ bool CmxSphere::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
 
 bool CmxSphere::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     bool b = other.overlapsWith(*this, hitInfo);
 
     if (b)
@@ -235,6 +247,9 @@ void CmxPlane::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayou
 
 bool CmxPlane::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     bool b = other.overlapsWith(*this, hitInfo);
 
     if (b)
@@ -248,16 +263,25 @@ bool CmxPlane::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
 
 bool CmxPlane::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     return false;
 }
 
 bool CmxPlane::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     return false;
 }
 
 bool CmxPlane::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     Transform transform = getAbsoluteTransform();
 
     glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
@@ -327,6 +351,9 @@ void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
 
 bool CmxCuboid::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     bool b = other.overlapsWith(*this, hitInfo);
 
     if (b)
@@ -340,11 +367,17 @@ bool CmxCuboid::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
 
 bool CmxCuboid::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     return false;
 }
 
 bool CmxCuboid::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
 {
+    if (!(mask & other.mask))
+        return false;
+
     return false;
 }
 

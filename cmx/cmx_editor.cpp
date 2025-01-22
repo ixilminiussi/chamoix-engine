@@ -1,6 +1,7 @@
 #include "cmx_editor.h"
 
 // cmx
+#include "cmx/cmx_game.h"
 #include "cmx_actor.h"
 #include "cmx_input_manager.h"
 #include "cmx_viewport_actor.h"
@@ -70,6 +71,7 @@ void CmxEditor::toggle(float dt, int)
     {
         _scene->saveAs("editor/temp.xml");
         _scene->unload();
+        _scene->getGame()->getInputManager()->unbindAll();
 
         _active = false;
         _viewportActor->lock();
@@ -79,6 +81,7 @@ void CmxEditor::toggle(float dt, int)
     else
     {
         _scene->unload();
+        _scene->getGame()->getInputManager()->unbindAll();
 
         _scene->loadFrom("editor/temp.xml");
         _scene->setCamera(_viewportActor->getCamera());

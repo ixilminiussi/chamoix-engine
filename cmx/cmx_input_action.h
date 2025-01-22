@@ -28,6 +28,8 @@ class InputAction
     virtual void bind(std::function<void(float, int)> callbackFunction) = 0;
     virtual void bind(std::function<void(float, glm::vec2)> callbackFunction) = 0;
 
+    virtual void unbindAll() = 0;
+
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) = 0;
     virtual void load(tinyxml2::XMLElement *parentElement) = 0;
     virtual void editor() = 0;
@@ -54,6 +56,8 @@ class ButtonAction : public InputAction
     void bind(std::function<void(float, int)> callbackFunction) override;
     void bind(std::function<void(float, glm::vec2)> callbackFunction) override;
 
+    void unbindAll() override;
+
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) override;
     void load(tinyxml2::XMLElement *parentElement) override;
     void editor() override;
@@ -78,25 +82,27 @@ class AxisAction : public InputAction
     AxisAction() : AxisAction{CMX_AXIS_VOID, CMX_AXIS_VOID} {};
 
     AxisAction(Button right, Button left, Button up = CMX_BUTTON_VOID, Button down = CMX_BUTTON_VOID)
-        : buttons{right, left, up, down}, type{BUTTONS} {};
-    AxisAction(Axis vertical, Axis horizontal = CMX_AXIS_VOID) : axes{vertical, horizontal}, type{AXES} {};
+        : _buttons{right, left, up, down}, _type{BUTTONS} {};
+    AxisAction(Axis vertical, Axis horizontal = CMX_AXIS_VOID) : _axes{vertical, horizontal}, _type{AXES} {};
 
     void poll(const class CmxWindow &, float dt) override;
     void bind(std::function<void(float, int)> callbackFunction) override;
     void bind(std::function<void(float, glm::vec2)> callbackFunction) override;
+
+    void unbindAll() override;
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) override;
     void load(tinyxml2::XMLElement *parentElement) override;
     void editor() override;
 
   private:
-    Type type;
-    Button buttons[4];
-    Axis axes[2];
+    Type _type;
+    Button _buttons[4];
+    Axis _axes[2];
 
-    std::vector<std::function<void(float, glm::vec2)>> functions;
+    std::vector<std::function<void(float, glm::vec2)>> _functions;
 
-    glm::vec2 value{0.f};
+    glm::vec2 _value{0.f};
 
     float _modifierX{1.f};
     float _modifierY{1.f};

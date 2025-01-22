@@ -54,6 +54,13 @@ class CmxShape : public Transformable
     void reassess();
     void swapBuffer();
 
+    void setMask(uint8_t mask)
+    {
+        this->mask = mask;
+    }
+
+    uint8_t mask = MASK_ALL;
+
   protected:
     Transformable *_parent;
 

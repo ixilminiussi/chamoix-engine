@@ -5,6 +5,8 @@
 #include "cmx_component.h"
 #include "cmx_physics.h"
 
+#define MASK_ALL 0b11111111
+
 // std
 #include <memory>
 
@@ -41,11 +43,14 @@ class PhysicsComponent : public Component
 
     void setShape(const std::string &);
 
+    void setMask(uint8_t mask);
+
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
 
   protected:
+    uint8_t _mask{MASK_ALL};
     PhysicsMode _physicsMode{PhysicsMode::STATIC};
     float _absorptionCoefficient{0.2f};
     std::shared_ptr<class CmxShape> _cmxShape;

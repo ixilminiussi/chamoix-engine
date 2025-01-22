@@ -176,29 +176,29 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
 
 void AxisAction::poll(const CmxWindow &window, float dt)
 {
-    switch (type)
+    switch (_type)
     {
     case Type::BUTTONS:
         for (int i = 0; i < 4; i++)
         {
-            if (buttons[i] == CMX_BUTTON_VOID)
+            if (_buttons[i] == CMX_BUTTON_VOID)
             {
                 continue;
             }
 
-            switch (buttons[i].source)
+            switch (_buttons[i].source)
             {
             case InputSource::KEYBOARD:
 #ifndef NDEBUG
                 if (!ImGui::GetIO().WantCaptureKeyboard)
 #endif
-                    buttons[i].status = glfwGetKey(window.getGLFWwindow(), buttons[i].code);
+                    _buttons[i].status = glfwGetKey(window.getGLFWwindow(), _buttons[i].code);
                 break;
             case InputSource::MOUSE:
 #ifndef NDEBUG
                 if (!ImGui::GetIO().WantCaptureMouse)
 #endif
-                    buttons[i].status = glfwGetMouseButton(window.getGLFWwindow(), buttons[i].code);
+                    _buttons[i].status = glfwGetMouseButton(window.getGLFWwindow(), _buttons[i].code);
                 break;
             case InputSource::GAMEPAD:
                 // TODO: Gamepad support
@@ -206,57 +206,58 @@ void AxisAction::poll(const CmxWindow &window, float dt)
             }
         }
 
-        value = glm::vec2{float(buttons[0].status - buttons[1].status), float(buttons[2].status - buttons[3].status)};
+        _value =
+            glm::vec2{float(_buttons[0].status - _buttons[1].status), float(_buttons[2].status - _buttons[3].status)};
 
         break;
     case Type::AXES:
         for (int i = 0; i < 2; i++)
         {
-            if (axes[i] == CMX_AXIS_VOID)
+            if (_axes[i] == CMX_AXIS_VOID)
             {
                 continue;
             }
-            if (axes[i] == CMX_MOUSE_AXIS_X_ABSOLUTE)
+            if (_axes[i] == CMX_MOUSE_AXIS_X_ABSOLUTE)
             {
                 double x, y;
                 glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
                 x *= window.getExtent().width * 0.01f;
-                axes[i].value = float(x);
+                _axes[i].value = float(x);
             }
-            if (axes[i] == CMX_MOUSE_AXIS_Y_ABSOLUTE)
+            if (_axes[i] == CMX_MOUSE_AXIS_Y_ABSOLUTE)
             {
                 double x, y;
                 glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
                 y *= window.getExtent().height * 0.01f;
-                axes[i].value = float(y);
+                _axes[i].value = float(y);
             }
-            if (axes[i] == CMX_MOUSE_AXIS_X_RELATIVE)
+            if (_axes[i] == CMX_MOUSE_AXIS_X_RELATIVE)
             {
                 double x, y;
                 glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
                 x *= window.getExtent().width * 0.01f;
-                axes[i].value = float(x) - axes[i].absValue;
-                axes[i].absValue = float(x);
+                _axes[i].value = float(x) - _axes[i].absValue;
+                _axes[i].absValue = float(x);
             }
-            if (axes[i] == CMX_MOUSE_AXIS_Y_RELATIVE)
+            if (_axes[i] == CMX_MOUSE_AXIS_Y_RELATIVE)
             {
                 double x, y;
                 glfwGetCursorPos(window.getGLFWwindow(), &x, &y);
                 y *= window.getExtent().height * 0.01f;
-                axes[i].value = float(y) - axes[i].absValue;
-                axes[i].absValue = float(y);
+                _axes[i].value = float(y) - _axes[i].absValue;
+                _axes[i].absValue = float(y);
             }
         }
 
-        value = glm::vec2{axes[0].value, axes[1].value};
+        _value = glm::vec2{_axes[0].value, _axes[1].value};
 
         break;
     }
 
-    if (glm::length(value) > glm::epsilon<float>())
+    if (glm::length(_value) > glm::epsilon<float>())
     {
-        glm::vec2 modifierApplied{value.x * _modifierX, value.y * _modifierY};
-        for (std::function<void(float, glm::vec2)> func : functions)
+        glm::vec2 modifierApplied{_value.x * _modifierX, _value.y * _modifierY};
+        for (std::function<void(float, glm::vec2)> func : _functions)
         {
             func(dt, modifierApplied);
         }
@@ -272,6 +273,11 @@ void ButtonAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
 {
     spdlog::critical("ButtonAction: can only be bound to std::function<void(float, int)>");
     std::exit(EXIT_FAILURE);
+}
+
+void ButtonAction::unbindAll()
+{
+    _functions.clear();
 }
 
 tinyxml2::XMLElement &ButtonAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
@@ -319,7 +325,7 @@ void AxisAction::bind(std::function<void(float, int)> callbackFunction)
 
 void AxisAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
 {
-    functions.push_back(callbackFunction);
+    _functions.push_back(callbackFunction);
 }
 
 tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
@@ -328,7 +334,7 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
     inputActionElement->SetAttribute("modifierX", _modifierX);
     inputActionElement->SetAttribute("modifierY", _modifierY);
 
-    switch (type)
+    switch (_type)
     {
     case (Type::AXES):
         inputActionElement->SetAttribute("type", "AXES");
@@ -336,9 +342,9 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
         for (int i = 0; i < 2; i++)
         {
             tinyxml2::XMLElement *axisElement = doc.NewElement("axis");
-            axisElement->SetAttribute("code", axes[i].code);
-            axisElement->SetAttribute("source", toString(axes[i].source));
-            axisElement->SetAttribute("id", axes[i].id);
+            axisElement->SetAttribute("code", _axes[i].code);
+            axisElement->SetAttribute("source", toString(_axes[i].source));
+            axisElement->SetAttribute("id", _axes[i].id);
 
             inputActionElement->InsertEndChild(axisElement);
         }
@@ -350,9 +356,9 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
         for (int i = 0; i < 4; i++)
         {
             tinyxml2::XMLElement *axisElement = doc.NewElement("button");
-            axisElement->SetAttribute("code", buttons[i].code);
-            axisElement->SetAttribute("source", toString(buttons[i].source));
-            axisElement->SetAttribute("id", buttons[i].id);
+            axisElement->SetAttribute("code", _buttons[i].code);
+            axisElement->SetAttribute("source", toString(_buttons[i].source));
+            axisElement->SetAttribute("id", _buttons[i].id);
 
             inputActionElement->InsertEndChild(axisElement);
         }
@@ -364,6 +370,11 @@ tinyxml2::XMLElement &AxisAction::save(tinyxml2::XMLDocument &doc, tinyxml2::XML
     return *inputActionElement;
 }
 
+void AxisAction::unbindAll()
+{
+    _functions.clear();
+}
+
 void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
 {
     const char *typeString = axisActionElement->Attribute("type");
@@ -372,14 +383,14 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
 
     if (strcmp(typeString, "AXES") == 0)
     {
-        type = Type::AXES;
+        _type = Type::AXES;
         tinyxml2::XMLElement *axisElement = axisActionElement->FirstChildElement("axis");
         int i = 0;
         while (axisElement)
         {
             int code = axisElement->IntAttribute("code");
             short unsigned int id = axisElement->UnsignedAttribute("id");
-            axes[i] = {code, toInputSource(axisElement->Attribute("source")), id};
+            _axes[i] = {code, toInputSource(axisElement->Attribute("source")), id};
             i++;
 
             axisElement = axisElement->NextSiblingElement("axis");
@@ -387,14 +398,14 @@ void AxisAction::load(tinyxml2::XMLElement *axisActionElement)
     }
     if (strcmp(typeString, "BUTTONS") == 0)
     {
-        type = Type::BUTTONS;
+        _type = Type::BUTTONS;
         tinyxml2::XMLElement *buttonsElement = axisActionElement->FirstChildElement("button");
 
         int i = 0;
         while (buttonsElement)
         {
             int code = buttonsElement->IntAttribute("code");
-            buttons[i] = {code, toInputSource(buttonsElement->Attribute("source"))};
+            _buttons[i] = {code, toInputSource(buttonsElement->Attribute("source"))};
 
             i++;
 
@@ -409,15 +420,15 @@ void AxisAction::editor()
     std::string label;
 
     ImGui::SetNextItemWidth(100);
-    if (ImGui::BeginCombo("type", toString(type)))
+    if (ImGui::BeginCombo("type", toString(_type)))
     {
         for (const Type &axisType : {Type::BUTTONS, Type::AXES})
         {
-            bool isSelected = (axisType == type);
+            bool isSelected = (axisType == _type);
 
             if (ImGui::Selectable(toString(axisType), isSelected))
             {
-                type = axisType;
+                _type = axisType;
             }
 
             if (isSelected)
@@ -429,29 +440,29 @@ void AxisAction::editor()
         ImGui::EndCombo();
     }
 
-    if (type == Type::AXES)
+    if (_type == Type::AXES)
     {
         label = fmt::format("X##a{}", i++);
-        axes[0].editor(label);
+        _axes[0].editor(label);
         label = fmt::format("modifier##a{}", i++);
         ImGui::InputFloat(label.c_str(), &_modifierX);
         label = fmt::format("Y##a{}", i++);
-        axes[1].editor(label);
+        _axes[1].editor(label);
         label = fmt::format("modifier##a{}", i++);
         ImGui::InputFloat(label.c_str(), &_modifierY);
     }
-    if (type == Type::BUTTONS)
+    if (_type == Type::BUTTONS)
     {
         label = fmt::format("R##a{}", i++);
-        buttons[0].editor(label);
+        _buttons[0].editor(label);
         label = fmt::format("L##a{}", i++);
-        buttons[1].editor(label);
+        _buttons[1].editor(label);
         label = fmt::format("modifier##a{}", i++);
         ImGui::InputFloat(label.c_str(), &_modifierX);
         label = fmt::format("U##a{}", i++);
-        buttons[2].editor(label);
+        _buttons[2].editor(label);
         label = fmt::format("D##a{}", i++);
-        buttons[3].editor(label);
+        _buttons[3].editor(label);
         label = fmt::format("modifier##a{}", i++);
         ImGui::InputFloat(label.c_str(), &_modifierY);
     }

@@ -7,6 +7,7 @@ add_library(descent
     wall_actor.cpp
     room_actor.cpp
     ship_actor.cpp
+    bullet_actor.cpp
 )
 
 target_include_directories(descent PUBLIC

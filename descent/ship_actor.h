@@ -26,6 +26,8 @@ class ShipActor : public cmx::PhysicsActor
     void onTiltInputEnd(float dt, int);
     void onLiftInput(float dt, glm::vec2);
 
+    void shoot(float dt, int);
+
   protected:
     void movementDecelerate(float dt, glm::vec3 direction);
     void lookingDecelerate(float dt, glm::vec2 direction);

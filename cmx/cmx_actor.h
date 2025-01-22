@@ -23,6 +23,13 @@ enum Positioning
     RELATIVE
 };
 
+enum State
+{
+    LIVING,
+    DEAD,
+    PREFER_NOT_TO_SAY
+};
+
 class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 {
   public:
@@ -81,6 +88,11 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     {
         return _transform;
     }
+
+    bool markedForDeletion()
+    {
+        return _state == State::DEAD;
+    }
     // getters and setters :: end
 
     // friend functions
@@ -93,6 +105,8 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     Positioning positioning{Positioning::RELATIVE};
 
   protected:
+    State _state{State::LIVING};
+
     Actor(Scene *, uint32_t id, const std::string &name, const Transform &);
     std::weak_ptr<Actor> _parent;
 

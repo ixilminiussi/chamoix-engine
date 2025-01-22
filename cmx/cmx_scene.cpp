@@ -28,6 +28,10 @@ Scene::Scene(const std::string &xmlPath, class Game *game, const std::string &na
 
 Scene::~Scene()
 {
+    for (auto &pair : _actors)
+    {
+        delete pair.second;
+    }
 }
 
 void Scene::load()
@@ -90,6 +94,10 @@ void Scene::unload()
     delete _graphicsManager.release();
     delete _physicsManager.release();
 
+    for (auto &pair : _actors)
+    {
+        delete pair.second;
+    }
     _actors = std::unordered_map<uint32_t, Actor *>{};
     _components = std::vector<std::shared_ptr<Component>>{};
     spdlog::info("Scene {0}: Succesfully unloaded scene!");
@@ -172,16 +180,14 @@ void Scene::render()
 
 void Scene::removeActor(Actor *actor)
 {
-    try
-    {
-        delete _actors.at(actor->_id);
-    }
-    catch (const std::out_of_range &e)
+    auto it = _actors.find(actor->_id);
+    if (it == _actors.end())
     {
         spdlog::warn("Scene {0}: Attempt to remove non-managed actor <{1}>'", name, actor->name);
+        return;
     }
 
-    _actors.erase(actor->_id);
+    delete (*it).second;
 
     spdlog::info("Scene {0}: Removed actor <{1}>", name, actor->name);
 }
@@ -194,6 +200,12 @@ void Scene::updateActors(float dt)
     {
         if ((*it).second == nullptr)
         {
+            goto erase;
+        }
+        if ((*it).second->markedForDeletion())
+        {
+            spdlog::info("Scene {0}: Removed actor <{1}>", name, (*it).second->name);
+        erase:
             it = _actors.erase(it);
             continue;
         }

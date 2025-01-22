@@ -1,4 +1,5 @@
 #include "ship_actor.h"
+#include "bullet_actor.h"
 
 // cmx
 #include <cmx/cmx_camera_component.h>
@@ -32,6 +33,7 @@ void ShipActor::onBegin()
         inputManager->bindAxis("View Keyboard", &ShipActor::onViewInput, this);
         inputManager->bindAxis("Tilt", &ShipActor::onTiltInput, this);
         inputManager->bindAxis("Lift", &ShipActor::onLiftInput, this);
+        inputManager->bindButton("Shoot", &ShipActor::shoot, this);
     }
 
     getScene()->setCamera(_cameraComponent->getCamera());
@@ -42,6 +44,7 @@ void ShipActor::onBegin()
         cmx::InputManager::setMouseCapture(true);
 
     _physicsComponent->setPhysicsMode(cmx::PhysicsMode::DYNAMIC);
+    _physicsComponent->setMask(0b01000000);
 }
 
 void ShipActor::update(float dt)
@@ -134,6 +137,18 @@ void ShipActor::update(float dt)
     _lastDt = dt;
 
     resetInputs();
+}
+
+int bulletId = 0;
+
+void ShipActor::shoot(float dt, int i)
+{
+    cmx::Transform transform = getAbsoluteTransform();
+
+    const std::string name = fmt::format("Bullet_{}", bulletId++);
+    BulletActor *actor = Actor::spawn<BulletActor>(getScene(), name, transform);
+
+    actor->setDirection(transform.forward());
 }
 
 void ShipActor::movementDecelerate(float dt, glm::vec3 direction)

@@ -68,6 +68,14 @@ void InputManager::pollEvents(float dt)
     }
 }
 
+void InputManager::unbindAll()
+{
+    for (auto &[name, input] : _inputDictionary)
+    {
+        input->unbindAll();
+    }
+}
+
 void InputManager::setMouseCapture(bool b)
 {
     if (b)

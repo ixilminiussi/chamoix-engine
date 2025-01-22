@@ -44,20 +44,29 @@ void PhysicsComponent::setShape(const std::string &type)
     if (type.compare(PRIMITIVE_SPHERE) == 0)
     {
         _cmxShape = std::shared_ptr<CmxShape>(new CmxSphere(this));
+        _cmxShape->setMask(_mask);
         return;
     }
     if (type.compare(PRIMITIVE_CUBE) == 0)
     {
         _cmxShape = std::shared_ptr<CmxShape>(new CmxCuboid(this));
+        _cmxShape->setMask(_mask);
         return;
     }
     if (type.compare(PRIMITIVE_PLANE) == 0)
     {
         _cmxShape = std::shared_ptr<CmxShape>(new CmxPlane(this));
+        _cmxShape->setMask(_mask);
         return;
     }
 
     spdlog::warn("PhysicsComponent: Unsupported primitive type '{0}'", type);
+}
+
+void PhysicsComponent::setMask(uint8_t mask)
+{
+    _mask = mask;
+    _cmxShape->setMask(mask);
 }
 
 void PhysicsComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)

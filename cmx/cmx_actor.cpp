@@ -30,7 +30,7 @@ Actor::~Actor()
 
 void Actor::despawn()
 {
-    getScene()->removeActor(this);
+    _state = State::DEAD;
 
     for (auto &pair : _components)
     {
