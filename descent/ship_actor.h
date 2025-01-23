@@ -1,8 +1,6 @@
 #ifndef SHIP_ACTOR
 #define SHIP_ACTOR
 
-#include "ship_camera_component.h"
-
 // cmx
 #include <cmx/cmx_physics_actor.h>
 
@@ -35,7 +33,10 @@ class ShipActor : public cmx::PhysicsActor
     void resetInputs();
     void tiltToLocked(float dt);
 
-    std::shared_ptr<ShipCameraComponent> _cameraComponent;
+    std::shared_ptr<class ShipCameraComponent> _cameraComponent;
+
+    std::vector<std::shared_ptr<class GunComponent>> _gunComponents;
+    int _equippedGun = 0;
 
     float _bounciness{1.5f};
 
@@ -70,7 +71,7 @@ class ShipActor : public cmx::PhysicsActor
 
     float _mouseSensitivity{0.1f};
 
-    float _lastDt;
+    int health{100};
 };
 
 #endif

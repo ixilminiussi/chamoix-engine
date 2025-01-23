@@ -1,7 +1,10 @@
 #include "descent_game.h"
 
+#include "enemy_ship_actor.h"
+#include "gun_component.h"
 #include "room_actor.h"
 #include "ship_actor.h"
+#include "ship_camera_component.h"
 #include "wall_actor.h"
 
 // cmx
@@ -46,7 +49,11 @@ Descent::Descent()
     cmxRegister->addActor("ShipActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<ShipActor>(scene, name);
     });
+    cmxRegister->addActor("EnemyShipActor", [](cmx::Scene *scene, const std::string &name) {
+        return cmx::Actor::spawn<EnemyShipActor>(scene, name);
+    });
     cmxRegister->addComponent("ShipCameraComponent", []() { return std::make_shared<ShipCameraComponent>(); });
+    cmxRegister->addComponent("GunComponent", []() { return std::make_shared<GunComponent>(); });
 
     _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<cmx::ShadedRenderSystem>();
     _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<cmx::BillboardRenderSystem>();

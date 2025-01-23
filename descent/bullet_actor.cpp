@@ -1,9 +1,12 @@
 #include "bullet_actor.h"
+#include "cmx/cmx_shapes.h"
 
 // cmx
 #include <cmx/cmx_billboard_component.h>
 #include <cmx/cmx_physics.h>
 #include <cmx/cmx_physics_component.h>
+
+unsigned int BulletActor::bulletId{0};
 
 void BulletActor::onBegin()
 {
@@ -13,7 +16,7 @@ void BulletActor::onBegin()
 
     _transform.scale = glm::vec3{_scale};
 
-    std::shared_ptr<cmx::BillboardComponent> _billboardComponent = std::make_shared<cmx::BillboardComponent>();
+    _billboardComponent = std::make_shared<cmx::BillboardComponent>();
     attachComponent(_billboardComponent);
     _billboardComponent->setHue({1.0f, 0.6f, 0.5f});
 }
@@ -23,8 +26,30 @@ void BulletActor::update(float dt)
     _transform.position += _direction * _bulletSpeed * dt;
 }
 
-void BulletActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
-                                 cmx::Actor *overlappingActor, const cmx::HitInfo &)
+void BulletActor::setBulletInfo(const BulletInfo &info)
 {
-    despawn();
+    _bulletSpeed = info.speed;
+    _scale = info.speed;
+    _bounceCount = info.bounceCount;
+    _damage = info.damage;
+
+    _billboardComponent->setHue(info.color);
+
+    _physicsComponent->setMask(info.mask);
+}
+
+void BulletActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
+                                 cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
+{
+    if (_bounceCount <= 0)
+    {
+        despawn();
+    }
+    else
+    {
+        _bounceCount--;
+
+        _transform.position -= (hitInfo.depth + glm::epsilon<float>()) * hitInfo.normal;
+        _direction = _direction - 2.f * glm::dot(_direction, hitInfo.normal) * hitInfo.normal;
+    }
 }

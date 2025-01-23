@@ -9,6 +9,7 @@
         <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
+	<model filepath="assets/cmx/enemy-ship.obj" name="enemy-ship"/>
     </assets>
     <actor type="ShipActor" name="Ship" id="9" visible="true">
         <transform>

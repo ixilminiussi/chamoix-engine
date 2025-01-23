@@ -54,6 +54,7 @@ class Transformable
 
     void setPosition(const glm::vec3 &position);
     void setRotation(const glm::quat &rotation);
+    void setRotation(const glm::vec3 &euler);
     void setScale(const glm::vec3 &scale);
 
   protected:

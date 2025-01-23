@@ -26,6 +26,10 @@ Actor::Actor(Scene *scene, uint32_t id, const std::string &name, const Transform
 
 Actor::~Actor()
 {
+    for (auto &pair : _components)
+    {
+        pair.second->setParent(nullptr);
+    }
 }
 
 void Actor::despawn()

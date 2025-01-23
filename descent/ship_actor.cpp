@@ -1,5 +1,8 @@
 #include "ship_actor.h"
+
 #include "bullet_actor.h"
+#include "gun_component.h"
+#include "ship_camera_component.h"
 
 // cmx
 #include <cmx/cmx_camera_component.h>
@@ -17,6 +20,7 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/gtc/constants.hpp>
 #include <memory>
+#include <stdexcept>
 
 void ShipActor::onBegin()
 {
@@ -36,6 +40,10 @@ void ShipActor::onBegin()
         inputManager->bindButton("Shoot", &ShipActor::shoot, this);
     }
 
+    _gunComponents.push_back(std::make_shared<GunComponent>());
+    attachComponent(_gunComponents[0]);
+    _gunComponents[0]->setGunInfo(GunComponent::gattlingGun);
+
     getScene()->setCamera(_cameraComponent->getCamera());
 
 #ifndef NDEBUG
@@ -44,7 +52,7 @@ void ShipActor::onBegin()
         cmx::InputManager::setMouseCapture(true);
 
     _physicsComponent->setPhysicsMode(cmx::PhysicsMode::DYNAMIC);
-    _physicsComponent->setMask(0b01000000);
+    _physicsComponent->setMask(0b01000001);
 }
 
 void ShipActor::update(float dt)
@@ -134,21 +142,20 @@ void ShipActor::update(float dt)
 
     _cameraComponent->setTilt(_lookingVelocity.x / _lookingSpeed);
 
-    _lastDt = dt;
-
     resetInputs();
 }
 
-int bulletId = 0;
-
 void ShipActor::shoot(float dt, int i)
 {
-    cmx::Transform transform = getAbsoluteTransform();
-
-    const std::string name = fmt::format("Bullet_{}", bulletId++);
-    BulletActor *actor = Actor::spawn<BulletActor>(getScene(), name, transform);
-
-    actor->setDirection(transform.forward());
+    try
+    {
+        std::shared_ptr<GunComponent> equippedGun = _gunComponents.at(_equippedGun);
+        equippedGun->shoot();
+    }
+    catch (std::out_of_range e)
+    {
+        spdlog::error("ShipActor: _equippedGun index doesn't match vector");
+    }
 }
 
 void ShipActor::movementDecelerate(float dt, glm::vec3 direction)

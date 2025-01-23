@@ -187,7 +187,8 @@ void Scene::removeActor(Actor *actor)
         return;
     }
 
-    delete (*it).second;
+    _actors.erase(it);
+    delete actor;
 
     spdlog::info("Scene {0}: Removed actor <{1}>", name, actor->name);
 }

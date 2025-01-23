@@ -1,7 +1,19 @@
 #ifndef BULLET_ACTOR
 #define BULLET_ACTOR
 
+#include <cmx/cmx_billboard_component.h>
+#include <cmx/cmx_component.h>
 #include <cmx/cmx_physics_actor.h>
+
+struct BulletInfo
+{
+    float speed{40.f};
+    float scale{.4f};
+    int bounceCount{0};
+    int damage{10};
+    uint8_t mask{0b10000000};
+    glm::vec3 color{1.f, .4f, .35f};
+};
 
 class BulletActor : public cmx::PhysicsActor
 {
@@ -22,15 +34,29 @@ class BulletActor : public cmx::PhysicsActor
     }; // cannot be saved
     void load(tinyxml2::XMLElement *) override {}; // cannot be saved
 
+    void setBulletInfo(const BulletInfo &);
     void setDirection(const glm::vec3 &direction)
     {
         _direction = direction;
     }
 
+    int getDamage() const
+    {
+        return _damage;
+    }
+
+    static unsigned int bulletId;
+
   protected:
     float _bulletSpeed = 40.f;
     glm::vec3 _direction{0.f};
     float _scale{.4f};
+
+    int _bounceCount{0};
+
+    int _damage{10};
+
+    std::shared_ptr<cmx::BillboardComponent> _billboardComponent;
 };
 
 #endif

@@ -168,6 +168,11 @@ void Transformable::setRotation(const glm::quat &rotation)
     _transform.rotation = glm::normalize(_transform.rotation);
 }
 
+void Transformable::setRotation(const glm::vec3 &euler)
+{
+    _transform.rotation = glm::quat{euler};
+}
+
 void Transformable::setScale(const glm::vec3 &scale)
 {
     _transform.scale = scale;

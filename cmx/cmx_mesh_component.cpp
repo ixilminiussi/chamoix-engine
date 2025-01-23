@@ -77,6 +77,11 @@ void MeshComponent::setModel(const std::string &name)
     }
 }
 
+void MeshComponent::setColor(const glm::vec3 &color)
+{
+    _color = color;
+}
+
 std::string MeshComponent::getModelName()
 {
     if (_cmxModel)

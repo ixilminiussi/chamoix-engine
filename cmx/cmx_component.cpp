@@ -103,7 +103,7 @@ const Transform &Component::getRelativeTransform() const
 
 Transform Component::getAbsoluteTransform() const
 {
-    if (_parent)
+    if (_parent != nullptr)
     {
         return _parent->getAbsoluteTransform() + _transform;
     }

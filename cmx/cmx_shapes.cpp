@@ -14,6 +14,7 @@
 #include <glm/ext/vector_float4.hpp>
 #include <glm/matrix.hpp>
 #include <spdlog/spdlog.h>
+#include <vulkan/vulkan_core.h>
 
 namespace cmx
 {
@@ -128,6 +129,9 @@ void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
     EdgePushConstantData push{};
 
     Transform transform = getAbsoluteTransform();
+    transform.scale.x = getRadius();
+    transform.scale.y = transform.scale.x;
+    transform.scale.z = transform.scale.y;
 
     push.modelMatrix = transform.mat4();
     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};

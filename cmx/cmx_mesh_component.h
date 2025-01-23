@@ -34,13 +34,15 @@ class MeshComponent : public Component
     void setModel(const std::string &name);
     std::string getModelName();
 
+    void setColor(const glm::vec3 &color);
+
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
 
   private:
     class CmxModel *_cmxModel;
-    glm::vec3 _color;
+    glm::vec3 _color{1.f};
 };
 
 } // namespace cmx
