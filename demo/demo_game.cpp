@@ -1,5 +1,6 @@
 #include "demo_game.h"
 
+#include "cmx/cmx_editor.h"
 #include "dynamic_body_actor.h"
 #include "rotating_actor.h"
 #include "static_body_actor.h"
@@ -61,15 +62,28 @@ Demo::~Demo()
 
 void Demo::run()
 {
+#ifndef NDEBUG
+    cmx::CmxEditor *editor = cmx::CmxEditor::getInstance();
+#endif
     while (!_cmxWindow.shouldClose())
     {
         float dt = glfwGetTime();
         glfwSetTime(0.);
 
-        getInputManager()->pollEvents(dt);
-
-        getScene()->update(dt);
+#ifndef NDEBUG
+        editor->update(dt);
+        if (!cmx::CmxEditor::isActive())
+        {
+#endif
+            getInputManager()->pollEvents(dt);
+            getScene()->update(dt);
+#ifndef NDEBUG
+        }
+#endif
+        getScene()->render();
     }
+
+    getScene()->unload();
 }
 
 void Demo::load()
@@ -79,5 +93,5 @@ void Demo::load()
     _scenes.push_back(&mainScene);
     setScene(0);
 
-    getScene()->getAssetsManager()->addTexture("assets/textures/bricks.png", "bricks");
+    // getScene()->getAssetsManager()->addTexture("assets/textures/bricks.png", "bricks");
 }

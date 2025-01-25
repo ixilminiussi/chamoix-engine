@@ -1,4 +1,5 @@
 #include "cmx_camera.h"
+#include "imgui.h"
 
 namespace cmx
 {
@@ -87,6 +88,13 @@ void Camera::updateAspectRatio(float aspectRatio)
 
     // camera->setOrthographicProjection(-aspect, aspect, -1.f, 1.f, -1.f, 1.f);
     setPerspectiveProjection(_FOV, _screenAspectRatio, _nearPlane, _farPlane);
+}
+
+void Camera::editor()
+{
+    ImGui::SliderFloat("FOV", &_FOV, 10.f, 160.f);
+    ImGui::SliderFloat("far plane", &_farPlane, 1.f, 100000.f);
+    ImGui::SliderFloat("near plane", &_nearPlane, 1.f, 100000.f);
 }
 
 } // namespace cmx

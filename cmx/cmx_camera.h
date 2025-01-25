@@ -35,17 +35,31 @@ class Camera
         return _viewMatrix;
     }
 
+    void editor();
+
     float getFOV() const
     {
         return _FOV;
     }
-    float getNearPlane() const
+    void setFOV(float FOV)
+    {
+        _FOV = FOV;
+    }
+    float getNearPlane()
     {
         return _nearPlane;
     }
-    float getFarPlane() const
+    void setNearPlane(float nearPlane)
+    {
+        _nearPlane = nearPlane;
+    }
+    float getFarPlane()
     {
         return _farPlane;
+    }
+    void setFarPlane(float farPlane)
+    {
+        _farPlane = farPlane;
     }
     glm::vec3 getPosition() const
     {

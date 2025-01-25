@@ -1,8 +1,10 @@
-#include "cmx/cmx_editor.h"
 #include "demo_game.h"
 
 // std
 #include <cstdlib>
+
+// cmx
+#include <cmx/cmx_editor.h>
 
 int main()
 {

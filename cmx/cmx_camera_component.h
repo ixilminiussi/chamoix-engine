@@ -23,8 +23,13 @@ class CameraComponent : public Component
     ~CameraComponent() = default;
 
     void update(float dt) override;
+    void render(const FrameInfo &, VkPipelineLayout) override;
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    void onAttach() override;
+
+    void editor(int i) override;
+    void load(tinyxml2::XMLElement *componentElement) override;
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) override;
 
     const std::shared_ptr<class Camera> getCamera()
     {
@@ -33,6 +38,11 @@ class CameraComponent : public Component
 
   protected:
     std::shared_ptr<class Camera> _camera;
+    bool _mainCamera{false};
+
+#ifndef NDEBUG
+    class CmxModel *_model;
+#endif
 };
 
 } // namespace cmx

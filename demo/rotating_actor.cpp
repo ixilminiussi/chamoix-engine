@@ -25,7 +25,7 @@ void RotatingActor::onBegin()
 
 void RotatingActor::update(float dt)
 {
-    transform.rotation = glm::quat({0.f, rotationSpeed * dt * 1.0f, 0.f}) * transform.rotation;
+    _transform.rotation = glm::quat({0.f, rotationSpeed * dt * 1.0f, 0.f}) * _transform.rotation;
 }
 
 void RotatingActor::slowdownToggle(float dt, int val)
