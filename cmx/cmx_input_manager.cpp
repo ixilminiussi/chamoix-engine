@@ -81,7 +81,7 @@ void InputManager::setMouseCapture(bool b)
     if (b)
     {
         glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        glfwSetCursorPos(Game::getWindow().getGLFWwindow(), 0, 0);
+        // glfwSetCursorPos(Game::getWindow().getGLFWwindow(), 0, 0);
     }
     else
     {

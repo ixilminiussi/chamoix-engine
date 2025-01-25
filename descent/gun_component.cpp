@@ -9,7 +9,7 @@
 
 GunInfo GunComponent::enemyDefaultGun = GunInfo{.8f, 20, BulletInfo{30.f, .6f, 1, 10, 0b01000000, {1.f, 0.f, 0.f}}};
 
-GunInfo GunComponent::gattlingGun = GunInfo{.15f, 50, BulletInfo{50.f, .4f, 1, 4, 0b10000000, {0.f, 0.f, 1.f}}};
+GunInfo GunComponent::gattlingGun = GunInfo{.15f, 50, BulletInfo{50.f, .4f, 0, 4, 0b10000000, {0.f, 0.f, 1.f}}};
 
 void GunComponent::onAttach()
 {

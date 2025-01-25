@@ -7,7 +7,6 @@
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
 #include "cmx_scene.h"
-#include "cmx_texture.h"
 
 // std
 #include <cstdlib>
@@ -28,11 +27,11 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
         modelElement.SetAttribute("name", pair.first.c_str());
     }
 
-    for (const auto &pair : _textures)
-    {
-        tinyxml2::XMLElement &textureElement = pair.second->save(doc, assetsElement);
-        textureElement.SetAttribute("name", pair.first.c_str());
-    }
+    // for (const auto &pair : _textures)
+    // {
+    //     tinyxml2::XMLElement &textureElement = pair.second->save(doc, assetsElement);
+    //     textureElement.SetAttribute("name", pair.first.c_str());
+    // }
 
     parentElement->InsertEndChild(assetsElement);
 
@@ -63,13 +62,13 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
             modelElement = modelElement->NextSiblingElement("model");
         }
 
-        tinyxml2::XMLElement *textureElement = assetsElement->FirstChildElement("texture");
-        while (textureElement)
-        {
-            addTexture(textureElement->Attribute("filepath"), textureElement->Attribute("name"));
+        // tinyxml2::XMLElement *textureElement = assetsElement->FirstChildElement("texture");
+        // while (textureElement)
+        // {
+        //     addTexture(textureElement->Attribute("filepath"), textureElement->Attribute("name"));
 
-            textureElement = textureElement->NextSiblingElement("texture");
-        }
+        //     textureElement = textureElement->NextSiblingElement("texture");
+        // }
     }
 }
 
@@ -91,17 +90,17 @@ void AssetsManager::unload()
     }
 
     {
-        auto it = _textures.begin();
-
-        while (it != _textures.end())
-        {
-            (*it).second->free();
-            delete (*it).second.release();
-            spdlog::info("AssetsManager: Unloaded texture [{0}]", (*it).first);
-            it++;
-        }
-
-        _textures.clear();
+        //         auto it = _textures.begin();
+        //
+        //         while (it != _textures.end())
+        //         {
+        //             (*it).second->free();
+        //             delete (*it).second.release();
+        //             spdlog::info("AssetsManager: Unloaded texture [{0}]", (*it).first);
+        //             it++;
+        //         }
+        //
+        //         _textures.clear();
     }
     spdlog::info("AssetsManager: Successfully unloaded assets manager!");
 }
@@ -134,19 +133,20 @@ void AssetsManager::removeModel(const std::string &name)
 
 void AssetsManager::addTexture(const std::string &filepath, const std::string &name)
 {
-    try
-    {
-        _textures.at(name);
-        spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
-    }
-    catch (const std::out_of_range e)
-    {
-        CmxDevice *device = RenderSystem::getDevice();
-        if (device)
-        {
-            _textures[name] = std::unique_ptr<CmxTexture>(CmxTexture::createTextureFromFile(device, filepath, name));
-        }
-    }
+    //     try
+    //     {
+    //         _textures.at(name);
+    //         spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
+    //     }
+    //     catch (const std::out_of_range e)
+    //     {
+    //         CmxDevice *device = RenderSystem::getDevice();
+    //         if (device)
+    //         {
+    //             _textures[name] = std::unique_ptr<CmxTexture>(CmxTexture::createTextureFromFile(device, filepath,
+    //             name));
+    //         }
+    //     }
 }
 
 void AssetsManager::removeTexture(const std::string &name)
@@ -169,15 +169,15 @@ CmxModel *AssetsManager::getModel(const std::string &name)
 
 CmxTexture *AssetsManager::getTexture(const std::string &name)
 {
-    try
-    {
-        return _textures.at(name).get();
-    }
-    catch (const std::out_of_range &e)
-    {
-        spdlog::critical("AssetsManager: No such model named '{0}'", name);
-        std::exit(EXIT_FAILURE);
-    }
+    //     try
+    //     {
+    //         return _textures.at(name).get();
+    //     }
+    //     catch (const std::out_of_range &e)
+    //     {
+    //         spdlog::critical("AssetsManager: No such model named '{0}'", name);
+    //         std::exit(EXIT_FAILURE);
+    //     }
 }
 
 } // namespace cmx
