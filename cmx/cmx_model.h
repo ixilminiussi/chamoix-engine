@@ -47,6 +47,8 @@ class Model
     Model(class Device *, const Model::Builder &, const std::string &name);
     ~Model();
 
+    void free();
+
     Model(const Model &) = delete;
     Model &operator=(const Model &) = delete;
 
@@ -56,8 +58,6 @@ class Model
 
     void bind(vk::CommandBuffer);
     void draw(vk::CommandBuffer);
-
-    void free();
 
     const std::string name;
 

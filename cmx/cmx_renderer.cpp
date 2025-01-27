@@ -71,6 +71,7 @@ void Renderer::recreateSwapChain()
         {
             throw std::runtime_error("Swap chain image (or depth) format  has changed!");
         }
+        oldSwapChain->free();
     }
 }
 

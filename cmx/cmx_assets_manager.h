@@ -40,16 +40,16 @@ class AssetsManager final
         return _models;
     }
 
-    // const auto &getTextures()
-    // {
-    //     return _textures;
-    // }
+    const auto &getTextures()
+    {
+        return _textures;
+    }
 
   private:
     class Scene *_parentScene;
 
     std::unordered_map<std::string, std::unique_ptr<class Model>> _models;
-    // std::unordered_map<std::string, std::unique_ptr<class Texture>> _textures;
+    std::unordered_map<std::string, std::unique_ptr<class Texture>> _textures;
     // TODO:
     // fonts
     // sprites

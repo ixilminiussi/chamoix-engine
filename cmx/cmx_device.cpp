@@ -364,6 +364,33 @@ bool Device::checkDeviceExtensionSupport(vk::PhysicalDevice device)
     return requiredExtensions.empty();
 }
 
+vk::SampleCountFlagBits Device::getSampleCount()
+{
+    // Get properties of our new device to know some values
+    vk::PhysicalDeviceProperties deviceProperties = _physicalDevice.getProperties();
+
+    vk::SampleCountFlagBits msaaSamples;
+
+    vk::SampleCountFlags counts =
+        deviceProperties.limits.framebufferColorSampleCounts & deviceProperties.limits.framebufferDepthSampleCounts;
+    if (counts & vk::SampleCountFlagBits::e64)
+        msaaSamples = vk::SampleCountFlagBits::e64;
+    else if (counts & vk::SampleCountFlagBits::e32)
+        msaaSamples = vk::SampleCountFlagBits::e32;
+    else if (counts & vk::SampleCountFlagBits::e16)
+        msaaSamples = vk::SampleCountFlagBits::e16;
+    else if (counts & vk::SampleCountFlagBits::e8)
+        msaaSamples = vk::SampleCountFlagBits::e8;
+    else if (counts & vk::SampleCountFlagBits::e4)
+        msaaSamples = vk::SampleCountFlagBits::e4;
+    else if (counts & vk::SampleCountFlagBits::e2)
+        msaaSamples = vk::SampleCountFlagBits::e2;
+    else
+        msaaSamples = vk::SampleCountFlagBits::e1;
+
+    return msaaSamples;
+}
+
 QueueFamilyIndices Device::findQueueFamilies(vk::PhysicalDevice device)
 {
     QueueFamilyIndices indices;
@@ -568,6 +595,38 @@ void Device::createImageWithInfo(const vk::ImageCreateInfo &imageInfo, vk::Memor
     }
 
     _device.bindImageMemory(image, imageMemory, 0);
+}
+
+void Device::transitionImageLayout(vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+{
+    vk::CommandBuffer commandBuffer = beginSingleTimeCommands();
+
+    vk::ImageMemoryBarrier imageMemoryBarrier{};
+    imageMemoryBarrier.oldLayout = oldLayout;
+    imageMemoryBarrier.newLayout = newLayout;
+    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.image = image;
+    imageMemoryBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+    imageMemoryBarrier.subresourceRange.levelCount = 1;
+    imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+    imageMemoryBarrier.subresourceRange.layerCount = 1;
+
+    vk::PipelineStageFlags srcStage;
+    vk::PipelineStageFlags dstStage;
+
+    if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal)
+    {
+        imageMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eNone;
+        imageMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+        srcStage = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStage = vk::PipelineStageFlagBits::eTransfer;
+    }
+    commandBuffer.pipelineBarrier(srcStage, dstStage, {}, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+    endSingleTimeCommands(commandBuffer);
 }
 
 } // namespace cmx

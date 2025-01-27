@@ -7,6 +7,7 @@
 // std
 #include <vector>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -73,6 +74,7 @@ class Device
     {
         return _instance;
     }
+    vk::SampleCountFlagBits getSampleCount();
 
     SwapChainSupportDetails getSwapChainSupport()
     {
@@ -93,6 +95,7 @@ class Device
     void copyBufferToImage(vk::Buffer, vk::Image, uint32_t width, uint32_t height, uint32_t layerCount);
 
     void createImageWithInfo(const vk::ImageCreateInfo &, vk::MemoryPropertyFlags, vk::Image &, vk::DeviceMemory &);
+    void transitionImageLayout(vk::Image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 
     vk::PhysicalDeviceProperties _properties;
 
