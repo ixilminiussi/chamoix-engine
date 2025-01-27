@@ -15,6 +15,7 @@
 #include <spdlog/spdlog.h>
 #include <tinyxml2.h>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -30,13 +31,13 @@ MeshComponent::MeshComponent()
 
 void MeshComponent::onAttach()
 {
-    if (!_cmxModel)
+    if (!_model)
     {
         setModel(PRIMITIVE_CUBE);
     }
 }
 
-void MeshComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void MeshComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
     if (getParent() == nullptr)
     {
@@ -44,7 +45,7 @@ void MeshComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipeline
         return;
     }
 
-    if (!_cmxModel)
+    if (!_model)
     {
         spdlog::error("MeshComponent: missing model");
         return;
@@ -57,19 +58,19 @@ void MeshComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipeline
     push.normalMatrix = transform.normalMatrix();
     push.normalMatrix[3] = glm::vec4(_color, 1.0f);
 
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData),
-                       &push);
+    frameInfo.commandBuffer.pushConstants(pipelineLayout,
+                                          vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                          sizeof(SimplePushConstantData), &push);
 
-    _cmxModel->bind(frameInfo.commandBuffer);
-    _cmxModel->draw(frameInfo.commandBuffer);
+    _model->bind(frameInfo.commandBuffer);
+    _model->draw(frameInfo.commandBuffer);
 }
 
 void MeshComponent::setModel(const std::string &name)
 {
     if (getScene() != nullptr)
     {
-        _cmxModel = getScene()->getAssetsManager()->getModel(name);
+        _model = getScene()->getAssetsManager()->getModel(name);
     }
     else
     {
@@ -84,9 +85,9 @@ void MeshComponent::setColor(const glm::vec3 &color)
 
 std::string MeshComponent::getModelName()
 {
-    if (_cmxModel)
+    if (_model)
     {
-        return _cmxModel->name;
+        return _model->name;
     }
     return "Missing model";
 }
@@ -94,7 +95,7 @@ std::string MeshComponent::getModelName()
 tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
-    componentElement.SetAttribute("model", _cmxModel->name.c_str());
+    componentElement.SetAttribute("model", _model->name.c_str());
     componentElement.SetAttribute("r", _color.r);
     componentElement.SetAttribute("g", _color.g);
     componentElement.SetAttribute("b", _color.b);
@@ -114,7 +115,7 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
 
 void MeshComponent::editor(int i)
 {
-    const char *selected = _cmxModel->name.c_str();
+    const char *selected = _model->name.c_str();
     AssetsManager *assetsManager = getScene()->getAssetsManager();
 
     if (ImGui::BeginCombo("Model##", selected))

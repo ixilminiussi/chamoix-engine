@@ -37,7 +37,7 @@ void PhysicsManager::executeStep(float dt)
     for (auto it = _dynamicComponents.begin(); it != _dynamicComponents.end(); it++)
     {
         std::shared_ptr<PhysicsComponent> physicsComponent = *it;
-        std::shared_ptr<CmxShape> shape = physicsComponent->getShape();
+        std::shared_ptr<Shape> shape = physicsComponent->getShape();
 
         if (shape.get() == nullptr)
             continue;
@@ -53,7 +53,7 @@ void PhysicsManager::executeStep(float dt)
 
         for (; itAlt != _staticComponents.end(); advance(itAlt))
         {
-            std::shared_ptr<CmxShape> otherShape = (*itAlt)->getShape();
+            std::shared_ptr<Shape> otherShape = (*itAlt)->getShape();
 
             if (otherShape.get() == nullptr)
                 continue;

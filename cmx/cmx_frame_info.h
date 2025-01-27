@@ -2,7 +2,7 @@
 #define CMX_FRAME_INFO
 
 // lib
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 namespace cmx
 {
@@ -10,9 +10,9 @@ namespace cmx
 struct FrameInfo
 {
     int frameIndex;
-    VkCommandBuffer commandBuffer;
+    vk::CommandBuffer &commandBuffer;
     class Camera &camera;
-    VkDescriptorSet globalDescriptorSet;
+    vk::DescriptorSet globalDescriptorSet;
 };
 
 } // namespace cmx

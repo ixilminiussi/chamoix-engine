@@ -6,7 +6,7 @@
 #include "cmx_window.h"
 
 // lib
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.hpp>
 
 // std
 #include <cassert>
@@ -16,23 +16,23 @@
 namespace cmx
 {
 
-class CmxRenderer
+class Renderer
 {
   public:
-    CmxRenderer(CmxWindow &, CmxDevice &);
-    ~CmxRenderer();
+    Renderer(Window &, Device &);
+    ~Renderer();
 
     void free();
 
     // getters and setters :: begin
-    VkRenderPass getSwapChainRenderPass() const
+    vk::RenderPass getSwapChainRenderPass() const
     {
-        return _cmxSwapChain->getRenderPass();
+        return _swapChain->getRenderPass();
     }
 
     float getAspectRatio() const
     {
-        return _cmxSwapChain->extentAspectRatio();
+        return _swapChain->extentAspectRatio();
     }
 
     bool isFrameInProgress() const
@@ -40,7 +40,7 @@ class CmxRenderer
         return _isFrameStarted;
     }
 
-    VkCommandBuffer getCurrentCommandBuffer() const
+    vk::CommandBuffer getCurrentCommandBuffer() const
     {
         assert(_isFrameStarted && "Cannot get command buffer when frame not in progress!");
         return _commandBuffers[_currentFrameIndex];
@@ -53,23 +53,23 @@ class CmxRenderer
     }
     // getters and setters :: end
 
-    CmxRenderer(const CmxRenderer &) = delete;
-    CmxRenderer &operator=(const CmxRenderer &) = delete;
+    Renderer(const Renderer &) = delete;
+    Renderer &operator=(const Renderer &) = delete;
 
-    VkCommandBuffer beginFrame();
+    vk::CommandBuffer beginFrame();
     void endFrame();
-    void beginSwapChainRenderPass(VkCommandBuffer);
-    void endSwapChainRenderPass(VkCommandBuffer);
+    void beginSwapChainRenderPass(vk::CommandBuffer);
+    void endSwapChainRenderPass(vk::CommandBuffer);
 
   private:
     void createCommandBuffers();
     void freeCommandBuffers();
     void recreateSwapChain();
 
-    CmxWindow &_cmxWindow;
-    CmxDevice &_cmxDevice;
-    std::unique_ptr<CmxSwapChain> _cmxSwapChain;
-    std::vector<VkCommandBuffer> _commandBuffers;
+    Window &_window;
+    Device &_device;
+    std::unique_ptr<SwapChain> _swapChain;
+    std::vector<vk::CommandBuffer> _commandBuffers;
 
     uint32_t _currentImageIndex;
     int _currentFrameIndex{0};

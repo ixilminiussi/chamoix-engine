@@ -24,7 +24,7 @@ class InputAction
     InputAction() = default;
     ~InputAction() = default;
 
-    virtual void poll(const class CmxWindow &, float dt) = 0;
+    virtual void poll(const class Window &, float dt) = 0;
     virtual void bind(std::function<void(float, int)> callbackFunction) = 0;
     virtual void bind(std::function<void(float, glm::vec2)> callbackFunction) = 0;
 
@@ -52,7 +52,7 @@ class ButtonAction : public InputAction
     ButtonAction(Type buttonType, std::initializer_list<Button> buttons)
         : _buttonType{buttonType}, _buttons{buttons} {};
 
-    void poll(const class CmxWindow &, float dt) override;
+    void poll(const class Window &, float dt) override;
     void bind(std::function<void(float, int)> callbackFunction) override;
     void bind(std::function<void(float, glm::vec2)> callbackFunction) override;
 
@@ -85,7 +85,7 @@ class AxisAction : public InputAction
         : _buttons{right, left, up, down}, _type{BUTTONS} {};
     AxisAction(Axis vertical, Axis horizontal = CMX_AXIS_VOID) : _axes{vertical, horizontal}, _type{AXES} {};
 
-    void poll(const class CmxWindow &, float dt) override;
+    void poll(const class Window &, float dt) override;
     void bind(std::function<void(float, int)> callbackFunction) override;
     void bind(std::function<void(float, glm::vec2)> callbackFunction) override;
 

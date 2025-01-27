@@ -134,7 +134,7 @@ Actor *Scene::getActorByID(uint32_t id)
 void Scene::setCamera(std::shared_ptr<Camera> camera)
 {
 #ifndef NDEBUG
-    if (CmxEditor::isActive())
+    if (Editor::isActive())
     {
         return;
     }

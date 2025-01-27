@@ -18,7 +18,7 @@ class PointLightComponent : public Component
     void onAttach() override;
     void onDetach() override;
 
-    void render(const class FrameInfo &, VkPipelineLayout) override;
+    void render(const class FrameInfo &, vk::PipelineLayout) override;
 
     void editor(int i) override;
     void load(tinyxml2::XMLElement *componentElement) override;

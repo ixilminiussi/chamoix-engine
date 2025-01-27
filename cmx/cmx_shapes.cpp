@@ -1,4 +1,6 @@
 #include "cmx_shapes.h"
+
+// cmx
 #include "cmx_assets_manager.h"
 #include "cmx_edge_render_system.h"
 #include "cmx_frame_info.h"
@@ -6,26 +8,27 @@
 #include "cmx_physics_actor.h"
 #include "cmx_physics_component.h"
 #include "cmx_primitives.h"
-#include "imgui.h"
 
 // lib
+#include "imgui.h"
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <glm/matrix.hpp>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
 
-CmxShape::CmxShape(Transformable *parent) : _parent{parent}
+Shape::Shape(Transformable *parent) : _parent{parent}
 {
     _overlappingComponents[0] = {};
     _overlappingComponents[1] = {};
 }
 
-Transform CmxShape::getAbsoluteTransform() const
+Transform Shape::getAbsoluteTransform() const
 {
     if (_parent)
     {
@@ -34,36 +37,36 @@ Transform CmxShape::getAbsoluteTransform() const
     return Transform::ONE;
 }
 
-const Transform &CmxShape::getRelativeTransform() const
+const Transform &Shape::getRelativeTransform() const
 {
     return Transform::ONE;
 }
 
-bool CmxShape::wasOverlapping(PhysicsComponent *component) const
+bool Shape::wasOverlapping(PhysicsComponent *component) const
 {
     auto search = _overlappingComponents[_alternativeBuffer].find(component);
 
     return (search != _overlappingComponents[_alternativeBuffer].end());
 }
 
-bool CmxShape::isOverlapping(PhysicsComponent *component) const
+bool Shape::isOverlapping(PhysicsComponent *component) const
 {
     auto search = _overlappingComponents[_buffer].find(component);
 
     return (search != _overlappingComponents[_buffer].end());
 }
 
-bool CmxShape::isOverlapping() const
+bool Shape::isOverlapping() const
 {
     return !_overlappingComponents[_buffer].empty();
 }
 
-void CmxShape::addOverlappingComponent(PhysicsComponent *component)
+void Shape::addOverlappingComponent(PhysicsComponent *component)
 {
     _overlappingComponents[_buffer].emplace(component);
 }
 
-void CmxShape::reassess()
+void Shape::reassess()
 {
     if (_overlappingComponents[0].empty() && _overlappingComponents[1].empty())
     {
@@ -108,23 +111,23 @@ void CmxShape::reassess()
     }
 }
 
-void CmxShape::swapBuffer()
+void Shape::swapBuffer()
 {
     _alternativeBuffer = _buffer;
     _buffer = (_buffer + 1) % 2;
     _overlappingComponents[_buffer].clear();
 }
 
-CmxSphere::CmxSphere(Transformable *parent) : CmxShape{parent}
+Sphere::Sphere(Transformable *parent) : Shape{parent}
 {
 }
 
-std::string CmxSphere::getName() const
+std::string Sphere::getName() const
 {
     return PRIMITIVE_SPHERE;
 }
 
-void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
+void Sphere::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
 
@@ -140,14 +143,14 @@ void CmxSphere::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
                        &push);
 
-    if (CmxModel *model = assetsManager->getModel(PRIMITIVE_SPHERE))
+    if (Model *model = assetsManager->getModel(PRIMITIVE_SPHERE))
     {
         model->bind(frameInfo.commandBuffer);
         model->draw(frameInfo.commandBuffer);
     }
 }
 
-bool CmxSphere::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
+bool Sphere::overlapsWith(const Shape &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -163,7 +166,7 @@ bool CmxSphere::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool CmxSphere::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
+bool Sphere::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -176,7 +179,7 @@ bool CmxSphere::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
     return hitInfo.depth > 0.f;
 }
 
-bool CmxSphere::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
+bool Sphere::overlapsWith(const Plane &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -192,7 +195,7 @@ bool CmxSphere::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool CmxSphere::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
+bool Sphere::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -208,28 +211,28 @@ bool CmxSphere::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
     return false;
 }
 
-glm::vec3 CmxSphere::getCenter() const
+glm::vec3 Sphere::getCenter() const
 {
     return getAbsoluteTransform().position;
 }
 
-float CmxSphere::getRadius() const
+float Sphere::getRadius() const
 {
     Transform transform = getAbsoluteTransform();
 
     return std::max(std::max(transform.scale.x, transform.scale.y), transform.scale.z);
 }
 
-CmxPlane::CmxPlane(Transformable *parent) : CmxShape{parent}
+Plane::Plane(Transformable *parent) : Shape{parent}
 {
 }
 
-std::string CmxPlane::getName() const
+std::string Plane::getName() const
 {
     return PRIMITIVE_PLANE;
 }
 
-void CmxPlane::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
+void Plane::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
 
@@ -242,14 +245,14 @@ void CmxPlane::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayou
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
                        &push);
 
-    if (CmxModel *model = assetsManager->getModel(PRIMITIVE_PLANE))
+    if (Model *model = assetsManager->getModel(PRIMITIVE_PLANE))
     {
         model->bind(frameInfo.commandBuffer);
         model->draw(frameInfo.commandBuffer);
     }
 }
 
-bool CmxPlane::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
+bool Plane::overlapsWith(const Shape &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -265,7 +268,7 @@ bool CmxPlane::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool CmxPlane::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
+bool Plane::overlapsWith(const Plane &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -273,7 +276,7 @@ bool CmxPlane::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool CmxPlane::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
+bool Plane::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -281,7 +284,7 @@ bool CmxPlane::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool CmxPlane::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
+bool Plane::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -314,26 +317,26 @@ bool CmxPlane::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
     return hitInfo.depth > 0;
 }
 
-glm::vec4 CmxPlane::getMin(const glm::mat4 &mat4) const
+glm::vec4 Plane::getMin(const glm::mat4 &mat4) const
 {
     return mat4 * glm::vec4{-1.f, 0.f, -1.f, 1.f};
 }
 
-glm::vec4 CmxPlane::getMax(const glm::mat4 &mat4) const
+glm::vec4 Plane::getMax(const glm::mat4 &mat4) const
 {
     return mat4 * glm::vec4{1.f, 0.f, 1.f, 1.f};
 }
 
-CmxCuboid::CmxCuboid(Transformable *parent) : CmxShape{parent}
+Cuboid::Cuboid(Transformable *parent) : Shape{parent}
 {
 }
 
-std::string CmxCuboid::getName() const
+std::string Cuboid::getName() const
 {
     return PRIMITIVE_CUBE;
 }
 
-void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout, AssetsManager *assetsManager)
+void Cuboid::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
 {
     EdgePushConstantData push{};
 
@@ -342,18 +345,18 @@ void CmxCuboid::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayo
     push.modelMatrix = transform.mat4();
     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
 
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
-                       &push);
+    frameInfo.commandBuffer.pushConstants(pipelineLayout,
+                                          vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                          sizeof(EdgePushConstantData), &push);
 
-    if (CmxModel *model = assetsManager->getModel(PRIMITIVE_CUBE))
+    if (Model *model = assetsManager->getModel(PRIMITIVE_CUBE))
     {
         model->bind(frameInfo.commandBuffer);
         model->draw(frameInfo.commandBuffer);
     }
 }
 
-bool CmxCuboid::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
+bool Cuboid::overlapsWith(const Shape &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -369,7 +372,7 @@ bool CmxCuboid::overlapsWith(const CmxShape &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool CmxCuboid::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
+bool Cuboid::overlapsWith(const Plane &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -377,7 +380,7 @@ bool CmxCuboid::overlapsWith(const CmxPlane &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool CmxCuboid::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
+bool Cuboid::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
@@ -385,7 +388,7 @@ bool CmxCuboid::overlapsWith(const CmxCuboid &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool CmxCuboid::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
+bool Cuboid::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
 {
     Transform transform = getAbsoluteTransform();
 
@@ -417,12 +420,12 @@ bool CmxCuboid::overlapsWith(const CmxSphere &other, HitInfo &hitInfo) const
     return hitInfo.depth > 0;
 }
 
-glm::vec4 CmxCuboid::getMin(const glm::mat4 &mat4) const
+glm::vec4 Cuboid::getMin(const glm::mat4 &mat4) const
 {
     return mat4 * glm::vec4{-1.f, -1.f, -1.f, 1.f};
 }
 
-glm::vec4 CmxCuboid::getMax(const glm::mat4 &mat4) const
+glm::vec4 Cuboid::getMax(const glm::mat4 &mat4) const
 {
     return mat4 * glm::vec4{1.f, 1.f, 1.f, 1.f};
 }

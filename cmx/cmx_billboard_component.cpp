@@ -9,6 +9,7 @@
 // lib
 #include <imgui.h>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -19,7 +20,7 @@ BillboardComponent::BillboardComponent()
     _requestedRenderSystem = BILLBOARD_RENDER_SYSTEM;
 }
 
-void BillboardComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void BillboardComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
     if (getParent() == nullptr)
     {
@@ -34,11 +35,11 @@ void BillboardComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pip
     pushConstant.color = glm::vec4(_hue, 1.f);
     pushConstant.scale = glm::vec2(transform.scale.x, transform.scale.y);
 
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(BillboardPushConstant),
-                       &pushConstant);
+    frameInfo.commandBuffer.pushConstants(pipelineLayout,
+                                          vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                          sizeof(BillboardPushConstant), &pushConstant);
 
-    vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
+    frameInfo.commandBuffer.draw(6, 1, 0, 0);
 }
 
 void BillboardComponent::editor(int i)

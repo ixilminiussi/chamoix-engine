@@ -81,7 +81,6 @@ void AssetsManager::unload()
         while (it != _models.end())
         {
             (*it).second->free();
-            delete (*it).second.release();
             spdlog::info("AssetsManager: Unloaded model [{0}]", (*it).first);
             it++;
         }
@@ -111,17 +110,16 @@ void AssetsManager::editor()
 
 void AssetsManager::addModel(const std::string &filepath, const std::string &name)
 {
-    try
+    if (_models.find(name) != _models.end())
     {
-        _models.at(name);
         spdlog::warn("AssetsManager: model of same name '{0}' already exists", name);
     }
-    catch (const std::out_of_range e)
+    else
     {
-        CmxDevice *device = RenderSystem::getDevice();
+        Device *device = RenderSystem::getDevice();
         if (device)
         {
-            _models[name] = std::unique_ptr<CmxModel>(CmxModel::createModelFromFile(device, filepath, name));
+            _models[name] = std::unique_ptr<Model>(Model::createModelFromFile(device, filepath, name));
         }
     }
 }
@@ -140,10 +138,10 @@ void AssetsManager::addTexture(const std::string &filepath, const std::string &n
     //     }
     //     catch (const std::out_of_range e)
     //     {
-    //         CmxDevice *device = RenderSystem::getDevice();
+    //         Device *device = RenderSystem::getDevice();
     //         if (device)
     //         {
-    //             _textures[name] = std::unique_ptr<CmxTexture>(CmxTexture::createTextureFromFile(device, filepath,
+    //             _textures[name] = std::unique_ptr<Texture>(Texture::createTextureFromFile(device, filepath,
     //             name));
     //         }
     //     }
@@ -154,7 +152,7 @@ void AssetsManager::removeTexture(const std::string &name)
     // TODO: implement
 }
 
-CmxModel *AssetsManager::getModel(const std::string &name)
+Model *AssetsManager::getModel(const std::string &name)
 {
     try
     {
@@ -167,7 +165,7 @@ CmxModel *AssetsManager::getModel(const std::string &name)
     }
 }
 
-CmxTexture *AssetsManager::getTexture(const std::string &name)
+Texture *AssetsManager::getTexture(const std::string &name)
 {
     //     try
     //     {
@@ -178,6 +176,7 @@ CmxTexture *AssetsManager::getTexture(const std::string &name)
     //         spdlog::critical("AssetsManager: No such model named '{0}'", name);
     //         std::exit(EXIT_FAILURE);
     //     }
+    return nullptr;
 }
 
 } // namespace cmx

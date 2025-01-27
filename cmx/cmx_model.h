@@ -7,7 +7,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.hpp>
 
 // std
 #include <memory>
@@ -17,7 +17,7 @@
 namespace cmx
 {
 
-class CmxModel
+class Model
 {
   public:
     struct Vertex
@@ -27,8 +27,8 @@ class CmxModel
         glm::vec3 normal;
         glm::vec2 uv;
 
-        static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-        static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+        static std::vector<vk::VertexInputBindingDescription> getBindingDescriptions();
+        static std::vector<vk::VertexInputAttributeDescription> getAttributeDescriptions();
 
         bool operator==(const Vertex &other) const
         {
@@ -44,32 +44,32 @@ class CmxModel
         void loadModel(const std::string &filepath);
     };
 
-    CmxModel(class CmxDevice *, const CmxModel::Builder &, const std::string &name);
-    ~CmxModel();
+    Model(class Device *, const Model::Builder &, const std::string &name);
+    ~Model();
 
-    CmxModel(const CmxModel &) = delete;
-    CmxModel &operator=(const CmxModel &) = delete;
+    Model(const Model &) = delete;
+    Model &operator=(const Model &) = delete;
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
-    static CmxModel *createModelFromFile(class CmxDevice *, const std::string &filepath, const std::string &name);
+    static Model *createModelFromFile(class Device *, const std::string &filepath, const std::string &name);
 
-    void bind(VkCommandBuffer);
-    void draw(VkCommandBuffer);
+    void bind(vk::CommandBuffer);
+    void draw(vk::CommandBuffer);
 
     void free();
 
     const std::string name;
 
   private:
-    void createVertexBuffers(class CmxDevice *, const std::vector<Vertex> &);
-    void createIndexBuffers(class CmxDevice *, const std::vector<uint32_t> &);
+    void createVertexBuffers(class Device *, const std::vector<Vertex> &);
+    void createIndexBuffers(class Device *, const std::vector<uint32_t> &);
 
-    std::unique_ptr<class CmxBuffer> _vertexBuffer;
+    std::unique_ptr<class Buffer> _vertexBuffer;
     uint32_t _vertexCount;
 
     bool _hasIndexBuffer{false};
-    std::unique_ptr<class CmxBuffer> _indexBuffer;
+    std::unique_ptr<class Buffer> _indexBuffer;
     uint32_t _indexCount;
 
     std::string _filepath;

@@ -38,7 +38,7 @@ class ViewportUI
 
   private:
     bool _initialized{false};
-    std::unique_ptr<class CmxDescriptorPool> _imguiPool;
+    std::unique_ptr<class DescriptorPool> _imguiPool;
 
     bool _showViewportSettings{false};
     bool _showProjectSettings{false};

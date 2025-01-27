@@ -14,7 +14,7 @@ int main()
     {
         app.load();
 #ifndef NDEBUG
-        cmx::CmxEditor *editor = cmx::CmxEditor::getInstance();
+        cmx::Editor *editor = cmx::Editor::getInstance();
         editor->load(app.getWindow());
         editor->attachScene(app.getScene());
 #endif

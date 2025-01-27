@@ -9,39 +9,40 @@
 namespace cmx
 {
 
-CmxWindow::CmxWindow(int w, int h, std::string name) : _width{w}, _height{h}, _windowName{name}
+Window::Window(int w, int h, std::string name) : _width{w}, _height{h}, _windowName{name}
 {
     initWindow();
 }
 
-CmxWindow::~CmxWindow()
+Window::~Window()
 {
-    glfwDestroyWindow(_window);
+    glfwDestroyWindow(_glfwWindow);
     glfwTerminate();
 }
 
-void CmxWindow::framebufferResizeCallback(GLFWwindow *window, int width, int height)
+void Window::framebufferResizeCallback(GLFWwindow *glfwWindow, int width, int height)
 {
-    CmxWindow *cmxWindow = reinterpret_cast<CmxWindow *>(glfwGetWindowUserPointer(window));
-    cmxWindow->_framebufferResized = true;
-    cmxWindow->_width = width;
-    cmxWindow->_height = height;
+    Window *window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfwWindow));
+    window->_framebufferResized = true;
+    window->_width = width;
+    window->_height = height;
 }
 
-void CmxWindow::initWindow()
+void Window::initWindow()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    _window = glfwCreateWindow(_width, _height, _windowName.c_str(), nullptr, nullptr);
-    glfwSetWindowUserPointer(_window, this);
-    glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
+    _glfwWindow = glfwCreateWindow(_width, _height, _windowName.c_str(), nullptr, nullptr);
+    glfwSetWindowUserPointer(_glfwWindow, this);
+    glfwSetFramebufferSizeCallback(_glfwWindow, framebufferResizeCallback);
 }
 
-void CmxWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface)
+void Window::createWindowSurface(vk::Instance instance, vk::SurfaceKHR *surface)
 {
-    if (glfwCreateWindowSurface(instance, _window, nullptr, surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), _glfwWindow, nullptr,
+                                reinterpret_cast<VkSurfaceKHR *>(surface)) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create window surface!");
     }

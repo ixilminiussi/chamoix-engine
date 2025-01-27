@@ -29,7 +29,7 @@ class MeshComponent : public Component
 
     void onAttach() override;
 
-    void render(const class FrameInfo &, VkPipelineLayout) override;
+    void render(const class FrameInfo &, vk::PipelineLayout) override;
 
     void setModel(const std::string &name);
     std::string getModelName();
@@ -41,7 +41,7 @@ class MeshComponent : public Component
     void editor(int i) override;
 
   private:
-    class CmxModel *_cmxModel;
+    class Model *_model;
     glm::vec3 _color{1.f};
 };
 

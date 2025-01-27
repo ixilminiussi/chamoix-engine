@@ -9,6 +9,7 @@
 // lib
 #include <imgui.h>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -37,7 +38,7 @@ void PointLightComponent::onDetach()
     getScene()->getGraphicsManager()->removePointLight(_key);
 }
 
-void PointLightComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void PointLightComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
     if (getParent() == nullptr)
     {
@@ -54,11 +55,11 @@ void PointLightComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pi
     pushConstant.color = glm::vec4(_lightColor, _lightIntensity);
     pushConstant.scale = _absoluteScaleXY;
 
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(BillboardPushConstant),
-                       &pushConstant);
+    frameInfo.commandBuffer.pushConstants(pipelineLayout,
+                                          vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                          sizeof(BillboardPushConstant), &pushConstant);
 
-    vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
+    frameInfo.commandBuffer.draw(6, 1, 0, 0);
 }
 
 void PointLightComponent::editor(int i)

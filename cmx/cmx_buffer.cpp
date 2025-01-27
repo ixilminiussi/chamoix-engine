@@ -10,6 +10,8 @@
 // std
 #include <cassert>
 #include <cstring>
+#include <spdlog/spdlog.h>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -21,9 +23,9 @@ namespace cmx
  * @param minOffsetAlignment The minimum required alignment, in bytes, for the offset member (eg
  * minUniformBufferOffsetAlignment)
  *
- * @return VkResult of the buffer mapping call
+ * @return vk::Result of the buffer mapping call
  */
-VkDeviceSize CmxBuffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment)
+vk::DeviceSize Buffer::getAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment)
 {
     if (minOffsetAlignment > 0)
     {
@@ -32,22 +34,31 @@ VkDeviceSize CmxBuffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize min
     return instanceSize;
 }
 
-CmxBuffer::CmxBuffer(CmxDevice &cmxDevice, VkDeviceSize instanceSize, uint32_t instanceCount,
-                     VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags,
-                     VkDeviceSize minOffsetAlignment)
-    : _cmxDevice{cmxDevice}, _instanceSize{instanceSize}, _instanceCount{instanceCount}, _usageFlags{usageFlags},
+Buffer::Buffer(Device &device, vk::DeviceSize instanceSize, uint32_t instanceCount, vk::BufferUsageFlags usageFlags,
+               vk::MemoryPropertyFlags memoryPropertyFlags, vk::DeviceSize minOffsetAlignment)
+    : _device{device}, _instanceSize{instanceSize}, _instanceCount{instanceCount}, _usageFlags{usageFlags},
       _memoryPropertyFlags{memoryPropertyFlags}
 {
     _alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
     _bufferSize = _alignmentSize * instanceCount;
-    cmxDevice.createBuffer(_bufferSize, usageFlags, memoryPropertyFlags, _buffer, _memory);
+    device.createBuffer(_bufferSize, usageFlags, memoryPropertyFlags, _buffer, _memory);
 }
 
-CmxBuffer::~CmxBuffer()
+Buffer::~Buffer()
+{
+    if (!_freed)
+    {
+        spdlog::error("Buffer: forgot to free buffer before deletion");
+    }
+}
+
+void Buffer::free()
 {
     unmap();
-    vkDestroyBuffer(_cmxDevice.device(), _buffer, nullptr);
-    vkFreeMemory(_cmxDevice.device(), _memory, nullptr);
+    _device.device().destroyBuffer(_buffer);
+    _device.device().freeMemory(_memory);
+
+    _freed = true;
 }
 
 /**
@@ -57,12 +68,12 @@ CmxBuffer::~CmxBuffer()
  * buffer range.
  * @param offset (Optional) Byte offset from beginning
  *
- * @return VkResult of the buffer mapping call
+ * @return vk::Result of the buffer mapping call
  */
-VkResult CmxBuffer::map(VkDeviceSize size, VkDeviceSize offset)
+vk::Result Buffer::map(vk::DeviceSize size, vk::DeviceSize offset)
 {
     assert(_buffer && _memory && "Called map on buffer before create");
-    return vkMapMemory(_cmxDevice.device(), _memory, offset, size, 0, &_mapped);
+    return _device.device().mapMemory(_memory, offset, size, vk::MemoryMapFlagBits{}, &_mapped);
 }
 
 /**
@@ -70,11 +81,11 @@ VkResult CmxBuffer::map(VkDeviceSize size, VkDeviceSize offset)
  *
  * @note Does not return a result as vkUnmapMemory can't fail
  */
-void CmxBuffer::unmap()
+void Buffer::unmap()
 {
     if (_mapped)
     {
-        vkUnmapMemory(_cmxDevice.device(), _memory);
+        _device.device().unmapMemory(_memory);
         _mapped = nullptr;
     }
 }
@@ -88,7 +99,7 @@ void CmxBuffer::unmap()
  * @param offset (Optional) Byte offset from beginning of mapped region
  *
  */
-void CmxBuffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offset)
+void Buffer::writeToBuffer(void *data, vk::DeviceSize size, vk::DeviceSize offset)
 {
     assert(_mapped && "Cannot copy to unmapped buffer");
 
@@ -113,16 +124,16 @@ void CmxBuffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offset
  * complete buffer range.
  * @param offset (Optional) Byte offset from beginning
  *
- * @return VkResult of the flush call
+ * @return vk::Result of the flush call
  */
-VkResult CmxBuffer::flush(VkDeviceSize size, VkDeviceSize offset)
+vk::Result Buffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    VkMappedMemoryRange mappedRange = {};
-    mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+    vk::MappedMemoryRange mappedRange = {};
+    mappedRange.sType = vk::StructureType::eMappedMemoryRange;
     mappedRange.memory = _memory;
     mappedRange.offset = offset;
     mappedRange.size = size;
-    return vkFlushMappedMemoryRanges(_cmxDevice.device(), 1, &mappedRange);
+    return _device.device().flushMappedMemoryRanges(1, &mappedRange);
 }
 
 /**
@@ -134,16 +145,16 @@ VkResult CmxBuffer::flush(VkDeviceSize size, VkDeviceSize offset)
  * the complete buffer range.
  * @param offset (Optional) Byte offset from beginning
  *
- * @return VkResult of the invalidate call
+ * @return vk::Result of the invalidate call
  */
-VkResult CmxBuffer::invalidate(VkDeviceSize size, VkDeviceSize offset)
+vk::Result Buffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    VkMappedMemoryRange mappedRange = {};
-    mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+    vk::MappedMemoryRange mappedRange = {};
+    mappedRange.sType = vk::StructureType::eMappedMemoryRange;
     mappedRange.memory = _memory;
     mappedRange.offset = offset;
     mappedRange.size = size;
-    return vkInvalidateMappedMemoryRanges(_cmxDevice.device(), 1, &mappedRange);
+    return _device.device().invalidateMappedMemoryRanges(1, &mappedRange);
 }
 
 /**
@@ -152,11 +163,11 @@ VkResult CmxBuffer::invalidate(VkDeviceSize size, VkDeviceSize offset)
  * @param size (Optional) Size of the memory range of the descriptor
  * @param offset (Optional) Byte offset from beginning
  *
- * @return VkDescriptorBufferInfo of specified offset and range
+ * @return vk::DescriptorBufferInfo of specified offset and range
  */
-VkDescriptorBufferInfo CmxBuffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset)
+vk::DescriptorBufferInfo Buffer::descriptorInfo(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    return VkDescriptorBufferInfo{
+    return vk::DescriptorBufferInfo{
         _buffer,
         offset,
         size,
@@ -170,7 +181,7 @@ VkDescriptorBufferInfo CmxBuffer::descriptorInfo(VkDeviceSize size, VkDeviceSize
  * @param index Used in offset calculation
  *
  */
-void CmxBuffer::writeToIndex(void *data, int index)
+void Buffer::writeToIndex(void *data, int index)
 {
     writeToBuffer(data, _instanceSize, index * _alignmentSize);
 }
@@ -181,7 +192,7 @@ void CmxBuffer::writeToIndex(void *data, int index)
  * @param index Used in offset calculation
  *
  */
-VkResult CmxBuffer::flushIndex(int index)
+vk::Result Buffer::flushIndex(int index)
 {
     return flush(_alignmentSize, index * _alignmentSize);
 }
@@ -191,9 +202,9 @@ VkResult CmxBuffer::flushIndex(int index)
  *
  * @param index Specifies the region given by index * alignmentSize
  *
- * @return VkDescriptorBufferInfo for instance at index
+ * @return vk::DescriptorBufferInfo for instance at index
  */
-VkDescriptorBufferInfo CmxBuffer::descriptorInfoForIndex(int index)
+vk::DescriptorBufferInfo Buffer::descriptorInfoForIndex(int index)
 {
     return descriptorInfo(_alignmentSize, index * _alignmentSize);
 }
@@ -205,9 +216,9 @@ VkDescriptorBufferInfo CmxBuffer::descriptorInfoForIndex(int index)
  *
  * @param index Specifies the region to invalidate: index * alignmentSize
  *
- * @return VkResult of the invalidate call
+ * @return vk::Result of the invalidate call
  */
-VkResult CmxBuffer::invalidateIndex(int index)
+vk::Result Buffer::invalidateIndex(int index)
 {
     return invalidate(_alignmentSize, index * _alignmentSize);
 }

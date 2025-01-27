@@ -6,7 +6,7 @@
 
 // lib
 #include <glm/ext/matrix_float4x4.hpp>
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.hpp>
 
 // std
 #include <memory>
@@ -30,8 +30,8 @@ class EdgeRenderSystem : public RenderSystem
     void initialize() override;
 
   protected:
-    void createPipelineLayout(VkDescriptorSetLayout) override;
-    void createPipeline(VkRenderPass) override;
+    void createPipelineLayout(vk::DescriptorSetLayout) override;
+    void createPipeline(vk::RenderPass) override;
 
     void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                 class GraphicsManager *) override;

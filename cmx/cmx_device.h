@@ -6,16 +6,16 @@
 
 // std
 #include <vector>
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.hpp>
 
 namespace cmx
 {
 
 struct SwapChainSupportDetails
 {
-    VkSurfaceCapabilitiesKHR capabilities;
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
+    vk::SurfaceCapabilitiesKHR capabilities;
+    std::vector<vk::SurfaceFormatKHR> formats;
+    std::vector<vk::PresentModeKHR> presentModes;
 };
 
 struct QueueFamilyIndices
@@ -30,7 +30,7 @@ struct QueueFamilyIndices
     }
 };
 
-class CmxDevice
+class Device
 {
   public:
 #ifdef NDEBUG
@@ -39,37 +39,37 @@ class CmxDevice
     const bool _enableValidationLayers = true;
 #endif
 
-    CmxDevice(CmxWindow &);
-    ~CmxDevice();
+    Device(Window &);
+    ~Device();
 
-    CmxDevice(const CmxDevice &) = delete;
-    CmxDevice &operator=(const CmxDevice &) = delete;
+    Device(const Device &) = delete;
+    Device &operator=(const Device &) = delete;
 
-    VkCommandPool getCommandPool()
+    vk::CommandPool getCommandPool()
     {
         return _commandPool;
     }
-    VkDevice device()
+    vk::Device device()
     {
         return _device;
     }
-    VkSurfaceKHR surface()
+    vk::SurfaceKHR surface()
     {
         return _surface;
     }
-    VkQueue graphicsQueue()
+    vk::Queue graphicsQueue()
     {
         return _graphicsQueue;
     }
-    VkQueue presentQueue()
+    vk::Queue presentQueue()
     {
         return _presentQueue;
     }
-    VkPhysicalDevice physicalDevice()
+    vk::PhysicalDevice physicalDevice()
     {
         return _physicalDevice;
     }
-    VkInstance instance()
+    vk::Instance instance()
     {
         return _instance;
     }
@@ -78,25 +78,30 @@ class CmxDevice
     {
         return querySwapChainSupport(_physicalDevice);
     }
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags);
+    uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags);
     QueueFamilyIndices findPhysicalQueueFamilies()
     {
         return findQueueFamilies(_physicalDevice);
     }
-    VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling, VkFormatFeatureFlags);
+    vk::Format findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling, vk::FormatFeatureFlags);
 
     // Buffer Helper Functions
-    void createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VkBuffer &, VkDeviceMemory &);
-    VkCommandBuffer beginSingleTimeCommands();
-    void endSingleTimeCommands(VkCommandBuffer);
-    void copyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize);
-    void copyBufferToImage(VkBuffer, VkImage, uint32_t width, uint32_t height, uint32_t layerCount);
+    void createBuffer(vk::DeviceSize, vk::BufferUsageFlags, vk::MemoryPropertyFlags, vk::Buffer &, vk::DeviceMemory &);
+    vk::CommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(vk::CommandBuffer);
+    void copyBuffer(vk::Buffer src, vk::Buffer dst, vk::DeviceSize);
+    void copyBufferToImage(vk::Buffer, vk::Image, uint32_t width, uint32_t height, uint32_t layerCount);
 
-    void createImageWithInfo(const VkImageCreateInfo &, VkMemoryPropertyFlags, VkImage &, VkDeviceMemory &);
+    void createImageWithInfo(const vk::ImageCreateInfo &, vk::MemoryPropertyFlags, vk::Image &, vk::DeviceMemory &);
 
-    VkPhysicalDeviceProperties _properties;
+    vk::PhysicalDeviceProperties _properties;
 
   private:
+    VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                                          const VkAllocationCallbacks *pAllocator,
+                                          VkDebugUtilsMessengerEXT *pDebugMessenger);
+    void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+                                       const VkAllocationCallbacks *pAllocator);
     void createInstance();
     void setupDebugMessenger();
     void createSurface();
@@ -105,25 +110,25 @@ class CmxDevice
     void createCommandPool();
 
     // helper functions
-    bool isDeviceSuitable(VkPhysicalDevice);
+    bool isDeviceSuitable(vk::PhysicalDevice);
     std::vector<const char *> getRequiredExtensions();
     bool checkValidationLayerSupport();
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice);
+    QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice);
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &);
     void hasGflwRequiredInstanceExtensions();
-    bool checkDeviceExtensionSupport(VkPhysicalDevice);
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice);
+    bool checkDeviceExtensionSupport(vk::PhysicalDevice);
+    SwapChainSupportDetails querySwapChainSupport(vk::PhysicalDevice);
 
-    VkInstance _instance;
+    vk::Instance _instance;
     VkDebugUtilsMessengerEXT _debugMessenger;
-    VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
-    CmxWindow &_window;
-    VkCommandPool _commandPool;
+    vk::PhysicalDevice _physicalDevice = VK_NULL_HANDLE;
+    Window &_window;
+    vk::CommandPool _commandPool;
 
-    VkDevice _device;
-    VkSurfaceKHR _surface;
-    VkQueue _graphicsQueue;
-    VkQueue _presentQueue;
+    vk::Device _device;
+    vk::SurfaceKHR _surface;
+    vk::Queue _graphicsQueue;
+    vk::Queue _presentQueue;
 
     const std::vector<const char *> _validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char *> _deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};

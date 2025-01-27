@@ -19,7 +19,7 @@ Component::~Component()
     onDetach();
 }
 
-void Component::render(const FrameInfo &, VkPipelineLayout)
+void Component::render(const FrameInfo &, vk::PipelineLayout)
 {
     // TODO: Debug render code here
 }

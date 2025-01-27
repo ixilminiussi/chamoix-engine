@@ -21,6 +21,8 @@
 #include "imgui_impl_vulkan.h"
 #include <glm/fwd.hpp>
 #include <spdlog/spdlog.h>
+#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 
 // std
 #include <cstdlib>
@@ -114,7 +116,7 @@ void ViewportUI::renderViewportSettings()
     _showViewportSettings = true;
     ImGui::Begin("Viewport Settings", &_showViewportSettings, ImGuiWindowFlags_AlwaysAutoResize);
 
-    if (CmxEditor *editor = CmxEditor::getInstance())
+    if (Editor *editor = Editor::getInstance())
     {
         if (ViewportActor *viewportActor = editor->getViewportActor())
         {
@@ -292,7 +294,7 @@ void ViewportUI::renderPlayButton()
     //
     //     if (ImGui::Button(ICON_MS_PLAY_ARROW "F9"))
     //     {
-    //         CmxEditor *editor = CmxEditor::getInstance();
+    //         Editor *editor = Editor::getInstance();
     //         editor->toggle(0.f, 0);
     //     }
     //
@@ -303,22 +305,22 @@ void ViewportUI::initImGUI()
 {
     // 1: create descriptor pool for IMGUI
     // the size of the pool is very oversize, but it's copied from imgui demo itself.
-    CmxDevice &cmxDevice = *RenderSystem::getDevice();
-    CmxWindow &cmxWindow = *RenderSystem::_cmxWindow;
+    Device &cmxDevice = *RenderSystem::getDevice();
+    Window &cmxWindow = *RenderSystem::_window;
 
-    _imguiPool = CmxDescriptorPool::Builder(cmxDevice)
+    _imguiPool = DescriptorPool::Builder(cmxDevice)
                      .setMaxSets(1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_SAMPLER, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000)
-                     .addPoolSize(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000)
+                     .addPoolSize(vk::DescriptorType::eSampler, 1000)
+                     .addPoolSize(vk::DescriptorType::eCombinedImageSampler, 1000)
+                     .addPoolSize(vk::DescriptorType::eSampledImage, 1000)
+                     .addPoolSize(vk::DescriptorType::eStorageImage, 1000)
+                     .addPoolSize(vk::DescriptorType::eUniformTexelBuffer, 1000)
+                     .addPoolSize(vk::DescriptorType::eStorageTexelBuffer, 1000)
+                     .addPoolSize(vk::DescriptorType::eUniformBuffer, 1000)
+                     .addPoolSize(vk::DescriptorType::eStorageBuffer, 1000)
+                     .addPoolSize(vk::DescriptorType::eUniformBufferDynamic, 1000)
+                     .addPoolSize(vk::DescriptorType::eStorageBufferDynamic, 1000)
+                     .addPoolSize(vk::DescriptorType::eInputAttachment, 1000)
                      .build();
     // 2: initialize imgui library
 
@@ -339,7 +341,7 @@ void ViewportUI::initImGUI()
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = RenderSystem::_cmxRenderer->getSwapChainRenderPass();
+    init_info.RenderPass = RenderSystem::_renderer->getSwapChainRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
 

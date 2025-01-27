@@ -108,9 +108,9 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
         }
 
 #ifndef NDEBUG
-        if (CmxEditor::isActive())
+        if (Editor::isActive())
         {
-            CmxEditor *editor = CmxEditor::getInstance();
+            Editor *editor = Editor::getInstance();
             editor->render(*frameInfo);
         }
 #endif

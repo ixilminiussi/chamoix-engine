@@ -47,7 +47,7 @@ void ShipActor::onBegin()
     getScene()->setCamera(_cameraComponent->getCamera());
 
 #ifndef NDEBUG
-    if (!cmx::CmxEditor::isActive())
+    if (!cmx::Editor::isActive())
 #endif
         cmx::InputManager::setMouseCapture(true);
 

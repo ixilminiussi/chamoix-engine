@@ -11,18 +11,18 @@
 namespace cmx
 {
 
-class CmxEditor
+class Editor
 {
   public:
-    static CmxEditor *getInstance();
+    static Editor *getInstance();
 
-    void load(class CmxWindow &);
+    void load(class Window &);
     void attachScene(class Scene *);
     void toggle(float dt, int);
     void update(float dt);
     void render(const class FrameInfo &);
 
-    void initInputManager(class CmxWindow &, const std::string &shortcutsPath = "editor/shortcuts.xml");
+    void initInputManager(class Window &, const std::string &shortcutsPath = "editor/shortcuts.xml");
 
     class InputManager *getInputManager()
     {
@@ -39,9 +39,9 @@ class CmxEditor
     }
 
   protected:
-    CmxEditor();
+    Editor();
 
-    static CmxEditor *_instance;
+    static Editor *_instance;
 
     std::unique_ptr<class ViewportActor> _viewportActor;
     std::unique_ptr<class ViewportUI> _viewportUI;

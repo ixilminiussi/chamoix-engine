@@ -12,6 +12,7 @@
 
 // lib
 #include "imgui.h"
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -48,10 +49,10 @@ void CameraComponent::update(float dt)
     _camera->setViewDirection(absoluteTransform.position, absoluteTransform.forward(), absoluteTransform.up());
 }
 
-void CameraComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void CameraComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
 #ifndef NDEBUG
-    if (!CmxEditor::isActive())
+    if (!Editor::isActive())
     {
         return;
     }
@@ -69,9 +70,9 @@ void CameraComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipeli
         EdgePushConstantData push{};
         push.modelMatrix = getAbsoluteTransform().mat4();
         push.color = _mainCamera ? glm::vec3{0.f, 1.f, 0.f} : glm::vec3{1.f, 1.f, 1.f};
-        vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                           VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
-                           &push);
+        frameInfo.commandBuffer.pushConstants(pipelineLayout,
+                                              vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                              sizeof(EdgePushConstantData), &push);
 
         _model->bind(frameInfo.commandBuffer);
         _model->draw(frameInfo.commandBuffer);

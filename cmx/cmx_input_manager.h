@@ -21,7 +21,7 @@ namespace cmx
 class InputManager
 {
   public:
-    InputManager(class CmxWindow &, const std::string &filepath = "properties/input-manager.xml");
+    InputManager(class Window &, const std::string &filepath = "properties/input-manager.xml");
     ~InputManager();
 
     void save();
@@ -43,7 +43,7 @@ class InputManager
     const std::string _filepath;
     bool _gamepadDetected{false};
     std::unordered_map<std::string, class InputAction *> _inputDictionary;
-    class CmxWindow &_window;
+    class Window &_window;
 };
 
 template <typename T>
