@@ -4,6 +4,7 @@ const vec2 OFFSETS[6] =
     vec2[](vec2(-1.0, -1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(1.0, 1.0));
 
 layout(location = 0) out vec2 fragOffset;
+layout(location = 1) out vec2 fragUV;
 
 struct PointLight
 {
@@ -32,6 +33,7 @@ push;
 void main()
 {
     fragOffset = OFFSETS[gl_VertexIndex];
+    fragUV = (fragOffset + 1.0f) / 2.0f;
 
     vec3 centerInWorldSpace = push.position.xyz;
 
@@ -41,5 +43,5 @@ void main()
     vec3 offsetInWorldSpace = fragOffset.x * right * push.scale.x + fragOffset.y * up * push.scale.y;
     vec3 vertexPosInWorldSpace = centerInWorldSpace + offsetInWorldSpace;
 
-    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * vec4(vertexPosInWorldSpace, 1.0);
+    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * vec4(vertexPosInWorldSpace, 1.0f);
 }

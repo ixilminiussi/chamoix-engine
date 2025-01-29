@@ -624,6 +624,15 @@ void Device::transitionImageLayout(vk::Image image, vk::ImageLayout oldLayout, v
         srcStage = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStage = vk::PipelineStageFlagBits::eTransfer;
     }
+    else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+    {
+        imageMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        imageMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+        srcStage = vk::PipelineStageFlagBits::eTransfer;
+        dstStage = vk::PipelineStageFlagBits::eFragmentShader;
+    }
+
     commandBuffer.pipelineBarrier(srcStage, dstStage, {}, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
     endSingleTimeCommands(commandBuffer);

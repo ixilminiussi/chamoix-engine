@@ -44,13 +44,15 @@ void ShadedRenderSystem::initialize()
     auto globalSetLayout = DescriptorSetLayout::Builder(*_device.get())
                                .addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAllGraphics)
                                .build();
+
     for (int i = 0; i < _globalDescriptorSets.size(); i++)
     {
         auto bufferInfo = _uboBuffers[i]->descriptorInfo();
         DescriptorWriter(*globalSetLayout, *_globalPool).writeBuffer(0, &bufferInfo).build(_globalDescriptorSets[i]);
     }
 
-    createPipelineLayout(globalSetLayout->getDescriptorSetLayout());
+    createPipelineLayout(
+        {globalSetLayout->getDescriptorSetLayout(), _samplerDescriptorSetLayout->getDescriptorSetLayout()});
     createPipeline(_renderer->getSwapChainRenderPass());
 
     spdlog::info("ShadedRenderSystem: Successfully initialized!");
@@ -103,14 +105,12 @@ void ShadedRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::sha
     }
 }
 
-void ShadedRenderSystem::createPipelineLayout(vk::DescriptorSetLayout globalSetLayout)
+void ShadedRenderSystem::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(SimplePushConstantData);
-
-    std::vector<vk::DescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;

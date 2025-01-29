@@ -53,7 +53,7 @@ void EdgeRenderSystem::initialize()
         DescriptorWriter(*globalSetLayout, *_globalPool).writeBuffer(0, &bufferInfo).build(_globalDescriptorSets[i]);
     }
 
-    createPipelineLayout(globalSetLayout->getDescriptorSetLayout());
+    createPipelineLayout({globalSetLayout->getDescriptorSetLayout()});
     createPipeline(_renderer->getSwapChainRenderPass());
 
     spdlog::info("EdgeRenderSystem: Successfully initialized!");
@@ -106,14 +106,12 @@ void EdgeRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::share
     }
 }
 
-void EdgeRenderSystem::createPipelineLayout(vk::DescriptorSetLayout globalSetLayout)
+void EdgeRenderSystem::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(EdgePushConstantData);
-
-    std::vector<vk::DescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;

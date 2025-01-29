@@ -1,6 +1,9 @@
 #version 450
 
 layout(location = 0) in vec2 fragOffset;
+layout(location = 1) in vec2 fragUV;
+
+layout(set = 1, binding = 0) uniform sampler2D textureSampler;
 
 layout(location = 0) out vec4 outColor;
 
@@ -30,13 +33,14 @@ push;
 
 void main()
 {
-    float distance = dot(fragOffset, fragOffset);
-    if (distance >= 1.0)
-    {
-        discard;
-    }
+    // float distance = dot(fragOffset, fragOffset);
+    // if (distance >= 1.0)
+    // {
+    //     discard;
+    // }
 
-    float intensity = pow(1.0f - distance, 5);
+    // float intensity = pow(1.0f - distance, 5);
 
-    outColor = vec4(push.color.rgb, intensity);
+    // outColor = vec4(push.color.rgb, intensity);
+    outColor = vec4(push.color.rgb, 1.0f) * texture(textureSampler, fragUV);
 }

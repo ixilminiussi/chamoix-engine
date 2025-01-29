@@ -17,6 +17,7 @@
 
 // std
 #include <cstdlib>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -24,13 +25,28 @@ namespace cmx
 uint8_t RenderSystem::_activeSystem = NULL_RENDER_SYSTEM;
 
 vk::CommandBuffer RenderSystem::_commandBuffer = (VkCommandBuffer_T *)(0);
+
 Window *RenderSystem::_window = &Game::getWindow();
+
 std::unique_ptr<Device> RenderSystem::_device = std::make_unique<Device>(*_window);
+
 std::unique_ptr<Renderer> RenderSystem::_renderer = std::make_unique<Renderer>(*_window, *_device.get());
+
 std::vector<std::unique_ptr<Buffer>> RenderSystem::_uboBuffers =
     std::vector<std::unique_ptr<Buffer>>{SwapChain::MAX_FRAMES_IN_FLIGHT};
+
 std::vector<vk::DescriptorSet> RenderSystem::_globalDescriptorSets =
     std::vector<vk::DescriptorSet>{SwapChain::MAX_FRAMES_IN_FLIGHT};
+
+std::unique_ptr<DescriptorPool> RenderSystem::_samplerDescriptorPool =
+    DescriptorPool::Builder(*_device.get()).setMaxSets(100).addPoolSize(vk::DescriptorType::eSampler, 100).build();
+
+std::unique_ptr<DescriptorSetLayout> RenderSystem::_samplerDescriptorSetLayout =
+    DescriptorSetLayout::Builder(*_device.get())
+        .addBinding(0, vk::DescriptorType::eCombinedImageSampler, {vk::ShaderStageFlagBits::eFragment})
+        .build();
+
+std::vector<vk::DescriptorSet> RenderSystem::_samplerDescriptorSets{};
 
 bool RenderSystem::_uboInitialized = false;
 
@@ -75,6 +91,10 @@ void RenderSystem::initializeUbo()
 void RenderSystem::closeWindow()
 {
     spdlog::info("global release");
+
+    _samplerDescriptorPool->free();
+    _device->device().destroyDescriptorSetLayout(_samplerDescriptorSetLayout->getDescriptorSetLayout());
+
     _renderer->free();
     delete _renderer.release();
 
@@ -88,6 +108,38 @@ void RenderSystem::closeWindow()
 
     delete _device.release();
     delete _window;
+}
+
+void RenderSystem::createTextureDescriptor(vk::ImageView imageView, vk::Sampler sampler)
+{
+    vk::DescriptorSet descriptorSet;
+
+    vk::DescriptorSetAllocateInfo setAllocInfo{};
+    setAllocInfo.descriptorPool = _samplerDescriptorPool->getDescriptorPool();
+    setAllocInfo.descriptorSetCount = 1;
+    setAllocInfo.pSetLayouts = &(_samplerDescriptorSetLayout->getDescriptorSetLayout());
+
+    if (_device->device().allocateDescriptorSets(&setAllocInfo, &descriptorSet) != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("Failed to allocate texture descriptor set.");
+    }
+
+    vk::DescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    imageInfo.imageView = imageView;
+    imageInfo.sampler = sampler;
+    // Write info
+    vk::WriteDescriptorSet descriptorWrite{};
+    descriptorWrite.dstSet = descriptorSet;
+    descriptorWrite.dstBinding = 0;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pImageInfo = &imageInfo;
+
+    _device->device().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+
+    _samplerDescriptorSets.push_back(descriptorSet);
 }
 
 void RenderSystem::editor(int i)

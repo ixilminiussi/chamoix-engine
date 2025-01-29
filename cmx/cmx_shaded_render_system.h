@@ -30,7 +30,7 @@ class ShadedRenderSystem : public RenderSystem
     void initialize() override;
 
   protected:
-    void createPipelineLayout(vk::DescriptorSetLayout) override;
+    void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
     void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,

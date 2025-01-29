@@ -20,7 +20,9 @@ namespace cmx
 
 Texture::Texture(Device *device, const Texture::Builder &builder, const std::string &name) : name{name}
 {
-    createTextureImage(device, builder);
+    createImage(device, builder);
+    createImageView(device, _image);
+    RenderSystem::createTextureDescriptor(_imageView, _sampler);
     _filepath = builder.filepath;
 }
 
@@ -42,8 +44,10 @@ void Texture::free()
         std::exit(EXIT_FAILURE);
     }
 
-    device->device().destroyImage(_textureImage);
-    device->device().freeMemory(_textureImageMemory);
+    device->device().destroySampler(_sampler);
+    device->device().destroyImage(_image);
+    device->device().destroyImageView(_imageView);
+    device->device().freeMemory(_imageMemory);
 
     _freed = true;
 }
@@ -57,7 +61,7 @@ Texture *Texture::createTextureFromFile(class Device *device, const std::string 
     return new Texture(device, builder, name);
 }
 
-void Texture::createTextureImage(Device *device, const Builder &builder)
+void Texture::createImage(Device *device, const Builder &builder)
 {
     // Create staging buffer to hold loaded data, ready to copy to device
     Buffer imageStagingBuffer{*device, builder.imageSize, 1, vk::BufferUsageFlagBits::eTransferSrc,
@@ -87,12 +91,13 @@ void Texture::createTextureImage(Device *device, const Builder &builder)
     imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
     imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-    device->createImageWithInfo(imageInfo, {vk::MemoryPropertyFlagBits::eDeviceLocal}, _textureImage,
-                                _textureImageMemory);
+    device->createImageWithInfo(imageInfo, {vk::MemoryPropertyFlagBits::eDeviceLocal}, _image, _imageMemory);
 
     // Copy image data
-    device->transitionImageLayout(_textureImage, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-    device->copyBufferToImage(imageStagingBuffer.getBuffer(), _textureImage, builder.width, builder.height, 1);
+    device->transitionImageLayout(_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+    device->copyBufferToImage(imageStagingBuffer.getBuffer(), _image, builder.width, builder.height, 1);
+    device->transitionImageLayout(_image, vk::ImageLayout::eTransferDstOptimal,
+                                  vk::ImageLayout::eShaderReadOnlyOptimal);
 
     imageStagingBuffer.free();
 }
@@ -109,7 +114,28 @@ void Texture::Builder::loadTexture(const std::string &filepath)
         std::exit(EXIT_FAILURE);
     }
 
+    this->filepath = filepath;
     imageSize = width * height * 4;
+}
+
+void Texture::createImageView(Device *device, const vk::Image &)
+{
+    vk::ImageViewCreateInfo imageViewCreateInfo{};
+    imageViewCreateInfo.image = _image;
+    imageViewCreateInfo.sType = vk::StructureType::eImageViewCreateInfo;
+    imageViewCreateInfo.viewType = vk::ImageViewType::e2D;
+    imageViewCreateInfo.format = vk::Format::eR8G8B8A8Unorm;
+    imageViewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.g = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.b = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.components.a = vk::ComponentSwizzle::eIdentity;
+    imageViewCreateInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+    imageViewCreateInfo.subresourceRange.levelCount = 1;
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    imageViewCreateInfo.subresourceRange.layerCount = 1;
+
+    _imageView = device->device().createImageView(imageViewCreateInfo);
 }
 
 tinyxml2::XMLElement &Texture::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
@@ -120,6 +146,26 @@ tinyxml2::XMLElement &Texture::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEle
     parentElement->InsertEndChild(textureElement);
 
     return *textureElement;
+}
+
+void Texture::createSampler(class Device *device)
+{
+    vk::SamplerCreateInfo samplerCreateInfo{};
+    samplerCreateInfo.magFilter = vk::Filter::eLinear;
+    samplerCreateInfo.minFilter = vk::Filter::eLinear;
+    samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
+    samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
+    samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
+    samplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    samplerCreateInfo.unnormalizedCoordinates = false;
+    samplerCreateInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
+    samplerCreateInfo.mipLodBias = 0.0f;
+    samplerCreateInfo.minLod = 0.0f;
+    samplerCreateInfo.maxLod = 0.0f;
+    samplerCreateInfo.anisotropyEnable = true;
+    samplerCreateInfo.maxAnisotropy = 16;
+
+    _sampler = device->device().createSampler(samplerCreateInfo);
 }
 
 } // namespace cmx

@@ -1,7 +1,9 @@
 #ifndef CMX_RENDER_SYSTEM
 #define CMX_RENDER_SYSTEM
 
+#include "cmx/cmx_descriptors.h"
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_handles.hpp>
 #define SHADED_RENDER_SYSTEM 0u
 #define BILLBOARD_RENDER_SYSTEM 1u
 #define EDGE_RENDER_SYSTEM 2u
@@ -50,6 +52,8 @@ class RenderSystem
     virtual void free();
     static void closeWindow();
 
+    static void createTextureDescriptor(vk::ImageView, vk::Sampler);
+
     virtual void initialize() = 0;
     virtual void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                         class GraphicsManager *) = 0;
@@ -67,7 +71,7 @@ class RenderSystem
   protected:
     static void initializeUbo();
 
-    virtual void createPipelineLayout(vk::DescriptorSetLayout) = 0;
+    virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) = 0;
     virtual void createPipeline(vk::RenderPass) = 0;
 
     std::unique_ptr<class Pipeline> _pipeline;
@@ -83,6 +87,10 @@ class RenderSystem
     static vk::CommandBuffer _commandBuffer;
     static std::vector<std::unique_ptr<class Buffer>> _uboBuffers;
     static std::vector<vk::DescriptorSet> _globalDescriptorSets;
+
+    static std::unique_ptr<class DescriptorPool> _samplerDescriptorPool;
+    static std::unique_ptr<class DescriptorSetLayout> _samplerDescriptorSetLayout;
+    static std::vector<vk::DescriptorSet> _samplerDescriptorSets;
 
     static bool _uboInitialized;
 

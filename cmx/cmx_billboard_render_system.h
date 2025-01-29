@@ -29,18 +29,17 @@ class BillboardRenderSystem : public RenderSystem
     ~BillboardRenderSystem() = default;
 
     void initialize() override;
-
     void free() override;
 
   private:
-    void createPipelineLayout(vk::DescriptorSetLayout) override;
+    void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
     void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                 class GraphicsManager *) override;
+    virtual void editor(int i) override;
 
     std::unique_ptr<Buffer> _dummyBuffer;
-    virtual void editor(int i) override;
 };
 
 } // namespace cmx

@@ -44,11 +44,15 @@ class Texture
     const std::string name;
 
   protected:
-    void createTextureImage(Device *device, const Builder &builder);
+    void createImage(class Device *, const Builder &);
+    void createImageView(class Device *, const vk::Image &);
+    void createSampler(class Device *);
 
-    vk::Image _textureImage;
-    vk::ImageView _textureImageView;
-    vk::DeviceMemory _textureImageMemory;
+    vk::Image _image;
+    vk::ImageView _imageView;
+    vk::DeviceMemory _imageMemory;
+
+    vk::Sampler _sampler;
 
     std::string _filepath;
 

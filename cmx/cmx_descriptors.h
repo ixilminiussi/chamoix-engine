@@ -38,7 +38,7 @@ class DescriptorSetLayout
     DescriptorSetLayout(const DescriptorSetLayout &) = delete;
     DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
 
-    vk::DescriptorSetLayout getDescriptorSetLayout() const
+    vk::DescriptorSetLayout &getDescriptorSetLayout()
     {
         return _descriptorSetLayout;
     }
