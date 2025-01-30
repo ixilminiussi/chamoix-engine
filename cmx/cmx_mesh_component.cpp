@@ -87,7 +87,8 @@ void MeshComponent::setModel(const std::string &name)
     }
     else
     {
-        spdlog::error("MeshComponent: Cannot setModel before attaching to Scene object");
+        spdlog::error("MeshComponent <{0}->{1}>: Cannot setModel before attaching to Scene object",
+                      getParent()->name.c_str(), name.c_str());
     }
 }
 
@@ -99,7 +100,8 @@ void MeshComponent::setTexture(const std::string &name)
     }
     else
     {
-        spdlog::error("MeshComponent: Cannot setTexture before attaching to Scene object");
+        spdlog::error("MeshComponent <{0}->{1}>: Cannot setTexture before attaching to Scene object",
+                      getParent()->name.c_str(), name.c_str());
     }
 }
 
@@ -143,11 +145,17 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
 {
     Component::load(componentElement);
 
-    setModel(componentElement->Attribute("model"));
-    // setTexture(componentElement->Attribute("texture"));
-    _color.r = componentElement->FloatAttribute("r");
-    _color.g = componentElement->FloatAttribute("g");
-    _color.b = componentElement->FloatAttribute("b");
+    try
+    {
+        setModel(componentElement->Attribute("model"));
+        setTexture(componentElement->Attribute("texture"));
+        _color.r = componentElement->FloatAttribute("r");
+        _color.g = componentElement->FloatAttribute("g");
+        _color.b = componentElement->FloatAttribute("b");
+    }
+    catch (...)
+    {
+    }
 }
 
 void MeshComponent::editor(int i)
@@ -165,6 +173,30 @@ void MeshComponent::editor(int i)
             {
                 selected = pair.first.c_str();
                 setModel(pair.first);
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+
+    selected = _texture->name.c_str();
+    assetsManager = getScene()->getAssetsManager();
+
+    if (ImGui::BeginCombo("Texture##", selected))
+    {
+        for (const auto &pair : assetsManager->getTextures())
+        {
+            bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+
+            if (ImGui::Selectable(pair.first.c_str(), isSelected))
+            {
+                selected = pair.first.c_str();
+                setTexture(pair.first);
             }
 
             if (isSelected)

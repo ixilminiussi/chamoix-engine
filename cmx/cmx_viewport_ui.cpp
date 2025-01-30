@@ -63,6 +63,9 @@ void ViewportUI::render(const class FrameInfo &frameInfo)
     if (_showInspector)
         renderInspector();
 
+    if (_showAssetsManager)
+        renderAssetsManager();
+
     renderPlayButton();
     renderGraphicsManager();
 
@@ -105,6 +108,10 @@ void ViewportUI::renderTopBar()
         if (ImGui::MenuItem(ICON_MS_FOUNDATION " Scene Tree", "Ctrl+T"))
         {
             renderSceneTree();
+        }
+        if (ImGui::MenuItem(ICON_MS_ALBUM " Assets", "Ctrl+A"))
+        {
+            renderAssetsManager();
         }
         ImGui::EndMenu();
     }
@@ -278,6 +285,18 @@ void ViewportUI::renderGraphicsManager()
     _attachedScene->getGraphicsManager()->editor();
 
     ImGui::End();
+}
+
+void ViewportUI::renderAssetsManager()
+{
+    // ImGuiIO &io = ImGui::GetIO();
+
+    // ImVec2 topRightPos = ImVec2(30.0f, io.DisplaySize.y - 400.f);
+
+    // ImGui::SetNextWindowPos(topRightPos, ImGuiCond_Always);
+
+    // _showInspector = true;
+    // ImGui::Begin("Inspector", &_showInspector, ImGuiWindowFlags_AlwaysAutoResize);
 }
 
 void ViewportUI::renderPlayButton()

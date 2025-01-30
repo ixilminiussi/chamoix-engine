@@ -8,6 +8,7 @@
 #include "cmx_render_system.h"
 #include "cmx_scene.h"
 #include "cmx_texture.h"
+#include "imgui.h"
 
 // std
 #include <cstdlib>
@@ -106,6 +107,7 @@ void AssetsManager::unload()
 
 void AssetsManager::editor()
 {
+    ImGui::Button("testing");
 }
 
 void AssetsManager::addModel(const std::string &filepath, const std::string &name)

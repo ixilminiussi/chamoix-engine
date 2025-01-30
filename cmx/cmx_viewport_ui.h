@@ -27,6 +27,7 @@ class ViewportUI
     void renderSceneTree();
     void renderInspector();
     void renderGraphicsManager();
+    void renderAssetsManager();
     void renderPlayButton();
 
     void attachScene(class Scene *scene)
@@ -44,6 +45,7 @@ class ViewportUI
     bool _showProjectSettings{false};
     bool _showSceneTree{true};
     bool _showInspector{false};
+    bool _showAssetsManager{true};
     Actor *_inspectedActor;
 
     class Scene *_attachedScene;
