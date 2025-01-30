@@ -38,7 +38,7 @@ void MeshComponent::onAttach()
     }
     if (!_texture)
     {
-        setTexture("missing");
+        setTexture("cmx_missing");
     }
 }
 

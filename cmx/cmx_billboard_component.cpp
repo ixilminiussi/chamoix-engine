@@ -26,7 +26,7 @@ void BillboardComponent::onAttach()
 {
     if (_texture)
     {
-        setTexture("missing");
+        setTexture("cmx_missing");
     }
 }
 
@@ -38,7 +38,7 @@ void BillboardComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout p
         return;
     }
 
-    if (!_texture)
+    if (_texture == nullptr)
     {
         spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
         return;

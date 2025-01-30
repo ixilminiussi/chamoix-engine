@@ -25,6 +25,8 @@ class PointLightComponent : public Component
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) override;
 
   private:
+    class Texture *_texture{nullptr};
+
     float _lightIntensity{1.0f};
     glm::vec3 _lightColor{1.0f};
 
