@@ -52,7 +52,8 @@ class RenderSystem
     virtual void free();
     static void closeWindow();
 
-    static void createTextureDescriptor(vk::ImageView, vk::Sampler);
+    static unsigned int createSamplerDescriptor(vk::ImageView, vk::Sampler);
+    static vk::DescriptorSet &getSamplerDescriptorSet(unsigned int index);
 
     virtual void initialize() = 0;
     virtual void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,

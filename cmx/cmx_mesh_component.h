@@ -32,7 +32,10 @@ class MeshComponent : public Component
     void render(const class FrameInfo &, vk::PipelineLayout) override;
 
     void setModel(const std::string &name);
-    std::string getModelName();
+    std::string getModelName() const;
+
+    void setTexture(const std::string &name);
+    std::string getTextureName() const;
 
     void setColor(const glm::vec3 &color);
 
@@ -41,7 +44,8 @@ class MeshComponent : public Component
     void editor(int i) override;
 
   private:
-    class Model *_model;
+    class Model *_model{nullptr};
+    class Texture *_texture{nullptr};
     glm::vec3 _color{1.f};
 };
 

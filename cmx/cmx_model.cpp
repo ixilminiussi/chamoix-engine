@@ -6,6 +6,7 @@
 #include "cmx_utils.h"
 
 // lib
+#include <cstddef>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>

@@ -39,7 +39,10 @@ std::vector<vk::DescriptorSet> RenderSystem::_globalDescriptorSets =
     std::vector<vk::DescriptorSet>{SwapChain::MAX_FRAMES_IN_FLIGHT};
 
 std::unique_ptr<DescriptorPool> RenderSystem::_samplerDescriptorPool =
-    DescriptorPool::Builder(*_device.get()).setMaxSets(100).addPoolSize(vk::DescriptorType::eSampler, 100).build();
+    DescriptorPool::Builder(*_device.get())
+        .setMaxSets(100)
+        .addPoolSize(vk::DescriptorType::eCombinedImageSampler, 100)
+        .build();
 
 std::unique_ptr<DescriptorSetLayout> RenderSystem::_samplerDescriptorSetLayout =
     DescriptorSetLayout::Builder(*_device.get())
@@ -110,7 +113,7 @@ void RenderSystem::closeWindow()
     delete _window;
 }
 
-void RenderSystem::createTextureDescriptor(vk::ImageView imageView, vk::Sampler sampler)
+unsigned int RenderSystem::createSamplerDescriptor(vk::ImageView imageView, vk::Sampler sampler)
 {
     vk::DescriptorSet descriptorSet;
 
@@ -140,6 +143,18 @@ void RenderSystem::createTextureDescriptor(vk::ImageView imageView, vk::Sampler 
     _device->device().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 
     _samplerDescriptorSets.push_back(descriptorSet);
+    return _samplerDescriptorSets.size() - 1;
+}
+
+vk::DescriptorSet &RenderSystem::getSamplerDescriptorSet(unsigned int index)
+{
+    if (index >= _samplerDescriptorSets.size())
+    {
+        spdlog::error("RenderSystem: invalid sampler descriptor set index");
+        std::exit(EXIT_FAILURE);
+    }
+
+    return _samplerDescriptorSets[index];
 }
 
 void RenderSystem::editor(int i)

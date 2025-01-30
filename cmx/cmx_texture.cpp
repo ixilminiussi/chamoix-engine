@@ -4,6 +4,7 @@
 // cmx
 #include "cmx_buffer.h"
 #include "cmx_device.h"
+#include "cmx_model.h"
 #include "cmx_render_system.h"
 
 // lib
@@ -22,7 +23,8 @@ Texture::Texture(Device *device, const Texture::Builder &builder, const std::str
 {
     createImage(device, builder);
     createImageView(device, _image);
-    RenderSystem::createTextureDescriptor(_imageView, _sampler);
+    createSampler(device);
+    _descriptorSetID = RenderSystem::createSamplerDescriptor(_imageView, _sampler);
     _filepath = builder.filepath;
 }
 
@@ -166,6 +168,12 @@ void Texture::createSampler(class Device *device)
     samplerCreateInfo.maxAnisotropy = 16;
 
     _sampler = device->device().createSampler(samplerCreateInfo);
+}
+
+void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout)
+{
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, 1,
+                                     &(RenderSystem::getSamplerDescriptorSet(_descriptorSetID)), 0, nullptr);
 }
 
 } // namespace cmx

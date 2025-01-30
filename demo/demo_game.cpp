@@ -100,6 +100,4 @@ void Demo::load()
 
     _scenes.push_back(&mainScene);
     setScene(0);
-
-    getScene()->getAssetsManager()->addTexture("assets/textures/bricks.png", "bricks");
 }

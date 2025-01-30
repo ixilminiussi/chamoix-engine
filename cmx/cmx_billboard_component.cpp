@@ -1,6 +1,8 @@
 #include "cmx_billboard_component.h"
 
 // cmx
+#include "cmx/cmx_assets_manager.h"
+#include "cmx/cmx_texture.h"
 #include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
@@ -20,11 +22,25 @@ BillboardComponent::BillboardComponent()
     _requestedRenderSystem = BILLBOARD_RENDER_SYSTEM;
 }
 
+void BillboardComponent::onAttach()
+{
+    if (_texture)
+    {
+        setTexture("missing");
+    }
+}
+
 void BillboardComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
     if (getParent() == nullptr)
     {
-        spdlog::critical("MeshComponent: _parent is expired");
+        spdlog::critical("MeshComponent <{0}>: _parent is expired", name.c_str());
+        return;
+    }
+
+    if (!_texture)
+    {
+        spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
         return;
     }
 
@@ -39,7 +55,30 @@ void BillboardComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout p
                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
                                           sizeof(BillboardPushConstant), &pushConstant);
 
+    _texture->bind(frameInfo.commandBuffer, pipelineLayout);
+
     frameInfo.commandBuffer.draw(6, 1, 0, 0);
+}
+
+void BillboardComponent::setTexture(const std::string &name)
+{
+    if (getScene() != nullptr)
+    {
+        _texture = getScene()->getAssetsManager()->getTexture(name);
+    }
+    else
+    {
+        spdlog::error("MeshComponent: Cannot setTexture before attaching to Scene object");
+    }
+}
+
+std::string BillboardComponent::getTextureName() const
+{
+    if (_texture)
+    {
+        return _texture->name;
+    }
+    return "Missing texture";
 }
 
 void BillboardComponent::editor(int i)
@@ -62,6 +101,7 @@ tinyxml2::XMLElement &BillboardComponent::save(tinyxml2::XMLDocument &doc, tinyx
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
 
+    componentElement.SetAttribute("texture", _texture->name.c_str());
     componentElement.SetAttribute("r", _hue.r);
     componentElement.SetAttribute("g", _hue.g);
     componentElement.SetAttribute("b", _hue.b);

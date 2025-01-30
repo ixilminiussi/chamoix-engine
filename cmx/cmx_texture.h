@@ -36,8 +36,7 @@ class Texture
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
-    void bind(vk::CommandBuffer);
-    void draw(vk::CommandBuffer);
+    void bind(vk::CommandBuffer, vk::PipelineLayout);
 
     static Texture *createTextureFromFile(class Device *, const std::string &filepath, const std::string &name);
 
@@ -53,6 +52,7 @@ class Texture
     vk::DeviceMemory _imageMemory;
 
     vk::Sampler _sampler;
+    unsigned int _descriptorSetID;
 
     std::string _filepath;
 
