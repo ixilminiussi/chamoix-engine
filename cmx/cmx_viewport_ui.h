@@ -3,6 +3,7 @@
 
 // cmx
 #include "cmx_component.h"
+#include "imgui.h"
 
 // std
 #include <memory>
@@ -21,6 +22,8 @@ class ViewportUI
     void load();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parent);
 
+    void renderDockSpace();
+    void setupDockLayout();
     void renderTopBar();
     void renderViewportSettings();
     void renderProjectSettings();
@@ -42,9 +45,13 @@ class ViewportUI
     std::unique_ptr<class DescriptorPool> _imguiPool;
 
     bool _showViewportSettings{false};
+    ImGuiID _projectDockID;
     bool _showProjectSettings{false};
+    ImGuiID _sceneTreeDockID;
     bool _showSceneTree{true};
+    ImGuiID _inspectorDockID;
     bool _showInspector{false};
+    ImGuiID _assetsManagerDockID;
     bool _showAssetsManager{true};
     Actor *_inspectedActor;
 

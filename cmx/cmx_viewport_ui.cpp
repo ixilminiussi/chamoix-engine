@@ -16,10 +16,11 @@
 
 // lib
 #include "IconsMaterialSymbols.h"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_vulkan.h"
 #include <glm/fwd.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
+#include <imgui_internal.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -41,6 +42,66 @@ ViewportUI::~ViewportUI()
     ImGui_ImplVulkan_Shutdown();
 }
 
+void ViewportUI::initImGUI()
+{
+    // 1: create descriptor pool for IMGUI
+    // the size of the pool is very oversize, but it's copied from imgui demo itself.
+    Device &cmxDevice = *RenderSystem::getDevice();
+    Window &cmxWindow = *RenderSystem::_window;
+
+    _imguiPool = DescriptorPool::Builder(cmxDevice)
+                     .setMaxSets(1000)
+                     .addPoolSize(vk::DescriptorType::eSampler, 1000)
+                     .addPoolSize(vk::DescriptorType::eCombinedImageSampler, 1000)
+                     .addPoolSize(vk::DescriptorType::eSampledImage, 1000)
+                     .addPoolSize(vk::DescriptorType::eStorageImage, 1000)
+                     .addPoolSize(vk::DescriptorType::eUniformTexelBuffer, 1000)
+                     .addPoolSize(vk::DescriptorType::eStorageTexelBuffer, 1000)
+                     .addPoolSize(vk::DescriptorType::eUniformBuffer, 1000)
+                     .addPoolSize(vk::DescriptorType::eStorageBuffer, 1000)
+                     .addPoolSize(vk::DescriptorType::eUniformBufferDynamic, 1000)
+                     .addPoolSize(vk::DescriptorType::eStorageBufferDynamic, 1000)
+                     .addPoolSize(vk::DescriptorType::eInputAttachment, 1000)
+                     .build();
+    // 2: initialize imgui library
+
+    // this initializes the core structures of imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    // this initializes imgui for SDL
+    ImGui_ImplGlfw_InitForVulkan(cmxWindow.getGLFWwindow(), true);
+
+    // this initializes imgui for Vulkan
+    ImGui_ImplVulkan_InitInfo init_info = {};
+    init_info.Instance = cmxDevice.instance();
+    init_info.PhysicalDevice = cmxDevice.physicalDevice();
+    init_info.Device = cmxDevice.device();
+    init_info.Queue = cmxDevice.graphicsQueue();
+    init_info.DescriptorPool = _imguiPool->getDescriptorPool();
+    init_info.MinImageCount = 3;
+    init_info.ImageCount = 3;
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.RenderPass = RenderSystem::_renderer->getSwapChainRenderPass();
+
+    ImGui_ImplVulkan_Init(&init_info);
+
+    ImGuiIO &io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF("editor/JetBrainsMonoNL-Regular.ttf", 16.0f);
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    float iconFontSize = 16.0f;
+
+    // merge in icons from Font Awesome
+    static const ImWchar icons_ranges[] = {ICON_MIN_MS, ICON_MAX_16_MS, 0};
+    ImFontConfig icons_config;
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    icons_config.GlyphOffset = {0.0f, 4.0f};
+    io.Fonts->AddFontFromFileTTF("editor/MaterialIcons-Regular.ttf", iconFontSize, &icons_config, icons_ranges);
+    // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
+}
+
 void ViewportUI::render(const class FrameInfo &frameInfo)
 {
     // imgui new frame
@@ -48,6 +109,9 @@ void ViewportUI::render(const class FrameInfo &frameInfo)
     ImGui_ImplGlfw_NewFrame();
 
     ImGui::NewFrame();
+
+    renderDockSpace();
+    setupDockLayout();
 
     renderTopBar();
 
@@ -73,6 +137,48 @@ void ViewportUI::render(const class FrameInfo &frameInfo)
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), frameInfo.commandBuffer);
 }
 
+void ViewportUI::renderDockSpace()
+{
+    ImGuiViewport *viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking |
+                                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+                                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                                    ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+    ImGui::Begin("DockSpace Window", nullptr, window_flags);
+    ImGui::PopStyleVar(3);
+    ImGui::PopStyleColor(1);
+
+    ImGuiID dockspace_id = ImGui::GetID("GlobalDockspace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f),
+                     ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::End();
+}
+
+void ViewportUI::setupDockLayout()
+{
+    ImGuiID dockspace_id = ImGui::GetID("GlobalDockspace");
+
+    ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+
+    // Remove old layout and create a new dockspace
+    ImGui::DockBuilderRemoveNode(dockspace_id);
+    ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
+
+    // Finalize layout
+    ImGui::DockBuilderFinish(dockspace_id);
+}
+
 void ViewportUI::renderTopBar()
 {
     ImGui::BeginMainMenuBar();
@@ -87,6 +193,16 @@ void ViewportUI::renderTopBar()
             else
             {
                 _attachedScene->save();
+            }
+        }
+        if (ImGui::MenuItem(ICON_MS_SAVE " Save as", "Ctrl+S"))
+        {
+            if (_attachedScene == nullptr)
+            {
+                spdlog::warn("ViewportUI: No attached scene!");
+            }
+            else
+            {
             }
         }
         ImGui::EndMenu();
@@ -193,7 +309,7 @@ void ViewportUI::renderSceneTree()
         Actor *actor = *it;
         if (actor)
         {
-            if (ImGui::Button(actor->name.c_str(), ImVec2(170.0f, 0.0f)))
+            if (ImGui::Button(actor->name.c_str()))
             {
                 _inspectedActor = *it;
                 renderInspector();
@@ -318,64 +434,6 @@ void ViewportUI::renderPlayButton()
     //     }
     //
     //     ImGui::End();
-}
-
-void ViewportUI::initImGUI()
-{
-    // 1: create descriptor pool for IMGUI
-    // the size of the pool is very oversize, but it's copied from imgui demo itself.
-    Device &cmxDevice = *RenderSystem::getDevice();
-    Window &cmxWindow = *RenderSystem::_window;
-
-    _imguiPool = DescriptorPool::Builder(cmxDevice)
-                     .setMaxSets(1000)
-                     .addPoolSize(vk::DescriptorType::eSampler, 1000)
-                     .addPoolSize(vk::DescriptorType::eCombinedImageSampler, 1000)
-                     .addPoolSize(vk::DescriptorType::eSampledImage, 1000)
-                     .addPoolSize(vk::DescriptorType::eStorageImage, 1000)
-                     .addPoolSize(vk::DescriptorType::eUniformTexelBuffer, 1000)
-                     .addPoolSize(vk::DescriptorType::eStorageTexelBuffer, 1000)
-                     .addPoolSize(vk::DescriptorType::eUniformBuffer, 1000)
-                     .addPoolSize(vk::DescriptorType::eStorageBuffer, 1000)
-                     .addPoolSize(vk::DescriptorType::eUniformBufferDynamic, 1000)
-                     .addPoolSize(vk::DescriptorType::eStorageBufferDynamic, 1000)
-                     .addPoolSize(vk::DescriptorType::eInputAttachment, 1000)
-                     .build();
-    // 2: initialize imgui library
-
-    // this initializes the core structures of imgui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-
-    // this initializes imgui for SDL
-    ImGui_ImplGlfw_InitForVulkan(cmxWindow.getGLFWwindow(), true);
-
-    // this initializes imgui for Vulkan
-    ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = cmxDevice.instance();
-    init_info.PhysicalDevice = cmxDevice.physicalDevice();
-    init_info.Device = cmxDevice.device();
-    init_info.Queue = cmxDevice.graphicsQueue();
-    init_info.DescriptorPool = _imguiPool->getDescriptorPool();
-    init_info.MinImageCount = 3;
-    init_info.ImageCount = 3;
-    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = RenderSystem::_renderer->getSwapChainRenderPass();
-
-    ImGui_ImplVulkan_Init(&init_info);
-
-    ImGuiIO &io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("editor/JetBrainsMonoNL-Regular.ttf", 16.0f);
-    float iconFontSize = 16.0f;
-
-    // merge in icons from Font Awesome
-    static const ImWchar icons_ranges[] = {ICON_MIN_MS, ICON_MAX_16_MS, 0};
-    ImFontConfig icons_config;
-    icons_config.MergeMode = true;
-    icons_config.PixelSnapH = true;
-    icons_config.GlyphOffset = {0.0f, 4.0f};
-    io.Fonts->AddFontFromFileTTF("editor/MaterialIcons-Regular.ttf", iconFontSize, &icons_config, icons_ranges);
-    // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 }
 
 } // namespace cmx
