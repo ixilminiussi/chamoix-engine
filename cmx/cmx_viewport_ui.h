@@ -3,7 +3,11 @@
 
 // cmx
 #include "cmx_component.h"
-#include "imgui.h"
+
+// must be before
+#include <imgui.h>
+// lib
+#include <imfilebrowser.h>
 
 // std
 #include <memory>
@@ -41,6 +45,8 @@ class ViewportUI
     void initImGUI();
 
   private:
+    ImGui::FileBrowser _fileDialog;
+
     bool _initialized{false};
     std::unique_ptr<class DescriptorPool> _imguiPool;
 

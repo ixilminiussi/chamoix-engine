@@ -133,6 +133,8 @@ void ViewportUI::render(const class FrameInfo &frameInfo)
     renderPlayButton();
     renderGraphicsManager();
 
+    _fileDialog.Display();
+
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), frameInfo.commandBuffer);
 }
@@ -203,6 +205,9 @@ void ViewportUI::renderTopBar()
             }
             else
             {
+                _fileDialog.SetTitle("choose save location");
+                _fileDialog.SetTypeFilters({".xml"});
+                _fileDialog.Open();
             }
         }
         ImGui::EndMenu();
