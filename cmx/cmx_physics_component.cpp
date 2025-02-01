@@ -43,20 +43,20 @@ void PhysicsComponent::setShape(const std::string &type)
 {
     if (type.compare(PRIMITIVE_SPHERE) == 0)
     {
-        _cmxShape = std::shared_ptr<CmxShape>(new CmxSphere(this));
-        _cmxShape->setMask(_mask);
+        _shape = std::shared_ptr<Shape>(new Sphere(this));
+        _shape->setMask(_mask);
         return;
     }
     if (type.compare(PRIMITIVE_CUBE) == 0)
     {
-        _cmxShape = std::shared_ptr<CmxShape>(new CmxCuboid(this));
-        _cmxShape->setMask(_mask);
+        _shape = std::shared_ptr<Shape>(new Cuboid(this));
+        _shape->setMask(_mask);
         return;
     }
     if (type.compare(PRIMITIVE_PLANE) == 0)
     {
-        _cmxShape = std::shared_ptr<CmxShape>(new CmxPlane(this));
-        _cmxShape->setMask(_mask);
+        _shape = std::shared_ptr<Shape>(new Plane(this));
+        _shape->setMask(_mask);
         return;
     }
 
@@ -66,13 +66,13 @@ void PhysicsComponent::setShape(const std::string &type)
 void PhysicsComponent::setMask(uint8_t mask)
 {
     _mask = mask;
-    _cmxShape->setMask(mask);
+    _shape->setMask(mask);
 }
 
-void PhysicsComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void PhysicsComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
 #ifndef NDEBUG
-    if (!CmxEditor::isActive())
+    if (!Editor::isActive())
     {
         return;
     }
@@ -84,18 +84,18 @@ void PhysicsComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipel
         spdlog::critical("MeshComponent: _parent is expired");
         return;
     }
-    if (_cmxShape.get() == nullptr)
+    if (_shape.get() == nullptr)
     {
         return;
     }
 
-    _cmxShape->render(frameInfo, pipelineLayout, getScene()->getAssetsManager());
+    _shape->render(frameInfo, pipelineLayout, getScene()->getAssetsManager());
 }
 
 tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
-    std::string name = _cmxShape->getName();
+    std::string name = _shape->getName();
     componentElement.SetAttribute("shape", name.c_str());
 
     return componentElement;
@@ -111,7 +111,7 @@ void PhysicsComponent::load(tinyxml2::XMLElement *componentElement)
 void PhysicsComponent::editor(int i)
 {
     {
-        std::string selected = (_cmxShape.get() != nullptr) ? _cmxShape->getName() : "";
+        std::string selected = (_shape.get() != nullptr) ? _shape->getName() : "";
 
         auto selectable = [&](const std::string &option) {
             bool isSelected = selected.compare(option) == 0;

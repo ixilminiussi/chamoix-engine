@@ -13,31 +13,31 @@
 namespace cmx
 {
 
-CmxEditor *CmxEditor::_instance{nullptr};
-bool CmxEditor::_active{true};
+Editor *Editor::_instance{nullptr};
+bool Editor::_active{true};
 
-CmxEditor *CmxEditor::getInstance()
+Editor *Editor::getInstance()
 {
     if (_instance == nullptr)
     {
-        _instance = new CmxEditor();
+        _instance = new Editor();
         return _instance;
     }
 
     return _instance;
 }
 
-CmxEditor::CmxEditor()
+Editor::Editor()
 {
 }
 
-void CmxEditor::initInputManager(CmxWindow &cmxWindow, const std::string &shortcutsPath)
+void Editor::initInputManager(Window &cmxWindow, const std::string &shortcutsPath)
 {
     _inputManager = std::make_unique<InputManager>(cmxWindow, shortcutsPath);
     _inputManager->load();
 }
 
-void CmxEditor::load(CmxWindow &cmxWindow)
+void Editor::load(Window &cmxWindow)
 {
     initInputManager(cmxWindow);
 
@@ -48,10 +48,10 @@ void CmxEditor::load(CmxWindow &cmxWindow)
     _inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, _viewportActor.get());
     _inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, _viewportActor.get());
     _inputManager->bindButton("viewport toggle", &ViewportActor::select, _viewportActor.get());
-    _inputManager->bindButton("editor toggle", &CmxEditor::toggle, this);
+    _inputManager->bindButton("editor toggle", &Editor::toggle, this);
 }
 
-void CmxEditor::attachScene(Scene *scene)
+void Editor::attachScene(Scene *scene)
 {
     _scene = scene;
 
@@ -64,7 +64,7 @@ void CmxEditor::attachScene(Scene *scene)
     _active = true;
 }
 
-void CmxEditor::toggle(float dt, int)
+void Editor::toggle(float dt, int)
 {
     spdlog::info("toggled");
     if (_active)
@@ -91,7 +91,7 @@ void CmxEditor::toggle(float dt, int)
     }
 }
 
-void CmxEditor::update(float dt)
+void Editor::update(float dt)
 {
     _inputManager->pollEvents(dt);
 
@@ -101,7 +101,7 @@ void CmxEditor::update(float dt)
     }
 }
 
-void CmxEditor::render(const FrameInfo &frameInfo)
+void Editor::render(const FrameInfo &frameInfo)
 {
     _viewportUI->render(frameInfo);
 }

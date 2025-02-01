@@ -17,20 +17,41 @@
 
 // std
 #include <cstdlib>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
 
 uint8_t RenderSystem::_activeSystem = NULL_RENDER_SYSTEM;
 
-VkCommandBuffer RenderSystem::_commandBuffer = (VkCommandBuffer_T *)(0);
-CmxWindow *RenderSystem::_cmxWindow = &Game::getWindow();
-std::unique_ptr<CmxDevice> RenderSystem::_cmxDevice = std::make_unique<CmxDevice>(*_cmxWindow);
-std::unique_ptr<CmxRenderer> RenderSystem::_cmxRenderer = std::make_unique<CmxRenderer>(*_cmxWindow, *_cmxDevice.get());
-std::vector<std::unique_ptr<CmxBuffer>> RenderSystem::_uboBuffers =
-    std::vector<std::unique_ptr<CmxBuffer>>{CmxSwapChain::MAX_FRAMES_IN_FLIGHT};
-std::vector<VkDescriptorSet> RenderSystem::_globalDescriptorSets =
-    std::vector<VkDescriptorSet>{CmxSwapChain::MAX_FRAMES_IN_FLIGHT};
+vk::CommandBuffer RenderSystem::_commandBuffer = (VkCommandBuffer_T *)(0);
+
+Window *RenderSystem::_window = &Game::getWindow();
+
+std::unique_ptr<Device> RenderSystem::_device = std::make_unique<Device>(*_window);
+
+std::unique_ptr<Renderer> RenderSystem::_renderer = std::make_unique<Renderer>(*_window, *_device.get());
+
+std::vector<std::unique_ptr<Buffer>> RenderSystem::_uboBuffers =
+    std::vector<std::unique_ptr<Buffer>>{SwapChain::MAX_FRAMES_IN_FLIGHT};
+
+std::vector<vk::DescriptorSet> RenderSystem::_globalDescriptorSets =
+    std::vector<vk::DescriptorSet>{SwapChain::MAX_FRAMES_IN_FLIGHT};
+
+std::unique_ptr<DescriptorPool> RenderSystem::_samplerDescriptorPool =
+    DescriptorPool::Builder(*_device.get())
+        .setMaxSets(100)
+        .addPoolSize(vk::DescriptorType::eCombinedImageSampler, 100)
+        .build();
+
+std::unique_ptr<DescriptorSetLayout> RenderSystem::_samplerDescriptorSetLayout =
+    DescriptorSetLayout::Builder(*_device.get())
+        .addBinding(0, vk::DescriptorType::eCombinedImageSampler, {vk::ShaderStageFlagBits::eFragment})
+        .build();
+
+std::vector<vk::DescriptorSet> RenderSystem::_samplerDescriptorSets{};
+
+bool RenderSystem::_uboInitialized = false;
 
 RenderSystem::RenderSystem()
 {
@@ -38,29 +59,102 @@ RenderSystem::RenderSystem()
 
 RenderSystem::~RenderSystem()
 {
-    delete _cmxPipeline.release();
-    delete _globalPool.release();
+    if (!_freed)
+    {
+        spdlog::error("RenderSystem: forgot to free before deletion");
+    }
+}
 
-    vkDestroyPipelineLayout(_cmxDevice->device(), _pipelineLayout, nullptr);
+void RenderSystem::free()
+{
+    _pipeline->free();
+    _globalPool->free();
+
+    _device->device().destroyPipelineLayout(_pipelineLayout, nullptr);
+
+    _freed = true;
+}
+
+void RenderSystem::initializeUbo()
+{
+    if (_uboInitialized)
+        return;
+
+    for (int i = 0; i < _uboBuffers.size(); i++)
+    {
+        _uboBuffers[i] =
+            std::make_unique<Buffer>(*_device.get(), sizeof(GlobalUbo), 1, vk::BufferUsageFlagBits::eUniformBuffer,
+                                     vk::MemoryPropertyFlagBits::eHostVisible);
+        _uboBuffers[i]->map();
+    }
+
+    _uboInitialized = true;
 }
 
 void RenderSystem::closeWindow()
 {
     spdlog::info("global release");
-    _cmxRenderer->free();
-    delete _cmxRenderer.release();
 
-    // vkFreeCommandBuffers(_cmxDevice->device(), _cmxDevice->getCommandPool(), 1u, &_commandBuffer);
+    _samplerDescriptorPool->free();
+    _device->device().destroyDescriptorSetLayout(_samplerDescriptorSetLayout->getDescriptorSetLayout());
 
-    auto it = _uboBuffers.begin();
-    while (it != _uboBuffers.end())
+    _renderer->free();
+    delete _renderer.release();
+
+    // _device->device().freeCommandBuffers(_device->getCommandPool(), 1u, &_commandBuffer);
+
+    for (auto &buffer : _uboBuffers)
     {
-        delete (*it).release();
-        it++;
+        buffer->free();
+    }
+    _uboBuffers.clear();
+
+    delete _device.release();
+    delete _window;
+}
+
+unsigned int RenderSystem::createSamplerDescriptor(vk::ImageView imageView, vk::Sampler sampler)
+{
+    vk::DescriptorSet descriptorSet;
+
+    vk::DescriptorSetAllocateInfo setAllocInfo{};
+    setAllocInfo.descriptorPool = _samplerDescriptorPool->getDescriptorPool();
+    setAllocInfo.descriptorSetCount = 1;
+    setAllocInfo.pSetLayouts = &(_samplerDescriptorSetLayout->getDescriptorSetLayout());
+
+    if (_device->device().allocateDescriptorSets(&setAllocInfo, &descriptorSet) != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("Failed to allocate texture descriptor set.");
     }
 
-    delete _cmxDevice.release();
-    delete _cmxWindow;
+    vk::DescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    imageInfo.imageView = imageView;
+    imageInfo.sampler = sampler;
+    // Write info
+    vk::WriteDescriptorSet descriptorWrite{};
+    descriptorWrite.dstSet = descriptorSet;
+    descriptorWrite.dstBinding = 0;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pImageInfo = &imageInfo;
+
+    _device->device().updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+
+    _samplerDescriptorSets.push_back(descriptorSet);
+    return _samplerDescriptorSets.size() - 1;
+}
+
+vk::DescriptorSet &RenderSystem::getSamplerDescriptorSet(unsigned int index)
+{
+    if (index >= _samplerDescriptorSets.size())
+    {
+        spdlog::error("RenderSystem: invalid sampler descriptor set index");
+        std::exit(EXIT_FAILURE);
+    }
+
+    return _samplerDescriptorSets[index];
 }
 
 void RenderSystem::editor(int i)
@@ -72,7 +166,7 @@ void RenderSystem::editor(int i)
 
 void RenderSystem::checkAspectRatio(class Camera *camera)
 {
-    float aspect = _cmxRenderer->getAspectRatio();
+    float aspect = _renderer->getAspectRatio();
     camera->updateAspectRatio(aspect);
 }
 
@@ -80,9 +174,9 @@ FrameInfo *RenderSystem::beginRender(Camera *camera, PointLight pointLights[MAX_
 {
     FrameInfo *frameInfo;
 
-    if ((_commandBuffer = _cmxRenderer->beginFrame()))
+    if ((_commandBuffer = _renderer->beginFrame()))
     {
-        int frameIndex = _cmxRenderer->getFrameIndex();
+        int frameIndex = _renderer->getFrameIndex();
         frameInfo = new FrameInfo{frameIndex, _commandBuffer, *camera, _globalDescriptorSets[frameIndex]};
         // update
         GlobalUbo ubo{};
@@ -101,7 +195,7 @@ FrameInfo *RenderSystem::beginRender(Camera *camera, PointLight pointLights[MAX_
         _uboBuffers[frameIndex]->flush();
 
         // render
-        _cmxRenderer->beginSwapChainRenderPass(_commandBuffer);
+        _renderer->beginSwapChainRenderPass(_commandBuffer);
     }
 
     return frameInfo;
@@ -111,14 +205,14 @@ void RenderSystem::endRender()
 {
     _activeSystem = NULL_RENDER_SYSTEM;
 
-    _cmxRenderer->endSwapChainRenderPass(_commandBuffer);
-    _cmxRenderer->endFrame();
-    vkDeviceWaitIdle(_cmxDevice->device());
+    _renderer->endSwapChainRenderPass(_commandBuffer);
+    _renderer->endFrame();
+    vkDeviceWaitIdle(_device->device());
 }
 
-CmxDevice *RenderSystem::getDevice()
+Device *RenderSystem::getDevice()
 {
-    return _cmxDevice.get();
+    return _device.get();
 }
 
 } // namespace cmx

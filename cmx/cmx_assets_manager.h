@@ -29,27 +29,27 @@ class AssetsManager final
 
     void addModel(const std::string &filepath, const std::string &name);
     void removeModel(const std::string &name);
-    class CmxModel *getModel(const std::string &name);
+    class Model *getModel(const std::string &name);
 
     void addTexture(const std::string &filepath, const std::string &name);
     void removeTexture(const std::string &name);
-    class CmxTexture *getTexture(const std::string &name);
+    class Texture *getTexture(const std::string &name);
 
     const auto &getModels()
     {
         return _models;
     }
 
-    // const auto &getTextures()
-    // {
-    //     return _textures;
-    // }
+    const auto &getTextures()
+    {
+        return _textures;
+    }
 
   private:
     class Scene *_parentScene;
 
-    std::unordered_map<std::string, std::unique_ptr<class CmxModel>> _models;
-    // std::unordered_map<std::string, std::unique_ptr<class CmxTexture>> _textures;
+    std::unordered_map<std::string, std::unique_ptr<class Model>> _models;
+    std::unordered_map<std::string, std::unique_ptr<class Texture>> _textures;
     // TODO:
     // fonts
     // sprites

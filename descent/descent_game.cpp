@@ -71,16 +71,16 @@ Descent::~Descent()
 void Descent::run()
 {
 #ifndef NDEBUG
-    cmx::CmxEditor *editor = cmx::CmxEditor::getInstance();
+    cmx::Editor *editor = cmx::Editor::getInstance();
 #endif
-    while (!_cmxWindow.shouldClose())
+    while (!_window.shouldClose())
     {
         float dt = glfwGetTime();
         glfwSetTime(0.);
 
 #ifndef NDEBUG
         editor->update(dt);
-        if (!cmx::CmxEditor::isActive())
+        if (!cmx::Editor::isActive())
         {
 #endif
             getInputManager()->pollEvents(dt);
@@ -93,6 +93,10 @@ void Descent::run()
 
     getScene()->unload();
 
+    for (const auto &[key, renderSystem] : _renderSystems)
+    {
+        renderSystem->free();
+    }
     _renderSystems.clear();
     cmx::RenderSystem::closeWindow();
 }

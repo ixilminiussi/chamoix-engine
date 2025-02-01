@@ -6,8 +6,11 @@
 #include "cmx_utils.h"
 
 // lib
+#include <cstddef>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_handles.hpp>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -20,9 +23,9 @@
 #include <strings.h>
 #include <unordered_map>
 
-template <> struct std::hash<cmx::CmxModel::Vertex>
+template <> struct std::hash<cmx::Model::Vertex>
 {
-    size_t operator()(cmx::CmxModel::Vertex const &vertex) const
+    size_t operator()(cmx::Model::Vertex const &vertex) const
     {
         size_t seed = 0;
         cmx::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
@@ -33,86 +36,88 @@ template <> struct std::hash<cmx::CmxModel::Vertex>
 namespace cmx
 {
 
-CmxModel::CmxModel(CmxDevice *device, const CmxModel::Builder &builder, const std::string &name) : name{name}
+Model::Model(Device *device, const Model::Builder &builder, const std::string &name) : name{name}
 {
     createVertexBuffers(device, builder.vertices);
     createIndexBuffers(device, builder.indices);
     _filepath = builder.filepath;
 }
 
-CmxModel::~CmxModel()
+Model::~Model()
 {
     if (!_freed)
     {
-        spdlog::error("CmxModel: forgot to free model {0} before deletion", name);
+        spdlog::error("Model: forgot to free model {0} before deletion", name);
     }
 }
 
-CmxModel *CmxModel::createModelFromFile(CmxDevice *device, const std::string &filepath, const std::string &name)
+void Model::free()
 {
-    Builder builder{};
-    builder.loadModel(filepath);
-
-    spdlog::info("CmxModel: '{0}' loaded with {1} vertices", filepath, builder.vertices.size());
-    return new CmxModel(device, builder, name);
-}
-
-void CmxModel::bind(VkCommandBuffer commandBuffer)
-{
-    VkBuffer buffers[] = {_vertexBuffer->getBuffer()};
-    VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
-
-    if (_hasIndexBuffer)
-    {
-        vkCmdBindIndexBuffer(commandBuffer, _indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-    }
-}
-
-void CmxModel::draw(VkCommandBuffer commandBuffer)
-{
-    if (_hasIndexBuffer)
-    {
-        vkCmdDrawIndexed(commandBuffer, _indexCount, 1, 0, 0, 0);
-    }
-    else
-    {
-        vkCmdDraw(commandBuffer, _vertexCount, 1, 0, 0);
-    }
-}
-
-void CmxModel::free()
-{
-    delete _vertexBuffer.release();
-    delete _indexBuffer.release();
+    _vertexBuffer->free();
+    _indexBuffer->free();
 
     _freed = true;
 }
 
-void CmxModel::createVertexBuffers(CmxDevice *device, const std::vector<Vertex> &vertices)
+Model *Model::createModelFromFile(Device *device, const std::string &filepath, const std::string &name)
+{
+    Builder builder{};
+    builder.loadModel(filepath);
+
+    spdlog::info("Model: '{0}' loaded with {1} vertices", filepath, builder.vertices.size());
+    return new Model(device, builder, name);
+}
+
+void Model::bind(vk::CommandBuffer commandBuffer)
+{
+    vk::Buffer buffers[] = {_vertexBuffer->getBuffer()};
+    vk::DeviceSize offsets[] = {0};
+    commandBuffer.bindVertexBuffers(0, 1, buffers, offsets);
+
+    if (_hasIndexBuffer)
+    {
+        commandBuffer.bindIndexBuffer(_indexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
+    }
+}
+
+void Model::draw(vk::CommandBuffer commandBuffer)
+{
+    if (_hasIndexBuffer)
+    {
+        commandBuffer.drawIndexed(_indexCount, 1, 0, 0, 0);
+    }
+    else
+    {
+        commandBuffer.draw(_vertexCount, 1, 0, 0);
+    }
+}
+
+void Model::createVertexBuffers(Device *device, const std::vector<Vertex> &vertices)
 {
     if (!device)
         return;
 
     _vertexCount = static_cast<uint32_t>(vertices.size());
     assert(_vertexCount >= 3 && "Vertex count must be at least 3");
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * _vertexCount;
+    vk::DeviceSize bufferSize = sizeof(vertices[0]) * _vertexCount;
     uint32_t vertexSize = sizeof(vertices[0]);
 
-    CmxBuffer stagingBuffer{*device, vertexSize, _vertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+    Buffer stagingBuffer{*device, vertexSize, _vertexCount, vk::BufferUsageFlagBits::eTransferSrc,
+                         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
 
     stagingBuffer.map();
     stagingBuffer.writeToBuffer((void *)vertices.data());
 
-    _vertexBuffer = std::make_unique<CmxBuffer>(*device, vertexSize, _vertexCount,
-                                                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    _vertexBuffer =
+        std::make_unique<Buffer>(*device, vertexSize, _vertexCount,
+                                 vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+                                 vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     device->copyBuffer(stagingBuffer.getBuffer(), _vertexBuffer->getBuffer(), bufferSize);
+    stagingBuffer.free();
 }
 
-void CmxModel::createIndexBuffers(CmxDevice *device, const std::vector<uint32_t> &indices)
+void Model::createIndexBuffers(Device *device, const std::vector<uint32_t> &indices)
 {
     if (!device)
         return;
@@ -123,43 +128,44 @@ void CmxModel::createIndexBuffers(CmxDevice *device, const std::vector<uint32_t>
     if (!_hasIndexBuffer)
         return;
 
-    VkDeviceSize bufferSize = sizeof(indices[0]) * _indexCount;
+    vk::DeviceSize bufferSize = sizeof(indices[0]) * _indexCount;
     uint32_t indexSize = sizeof(indices[0]);
 
-    CmxBuffer stagingBuffer{*device, indexSize, _indexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+    Buffer stagingBuffer{*device, indexSize, _indexCount, vk::BufferUsageFlagBits::eTransferSrc,
+                         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
 
     stagingBuffer.map();
     stagingBuffer.writeToBuffer((void *)indices.data());
 
-    _indexBuffer = std::make_unique<CmxBuffer>(*device, indexSize, _indexCount,
-                                               VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    _indexBuffer = std::make_unique<Buffer>(
+        *device, indexSize, _indexCount, vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst,
+        vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     device->copyBuffer(stagingBuffer.getBuffer(), _indexBuffer->getBuffer(), bufferSize);
+    stagingBuffer.free();
 }
 
-std::vector<VkVertexInputBindingDescription> CmxModel::Vertex::getBindingDescriptions()
+std::vector<vk::VertexInputBindingDescription> Model::Vertex::getBindingDescriptions()
 {
-    std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+    std::vector<vk::VertexInputBindingDescription> bindingDescriptions(1);
     bindingDescriptions[0].binding = 0;
     bindingDescriptions[0].stride = sizeof(Vertex);
-    bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    bindingDescriptions[0].inputRate = vk::VertexInputRate::eVertex;
     return bindingDescriptions;
 }
 
-std::vector<VkVertexInputAttributeDescription> CmxModel::Vertex::getAttributeDescriptions()
+std::vector<vk::VertexInputAttributeDescription> Model::Vertex::getAttributeDescriptions()
 {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+    std::vector<vk::VertexInputAttributeDescription> attributeDescriptions{};
 
-    attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position)});
-    attributeDescriptions.push_back({1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color)});
-    attributeDescriptions.push_back({2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal)});
-    attributeDescriptions.push_back({3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv)});
+    attributeDescriptions.push_back({0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position)});
+    attributeDescriptions.push_back({1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)});
+    attributeDescriptions.push_back({2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal)});
+    attributeDescriptions.push_back({3, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv)});
     return attributeDescriptions;
 }
 
-void CmxModel::Builder::loadModel(const std::string &filepath)
+void Model::Builder::loadModel(const std::string &filepath)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -226,7 +232,7 @@ void CmxModel::Builder::loadModel(const std::string &filepath)
     this->filepath = filepath;
 }
 
-tinyxml2::XMLElement &CmxModel::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+tinyxml2::XMLElement &Model::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
 {
     tinyxml2::XMLElement *modelElement = doc.NewElement("model");
 

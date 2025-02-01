@@ -15,7 +15,12 @@ class BillboardComponent : public Component
     BillboardComponent();
     ~BillboardComponent() = default;
 
-    void render(const class FrameInfo &, VkPipelineLayout) override;
+    void onAttach() override;
+
+    void render(const class FrameInfo &, vk::PipelineLayout) override;
+
+    void setTexture(const std::string &name);
+    std::string getTextureName() const;
 
     void editor(int i) override;
     void load(tinyxml2::XMLElement *componentElement) override;
@@ -33,6 +38,8 @@ class BillboardComponent : public Component
 
   private:
     glm::vec3 _hue{1.0f};
+
+    class Texture *_texture{nullptr};
 };
 
 } // namespace cmx

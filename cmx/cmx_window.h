@@ -4,6 +4,7 @@
 // lib
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.hpp>
 
 // std
 #include <string>
@@ -11,20 +12,20 @@
 namespace cmx
 {
 
-class CmxWindow
+class Window
 {
   public:
-    CmxWindow(int w, int h, std::string name);
-    ~CmxWindow();
+    Window(int w, int h, std::string name);
+    ~Window();
 
-    CmxWindow(const CmxWindow &) = delete;
-    CmxWindow &operator=(const CmxWindow &) = delete;
+    Window(const Window &) = delete;
+    Window &operator=(const Window &) = delete;
 
     bool shouldClose() const
     {
-        return glfwWindowShouldClose(_window);
+        return glfwWindowShouldClose(_glfwWindow);
     }
-    VkExtent2D getExtent() const
+    vk::Extent2D getExtent() const
     {
         return {static_cast<uint32_t>(_width), static_cast<uint32_t>(_height)};
     }
@@ -38,13 +39,13 @@ class CmxWindow
     }
     GLFWwindow *getGLFWwindow() const
     {
-        return _window;
+        return _glfwWindow;
     }
 
-    void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
+    void createWindowSurface(vk::Instance instance, vk::SurfaceKHR *surface);
 
   private:
-    static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
+    static void framebufferResizeCallback(GLFWwindow *, int width, int height);
     void initWindow();
 
     int _width;
@@ -52,8 +53,9 @@ class CmxWindow
     bool _framebufferResized = false;
 
     std::string _windowName;
-    GLFWwindow *_window;
+    GLFWwindow *_glfwWindow;
 };
+
 } // namespace cmx
 
 #endif

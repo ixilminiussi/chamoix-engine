@@ -6,30 +6,31 @@
 namespace cmx
 {
 
-class CmxBuffer
+class Buffer
 {
   public:
-    CmxBuffer(CmxDevice &device, VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags,
-              VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
-    ~CmxBuffer();
+    Buffer(Device &device, vk::DeviceSize instanceSize, uint32_t instanceCount, vk::BufferUsageFlags usageFlags,
+           vk::MemoryPropertyFlags memoryPropertyFlags, vk::DeviceSize minOffsetAlignment = 1);
+    ~Buffer();
+    void free();
 
-    CmxBuffer(const CmxBuffer &) = delete;
-    CmxBuffer &operator=(const CmxBuffer &) = delete;
+    Buffer(const Buffer &) = delete;
+    Buffer &operator=(const Buffer &) = delete;
 
-    VkResult map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+    vk::Result map(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
     void unmap();
 
-    void writeToBuffer(void *data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-    VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-    VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-    VkResult invalidate(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+    void writeToBuffer(void *data, vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+    vk::Result flush(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+    vk::DescriptorBufferInfo descriptorInfo(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+    vk::Result invalidate(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
 
     void writeToIndex(void *data, int index);
-    VkResult flushIndex(int index);
-    VkDescriptorBufferInfo descriptorInfoForIndex(int index);
-    VkResult invalidateIndex(int index);
+    vk::Result flushIndex(int index);
+    vk::DescriptorBufferInfo descriptorInfoForIndex(int index);
+    vk::Result invalidateIndex(int index);
 
-    const VkBuffer &getBuffer() const
+    const vk::Buffer &getBuffer() const
     {
         return _buffer;
     }
@@ -41,41 +42,43 @@ class CmxBuffer
     {
         return _instanceCount;
     }
-    VkDeviceSize getInstanceSize() const
+    vk::DeviceSize getInstanceSize() const
     {
         return _instanceSize;
     }
-    VkDeviceSize getAlignmentSize() const
+    vk::DeviceSize getAlignmentSize() const
     {
         return _instanceSize;
     }
-    VkBufferUsageFlags getUsageFlags() const
+    vk::BufferUsageFlags getUsageFlags() const
     {
         return _usageFlags;
     }
-    VkMemoryPropertyFlags getMemoryPropertyFlags() const
+    vk::MemoryPropertyFlags getMemoryPropertyFlags() const
     {
         return _memoryPropertyFlags;
     }
-    VkDeviceSize getBufferSize() const
+    vk::DeviceSize getBufferSize() const
     {
         return _bufferSize;
     }
 
   private:
-    static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
+    static vk::DeviceSize getAlignment(vk::DeviceSize instanceSize, vk::DeviceSize minOffsetAlignment);
 
-    CmxDevice &_cmxDevice;
+    Device &_device;
     void *_mapped = nullptr;
-    VkBuffer _buffer = VK_NULL_HANDLE;
-    VkDeviceMemory _memory = VK_NULL_HANDLE;
+    vk::Buffer _buffer = VK_NULL_HANDLE;
+    vk::DeviceMemory _memory = VK_NULL_HANDLE;
 
-    VkDeviceSize _bufferSize;
+    vk::DeviceSize _bufferSize;
     uint32_t _instanceCount;
-    VkDeviceSize _instanceSize;
-    VkDeviceSize _alignmentSize;
-    VkBufferUsageFlags _usageFlags;
-    VkMemoryPropertyFlags _memoryPropertyFlags;
+    vk::DeviceSize _instanceSize;
+    vk::DeviceSize _alignmentSize;
+    vk::BufferUsageFlags _usageFlags;
+    vk::MemoryPropertyFlags _memoryPropertyFlags;
+
+    bool _freed{false};
 };
 
 } // namespace cmx

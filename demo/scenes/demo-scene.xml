@@ -9,6 +9,8 @@
         <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
+	<texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
+	<texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
     </assets>
     <actor type="cmx::Actor" name="CameraMan" id="9" visible="true">
         <transform>
@@ -30,7 +32,7 @@
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="20" y="1" z="20"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_plane" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_plane" texture="cmx_missing" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -44,7 +46,7 @@
             <rotation pitch="0" yaw="1" roll="0" w="0"/>
             <scale x="10" y="10" z="10"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="bunny" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="bunny" texture="cmx_missing" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -58,7 +60,7 @@
             <rotation pitch="0" yaw="1" roll="0" w="0"/>
             <scale x="3" y="3" z="3"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="vase" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="vase" texture="cmx_missing" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>

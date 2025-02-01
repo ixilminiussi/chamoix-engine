@@ -1,7 +1,9 @@
 #ifndef CMX_RENDER_SYSTEM
 #define CMX_RENDER_SYSTEM
 
-#include <vulkan/vulkan_core.h>
+#include "cmx/cmx_descriptors.h"
+#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_handles.hpp>
 #define SHADED_RENDER_SYSTEM 0u
 #define BILLBOARD_RENDER_SYSTEM 1u
 #define EDGE_RENDER_SYSTEM 2u
@@ -47,7 +49,11 @@ class RenderSystem
     static FrameInfo *beginRender(class Camera *, PointLight pointLights[MAX_POINT_LIGHTS], int numLights);
     static void endRender();
 
+    virtual void free();
     static void closeWindow();
+
+    static unsigned int createSamplerDescriptor(vk::ImageView, vk::Sampler);
+    static vk::DescriptorSet &getSamplerDescriptorSet(unsigned int index);
 
     virtual void initialize() = 0;
     virtual void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
@@ -57,28 +63,37 @@ class RenderSystem
 
     virtual void editor(int i);
 
-    static class CmxDevice *getDevice();
-    VkPipelineLayout getPipelineLayout() const
+    static class Device *getDevice();
+    vk::PipelineLayout getPipelineLayout() const
     {
         return _pipelineLayout;
     }
 
   protected:
-    virtual void createPipelineLayout(VkDescriptorSetLayout) = 0;
-    virtual void createPipeline(VkRenderPass) = 0;
+    static void initializeUbo();
 
-    std::unique_ptr<class CmxPipeline> _cmxPipeline;
-    std::unique_ptr<class CmxDescriptorPool> _globalPool{};
-    VkPipelineLayout _pipelineLayout;
+    virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) = 0;
+    virtual void createPipeline(vk::RenderPass) = 0;
+
+    std::unique_ptr<class Pipeline> _pipeline;
+    std::unique_ptr<class DescriptorPool> _globalPool{};
+    vk::PipelineLayout _pipelineLayout;
 
     bool _visible{true};
+    bool _freed{false};
 
-    static std::unique_ptr<class CmxRenderer> _cmxRenderer;
-    static std::unique_ptr<class CmxDevice> _cmxDevice;
-    static class CmxWindow *_cmxWindow;
-    static VkCommandBuffer _commandBuffer;
-    static std::vector<std::unique_ptr<class CmxBuffer>> _uboBuffers;
-    static std::vector<VkDescriptorSet> _globalDescriptorSets;
+    static std::unique_ptr<class Renderer> _renderer;
+    static std::unique_ptr<class Device> _device;
+    static class Window *_window;
+    static vk::CommandBuffer _commandBuffer;
+    static std::vector<std::unique_ptr<class Buffer>> _uboBuffers;
+    static std::vector<vk::DescriptorSet> _globalDescriptorSets;
+
+    static std::unique_ptr<class DescriptorPool> _samplerDescriptorPool;
+    static std::unique_ptr<class DescriptorSetLayout> _samplerDescriptorSetLayout;
+    static std::vector<vk::DescriptorSet> _samplerDescriptorSets;
+
+    static bool _uboInitialized;
 
     static uint8_t _activeSystem;
 };

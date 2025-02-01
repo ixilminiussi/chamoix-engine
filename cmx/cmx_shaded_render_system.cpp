@@ -19,7 +19,7 @@
 #include <glm/ext/scalar_constants.hpp>
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -34,30 +34,26 @@ namespace cmx
 
 void ShadedRenderSystem::initialize()
 {
-    _globalPool = CmxDescriptorPool::Builder(*_cmxDevice.get())
-                      .setMaxSets(CmxSwapChain::MAX_FRAMES_IN_FLIGHT)
-                      .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, CmxSwapChain::MAX_FRAMES_IN_FLIGHT)
+    initializeUbo();
+
+    _globalPool = DescriptorPool::Builder(*_device.get())
+                      .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+                      .addPoolSize(vk::DescriptorType::eUniformBuffer, SwapChain::MAX_FRAMES_IN_FLIGHT)
                       .build();
 
-    for (int i = 0; i < _uboBuffers.size(); i++)
-    {
-        _uboBuffers[i] =
-            std::make_unique<CmxBuffer>(*_cmxDevice.get(), sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-        _uboBuffers[i]->map();
-    }
-
-    auto globalSetLayout = CmxDescriptorSetLayout::Builder(*_cmxDevice.get())
-                               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+    auto globalSetLayout = DescriptorSetLayout::Builder(*_device.get())
+                               .addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAllGraphics)
                                .build();
+
     for (int i = 0; i < _globalDescriptorSets.size(); i++)
     {
         auto bufferInfo = _uboBuffers[i]->descriptorInfo();
-        CmxDescriptorWriter(*globalSetLayout, *_globalPool).writeBuffer(0, &bufferInfo).build(_globalDescriptorSets[i]);
+        DescriptorWriter(*globalSetLayout, *_globalPool).writeBuffer(0, &bufferInfo).build(_globalDescriptorSets[i]);
     }
 
-    createPipelineLayout(globalSetLayout->getDescriptorSetLayout());
-    createPipeline(_cmxRenderer->getSwapChainRenderPass());
+    createPipelineLayout(
+        {globalSetLayout->getDescriptorSetLayout(), _samplerDescriptorSetLayout->getDescriptorSetLayout()});
+    createPipeline(_renderer->getSwapChainRenderPass());
 
     spdlog::info("ShadedRenderSystem: Successfully initialized!");
 }
@@ -68,10 +64,10 @@ void ShadedRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::sha
     if (!_visible)
         return;
 
-    _cmxPipeline->bind(frameInfo->commandBuffer);
+    _pipeline->bind(frameInfo->commandBuffer);
 
-    vkCmdBindDescriptorSets(frameInfo->commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1,
-                            &frameInfo->globalDescriptorSet, 0, nullptr);
+    frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, 1,
+                                                &frameInfo->globalDescriptorSet, 0, nullptr);
 
     glm::vec3 cameraPosition = frameInfo->camera.getPosition();
 
@@ -109,37 +105,35 @@ void ShadedRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::sha
     }
 }
 
-void ShadedRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+void ShadedRenderSystem::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
-    VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    vk::PushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(SimplePushConstantData);
 
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
-
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;
     pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-    if (vkCreatePipelineLayout(_cmxDevice->device(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
+    if (_device->device().createPipelineLayout(&pipelineLayoutInfo, nullptr, &_pipelineLayout) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 }
 
-void ShadedRenderSystem::createPipeline(VkRenderPass renderPass)
+void ShadedRenderSystem::createPipeline(vk::RenderPass renderPass)
 {
     assert(_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
     PipelineConfigInfo pipelineConfig{};
-    CmxPipeline::defaultPipelineConfigInfo(pipelineConfig);
+    Pipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
-    _cmxPipeline = std::make_unique<CmxPipeline>(*_cmxDevice.get(), "shaders/shaded.vert.spv",
-                                                 "shaders/shaded.frag.spv", pipelineConfig);
+    _pipeline = std::make_unique<Pipeline>(*_device.get(), "shaders/shaded.vert.spv", "shaders/shaded.frag.spv",
+                                           pipelineConfig);
 }
 
 void ShadedRenderSystem::editor(int i)

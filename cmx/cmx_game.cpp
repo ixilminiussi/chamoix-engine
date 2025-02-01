@@ -27,11 +27,11 @@ namespace cmx
 int Game::WIDTH = 1600;
 int Game::HEIGHT = 1200;
 
-CmxWindow Game::_cmxWindow = CmxWindow{WIDTH, HEIGHT, "chamoix"};
+Window Game::_window = Window{WIDTH, HEIGHT, "chamoix"};
 
 Game::Game()
 {
-    _inputManager = std::make_unique<InputManager>(_cmxWindow);
+    _inputManager = std::make_unique<InputManager>(_window);
 }
 
 Game::~Game()
@@ -65,9 +65,9 @@ Scene *Game::getScene()
     return _activeScene;
 }
 
-CmxWindow &Game::getWindow()
+Window &Game::getWindow()
 {
-    return _cmxWindow;
+    return _window;
 }
 
 } // namespace cmx

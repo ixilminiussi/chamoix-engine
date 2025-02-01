@@ -35,7 +35,7 @@ void EnemyShipActor::onBegin()
     _gunComponent->setGunInfo(GunComponent::enemyDefaultGun);
 
 #ifndef NDEBUG
-    if (!cmx::CmxEditor::isActive())
+    if (!cmx::Editor::isActive())
 #endif
         cmx::InputManager::setMouseCapture(true);
 

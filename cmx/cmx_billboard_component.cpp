@@ -1,6 +1,8 @@
 #include "cmx_billboard_component.h"
 
 // cmx
+#include "cmx/cmx_assets_manager.h"
+#include "cmx/cmx_texture.h"
 #include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
@@ -9,6 +11,7 @@
 // lib
 #include <imgui.h>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -19,11 +22,25 @@ BillboardComponent::BillboardComponent()
     _requestedRenderSystem = BILLBOARD_RENDER_SYSTEM;
 }
 
-void BillboardComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void BillboardComponent::onAttach()
+{
+    if (_texture)
+    {
+        setTexture("cmx_missing");
+    }
+}
+
+void BillboardComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
     if (getParent() == nullptr)
     {
-        spdlog::critical("MeshComponent: _parent is expired");
+        spdlog::critical("MeshComponent <{0}>: _parent is expired", name.c_str());
+        return;
+    }
+
+    if (_texture == nullptr)
+    {
+        spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
         return;
     }
 
@@ -34,15 +51,63 @@ void BillboardComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pip
     pushConstant.color = glm::vec4(_hue, 1.f);
     pushConstant.scale = glm::vec2(transform.scale.x, transform.scale.y);
 
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(BillboardPushConstant),
-                       &pushConstant);
+    frameInfo.commandBuffer.pushConstants(pipelineLayout,
+                                          vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                          sizeof(BillboardPushConstant), &pushConstant);
 
-    vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
+    _texture->bind(frameInfo.commandBuffer, pipelineLayout);
+
+    frameInfo.commandBuffer.draw(6, 1, 0, 0);
+}
+
+void BillboardComponent::setTexture(const std::string &name)
+{
+    if (getScene() != nullptr)
+    {
+        _texture = getScene()->getAssetsManager()->getTexture(name);
+    }
+    else
+    {
+        spdlog::error("MeshComponent <{0}->{1}>: Cannot setTexture before attaching to Scene object",
+                      getParent()->name.c_str(), name.c_str());
+    }
+}
+
+std::string BillboardComponent::getTextureName() const
+{
+    if (_texture)
+    {
+        return _texture->name;
+    }
+    return "Missing texture";
 }
 
 void BillboardComponent::editor(int i)
 {
+    const char *selected = _texture->name.c_str();
+    AssetsManager *assetsManager = getScene()->getAssetsManager();
+
+    if (ImGui::BeginCombo("Texture##", selected))
+    {
+        for (const auto &pair : assetsManager->getTextures())
+        {
+            bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+
+            if (ImGui::Selectable(pair.first.c_str(), isSelected))
+            {
+                selected = pair.first.c_str();
+                setTexture(pair.first);
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+
     ImGui::ColorPicker3("Color", (float *)&_hue);
 
     Component::editor(i);
@@ -52,15 +117,23 @@ void BillboardComponent::load(tinyxml2::XMLElement *componentElement)
 {
     Component::load(componentElement);
 
-    _hue.r = componentElement->FloatAttribute("r");
-    _hue.g = componentElement->FloatAttribute("g");
-    _hue.b = componentElement->FloatAttribute("b");
+    try
+    {
+        setTexture(componentElement->Attribute("texture"));
+        _hue.r = componentElement->FloatAttribute("r");
+        _hue.g = componentElement->FloatAttribute("g");
+        _hue.b = componentElement->FloatAttribute("b");
+    }
+    catch (...)
+    {
+    }
 }
 
 tinyxml2::XMLElement &BillboardComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
 
+    componentElement.SetAttribute("texture", _texture->name.c_str());
     componentElement.SetAttribute("r", _hue.r);
     componentElement.SetAttribute("g", _hue.g);
     componentElement.SetAttribute("b", _hue.b);

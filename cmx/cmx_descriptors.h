@@ -8,108 +8,114 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
 
-class CmxDescriptorSetLayout
+class DescriptorSetLayout
 {
   public:
     class Builder
     {
       public:
-        Builder(CmxDevice &cmxDevice) : _cmxDevice{cmxDevice}
+        Builder(Device &cmxDevice) : _device{cmxDevice}
         {
         }
 
-        Builder &addBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlags stageFlags,
+        Builder &addBinding(uint32_t binding, vk::DescriptorType descriptorType, vk::ShaderStageFlags stageFlags,
                             uint32_t count = 1);
-        std::unique_ptr<CmxDescriptorSetLayout> build() const;
+        std::unique_ptr<DescriptorSetLayout> build() const;
 
       private:
-        CmxDevice &_cmxDevice;
-        std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> _bindings{};
+        Device &_device;
+        std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> _bindings{};
     };
 
-    CmxDescriptorSetLayout(CmxDevice &cmxDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
-    ~CmxDescriptorSetLayout();
-    CmxDescriptorSetLayout(const CmxDescriptorSetLayout &) = delete;
-    CmxDescriptorSetLayout &operator=(const CmxDescriptorSetLayout &) = delete;
+    DescriptorSetLayout(Device &cmxDevice, std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> bindings);
+    ~DescriptorSetLayout();
 
-    VkDescriptorSetLayout getDescriptorSetLayout() const
+    DescriptorSetLayout(const DescriptorSetLayout &) = delete;
+    DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
+
+    vk::DescriptorSetLayout &getDescriptorSetLayout()
     {
-        return descriptorSetLayout;
+        return _descriptorSetLayout;
     }
 
   private:
-    CmxDevice &cmxDevice;
-    VkDescriptorSetLayout descriptorSetLayout;
-    std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
+    Device &_device;
+    vk::DescriptorSetLayout _descriptorSetLayout;
+    std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding> _bindings;
 
-    friend class CmxDescriptorWriter;
+    friend class DescriptorWriter;
 };
 
-class CmxDescriptorPool
+class DescriptorPool
 {
   public:
     class Builder
     {
       public:
-        Builder(CmxDevice &cmxDevice) : _cmxDevice{cmxDevice}
+        Builder(Device &device) : _device{device}
         {
         }
 
-        Builder &addPoolSize(VkDescriptorType descriptorType, uint32_t count);
-        Builder &setPoolFlags(VkDescriptorPoolCreateFlags flags);
+        Builder &addPoolSize(vk::DescriptorType descriptorType, uint32_t count);
+        Builder &setPoolFlags(vk::DescriptorPoolCreateFlags flags);
         Builder &setMaxSets(uint32_t count);
-        std::unique_ptr<CmxDescriptorPool> build() const;
+        std::unique_ptr<DescriptorPool> build() const;
 
       private:
-        CmxDevice &_cmxDevice;
-        std::vector<VkDescriptorPoolSize> _poolSizes{};
+        Device &_device;
+        std::vector<vk::DescriptorPoolSize> _poolSizes{};
         uint32_t _maxSets = 1000;
-        VkDescriptorPoolCreateFlags _poolFlags = 0;
+        vk::DescriptorPoolCreateFlags _poolFlags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
     };
 
-    CmxDescriptorPool(CmxDevice &cmxDevice, uint32_t maxSets, VkDescriptorPoolCreateFlags poolFlags,
-                      const std::vector<VkDescriptorPoolSize> &poolSizes);
-    ~CmxDescriptorPool();
-    CmxDescriptorPool(const CmxDescriptorPool &) = delete;
-    CmxDescriptorPool &operator=(const CmxDescriptorPool &) = delete;
+    DescriptorPool(Device &, uint32_t maxSets, vk::DescriptorPoolCreateFlags poolFlags,
+                   const std::vector<vk::DescriptorPoolSize> &poolSizes);
+    ~DescriptorPool();
+    void free();
+    DescriptorPool(const DescriptorPool &) = delete;
+    DescriptorPool &operator=(const DescriptorPool &) = delete;
 
-    bool allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet &descriptor) const;
+    bool allocateDescriptor(const vk::DescriptorSetLayout descriptorSetLayout, vk::DescriptorSet &descriptor) const;
 
-    void freeDescriptors(std::vector<VkDescriptorSet> &descriptors) const;
+    void freeDescriptors(std::vector<vk::DescriptorSet> &descriptors) const;
 
     void resetPool();
 
-    VkDescriptorPool getDescriptorPool()
+    vk::DescriptorPool getDescriptorPool()
     {
         return _descriptorPool;
     }
 
   private:
-    CmxDevice &_cmxDevice;
-    VkDescriptorPool _descriptorPool;
+    Device &_device;
+    vk::DescriptorPool _descriptorPool;
 
-    friend class CmxDescriptorWriter;
+    bool _freed{false};
+
+    friend class DescriptorWriter;
 };
 
-class CmxDescriptorWriter
+class DescriptorWriter
 {
   public:
-    CmxDescriptorWriter(CmxDescriptorSetLayout &setLayout, CmxDescriptorPool &pool);
+    DescriptorWriter(DescriptorSetLayout &setLayout, DescriptorPool &pool);
+    ~DescriptorWriter();
 
-    CmxDescriptorWriter &writeBuffer(uint32_t binding, VkDescriptorBufferInfo *bufferInfo);
-    CmxDescriptorWriter &writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo);
+    DescriptorWriter &writeBuffer(uint32_t binding, vk::DescriptorBufferInfo *bufferInfo);
+    DescriptorWriter &writeImage(uint32_t binding, vk::DescriptorImageInfo *imageInfo);
 
-    bool build(VkDescriptorSet &set);
-    void overwrite(VkDescriptorSet &set);
+    bool build(vk::DescriptorSet &set);
+    void overwrite(vk::DescriptorSet &set);
 
   private:
-    CmxDescriptorSetLayout &_setLayout;
-    CmxDescriptorPool &_pool;
-    std::vector<VkWriteDescriptorSet> _writes;
+    DescriptorSetLayout &_setLayout;
+    DescriptorPool &_pool;
+    std::vector<vk::WriteDescriptorSet> _writes;
 };
 
 } // namespace cmx

@@ -16,3 +16,8 @@
 [submodule ".external/stb"]
 	path = .external/stb
 	url = https://github.com/nothings/stb.git
+[submodule "external/imgui"]
+	branch = docking
+[submodule "imgui-filebrowser"]
+	path = .external/imgui-filebrowser
+	url = https://github.com/AirGuanZ/imgui-filebrowser.git

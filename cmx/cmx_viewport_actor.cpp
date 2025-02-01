@@ -36,7 +36,7 @@ void ViewportActor::update(float dt)
 
 void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
 {
-    if (!_selected || !CmxEditor::isActive())
+    if (!_selected || !Editor::isActive())
         return;
 
     if (glm::length(movement) <= glm::epsilon<float>())
@@ -50,7 +50,7 @@ void ViewportActor::onMovementInput(float dt, glm::vec2 movement)
 
 void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
 {
-    if (!_selected || !CmxEditor::isActive())
+    if (!_selected || !Editor::isActive())
         return;
 
     // Calculate pitch (around X-axis) and yaw (around Y-axis)

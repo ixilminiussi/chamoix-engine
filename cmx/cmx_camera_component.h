@@ -23,7 +23,7 @@ class CameraComponent : public Component
     ~CameraComponent() = default;
 
     void update(float dt) override;
-    void render(const FrameInfo &, VkPipelineLayout) override;
+    void render(const FrameInfo &, vk::PipelineLayout) override;
 
     void onAttach() override;
 
@@ -41,7 +41,7 @@ class CameraComponent : public Component
     bool _mainCamera{false};
 
 #ifndef NDEBUG
-    class CmxModel *_model;
+    class Model *_model;
 #endif
 };
 

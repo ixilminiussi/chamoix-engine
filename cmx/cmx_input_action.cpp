@@ -80,7 +80,7 @@ const char *toString(AxisAction::Type axisType)
     return "AXES";
 }
 
-void ButtonAction::poll(const CmxWindow &window, float dt)
+void ButtonAction::poll(const Window &window, float dt)
 {
     int newStatus = 0;
 
@@ -174,7 +174,7 @@ void ButtonAction::poll(const CmxWindow &window, float dt)
     }
 }
 
-void AxisAction::poll(const CmxWindow &window, float dt)
+void AxisAction::poll(const Window &window, float dt)
 {
     switch (_type)
     {

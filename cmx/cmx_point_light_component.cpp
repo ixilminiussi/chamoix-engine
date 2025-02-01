@@ -1,6 +1,8 @@
 #include "cmx_point_light_component.h"
 
 // cmx
+#include "cmx/cmx_assets_manager.h"
+#include "cmx/cmx_texture.h"
 #include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
@@ -9,6 +11,7 @@
 // lib
 #include <imgui.h>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -23,6 +26,11 @@ PointLightComponent::PointLightComponent()
 
 void PointLightComponent::onAttach()
 {
+    if (_texture == nullptr)
+    {
+        _texture = getScene()->getAssetsManager()->getTexture("cmx_point_light");
+    }
+
     _key = _keyChain++;
 
     Transform absoluteTransform = getAbsoluteTransform();
@@ -37,11 +45,17 @@ void PointLightComponent::onDetach()
     getScene()->getGraphicsManager()->removePointLight(_key);
 }
 
-void PointLightComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pipelineLayout)
+void PointLightComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
     if (getParent() == nullptr)
     {
-        spdlog::critical("MeshComponent: _parent is expired");
+        spdlog::critical("MeshComponent <{0}>: _parent is expired", name.c_str());
+        return;
+    }
+
+    if (_texture == nullptr)
+    {
+        spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
         return;
     }
 
@@ -54,11 +68,13 @@ void PointLightComponent::render(const FrameInfo &frameInfo, VkPipelineLayout pi
     pushConstant.color = glm::vec4(_lightColor, _lightIntensity);
     pushConstant.scale = _absoluteScaleXY;
 
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(BillboardPushConstant),
-                       &pushConstant);
+    frameInfo.commandBuffer.pushConstants(pipelineLayout,
+                                          vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                          sizeof(BillboardPushConstant), &pushConstant);
 
-    vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
+    _texture->bind(frameInfo.commandBuffer, pipelineLayout);
+
+    frameInfo.commandBuffer.draw(6, 1, 0, 0);
 }
 
 void PointLightComponent::editor(int i)

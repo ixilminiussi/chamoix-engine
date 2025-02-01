@@ -20,7 +20,7 @@
 namespace cmx
 {
 
-InputManager::InputManager(CmxWindow &window, const std::string &filepath)
+InputManager::InputManager(Window &window, const std::string &filepath)
     : _window{window}, _inputDictionary{}, _filepath{filepath}
 {
     _gamepadDetected = glfwJoystickPresent(GLFW_JOYSTICK_1);

@@ -4,6 +4,11 @@
 // cmx
 #include "cmx_component.h"
 
+// must be before
+#include <imgui.h>
+// lib
+#include <imfilebrowser.h>
+
 // std
 #include <memory>
 
@@ -21,12 +26,15 @@ class ViewportUI
     void load();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parent);
 
+    void renderDockSpace();
+    void setupDockLayout();
     void renderTopBar();
     void renderViewportSettings();
     void renderProjectSettings();
     void renderSceneTree();
     void renderInspector();
     void renderGraphicsManager();
+    void renderAssetsManager();
     void renderPlayButton();
 
     void attachScene(class Scene *scene)
@@ -37,13 +45,20 @@ class ViewportUI
     void initImGUI();
 
   private:
+    ImGui::FileBrowser _fileDialog;
+
     bool _initialized{false};
-    std::unique_ptr<class CmxDescriptorPool> _imguiPool;
+    std::unique_ptr<class DescriptorPool> _imguiPool;
 
     bool _showViewportSettings{false};
+    ImGuiID _projectDockID;
     bool _showProjectSettings{false};
+    ImGuiID _sceneTreeDockID;
     bool _showSceneTree{true};
+    ImGuiID _inspectorDockID;
     bool _showInspector{false};
+    ImGuiID _assetsManagerDockID;
+    bool _showAssetsManager{true};
     Actor *_inspectedActor;
 
     class Scene *_attachedScene;
