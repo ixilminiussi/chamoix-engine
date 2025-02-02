@@ -179,7 +179,7 @@ void Transform::load(tinyxml2::XMLElement *transformElement)
 }
 
 ImGuizmo::OPERATION Transformable::currentGuizmoOperation{ImGuizmo::ROTATE};
-bool Transformable::guizmoSnap{false};
+bool Transformable::guizmoSnap{true};
 float Transformable::guizmoSnapTo{1.0f};
 
 void Transformable::setPosition(const glm::vec3 &position)
@@ -218,8 +218,11 @@ void Transformable::editor(class Camera *camera)
     ImGuizmo::BeginFrame();
     glm::mat4 projection = camera->getProjection();
     projection[1][1] *= -1;
+
+    static float defaultSnap = 0.01f;
+
     ImGuizmo::Manipulate((float *)&camera->getView(), (float *)&projection, currentGuizmoOperation, currentGuizmoMode,
-                         (float *)&localMat, NULL, guizmoSnap ? &guizmoSnapTo : NULL);
+                         (float *)&localMat, NULL, guizmoSnap ? &guizmoSnapTo : &defaultSnap);
 
     _transform.fromMat4(localMat);
 

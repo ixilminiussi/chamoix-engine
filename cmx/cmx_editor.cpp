@@ -49,6 +49,9 @@ void Editor::load(Window &cmxWindow)
     _inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, _viewportActor.get());
     _inputManager->bindButton("viewport toggle", &ViewportActor::select, _viewportActor.get());
     _inputManager->bindButton("editor toggle", &Editor::toggle, this);
+    _inputManager->bindButton("translate mode", &ViewportUI::guizmoToTranslate, _viewportUI.get());
+    _inputManager->bindButton("scale mode", &ViewportUI::guizmoToScale, _viewportUI.get());
+    _inputManager->bindButton("rotate mode", &ViewportUI::guizmoToRotate, _viewportUI.get());
 }
 
 void Editor::attachScene(Scene *scene)

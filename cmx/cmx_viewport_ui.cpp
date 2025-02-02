@@ -437,15 +437,15 @@ void ViewportUI::renderGuizmoManager()
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 
     if (ImGui::RadioButton(ICON_MS_OPEN_WITH, Transformable::currentGuizmoOperation == ImGuizmo::TRANSLATE))
-        guizmoToTranslate();
+        guizmoToTranslate(0.f, 0);
 
     ImGui::SameLine();
     if (ImGui::RadioButton(ICON_MS_ROTATE_RIGHT, Transformable::currentGuizmoOperation == ImGuizmo::ROTATE))
-        guizmoToRotate();
+        guizmoToRotate(0.f, 0);
 
     ImGui::SameLine();
     if (ImGui::RadioButton(ICON_MS_ZOOM_OUT_MAP, Transformable::currentGuizmoOperation == ImGuizmo::SCALE))
-        guizmoToScale();
+        guizmoToScale(0.f, 0);
 
     ImGui::SameLine();
     ImGui::Checkbox("snap", &Transformable::guizmoSnap);
@@ -453,7 +453,7 @@ void ViewportUI::renderGuizmoManager()
     {
         ImGui::SameLine();
         ImGui::SetNextItemWidth(30.f);
-        ImGui::DragFloat("snap to", &Transformable::guizmoSnapTo);
+        ImGui::DragFloat("snap to", &Transformable::guizmoSnapTo, 0.01f, 0.01f, 10.f);
     }
 
     ImGui::End();
@@ -492,17 +492,17 @@ void ViewportUI::renderPlayButton()
     //     ImGui::End();
 }
 
-void ViewportUI::guizmoToRotate()
+void ViewportUI::guizmoToRotate(float, int)
 {
     Transformable::currentGuizmoOperation = ImGuizmo::ROTATE;
 }
 
-void ViewportUI::guizmoToScale()
+void ViewportUI::guizmoToScale(float, int)
 {
     Transformable::currentGuizmoOperation = ImGuizmo::SCALE;
 }
 
-void ViewportUI::guizmoToTranslate()
+void ViewportUI::guizmoToTranslate(float, int)
 {
     Transformable::currentGuizmoOperation = ImGuizmo::TRANSLATE;
 }

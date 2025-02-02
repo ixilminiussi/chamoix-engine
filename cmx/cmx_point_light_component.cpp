@@ -79,7 +79,7 @@ void PointLightComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout 
 
 void PointLightComponent::editor(int i)
 {
-    ImGui::DragFloat("Light Intensity", &_lightIntensity, 0.01f, 0.0f, 10.0f, "%.2f");
+    ImGui::DragFloat("Light Intensity", &_lightIntensity, 0.01f, 0.0f, 100.0f, "%.2f");
     ImGui::ColorPicker3("Light Color", (float *)&_lightColor);
 
     Component::editor(i);

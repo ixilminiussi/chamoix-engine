@@ -10,26 +10,26 @@
         <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
-        <texture filepath="assets/textures/chiseled_tuff.png" name="chiseled_tuff"/>
-        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
-        <texture filepath="assets/textures/crimson_planks.png" name="crimson_planks"/>
-        <texture filepath="assets/textures/diorite.png" name="diorite"/>
-        <texture filepath="assets/textures/cherry_planks.png" name="cherry_planks"/>
-        <texture filepath="assets/textures/sand.png" name="sand"/>
-        <texture filepath="assets/textures/fire_ball.png" name="fire_ball"/>
+        <texture filepath="assets/textures/jungle_planks.png" name="jungle_planks"/>
+        <texture filepath="assets/textures/birch_planks.png" name="birch_planks"/>
+        <texture filepath="assets/textures/chiseled_stone_bricks.png" name="chiseled_stone_bricks"/>
+        <texture filepath="assets/textures/bricks.png" name="bricks"/>
         <texture filepath="assets/textures/stone_bricks.png" name="stone_bricks"/>
         <texture filepath="assets/textures/oak_planks.png" name="oak_planks"/>
         <texture filepath="assets/textures/acacia_planks.png" name="acacia_planks"/>
-        <texture filepath="assets/textures/dark_oak_planks.png" name="dark_oak_planks"/>
-        <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
+        <texture filepath="assets/textures/cherry_planks.png" name="cherry_planks"/>
+        <texture filepath="assets/textures/diorite.png" name="diorite"/>
+        <texture filepath="assets/textures/sand.png" name="sand"/>
+        <texture filepath="assets/textures/fire_ball.png" name="fire_ball"/>
+        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
+        <texture filepath="assets/textures/chiseled_tuff.png" name="chiseled_tuff"/>
+        <texture filepath="assets/textures/crimson_planks.png" name="crimson_planks"/>
         <texture filepath="assets/textures/chiseled_tuff_bricks.png" name="chiseled_tuff_bricks"/>
-        <texture filepath="assets/textures/mossy_stone_bricks.png" name="mossy_stone_bricks"/>
-        <texture filepath="assets/textures/planks_big_oak.png" name="planks_big_oak"/>
         <texture filepath="assets/textures/snow.png" name="snow"/>
-        <texture filepath="assets/textures/birch_planks.png" name="birch_planks"/>
-        <texture filepath="assets/textures/jungle_planks.png" name="jungle_planks"/>
-        <texture filepath="assets/textures/chiseled_stone_bricks.png" name="chiseled_stone_bricks"/>
-        <texture filepath="assets/textures/bricks.png" name="bricks"/>
+        <texture filepath="assets/textures/planks_big_oak.png" name="planks_big_oak"/>
+        <texture filepath="assets/textures/mossy_stone_bricks.png" name="mossy_stone_bricks"/>
+        <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
+        <texture filepath="assets/textures/dark_oak_planks.png" name="dark_oak_planks"/>
     </assets>
     <actor type="cmx::PointLightActor" name="RedLight" id="9" visible="true">
         <transform>
@@ -63,9 +63,9 @@
         <transform>
             <position x="0" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="2" y="10" z="2"/>
+            <scale x="1.9999999" y="10" z="2"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" texture="oak_planks" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" texture="mossy_stone_bricks" worldSpaceUV="true" UVoffsetX="0" UVoffsetY="0" UVscale="7" UVrotate="0" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -89,28 +89,28 @@
         <component type="cmx::PhysicsComponent" name="Wall2Collision" visible="true" shape="cmx_plane">
             <transform>
                 <position x="0" y="0" z="-1"/>
-                <rotation pitch="0.70710677" yaw="0" roll="0" w="0.70710677"/>
+                <rotation pitch="0.70710683" yaw="0" roll="0" w="0.70710683"/>
                 <scale x="1" y="1" z="1"/>
             </transform>
         </component>
         <component type="cmx::PhysicsComponent" name="Wall4Collision" visible="true" shape="cmx_plane">
             <transform>
                 <position x="1" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0.70710677" w="0.70710677"/>
+                <rotation pitch="0" yaw="0" roll="0.70710683" w="0.70710683"/>
                 <scale x="1" y="1" z="1"/>
             </transform>
         </component>
         <component type="cmx::PhysicsComponent" name="Wall3Collision" visible="true" shape="cmx_plane">
             <transform>
                 <position x="-1" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0.70710677" w="0.70710677"/>
+                <rotation pitch="0" yaw="0" roll="0.70710683" w="0.70710683"/>
                 <scale x="1" y="1" z="1"/>
             </transform>
         </component>
         <component type="cmx::PhysicsComponent" name="Wall1Collision" visible="true" shape="cmx_plane">
             <transform>
                 <position x="0" y="0" z="1"/>
-                <rotation pitch="0.70710677" yaw="0" roll="0" w="0.70710677"/>
+                <rotation pitch="0.70710683" yaw="0" roll="0" w="0.70710683"/>
                 <scale x="1" y="1" z="1"/>
             </transform>
         </component>
@@ -121,7 +121,7 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
         </component>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_container" texture="oak_planks" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_container" texture="mossy_stone_bricks" worldSpaceUV="true" UVoffsetX="0" UVoffsetY="0" UVscale="7" UVrotate="0" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -138,7 +138,7 @@
     </actor>
     <actor type="ShipActor" name="Ship" id="1" visible="true">
         <transform>
-            <position x="0" y="0" z="0"/>
+            <position x="10.000001" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="1" y="1" z="1"/>
         </transform>
