@@ -112,7 +112,10 @@ void Actor::editor()
 {
     ImGui::Checkbox("is visible", &_isVisible);
 
-    _transform.editor();
+    if (auto camera = getScene()->getCamera().lock())
+    {
+        Transformable::editor(camera.get());
+    }
 
     int i = 0;
     if (_components.size() > 0)

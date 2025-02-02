@@ -12,6 +12,7 @@
 // lib
 #include <GLFW/glfw3.h>
 #include <cstring>
+#include <glm/trigonometric.hpp>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 #include <tinyxml2.h>
@@ -68,6 +69,11 @@ void MeshComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipeli
     push.modelMatrix = transform.mat4();
     push.normalMatrix = transform.normalMatrix();
     push.normalMatrix[3] = glm::vec4(_color, 1.0f);
+
+    push.normalMatrix[0][3] = _UVOffset.x;
+    push.normalMatrix[1][3] = _UVOffset.y;
+    push.normalMatrix[2][3] = _worldSpaceUV ? _UVScale : 0;
+    push.normalMatrix[3][3] = glm::radians(_UVRotate);
 
     frameInfo.commandBuffer.pushConstants(pipelineLayout,
                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
@@ -134,6 +140,11 @@ tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::
 
     componentElement.SetAttribute("model", _model->name.c_str());
     componentElement.SetAttribute("texture", _texture->name.c_str());
+    componentElement.SetAttribute("worldSpaceUV", _worldSpaceUV);
+    componentElement.SetAttribute("UVoffsetX", _UVOffset.x);
+    componentElement.SetAttribute("UVoffsetY", _UVOffset.y);
+    componentElement.SetAttribute("UVscale", _UVScale);
+    componentElement.SetAttribute("UVrotate", _UVRotate);
     componentElement.SetAttribute("r", _color.r);
     componentElement.SetAttribute("g", _color.g);
     componentElement.SetAttribute("b", _color.b);
@@ -152,6 +163,11 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
         _color.r = componentElement->FloatAttribute("r");
         _color.g = componentElement->FloatAttribute("g");
         _color.b = componentElement->FloatAttribute("b");
+        _worldSpaceUV = componentElement->BoolAttribute("worldSpaceUV");
+        _UVOffset =
+            glm::vec2{componentElement->FloatAttribute("UVoffsetX"), componentElement->FloatAttribute("UVoffsetY")};
+        _UVScale = componentElement->FloatAttribute("UVscale");
+        _UVRotate = componentElement->FloatAttribute("UVRotate");
     }
     catch (...)
     {
@@ -206,6 +222,14 @@ void MeshComponent::editor(int i)
         }
 
         ImGui::EndCombo();
+    }
+
+    ImGui::Checkbox("World space UV", &_worldSpaceUV);
+    if (_worldSpaceUV)
+    {
+        ImGui::SliderFloat2("UV offset", (float *)&_UVOffset, -1.f, 1.f);
+        ImGui::DragFloat("Scale", &_UVScale);
+        ImGui::DragFloat("Rotate", &_UVRotate);
     }
 
     ImGui::ColorEdit3("Color##", (float *)&_color);

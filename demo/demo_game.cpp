@@ -90,7 +90,6 @@ void Demo::run()
         renderSystem->free();
     }
     _renderSystems.clear();
-
     cmx::RenderSystem::closeWindow();
 }
 

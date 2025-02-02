@@ -40,6 +40,27 @@ void main()
 
     fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
     fragPositionWorld = worldPosition.xyz;
-    fragUV = uv;
-    // fragColor = color;
+
+    vec2 uvOffset = vec2(push.normalMatrix[0][3], push.normalMatrix[1][3]);
+
+    // if we have push.normalMatrix[3][3] != 0, then we should be using tiling uv mapping. otherwise it's regular uv
+
+    if (push.normalMatrix[2][3] == 0)
+    {
+        fragUV = uv + uvOffset;
+    }
+    else
+    {
+        float scale = push.normalMatrix[2][3];
+        float theta = push.normalMatrix[3][3];
+
+        mat2 rotationMatrix = mat2(cos(theta), -sin(theta), sin(theta), cos(theta));
+
+        vec3 up = abs(fragNormalWorld.z) > 0.999 ? vec3(1, 0, 0) : vec3(0, 0, 1);
+        vec3 tangent = normalize(cross(fragNormalWorld, up));
+        vec3 bitangent = cross(fragNormalWorld, tangent);
+
+        fragUV = rotationMatrix *
+                 (vec2(dot(fragPositionWorld, tangent), dot(fragPositionWorld, bitangent)) / scale + uvOffset);
+    }
 }

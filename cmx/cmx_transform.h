@@ -10,6 +10,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <imgui.h>
+//
+#include ".external/imguizmo/ImGuizmo.h"
 
 namespace cmx
 {
@@ -21,6 +24,7 @@ struct Transform
     glm::quat rotation{glm::vec3{0.f}};
 
     glm::mat4 mat4() const;
+    void fromMat4(const glm::mat4 &);
     glm::mat4 mat4_noScale() const;
     glm::mat3 normalMatrix() const;
     glm::vec3 forward() const;
@@ -52,10 +56,16 @@ class Transformable
     virtual const Transform &getRelativeTransform() const = 0;
     virtual Transform getAbsoluteTransform() const = 0;
 
+    void editor(class Camera *camera);
+
     void setPosition(const glm::vec3 &position);
     void setRotation(const glm::quat &rotation);
     void setRotation(const glm::vec3 &euler);
     void setScale(const glm::vec3 &scale);
+
+    static ImGuizmo::OPERATION currentGuizmoOperation;
+    static bool guizmoSnap;
+    static float guizmoSnapTo;
 
   protected:
     Transform _transform;

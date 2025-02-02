@@ -1,5 +1,10 @@
 #include "cmx_transform.h"
-#include "imgui.h"
+
+// cmx
+#include "cmx_camera.h"
+#include "cmx_scene.h"
+
+// lib
 #include <glm/ext/quaternion_geometric.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -18,6 +23,22 @@ glm::mat4 Transform::mat4() const
     glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
 
     return translationMatrix * rotationMatrix * scaleMatrix; // Combine transformations
+}
+
+void Transform::fromMat4(const glm::mat4 &mat4)
+{
+    position = mat4[3];
+
+    scale.x = glm::length(glm::vec3(mat4[0]));
+    scale.y = glm::length(glm::vec3(mat4[1]));
+    scale.z = glm::length(glm::vec3(mat4[2]));
+
+    glm::mat3 rotationMatrix = glm::mat3(mat4);
+    rotationMatrix[0] /= scale.x;
+    rotationMatrix[1] /= scale.y;
+    rotationMatrix[2] /= scale.z;
+
+    rotation = glm::quat_cast(rotationMatrix);
 }
 
 glm::mat4 Transform::mat4_noScale() const
@@ -157,6 +178,10 @@ void Transform::load(tinyxml2::XMLElement *transformElement)
     }
 }
 
+ImGuizmo::OPERATION Transformable::currentGuizmoOperation{ImGuizmo::ROTATE};
+bool Transformable::guizmoSnap{false};
+float Transformable::guizmoSnapTo{1.0f};
+
 void Transformable::setPosition(const glm::vec3 &position)
 {
     _transform.position = position;
@@ -176,6 +201,29 @@ void Transformable::setRotation(const glm::vec3 &euler)
 void Transformable::setScale(const glm::vec3 &scale)
 {
     _transform.scale = scale;
+}
+
+void Transformable::editor(class Camera *camera)
+{
+    if (camera == nullptr)
+        return;
+
+    static ImGuizmo::MODE currentGuizmoMode{ImGuizmo::WORLD};
+
+    ImGuiIO &io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
+    glm::mat4 localMat = _transform.mat4();
+
+    ImGuizmo::BeginFrame();
+    glm::mat4 projection = camera->getProjection();
+    projection[1][1] *= -1;
+    ImGuizmo::Manipulate((float *)&camera->getView(), (float *)&projection, currentGuizmoOperation, currentGuizmoMode,
+                         (float *)&localMat, NULL, guizmoSnap ? &guizmoSnapTo : NULL);
+
+    _transform.fromMat4(localMat);
+
+    _transform.editor();
 }
 
 } // namespace cmx

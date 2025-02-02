@@ -1,6 +1,8 @@
 #include "cmx_viewport_ui.h"
 
 // cmx
+#include "ImGuizmo.h"
+#include "cmx/cmx_transform.h"
 #include "cmx_actor.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
@@ -100,6 +102,8 @@ void ViewportUI::initImGUI()
     icons_config.GlyphOffset = {0.0f, 4.0f};
     io.Fonts->AddFontFromFileTTF("editor/MaterialIcons-Regular.ttf", iconFontSize, &icons_config, icons_ranges);
     // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
+
+    _fileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
 }
 
 void ViewportUI::render(const class FrameInfo &frameInfo)
@@ -111,9 +115,10 @@ void ViewportUI::render(const class FrameInfo &frameInfo)
     ImGui::NewFrame();
 
     renderDockSpace();
-    setupDockLayout();
 
     renderTopBar();
+    renderGraphicsManager();
+    renderGuizmoManager();
 
     if (_showProjectSettings)
         renderProjectSettings();
@@ -131,9 +136,13 @@ void ViewportUI::render(const class FrameInfo &frameInfo)
         renderAssetsManager();
 
     renderPlayButton();
-    renderGraphicsManager();
 
     _fileDialog.Display();
+    if (_fileDialog.HasSelected())
+    {
+        _attachedScene->saveAs(_fileDialog.GetSelected().string().c_str());
+        _fileDialog.ClearSelected();
+    }
 
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), frameInfo.commandBuffer);
@@ -162,23 +171,26 @@ void ViewportUI::renderDockSpace()
 
     ImGuiID dockspace_id = ImGui::GetID("GlobalDockspace");
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f),
-                     ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);
+                     ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingOverCentralNode);
     ImGui::End();
-}
 
-void ViewportUI::setupDockLayout()
-{
-    ImGuiID dockspace_id = ImGui::GetID("GlobalDockspace");
+    static bool doneAlready{false};
 
-    ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+    if (!doneAlready)
+    {
+        // Remove old layout and create a new dockspace
+        ImGui::DockBuilderRemoveNode(dockspace_id);
 
-    // Remove old layout and create a new dockspace
-    ImGui::DockBuilderRemoveNode(dockspace_id);
-    ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_PassthruCentralNode);
-    ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
+        ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_PassthruCentralNode);
+        ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
 
-    // Finalize layout
-    ImGui::DockBuilderFinish(dockspace_id);
+        // Finalize layout
+        ImGui::DockBuilderFinish(dockspace_id);
+
+        doneAlready = true;
+    }
+
+    _centralNode = ImGui::DockBuilderGetCentralNode(dockspace_id);
 }
 
 void ViewportUI::renderTopBar()
@@ -393,17 +405,56 @@ void ViewportUI::renderInspector()
 
 void ViewportUI::renderGraphicsManager()
 {
-    ImGuiIO &io = ImGui::GetIO();
+    if (_centralNode != nullptr)
+    {
+        ImVec2 pos = _centralNode->Pos;
+        pos.x += 20.f;
+        pos.y += 20.f;
+        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+    }
 
-    ImVec2 topRightPos = ImVec2(io.DisplaySize.x - 150.0f, 30.0f);
-
-    ImGui::SetNextWindowPos(topRightPos, ImGuiCond_Always);
-
-    ImGui::Begin("##", nullptr,
+    ImGui::Begin("##1", nullptr,
                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 
     _attachedScene->getGraphicsManager()->editor();
+
+    ImGui::End();
+}
+
+void ViewportUI::renderGuizmoManager()
+{
+    if (_centralNode != nullptr)
+    {
+        ImVec2 pos = _centralNode->Pos;
+        pos.x += 155.f;
+        pos.y += 20.f;
+        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+    }
+
+    ImGui::Begin("##2", nullptr,
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+
+    if (ImGui::RadioButton(ICON_MS_OPEN_WITH, Transformable::currentGuizmoOperation == ImGuizmo::TRANSLATE))
+        guizmoToTranslate();
+
+    ImGui::SameLine();
+    if (ImGui::RadioButton(ICON_MS_ROTATE_RIGHT, Transformable::currentGuizmoOperation == ImGuizmo::ROTATE))
+        guizmoToRotate();
+
+    ImGui::SameLine();
+    if (ImGui::RadioButton(ICON_MS_ZOOM_OUT_MAP, Transformable::currentGuizmoOperation == ImGuizmo::SCALE))
+        guizmoToScale();
+
+    ImGui::SameLine();
+    ImGui::Checkbox("snap", &Transformable::guizmoSnap);
+    if (Transformable::guizmoSnap)
+    {
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(30.f);
+        ImGui::DragFloat("snap to", &Transformable::guizmoSnapTo);
+    }
 
     ImGui::End();
 }
@@ -439,6 +490,21 @@ void ViewportUI::renderPlayButton()
     //     }
     //
     //     ImGui::End();
+}
+
+void ViewportUI::guizmoToRotate()
+{
+    Transformable::currentGuizmoOperation = ImGuizmo::ROTATE;
+}
+
+void ViewportUI::guizmoToScale()
+{
+    Transformable::currentGuizmoOperation = ImGuizmo::SCALE;
+}
+
+void ViewportUI::guizmoToTranslate()
+{
+    Transformable::currentGuizmoOperation = ImGuizmo::TRANSLATE;
 }
 
 } // namespace cmx

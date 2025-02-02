@@ -18,7 +18,7 @@ void BulletActor::onBegin()
 
     _billboardComponent = std::make_shared<cmx::BillboardComponent>();
     attachComponent(_billboardComponent);
-    _billboardComponent->setHue({1.0f, 0.6f, 0.5f});
+    _billboardComponent->setTexture("fire_ball");
 }
 
 void BulletActor::update(float dt)

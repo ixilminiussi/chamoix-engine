@@ -46,6 +46,10 @@ class MeshComponent : public Component
   private:
     class Model *_model{nullptr};
     class Texture *_texture{nullptr};
+    bool _worldSpaceUV{false};
+    glm::vec2 _UVOffset{0.f};
+    float _UVScale{1.f};
+    float _UVRotate{0.f};
     glm::vec3 _color{1.f};
 };
 

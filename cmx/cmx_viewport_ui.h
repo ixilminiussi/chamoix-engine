@@ -12,6 +12,8 @@
 // std
 #include <memory>
 
+class ImGuiDockNode;
+
 namespace cmx
 {
 
@@ -26,26 +28,31 @@ class ViewportUI
     void load();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parent);
 
-    void renderDockSpace();
-    void setupDockLayout();
-    void renderTopBar();
-    void renderViewportSettings();
-    void renderProjectSettings();
-    void renderSceneTree();
-    void renderInspector();
-    void renderGraphicsManager();
-    void renderAssetsManager();
-    void renderPlayButton();
+    void guizmoToRotate();
+    void guizmoToScale();
+    void guizmoToTranslate();
+
+    void initImGUI();
 
     void attachScene(class Scene *scene)
     {
         _attachedScene = scene;
     };
 
-    void initImGUI();
-
   private:
+    void renderDockSpace();
+    void renderTopBar();
+    void renderViewportSettings();
+    void renderProjectSettings();
+    void renderSceneTree();
+    void renderInspector();
+    void renderGraphicsManager();
+    void renderGuizmoManager();
+    void renderAssetsManager();
+    void renderPlayButton();
+
     ImGui::FileBrowser _fileDialog;
+    ImGuiDockNode *_centralNode{nullptr};
 
     bool _initialized{false};
     std::unique_ptr<class DescriptorPool> _imguiPool;

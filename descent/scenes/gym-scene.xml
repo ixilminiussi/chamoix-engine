@@ -3,35 +3,41 @@
     <assets>
         <model filepath="assets/cmx/container.obj" name="cmx_container"/>
         <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
+        <model filepath="assets/models/enemy-ship.obj" name="enemy-ship"/>
         <model filepath="assets/models/bunny.obj" name="bunny"/>
         <model filepath="assets/cmx/sphere.obj" name="cmx_sphere"/>
         <model filepath="assets/models/smooth_vase.obj" name="vase"/>
         <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
-	<model filepath="assets/cmx/enemy-ship.obj" name="enemy-ship"/>
+        <texture filepath="assets/textures/chiseled_tuff.png" name="chiseled_tuff"/>
+        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
+        <texture filepath="assets/textures/crimson_planks.png" name="crimson_planks"/>
+        <texture filepath="assets/textures/diorite.png" name="diorite"/>
+        <texture filepath="assets/textures/cherry_planks.png" name="cherry_planks"/>
+        <texture filepath="assets/textures/sand.png" name="sand"/>
+        <texture filepath="assets/textures/fire_ball.png" name="fire_ball"/>
+        <texture filepath="assets/textures/stone_bricks.png" name="stone_bricks"/>
+        <texture filepath="assets/textures/oak_planks.png" name="oak_planks"/>
+        <texture filepath="assets/textures/acacia_planks.png" name="acacia_planks"/>
+        <texture filepath="assets/textures/dark_oak_planks.png" name="dark_oak_planks"/>
+        <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
+        <texture filepath="assets/textures/chiseled_tuff_bricks.png" name="chiseled_tuff_bricks"/>
+        <texture filepath="assets/textures/mossy_stone_bricks.png" name="mossy_stone_bricks"/>
+        <texture filepath="assets/textures/planks_big_oak.png" name="planks_big_oak"/>
+        <texture filepath="assets/textures/snow.png" name="snow"/>
+        <texture filepath="assets/textures/birch_planks.png" name="birch_planks"/>
+        <texture filepath="assets/textures/jungle_planks.png" name="jungle_planks"/>
+        <texture filepath="assets/textures/chiseled_stone_bricks.png" name="chiseled_stone_bricks"/>
+        <texture filepath="assets/textures/bricks.png" name="bricks"/>
     </assets>
-    <actor type="ShipActor" name="Ship" id="9" visible="true">
+    <actor type="cmx::PointLightActor" name="RedLight" id="9" visible="true">
         <transform>
-            <position x="0" y="0" z="0"/>
+            <position x="8" y="-8" z="8"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::CameraComponent" name="cmx::CameraComponent" visible="true" fov="80" nearPlane="0.1" farPlane="1000">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="ShipCameraComponent" name="ShipCameraComponent" visible="true" fov="80" nearPlane="0.1" farPlane="1000">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true" shape="cmx_sphere">
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true" lightIntensity="10" r="1" g="0.39215687" b="0.39215687">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -39,55 +45,13 @@
             </transform>
         </component>
     </actor>
-    <actor type="RoomActor" name="Room" id="7" visible="true">
+    <actor type="cmx::PointLightActor" name="BlueLight" id="7" visible="true">
         <transform>
-            <position x="0" y="0" z="0"/>
+            <position x="-8" y="-8" z="-8"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="20" y="10" z="20"/>
+            <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::PhysicsComponent" name="RoofCollision" visible="true" shape="cmx_plane">
-            <transform>
-                <position x="0" y="-1" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="Wall1Collision" visible="true" shape="cmx_plane">
-            <transform>
-                <position x="0" y="0" z="1"/>
-                <rotation pitch="0.99999994" yaw="0" roll="0" w="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="Wall2Collision" visible="true" shape="cmx_plane">
-            <transform>
-                <position x="0" y="0" z="-1"/>
-                <rotation pitch="0.99999994" yaw="0" roll="0" w="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="Wall3Collision" visible="true" shape="cmx_plane">
-            <transform>
-                <position x="-1" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0.99999994" w="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="Wall4Collision" visible="true" shape="cmx_plane">
-            <transform>
-                <position x="1" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0.99999994" w="0"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::PhysicsComponent" name="FloorCollision" visible="true" shape="cmx_plane">
-            <transform>
-                <position x="0" y="1" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_container" r="1" g="1" b="1">
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true" lightIntensity="10" r="0.39215687" g="0.39215687" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -101,7 +65,7 @@
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="2" y="10" z="2"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" texture="oak_planks" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -116,27 +80,90 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::PointLightActor" name="BlueLight" id="3" visible="true">
+    <actor type="RoomActor" name="Room" id="3" visible="true">
         <transform>
-            <position x="-8" y="-8" z="-8"/>
+            <position x="0" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
+            <scale x="20" y="10" z="20"/>
         </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true" lightIntensity="10" r="0.39215687" g="0.39215687" b="1">
+        <component type="cmx::PhysicsComponent" name="Wall2Collision" visible="true" shape="cmx_plane">
+            <transform>
+                <position x="0" y="0" z="-1"/>
+                <rotation pitch="0.70710677" yaw="0" roll="0" w="0.70710677"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="Wall4Collision" visible="true" shape="cmx_plane">
+            <transform>
+                <position x="1" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0.70710677" w="0.70710677"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="Wall3Collision" visible="true" shape="cmx_plane">
+            <transform>
+                <position x="-1" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0.70710677" w="0.70710677"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="Wall1Collision" visible="true" shape="cmx_plane">
+            <transform>
+                <position x="0" y="0" z="1"/>
+                <rotation pitch="0.70710677" yaw="0" roll="0" w="0.70710677"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="CeilingCollision" visible="true" shape="cmx_plane">
+            <transform>
+                <position x="0" y="-1" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_container" texture="oak_planks" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
                 <scale x="1" y="1" z="1"/>
             </transform>
         </component>
+        <component type="cmx::PhysicsComponent" name="FloorCollision" visible="true" shape="cmx_plane">
+            <transform>
+                <position x="0" y="1" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
     </actor>
-    <actor type="cmx::PointLightActor" name="RedLight" id="1" visible="true">
+    <actor type="ShipActor" name="Ship" id="1" visible="true">
         <transform>
-            <position x="8" y="-8" z="8"/>
+            <position x="0" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" visible="true" lightIntensity="10" r="1" g="0.39215687" b="0.39215687">
+        <component type="cmx::CameraComponent" name="cmx::CameraComponent" visible="true" fov="80" nearPlane="0.1" farPlane="1000" isMain="false">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="GunComponent" name="GunComponent" visible="true">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="ShipCameraComponent" name="ShipCameraComponent" visible="true" fov="80" nearPlane="0.1" farPlane="1000" isMain="false">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true" shape="cmx_sphere">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
