@@ -39,11 +39,11 @@ void GunComponent::shoot()
 
     if (auto camera = _cameraComponent.lock())
     {
-        transform = camera->getAbsoluteTransform();
+        transform = camera->getWorldSpaceTransform();
     }
     else
     {
-        transform = getAbsoluteTransform();
+        transform = getWorldSpaceTransform();
     }
 
     transform.position = transform.position + (transform.up() * -1.0f);

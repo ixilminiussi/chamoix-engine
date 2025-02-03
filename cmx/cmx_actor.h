@@ -83,8 +83,8 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
         return _id;
     }
 
-    Transform getAbsoluteTransform() const override;
-    const Transform &getRelativeTransform() const override
+    Transform getWorldSpaceTransform() const override;
+    const Transform &getLocalSpaceTransform() const override
     {
         return _transform;
     }

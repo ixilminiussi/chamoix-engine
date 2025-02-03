@@ -2,7 +2,7 @@
 #define SHAPES
 
 // cmx
-#include "cmx/cmx_physics_component.h"
+#include "cmx_physics_component.h"
 #include "cmx_transform.h"
 
 // lib
@@ -29,7 +29,7 @@ inline void HitInfo::flip()
     normal = -normal;
 }
 
-class Shape : public Transformable
+class Shape : private Transformable
 {
   public:
     Shape(Transformable *parent);
@@ -41,8 +41,10 @@ class Shape : public Transformable
     virtual bool overlapsWith(const class Plane &, HitInfo &) const = 0;
     virtual bool overlapsWith(const class Cuboid &, HitInfo &) const = 0;
 
-    Transform getAbsoluteTransform() const override;
-    const Transform &getRelativeTransform() const override;
+    Transform getWorldSpaceTransform() const override;
+    const Transform &getLocalSpaceTransform() const override;
+
+    virtual glm::vec3 getCenterOfMass() const = 0;
 
     bool wasOverlapping(class PhysicsComponent *) const;
     bool isOverlapping(class PhysicsComponent *) const;
@@ -71,15 +73,20 @@ class Shape : public Transformable
 class Sphere : public Shape
 {
   public:
-    Sphere(Transformable *);
+    Sphere(cmx::Transformable *);
     ~Sphere() {};
 
-    virtual void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
+    void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
 
-    virtual bool overlapsWith(const Shape &, HitInfo &) const override;
-    virtual bool overlapsWith(const Sphere &, HitInfo &) const override;
-    virtual bool overlapsWith(const Plane &, HitInfo &) const override;
-    virtual bool overlapsWith(const Cuboid &, HitInfo &) const override;
+    bool overlapsWith(const Shape &, HitInfo &) const override;
+    bool overlapsWith(const Sphere &, HitInfo &) const override;
+    bool overlapsWith(const Plane &, HitInfo &) const override;
+    bool overlapsWith(const Cuboid &, HitInfo &) const override;
+
+    glm::vec3 getCenterOfMass() const override
+    {
+        return getLocalSpaceTransform().position;
+    }
 
     virtual std::string getName() const override;
 
@@ -89,7 +96,7 @@ class Sphere : public Shape
 
 struct Plane : public Shape
 {
-    Plane(Transformable *);
+    Plane(cmx::Transformable *);
 
     virtual void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
 
@@ -100,6 +107,11 @@ struct Plane : public Shape
     virtual bool overlapsWith(const Plane &, HitInfo &) const override;
     virtual bool overlapsWith(const Cuboid &, HitInfo &) const override;
 
+    glm::vec3 getCenterOfMass() const override
+    {
+        return getLocalSpaceTransform().position;
+    }
+
     virtual std::string getName() const override;
 
     glm::vec4 getMin(const glm::mat4 & = glm::mat4{1.f}) const;
@@ -109,7 +121,7 @@ struct Plane : public Shape
 class Cuboid : public Shape
 {
   public:
-    Cuboid(Transformable *);
+    Cuboid(cmx::Transformable *);
 
     virtual void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
 
@@ -119,6 +131,11 @@ class Cuboid : public Shape
     virtual bool overlapsWith(const Sphere &, HitInfo &) const override;
     virtual bool overlapsWith(const Plane &, HitInfo &) const override;
     virtual bool overlapsWith(const Cuboid &, HitInfo &) const override;
+
+    glm::vec3 getCenterOfMass() const override
+    {
+        return getLocalSpaceTransform().position;
+    }
 
     virtual std::string getName() const override;
 

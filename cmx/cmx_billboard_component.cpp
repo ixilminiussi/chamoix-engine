@@ -44,7 +44,7 @@ void BillboardComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout p
         return;
     }
 
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
 
     BillboardPushConstant pushConstant;
     pushConstant.position = glm::vec4(transform.position, 1.0f);

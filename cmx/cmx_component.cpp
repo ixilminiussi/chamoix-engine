@@ -96,16 +96,16 @@ void Component::setParent(Actor *actor)
     }
 }
 
-const Transform &Component::getRelativeTransform() const
+const Transform &Component::getLocalSpaceTransform() const
 {
     return _transform;
 }
 
-Transform Component::getAbsoluteTransform() const
+Transform Component::getWorldSpaceTransform() const
 {
     if (_parent != nullptr)
     {
-        return _parent->getAbsoluteTransform() + _transform;
+        return _parent->getWorldSpaceTransform() + _transform;
     }
     return _transform;
 }

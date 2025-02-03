@@ -53,6 +53,7 @@ class RenderSystem
     static void closeWindow();
 
     static unsigned int createSamplerDescriptor(vk::ImageView, vk::Sampler);
+    static void freeSamplerDescriptor(unsigned int descriptorSetID);
     static vk::DescriptorSet &getSamplerDescriptorSet(unsigned int index);
 
     virtual void initialize() = 0;

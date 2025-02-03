@@ -45,7 +45,7 @@ void CameraComponent::onAttach()
 
 void CameraComponent::update(float dt)
 {
-    Transform absoluteTransform = getAbsoluteTransform();
+    Transform absoluteTransform = getWorldSpaceTransform();
     _camera->setViewDirection(absoluteTransform.position, absoluteTransform.forward(), absoluteTransform.up());
 }
 
@@ -68,7 +68,7 @@ void CameraComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipe
     if (_model)
     {
         EdgePushConstantData push{};
-        push.modelMatrix = getAbsoluteTransform().mat4();
+        push.modelMatrix = getWorldSpaceTransform().mat4();
         push.color = _mainCamera ? glm::vec3{0.f, 1.f, 0.f} : glm::vec3{1.f, 1.f, 1.f};
         frameInfo.commandBuffer.pushConstants(pipelineLayout,
                                               vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,

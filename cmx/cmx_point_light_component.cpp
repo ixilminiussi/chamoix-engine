@@ -33,7 +33,7 @@ void PointLightComponent::onAttach()
 
     _key = _keyChain++;
 
-    Transform absoluteTransform = getAbsoluteTransform();
+    Transform absoluteTransform = getWorldSpaceTransform();
     _absolutePosition = absoluteTransform.position;
     _absoluteScaleXY = glm::vec2(absoluteTransform.scale.x, absoluteTransform.scale.y);
 
@@ -59,7 +59,7 @@ void PointLightComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout 
         return;
     }
 
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
     _absolutePosition = transform.position;
     _absoluteScaleXY = glm::vec2(transform.scale.x, transform.scale.y);
 

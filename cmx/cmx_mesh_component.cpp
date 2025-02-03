@@ -64,7 +64,7 @@ void MeshComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipeli
     }
 
     SimplePushConstantData push{};
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
 
     push.modelMatrix = transform.mat4();
     push.normalMatrix = transform.normalMatrix();

@@ -95,13 +95,13 @@ std::weak_ptr<Component> Actor::getComponentByName(const std::string &name)
     return it->second;
 }
 
-Transform Actor::getAbsoluteTransform() const
+Transform Actor::getWorldSpaceTransform() const
 {
     if (positioning == Positioning::RELATIVE)
     {
         if (auto parentActor = _parent.lock())
         {
-            return _transform + parentActor->getAbsoluteTransform();
+            return _transform + parentActor->getWorldSpaceTransform();
         }
     }
 

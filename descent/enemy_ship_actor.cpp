@@ -80,8 +80,8 @@ void EnemyShipActor::tiltToPlayer(float dt)
         return;
     }
 
-    cmx::Transform playerTransform = player->getAbsoluteTransform();
-    cmx::Transform transform = getAbsoluteTransform();
+    cmx::Transform playerTransform = player->getWorldSpaceTransform();
+    cmx::Transform transform = getWorldSpaceTransform();
 
     glm::vec3 goal = glm::normalize(playerTransform.position - transform.position);
 

@@ -54,8 +54,8 @@ class Component : public std::enable_shared_from_this<Component>, public Transfo
         return _requestedRenderSystem;
     }
 
-    const Transform &getRelativeTransform() const override;
-    Transform getAbsoluteTransform() const override;
+    const Transform &getLocalSpaceTransform() const override;
+    Transform getWorldSpaceTransform() const override;
 
     class Scene *getScene()
     {

@@ -53,8 +53,8 @@ class Transformable
     Transformable(const Transform &transform) : _transform{transform} {};
     ~Transformable() = default;
 
-    virtual const Transform &getRelativeTransform() const = 0;
-    virtual Transform getAbsoluteTransform() const = 0;
+    virtual const Transform &getLocalSpaceTransform() const = 0;
+    virtual Transform getWorldSpaceTransform() const = 0;
 
     void editor(class Camera *camera);
 

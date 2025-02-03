@@ -146,6 +146,12 @@ unsigned int RenderSystem::createSamplerDescriptor(vk::ImageView imageView, vk::
     return _samplerDescriptorSets.size() - 1;
 }
 
+void RenderSystem::freeSamplerDescriptor(unsigned int descriptorSetID)
+{
+    vk::DescriptorSet &descriptorSet = getSamplerDescriptorSet(descriptorSetID);
+    _device->device().freeDescriptorSets(_samplerDescriptorPool->getDescriptorPool(), 1, &descriptorSet);
+}
+
 vk::DescriptorSet &RenderSystem::getSamplerDescriptorSet(unsigned int index)
 {
     if (index >= _samplerDescriptorSets.size())

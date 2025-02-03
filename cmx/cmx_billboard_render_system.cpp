@@ -95,10 +95,10 @@ void BillboardRenderSystem::render(const FrameInfo *frameInfo, std::vector<std::
               [cameraPosition](const std::shared_ptr<Component> a, const std::shared_ptr<Component> b) {
                   if (a->getRenderZ() == b->getRenderZ())
                   {
-                      glm::vec3 differenceA = cameraPosition - a->getAbsoluteTransform().position;
+                      glm::vec3 differenceA = cameraPosition - a->getWorldSpaceTransform().position;
                       float distanceSquaredA = glm::dot(differenceA, differenceA);
 
-                      glm::vec3 differenceB = cameraPosition - b->getAbsoluteTransform().position;
+                      glm::vec3 differenceB = cameraPosition - b->getWorldSpaceTransform().position;
                       float distanceSquaredB = glm::dot(differenceB, differenceB);
 
                       return distanceSquaredA > distanceSquaredB;

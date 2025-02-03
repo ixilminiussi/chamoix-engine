@@ -50,6 +50,7 @@ void Texture::free()
     device->device().destroyImage(_image);
     device->device().destroyImageView(_imageView);
     device->device().freeMemory(_imageMemory);
+    RenderSystem::freeSamplerDescriptor(_descriptorSetID);
 
     _freed = true;
 }

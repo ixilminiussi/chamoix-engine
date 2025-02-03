@@ -22,22 +22,22 @@
 namespace cmx
 {
 
-Shape::Shape(Transformable *parent) : _parent{parent}
+Shape::Shape(cmx::Transformable *parent) : _parent{parent}
 {
     _overlappingComponents[0] = {};
     _overlappingComponents[1] = {};
 }
 
-Transform Shape::getAbsoluteTransform() const
+Transform Shape::getWorldSpaceTransform() const
 {
     if (_parent)
     {
-        return _parent->getAbsoluteTransform();
+        return _parent->getWorldSpaceTransform();
     }
     return Transform::ONE;
 }
 
-const Transform &Shape::getRelativeTransform() const
+const Transform &Shape::getLocalSpaceTransform() const
 {
     return Transform::ONE;
 }
@@ -118,7 +118,7 @@ void Shape::swapBuffer()
     _overlappingComponents[_buffer].clear();
 }
 
-Sphere::Sphere(Transformable *parent) : Shape{parent}
+Sphere::Sphere(cmx::Transformable *parent) : Shape{parent}
 {
 }
 
@@ -131,7 +131,7 @@ void Sphere::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayou
 {
     EdgePushConstantData push{};
 
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
     transform.scale.x = getRadius();
     transform.scale.y = transform.scale.x;
     transform.scale.z = transform.scale.y;
@@ -213,17 +213,17 @@ bool Sphere::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
 
 glm::vec3 Sphere::getCenter() const
 {
-    return getAbsoluteTransform().position;
+    return getWorldSpaceTransform().position;
 }
 
 float Sphere::getRadius() const
 {
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
 
     return std::max(std::max(transform.scale.x, transform.scale.y), transform.scale.z);
 }
 
-Plane::Plane(Transformable *parent) : Shape{parent}
+Plane::Plane(cmx::Transformable *parent) : Shape{parent}
 {
 }
 
@@ -236,7 +236,7 @@ void Plane::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout
 {
     EdgePushConstantData push{};
 
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
 
     push.modelMatrix = transform.mat4();
     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
@@ -289,7 +289,7 @@ bool Plane::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
     if (!(mask & other.mask))
         return false;
 
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
 
     glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
 
@@ -327,7 +327,7 @@ glm::vec4 Plane::getMax(const glm::mat4 &mat4) const
     return mat4 * glm::vec4{1.f, 0.f, 1.f, 1.f};
 }
 
-Cuboid::Cuboid(Transformable *parent) : Shape{parent}
+Cuboid::Cuboid(cmx::Transformable *parent) : Shape{parent}
 {
 }
 
@@ -340,7 +340,7 @@ void Cuboid::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayou
 {
     EdgePushConstantData push{};
 
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
 
     push.modelMatrix = transform.mat4();
     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
@@ -390,7 +390,7 @@ bool Cuboid::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
 
 bool Cuboid::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
 {
-    Transform transform = getAbsoluteTransform();
+    Transform transform = getWorldSpaceTransform();
 
     glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
 

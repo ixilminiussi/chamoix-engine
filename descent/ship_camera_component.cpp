@@ -11,7 +11,7 @@ void ShipCameraComponent::update(float dt)
 {
     _cummulatedTime += dt;
 
-    cmx::Transform transform = getAbsoluteTransform();
+    cmx::Transform transform = getWorldSpaceTransform();
     _camera->setViewDirection(transform.position, transform.forward(), transform.up());
 
     bob();
