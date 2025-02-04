@@ -37,12 +37,13 @@ class PhysicsComponent : public Component
     }
 
     void setShape(const std::string &);
-
     void setMask(uint8_t mask);
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
-    void load(tinyxml2::XMLElement *) override;
-    void editor(int i) override;
+    glm::mat3 getInverseInertiaTensorLocalSpace() const;
+    glm::mat3 getInverseInertiaTensorWorldSpace() const;
+
+    glm::vec3 getCenterOfMassLocalSpace() const;
+    glm::vec3 getCenterOfMassWorldSpace() const;
 
     // rigid body functions BEGIN
     bool isRigid() const
@@ -50,13 +51,20 @@ class PhysicsComponent : public Component
         return _physicsMode == PhysicsMode::RIGID;
     }
     void applyCollision(float dt, const class HitInfo &hitInfo, const PhysicsComponent &other);
+    void applyImpulse(const glm::vec3 &impulseOrigin, const glm::vec3 &impulse);
     void applyImpulseLinear(const glm::vec3 &);
+    void applyImpulseAngular(const glm::vec3 &);
     void applyGravity(float dt);
     void applyVelocity(float dt);
     // rigid body functions END
 
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    void load(tinyxml2::XMLElement *) override;
+    void editor(int i) override;
+
   protected:
     glm::vec3 _linearVelocity{};
+    glm::vec3 _angularVelocity{};
     glm::vec3 _gravity{0.f, 10.f, 0.f};
 
     float _inverseMass{0.f};

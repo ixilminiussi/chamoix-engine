@@ -211,6 +211,18 @@ bool Sphere::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
     return false;
 }
 
+glm::mat3 Sphere::getInertiaTensor() const
+{
+    glm::mat3 tensor{0.f};
+
+    const float radius = getRadius();
+    tensor[0][0] = 2.0f * radius * radius / 5.0f;
+    tensor[1][1] = 2.0f * radius * radius / 5.0f;
+    tensor[2][2] = 2.0f * radius * radius / 5.0f;
+
+    return tensor;
+}
+
 glm::vec3 Sphere::getCenter() const
 {
     return getWorldSpaceTransform().position;
@@ -317,6 +329,23 @@ bool Plane::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
     return hitInfo.depth > 0;
 }
 
+glm::mat3 Plane::getInertiaTensor() const
+{
+    glm::mat3 tensor{0.f};
+
+    glm::vec3 scale = getWorldSpaceTransform().scale;
+
+    const float a = scale.x * 2.0f;
+    const float b = scale.y * 2.0f;
+    const float c = scale.z * 2.0f;
+
+    tensor[0][0] = (b * b + c * c) / 12.0f;
+    tensor[1][1] = (a * a + c * c) / 12.0f;
+    tensor[2][2] = (a * a + b * b) / 12.0f;
+
+    return tensor;
+}
+
 glm::vec4 Plane::getMin(const glm::mat4 &mat4) const
 {
     return mat4 * glm::vec4{-1.f, 0.f, -1.f, 1.f};
@@ -418,6 +447,23 @@ bool Cuboid::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
     hitInfo.normal = (hitInfo.depth <= glm::epsilon<float>()) ? hitInfo.normal : glm::normalize(hitInfo.normal);
 
     return hitInfo.depth > 0;
+}
+
+glm::mat3 Cuboid::getInertiaTensor() const
+{
+    glm::mat3 tensor{0.f};
+
+    glm::vec3 scale = getWorldSpaceTransform().scale;
+
+    const float a = scale.x * 2.0f;
+    const float b = scale.y * 2.0f;
+    const float c = scale.z * 2.0f;
+
+    tensor[0][0] = (b * b + c * c) / 12.0f;
+    tensor[1][1] = (a * a + c * c) / 12.0f;
+    tensor[2][2] = (a * a + b * b) / 12.0f;
+
+    return tensor;
 }
 
 glm::vec4 Cuboid::getMin(const glm::mat4 &mat4) const

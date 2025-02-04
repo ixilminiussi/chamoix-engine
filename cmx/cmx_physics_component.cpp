@@ -10,7 +10,9 @@
 #include "cmx_render_system.h"
 #include "cmx_shapes.h"
 #include "imgui.h"
+#include <glm/ext/quaternion_geometric.hpp>
 #include <glm/ext/scalar_constants.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace cmx
 {
@@ -70,6 +72,29 @@ void PhysicsComponent::setMask(uint8_t mask)
     _shape->setMask(mask);
 }
 
+glm::vec3 PhysicsComponent::getCenterOfMassLocalSpace() const
+{
+    return _shape->getCenterOfMass();
+}
+
+glm::vec3 PhysicsComponent::getCenterOfMassWorldSpace() const
+{
+    return glm::vec3(getWorldSpaceTransform().mat4() * glm::vec4(_shape->getCenterOfMass(), 1.0f));
+}
+
+glm::mat3 PhysicsComponent::getInverseInertiaTensorLocalSpace() const
+{
+    return glm::inverse(_shape->getInertiaTensor()) * _inverseMass;
+}
+
+glm::mat3 PhysicsComponent::getInverseInertiaTensorWorldSpace() const
+{
+    glm::mat3 inverseInertiaTensor = glm::inverse(_shape->getInertiaTensor()) * _inverseMass;
+    glm::mat3 orient = glm::mat3_cast(getWorldSpaceTransform().rotation);
+
+    return orient * inverseInertiaTensor * glm::transpose(orient);
+}
+
 void PhysicsComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
 #ifndef NDEBUG
@@ -108,6 +133,8 @@ tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml
         componentElement.SetAttribute("inverseMass", _inverseMass);
     }
 
+    componentElement.SetAttribute("bounciness", _bounciness);
+
     return componentElement;
 }
 
@@ -130,6 +157,8 @@ void PhysicsComponent::load(tinyxml2::XMLElement *componentElement)
             if (_inverseMass <= glm::epsilon<float>())
                 _inverseMass = 0.f;
         }
+
+        _bounciness = componentElement->FloatAttribute("bounciness");
     }
     catch (...)
     {
@@ -199,8 +228,8 @@ void PhysicsComponent::editor(int i)
 
     if (_physicsMode == PhysicsMode::RIGID)
     {
-        ImGui::SliderFloat("inverse mass", &_inverseMass, 0.f, 10.f);
-        ImGui::SliderFloat3("gravity", (float *)&_gravity, 0.f, 100.f);
+        ImGui::DragFloat("inverse mass", &_inverseMass, .1f, 0.f, 10.f);
+        ImGui::DragFloat3("gravity", (float *)&_gravity, 0.f, 100.f);
     }
 
     Component::editor(i);
@@ -211,7 +240,7 @@ void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const Ph
     if (getParent() == nullptr)
         return;
 
-    if (_inverseMass <= glm::epsilon<float>())
+    if (_inverseMass == 0.f)
         return;
 
     const Transform transform = getParent()->getWorldSpaceTransform();
@@ -240,12 +269,37 @@ void PhysicsComponent::applyImpulseLinear(const glm::vec3 &impulse)
 
 void PhysicsComponent::applyGravity(float dt)
 {
-    if (_inverseMass > glm::epsilon<float>())
+    if (_inverseMass > 0.f)
     {
         float mass = 1.f / _inverseMass;
         glm::vec3 impulseGravity = _gravity * mass * dt;
 
         applyImpulseLinear(impulseGravity);
+    }
+}
+
+void PhysicsComponent::applyImpulse(const glm::vec3 &impulseOrigin, const glm::vec3 &impulse)
+{
+    if (_inverseMass == 0.0f)
+        return;
+
+    applyImpulseLinear(impulse);
+
+    glm::vec3 r = impulseOrigin - getCenterOfMassWorldSpace();
+    applyImpulseAngular(glm::cross(r, impulse));
+}
+
+void PhysicsComponent::applyImpulseAngular(const glm::vec3 &impulse)
+{
+    if (_inverseMass == 0.0f)
+        return;
+
+    _angularVelocity += getInverseInertiaTensorWorldSpace() * impulse;
+
+    const float maxAngularSpeed = 30.0f;
+    if (_angularVelocity.length() > maxAngularSpeed)
+    {
+        _angularVelocity = glm::normalize(_angularVelocity) * maxAngularSpeed;
     }
 }
 
