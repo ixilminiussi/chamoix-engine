@@ -1,15 +1,16 @@
 #include "cmx_physics_component.h"
 
 // cmx
-#include "cmx/cmx_physics.h"
 #include "cmx_actor.h"
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
+#include "cmx_physics.h"
 #include "cmx_physics_manager.h"
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
 #include "cmx_shapes.h"
 #include "imgui.h"
+#include <glm/ext/scalar_constants.hpp>
 
 namespace cmx
 {
@@ -97,6 +98,15 @@ tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
     std::string name = _shape->getName();
     componentElement.SetAttribute("shape", name.c_str());
+    componentElement.SetAttribute("physicsMode", physicsModeToString(_physicsMode));
+
+    if (_physicsMode == PhysicsMode::RIGID)
+    {
+        componentElement.SetAttribute("gravityX", _gravity.x);
+        componentElement.SetAttribute("gravityY", _gravity.y);
+        componentElement.SetAttribute("gravityZ", _gravity.z);
+        componentElement.SetAttribute("inverseMass", _inverseMass);
+    }
 
     return componentElement;
 }
@@ -105,7 +115,25 @@ void PhysicsComponent::load(tinyxml2::XMLElement *componentElement)
 {
     Component::load(componentElement);
 
-    setShape(componentElement->Attribute("shape"));
+    try
+    {
+        setShape(componentElement->Attribute("shape"));
+        const char *physicsModeStr = componentElement->Attribute("physicsMode");
+        setPhysicsMode(physicsModeFromString(physicsModeStr));
+
+        if (_physicsMode == PhysicsMode::RIGID)
+        {
+            _gravity.x = componentElement->FloatAttribute("gravityX");
+            _gravity.y = componentElement->FloatAttribute("gravityY");
+            _gravity.z = componentElement->FloatAttribute("gravityZ");
+            _inverseMass = componentElement->FloatAttribute("inverseMass");
+            if (_inverseMass <= glm::epsilon<float>())
+                _inverseMass = 0.f;
+        }
+    }
+    catch (...)
+    {
+    }
 }
 
 void PhysicsComponent::editor(int i)
@@ -167,7 +195,64 @@ void PhysicsComponent::editor(int i)
         }
     }
 
+    ImGui::DragFloat("bounciness", &_bounciness, 0.5f, 0.f, 1.0f);
+
+    if (_physicsMode == PhysicsMode::RIGID)
+    {
+        ImGui::SliderFloat("inverse mass", &_inverseMass, 0.f, 10.f);
+        ImGui::SliderFloat3("gravity", (float *)&_gravity, 0.f, 100.f);
+    }
+
     Component::editor(i);
+}
+
+void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const PhysicsComponent &other)
+{
+    if (getParent() == nullptr)
+        return;
+
+    if (_inverseMass <= glm::epsilon<float>())
+        return;
+
+    const Transform transform = getParent()->getWorldSpaceTransform();
+
+    const float otherInvMass = other.isRigid() ? other._inverseMass : 0.f;
+
+    const float t = _inverseMass / (otherInvMass + _inverseMass);
+    const glm::vec3 d = hitInfo.normal * hitInfo.depth;
+
+    getParent()->setPosition(transform.position - (t * d));
+
+    // Collision impulse
+    const glm::vec3 &relVelocity = _linearVelocity - other._linearVelocity;
+    const float impulse = (-(1.0f + _bounciness * other._bounciness) * glm::dot(hitInfo.normal, relVelocity)) /
+                          (_inverseMass + otherInvMass);
+
+    applyImpulseLinear(hitInfo.normal * impulse);
+
+    _shape->reassess();
+}
+
+void PhysicsComponent::applyImpulseLinear(const glm::vec3 &impulse)
+{
+    _linearVelocity += impulse * _inverseMass;
+}
+
+void PhysicsComponent::applyGravity(float dt)
+{
+    if (_inverseMass > glm::epsilon<float>())
+    {
+        float mass = 1.f / _inverseMass;
+        glm::vec3 impulseGravity = _gravity * mass * dt;
+
+        applyImpulseLinear(impulseGravity);
+    }
+}
+
+void PhysicsComponent::applyVelocity(float dt)
+{
+    if (getParent())
+        getParent()->setPosition(getParent()->getWorldSpaceTransform().position += _linearVelocity * dt);
 }
 
 } // namespace cmx

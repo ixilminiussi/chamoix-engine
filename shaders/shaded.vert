@@ -47,7 +47,7 @@ void main()
 
     if (push.normalMatrix[2][3] == 0)
     {
-        fragUV = uv + uvOffset;
+        fragUV = vec2(uv.x, 1.0 - uv.y) + uvOffset;
     }
     else
     {
@@ -63,4 +63,5 @@ void main()
         fragUV = rotationMatrix *
                  (vec2(dot(fragPositionWorld, tangent), dot(fragPositionWorld, bitangent)) / scale + uvOffset);
     }
+    fragUV = vec2(uv.x, 1.0 - uv.y);
 }

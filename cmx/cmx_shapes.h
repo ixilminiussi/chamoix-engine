@@ -44,7 +44,8 @@ class Shape : private Transformable
     Transform getWorldSpaceTransform() const override;
     const Transform &getLocalSpaceTransform() const override;
 
-    virtual glm::vec3 getCenterOfMass() const = 0;
+    virtual glm::vec3 getCenterOfMassLocalSpace() const = 0;
+    virtual glm::vec3 getCenterOfMassWorldSpace() const = 0;
 
     bool wasOverlapping(class PhysicsComponent *) const;
     bool isOverlapping(class PhysicsComponent *) const;
@@ -83,9 +84,13 @@ class Sphere : public Shape
     bool overlapsWith(const Plane &, HitInfo &) const override;
     bool overlapsWith(const Cuboid &, HitInfo &) const override;
 
-    glm::vec3 getCenterOfMass() const override
+    glm::vec3 getCenterOfMassLocalSpace() const override
     {
         return getLocalSpaceTransform().position;
+    }
+    glm::vec3 getCenterOfMassWorldSpace() const override
+    {
+        return getWorldSpaceTransform().position;
     }
 
     virtual std::string getName() const override;
@@ -107,9 +112,13 @@ struct Plane : public Shape
     virtual bool overlapsWith(const Plane &, HitInfo &) const override;
     virtual bool overlapsWith(const Cuboid &, HitInfo &) const override;
 
-    glm::vec3 getCenterOfMass() const override
+    glm::vec3 getCenterOfMassLocalSpace() const override
     {
         return getLocalSpaceTransform().position;
+    }
+    glm::vec3 getCenterOfMassWorldSpace() const override
+    {
+        return getWorldSpaceTransform().position;
     }
 
     virtual std::string getName() const override;
@@ -132,9 +141,13 @@ class Cuboid : public Shape
     virtual bool overlapsWith(const Plane &, HitInfo &) const override;
     virtual bool overlapsWith(const Cuboid &, HitInfo &) const override;
 
-    glm::vec3 getCenterOfMass() const override
+    glm::vec3 getCenterOfMassLocalSpace() const override
     {
         return getLocalSpaceTransform().position;
+    }
+    glm::vec3 getCenterOfMassWorldSpace() const override
+    {
+        return getWorldSpaceTransform().position;
     }
 
     virtual std::string getName() const override;

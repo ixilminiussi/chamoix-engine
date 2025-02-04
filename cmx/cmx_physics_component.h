@@ -31,11 +31,6 @@ class PhysicsComponent : public Component
         return _physicsMode;
     }
 
-    float getAbsorptionCoefficient()
-    {
-        return _absorptionCoefficient;
-    }
-
     const std::shared_ptr<class Shape> getShape()
     {
         return _shape;
@@ -49,10 +44,26 @@ class PhysicsComponent : public Component
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
 
+    // rigid body functions BEGIN
+    bool isRigid() const
+    {
+        return _physicsMode == PhysicsMode::RIGID;
+    }
+    void applyCollision(float dt, const class HitInfo &hitInfo, const PhysicsComponent &other);
+    void applyImpulseLinear(const glm::vec3 &);
+    void applyGravity(float dt);
+    void applyVelocity(float dt);
+    // rigid body functions END
+
   protected:
+    glm::vec3 _linearVelocity{};
+    glm::vec3 _gravity{0.f, 10.f, 0.f};
+
+    float _inverseMass{0.f};
+    float _bounciness{0.5f};
+
     uint8_t _mask{MASK_ALL};
     PhysicsMode _physicsMode{PhysicsMode::STATIC};
-    float _absorptionCoefficient{0.2f};
     std::shared_ptr<class Shape> _shape;
 };
 

@@ -1,15 +1,16 @@
 #include "demo_game.h"
 
-#include "cmx/cmx_editor.h"
 #include "dynamic_body_actor.h"
 #include "rotating_actor.h"
 #include "static_body_actor.h"
 
 // cmx
+#include <algorithm>
 #include <cmx/cmx_actor.h>
 #include <cmx/cmx_assets_manager.h>
 #include <cmx/cmx_billboard_render_system.h>
 #include <cmx/cmx_edge_render_system.h>
+#include <cmx/cmx_editor.h>
 #include <cmx/cmx_input_manager.h>
 #include <cmx/cmx_register.h>
 #include <cmx/cmx_render_system.h>
@@ -67,7 +68,7 @@ void Demo::run()
 #endif
     while (!_window.shouldClose())
     {
-        float dt = glfwGetTime();
+        float dt = std::min(glfwGetTime(), 0.2);
         glfwSetTime(0.);
 
 #ifndef NDEBUG

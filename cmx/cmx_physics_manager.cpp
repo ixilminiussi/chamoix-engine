@@ -14,7 +14,7 @@
 namespace cmx
 {
 
-PhysicsManager::PhysicsManager() : _dynamicComponents{}, _staticComponents{}
+PhysicsManager::PhysicsManager() : _dynamicComponents{}, _staticComponents{}, _rigidComponents{}
 {
 }
 
@@ -26,6 +26,10 @@ void PhysicsManager::executeStep(float dt)
 {
     auto advance = [&](auto &it) {
         it++;
+        if (it == _rigidComponents.end())
+        {
+            it = _dynamicComponents.begin();
+        }
         if (it == _dynamicComponents.end())
         {
             it = _staticComponents.begin();
@@ -34,7 +38,14 @@ void PhysicsManager::executeStep(float dt)
 
     bool first = true;
 
-    for (auto it = _dynamicComponents.begin(); it != _dynamicComponents.end(); it++)
+    for (auto it = _rigidComponents.begin(); it != _rigidComponents.end(); it++)
+    {
+        (*it)->applyGravity(dt);
+        (*it)->applyVelocity(dt);
+    }
+
+    for (auto it = _rigidComponents.begin(); it != _rigidComponents.end() && it != _staticComponents.begin();
+         advance(it))
     {
         std::shared_ptr<PhysicsComponent> physicsComponent = *it;
         std::shared_ptr<Shape> shape = physicsComponent->getShape();
@@ -66,6 +77,18 @@ void PhysicsManager::executeStep(float dt)
             HitInfo hitInfo{};
             if (shape->overlapsWith(*otherShape, hitInfo))
             {
+                if (physicsComponent->isRigid())
+                {
+                    physicsComponent->applyCollision(dt, hitInfo, **itAlt);
+                }
+
+                if ((*itAlt)->isRigid())
+                {
+                    hitInfo.flip();
+                    (*itAlt)->applyCollision(dt, hitInfo, *physicsComponent);
+                    hitInfo.flip();
+                }
+
                 shape->addOverlappingComponent(itAlt->get());
                 otherShape->addOverlappingComponent(physicsComponent.get());
 
