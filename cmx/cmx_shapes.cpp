@@ -4,6 +4,7 @@
 #include "cmx_assets_manager.h"
 #include "cmx_edge_render_system.h"
 #include "cmx_frame_info.h"
+#include "cmx_math.h"
 #include "cmx_model.h"
 #include "cmx_physics_actor.h"
 #include "cmx_physics_component.h"
@@ -11,13 +12,19 @@
 
 // lib
 #include "imgui.h"
+#include <glm/ext/matrix_projection.hpp>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
+#include <glm/geometric.hpp>
 #include <glm/matrix.hpp>
+#include <limits>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
+
+// std
+#include <limits.h>
 
 namespace cmx
 {
@@ -171,10 +178,14 @@ bool Sphere::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
     if (!(mask & other.mask))
         return false;
 
-    hitInfo.normal = (other.getCenter() - getCenter());
-    float minDist = getRadius() + other.getRadius();
+    glm::vec3 center = getCenter();
+    float radius = getRadius();
+
+    hitInfo.normal = (other.getCenter() - center);
+    float minDist = radius + other.getRadius();
     hitInfo.depth = minDist - glm::length(hitInfo.normal);
     hitInfo.normal = (hitInfo.depth <= glm::epsilon<float>()) ? hitInfo.normal : glm::normalize(hitInfo.normal);
+    hitInfo.point = center + (radius * -hitInfo.normal);
 
     return hitInfo.depth > 0.f;
 }
@@ -235,127 +246,6 @@ float Sphere::getRadius() const
     return std::max(std::max(transform.scale.x, transform.scale.y), transform.scale.z);
 }
 
-Plane::Plane(cmx::Transformable *parent) : Shape{parent}
-{
-}
-
-std::string Plane::getName() const
-{
-    return PRIMITIVE_PLANE;
-}
-
-void Plane::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
-{
-    EdgePushConstantData push{};
-
-    Transform transform = getWorldSpaceTransform();
-
-    push.modelMatrix = transform.mat4();
-    push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
-
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
-                       &push);
-
-    if (Model *model = assetsManager->getModel(PRIMITIVE_PLANE))
-    {
-        model->bind(frameInfo.commandBuffer);
-        model->draw(frameInfo.commandBuffer);
-    }
-}
-
-bool Plane::overlapsWith(const Shape &other, HitInfo &hitInfo) const
-{
-    if (!(mask & other.mask))
-        return false;
-
-    bool b = other.overlapsWith(*this, hitInfo);
-
-    if (b)
-    {
-        hitInfo.flip();
-        return true;
-    }
-
-    return false;
-}
-
-bool Plane::overlapsWith(const Plane &other, HitInfo &hitInfo) const
-{
-    if (!(mask & other.mask))
-        return false;
-
-    return false;
-}
-
-bool Plane::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
-{
-    if (!(mask & other.mask))
-        return false;
-
-    return false;
-}
-
-bool Plane::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
-{
-    if (!(mask & other.mask))
-        return false;
-
-    Transform transform = getWorldSpaceTransform();
-
-    glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
-
-    glm::vec4 scaledMin = getMin(scaler);
-    glm::vec4 scaledMax = getMax(scaler);
-
-    glm::mat4 noScale = transform.mat4_noScale();
-    glm::vec4 newCenter = glm::inverse(noScale) * glm::vec4{other.getCenter(), 1.0f};
-
-    // OBB
-    // get closest point
-    glm::vec4 closestPoint{1.f};
-    closestPoint.x = (newCenter.x < scaledMin.x)   ? scaledMin.x
-                     : (newCenter.x > scaledMax.x) ? scaledMax.x
-                                                   : newCenter.x;
-    closestPoint.z = (newCenter.z < scaledMin.z)   ? scaledMin.z
-                     : (newCenter.z > scaledMax.z) ? scaledMax.z
-                                                   : newCenter.z;
-    closestPoint.y = scaledMin.y;
-
-    hitInfo.normal = glm::vec3(noScale * (newCenter - closestPoint));
-    hitInfo.depth = other.getRadius() - glm::length(hitInfo.normal);
-    hitInfo.normal = (hitInfo.depth <= glm::epsilon<float>()) ? hitInfo.normal : glm::normalize(hitInfo.normal);
-
-    return hitInfo.depth > 0;
-}
-
-glm::mat3 Plane::getInertiaTensor() const
-{
-    glm::mat3 tensor{0.f};
-
-    glm::vec3 scale = getWorldSpaceTransform().scale;
-
-    const float a = scale.x * 2.0f;
-    const float b = scale.y * 2.0f;
-    const float c = scale.z * 2.0f;
-
-    tensor[0][0] = (b * b + c * c) / 12.0f;
-    tensor[1][1] = (a * a + c * c) / 12.0f;
-    tensor[2][2] = (a * a + b * b) / 12.0f;
-
-    return tensor;
-}
-
-glm::vec4 Plane::getMin(const glm::mat4 &mat4) const
-{
-    return mat4 * glm::vec4{-1.f, 0.f, -1.f, 1.f};
-}
-
-glm::vec4 Plane::getMax(const glm::mat4 &mat4) const
-{
-    return mat4 * glm::vec4{1.f, 0.f, 1.f, 1.f};
-}
-
 Cuboid::Cuboid(cmx::Transformable *parent) : Shape{parent}
 {
 }
@@ -401,12 +291,30 @@ bool Cuboid::overlapsWith(const Shape &other, HitInfo &hitInfo) const
     return false;
 }
 
-bool Cuboid::overlapsWith(const Plane &other, HitInfo &hitInfo) const
+std::pair<float, float> Cuboid::projectOnto(const glm::vec3 &vec) const
 {
-    if (!(mask & other.mask))
-        return false;
+    glm::vec3 points[8] = {};
 
-    return false;
+    points[0] = getMinWorldSpace();
+    points[1] = getMaxWorldSpace();
+    points[2] = {points[0].x, points[0].y, points[1].z};
+    points[3] = {points[0].x, points[1].y, points[0].z};
+    points[4] = {points[0].x, points[1].y, points[1].z};
+    points[5] = {points[1].x, points[0].y, points[0].z};
+    points[6] = {points[1].x, points[0].y, points[1].z};
+    points[7] = {points[1].x, points[1].y, points[0].z};
+
+    float min = std::numeric_limits<float>::infinity();
+    float max = -std::numeric_limits<float>::infinity();
+
+    for (const glm::vec3 &point : points)
+    {
+        const float distAlongRay = glm::dot(vec, project(point, vec));
+        min = std::min(min, distAlongRay);
+        max = std::max(max, distAlongRay);
+    }
+
+    return {min, max};
 }
 
 bool Cuboid::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
@@ -414,24 +322,152 @@ bool Cuboid::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
     if (!(mask & other.mask))
         return false;
 
-    return false;
+    glm::vec3 toBeTested[15] = {};
+
+    // first we get all the possible axes needed
+    // our 3
+    const glm::mat4 us_mat4 = getWorldSpaceTransform().mat4();
+    toBeTested[0] = us_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {1, -1, -1}, {1, -1, 1}}), 1.0f);
+    toBeTested[1] = us_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {-1, 1, -1}, {1, 1, -1}}), 1.0f);
+    toBeTested[2] = us_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {-1, -1, 1}, {-1, 1, 1}}), 1.0f);
+
+    // their 3
+    const glm::mat4 them_mat4 = other.getWorldSpaceTransform().mat4();
+    toBeTested[3] = them_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {1, -1, -1}, {1, -1, 1}}), 1.0f);
+    toBeTested[4] = them_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {-1, 1, -1}, {1, 1, -1}}), 1.0f);
+    toBeTested[5] = them_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {-1, -1, 1}, {-1, 1, 1}}), 1.0f);
+
+    // cross
+    toBeTested[6] = glm::cross(toBeTested[0], toBeTested[3]);
+    toBeTested[7] = glm::cross(toBeTested[0], toBeTested[4]);
+    toBeTested[8] = glm::cross(toBeTested[0], toBeTested[6]);
+    toBeTested[9] = glm::cross(toBeTested[1], toBeTested[3]);
+    toBeTested[10] = glm::cross(toBeTested[1], toBeTested[4]);
+    toBeTested[11] = glm::cross(toBeTested[1], toBeTested[6]);
+    toBeTested[12] = glm::cross(toBeTested[2], toBeTested[3]);
+    toBeTested[13] = glm::cross(toBeTested[2], toBeTested[4]);
+    toBeTested[14] = glm::cross(toBeTested[2], toBeTested[6]);
+
+    // then we project the points onto it
+    hitInfo.depth = std::numeric_limits<float>::infinity();
+
+    for (glm::vec3 &vec : toBeTested)
+    {
+        if (vec.length() < glm::epsilon<float>())
+            continue;
+
+        vec = glm::normalize(vec);
+
+        auto [us_min, us_max] = projectOnto(vec);
+        auto [them_min, them_max] = other.projectOnto(vec);
+
+        const float overlapStart = std::max(us_min, them_min);
+        const float overlapEnd = std::min(us_max, them_max);
+        const float overlap = overlapEnd - overlapStart;
+
+        if (overlap <= 0)
+        {
+            return false;
+        }
+        if (overlap < hitInfo.depth)
+        {
+            hitInfo.depth = overlap;
+            hitInfo.normal = vec;
+        }
+    }
+
+    return true;
+}
+
+bool Cuboid::overlapsWith(const Plane &other, HitInfo &hitInfo) const
+{
+    if (!(mask & other.mask))
+        return false;
+
+    glm::vec3 toBeTested[7] = {};
+
+    // first we get all the possible axes needed
+    // our 3
+    const glm::mat4 us_mat4 = getWorldSpaceTransform().mat4();
+    toBeTested[0] = us_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {1, -1, -1}, {1, -1, 1}}), 1.0f);
+    toBeTested[1] = us_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {-1, 1, -1}, {1, 1, -1}}), 1.0f);
+    toBeTested[2] = us_mat4 * glm::vec4(getFaceNormal({{-1, -1, -1}, {-1, -1, 1}, {-1, 1, 1}}), 1.0f);
+
+    // their 3
+    const glm::mat4 them_mat4 = other.getWorldSpaceTransform().mat4();
+    toBeTested[3] = them_mat4 * glm::vec4(getFaceNormal({{-1, 0, -1}, {1, 0, -1}, {1, 0, 1}}), 1.0f);
+
+    // cross
+    toBeTested[4] = glm::cross(toBeTested[0], toBeTested[3]);
+    toBeTested[5] = glm::cross(toBeTested[1], toBeTested[3]);
+    toBeTested[6] = glm::cross(toBeTested[2], toBeTested[3]);
+
+    // then we project the points onto it
+    hitInfo.depth = std::numeric_limits<float>::infinity();
+
+    for (glm::vec3 &vec : toBeTested)
+    {
+        if (vec.length() < glm::epsilon<float>())
+            continue;
+
+        vec = glm::normalize(vec);
+
+        auto [us_min, us_max] = projectOnto(vec);
+        auto [them_min, them_max] = other.projectOnto(vec);
+
+        const float overlapStart = std::max(us_min, them_min);
+        const float overlapEnd = std::min(us_max, them_max);
+        const float overlap = overlapEnd - overlapStart;
+
+        if (overlap <= 0)
+        {
+            return false;
+        }
+        if (overlap < hitInfo.depth)
+        {
+            hitInfo.depth = overlap;
+            hitInfo.normal = vec;
+        }
+    }
+
+    return true;
+}
+
+std::pair<float, float> Plane::projectOnto(const glm::vec3 &vec) const
+{
+    glm::vec3 points[4] = {};
+
+    points[0] = getMinWorldSpace();
+    points[1] = getMaxWorldSpace();
+    points[2] = {points[0].x, points[0].y, points[1].z};
+    points[3] = {points[1].x, points[0].y, points[0].z};
+
+    float min = std::numeric_limits<float>::infinity();
+    float max = -std::numeric_limits<float>::infinity();
+
+    for (const glm::vec3 &point : points)
+    {
+        const float distAlongRay = glm::dot(vec, project(point, vec));
+        min = std::min(min, distAlongRay);
+        max = std::max(max, distAlongRay);
+    }
+
+    return {min, max};
 }
 
 bool Cuboid::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
 {
-    Transform transform = getWorldSpaceTransform();
+    const Transform transform = getWorldSpaceTransform();
 
-    glm::mat4 scaler = glm::scale(glm::mat4(1.0f), transform.scale);
+    const glm::vec4 scaledMin = getMinLocalSpace();
+    const glm::vec4 scaledMax = getMaxLocalSpace();
 
-    glm::vec4 scaledMin = getMin(scaler);
-    glm::vec4 scaledMax = getMax(scaler);
-
-    glm::mat4 noScale = transform.mat4_noScale();
-    glm::vec4 newCenter = glm::inverse(noScale) * glm::vec4{other.getCenter(), 1.0f};
+    const glm::mat4 noScale = transform.mat4_noScale();
+    const glm::vec4 newCenter = glm::inverse(noScale) * glm::vec4{other.getCenter(), 1.0f};
 
     // OBB
     // get closest point
-    glm::vec4 closestPoint{1.f};
+    glm::vec3 closestPoint{1.f};
     closestPoint.x = (newCenter.x < scaledMin.x)   ? scaledMin.x
                      : (newCenter.x > scaledMax.x) ? scaledMax.x
                                                    : newCenter.x;
@@ -442,38 +478,110 @@ bool Cuboid::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
                      : (newCenter.z > scaledMax.z) ? scaledMax.z
                                                    : newCenter.z;
 
-    hitInfo.normal = glm::vec3(noScale * (newCenter - closestPoint));
+    hitInfo.normal = glm::vec3(noScale * (newCenter - glm::vec4(closestPoint, 1.0f)));
     hitInfo.depth = other.getRadius() - glm::length(hitInfo.normal);
     hitInfo.normal = (hitInfo.depth <= glm::epsilon<float>()) ? hitInfo.normal : glm::normalize(hitInfo.normal);
+    hitInfo.point = closestPoint - (hitInfo.depth * hitInfo.normal);
 
     return hitInfo.depth > 0;
 }
 
 glm::mat3 Cuboid::getInertiaTensor() const
 {
-    glm::mat3 tensor{0.f};
+    const glm::vec3 dimensions = getMaxLocalSpace() - getMinLocalSpace();
 
-    glm::vec3 scale = getWorldSpaceTransform().scale;
+    float Ixx = (1.0f / 12.0f) * (dimensions.y * dimensions.y + dimensions.z * dimensions.z);
+    float Iyy = (1.0f / 12.0f) * (dimensions.x * dimensions.x + dimensions.z * dimensions.z);
+    float Izz = (1.0f / 12.0f) * (dimensions.x * dimensions.x + dimensions.y * dimensions.y);
 
-    const float a = scale.x * 2.0f;
-    const float b = scale.y * 2.0f;
-    const float c = scale.z * 2.0f;
-
-    tensor[0][0] = (b * b + c * c) / 12.0f;
-    tensor[1][1] = (a * a + c * c) / 12.0f;
-    tensor[2][2] = (a * a + b * b) / 12.0f;
-
-    return tensor;
+    return glm::mat3(Ixx, 0.0f, 0.0f, 0.0f, Iyy, 0.0f, 0.0f, 0.0f, Izz);
 }
 
-glm::vec4 Cuboid::getMin(const glm::mat4 &mat4) const
+glm::vec4 Cuboid::getMinLocalSpace() const
 {
-    return mat4 * glm::vec4{-1.f, -1.f, -1.f, 1.f};
+    const glm::mat4 scaler = glm::scale(glm::mat4(1.0f), getWorldSpaceTransform().scale);
+    return scaler * glm::vec4{-1.f, -1.f, -1.f, 1.f};
 }
 
-glm::vec4 Cuboid::getMax(const glm::mat4 &mat4) const
+glm::vec4 Cuboid::getMaxLocalSpace() const
 {
-    return mat4 * glm::vec4{1.f, 1.f, 1.f, 1.f};
+    const glm::mat4 scaler = glm::scale(glm::mat4(1.0f), getWorldSpaceTransform().scale);
+    return scaler * glm::vec4{1.f, 1.f, 1.f, 1.f};
+}
+
+glm::vec4 Cuboid::getMinWorldSpace() const
+{
+    const Transform transform = getWorldSpaceTransform();
+    const glm::mat4 noScale = transform.mat4_noScale();
+
+    return noScale * getMinLocalSpace();
+}
+
+glm::vec4 Cuboid::getMaxWorldSpace() const
+{
+    const Transform transform = getWorldSpaceTransform();
+    const glm::mat4 noScale = transform.mat4_noScale();
+
+    return noScale * getMaxLocalSpace();
+}
+
+Plane::Plane(cmx::Transformable *parent) : Cuboid{parent}
+{
+}
+
+std::string Plane::getName() const
+{
+    return PRIMITIVE_PLANE;
+}
+
+void Plane::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
+{
+    EdgePushConstantData push{};
+
+    Transform transform = getWorldSpaceTransform();
+
+    push.modelMatrix = transform.mat4();
+    push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
+
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
+                       &push);
+
+    if (Model *model = assetsManager->getModel(PRIMITIVE_PLANE))
+    {
+        model->bind(frameInfo.commandBuffer);
+        model->draw(frameInfo.commandBuffer);
+    }
+}
+
+bool Plane::overlapsWith(const Plane &other, HitInfo &hitInfo) const
+{
+    return false;
+}
+
+bool Plane::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
+{
+    bool b = other.overlapsWith(*this, hitInfo);
+
+    if (b)
+    {
+        hitInfo.flip();
+        return true;
+    }
+
+    return false;
+}
+
+glm::vec4 Plane::getMinLocalSpace() const
+{
+    const glm::mat4 scaler = glm::scale(glm::mat4(1.0f), getWorldSpaceTransform().scale);
+    return scaler * glm::vec4{-1.f, 0.f, -1.f, 1.f};
+}
+
+glm::vec4 Plane::getMaxLocalSpace() const
+{
+    const glm::mat4 scaler = glm::scale(glm::mat4(1.0f), getWorldSpaceTransform().scale);
+    return scaler * glm::vec4{1.f, 0.f, 1.f, 1.f};
 }
 
 } // namespace cmx

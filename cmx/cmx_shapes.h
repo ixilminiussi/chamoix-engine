@@ -19,6 +19,7 @@ namespace cmx
 struct HitInfo
 {
     glm::vec3 normal{0.f};
+    glm::vec3 point{0.f};
     float depth{0.f};
 
     void flip();
@@ -27,6 +28,7 @@ struct HitInfo
 inline void HitInfo::flip()
 {
     normal = -normal;
+    point += normal * depth;
 }
 
 class Shape : private Transformable
@@ -96,31 +98,6 @@ class Sphere : public Shape
     float getRadius() const;
 };
 
-struct Plane : public Shape
-{
-    Plane(cmx::Transformable *);
-
-    virtual void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
-
-    ~Plane() {};
-
-    virtual bool overlapsWith(const Shape &, HitInfo &) const override;
-    virtual bool overlapsWith(const Sphere &, HitInfo &) const override;
-    virtual bool overlapsWith(const Plane &, HitInfo &) const override;
-    virtual bool overlapsWith(const Cuboid &, HitInfo &) const override;
-
-    glm::vec3 getCenterOfMass() const override
-    {
-        return glm::vec3{0.f};
-    }
-    glm::mat3 getInertiaTensor() const override;
-
-    virtual std::string getName() const override;
-
-    glm::vec4 getMin(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getMax(const glm::mat4 & = glm::mat4{1.f}) const;
-};
-
 class Cuboid : public Shape
 {
   public:
@@ -130,21 +107,52 @@ class Cuboid : public Shape
 
     ~Cuboid() {};
 
+    glm::vec3 getCenterOfMass() const override
+    {
+        return glm::vec3{0.f};
+    }
+
     virtual bool overlapsWith(const Shape &, HitInfo &) const override;
     virtual bool overlapsWith(const Sphere &, HitInfo &) const override;
     virtual bool overlapsWith(const Plane &, HitInfo &) const override;
     virtual bool overlapsWith(const Cuboid &, HitInfo &) const override;
 
+    virtual std::pair<float, float> projectOnto(const glm::vec3 &) const;
+
+    virtual glm::mat3 getInertiaTensor() const override;
+
+    virtual std::string getName() const override;
+
+    virtual glm::vec4 getMinLocalSpace() const;
+    glm::vec4 getMinWorldSpace() const;
+    virtual glm::vec4 getMaxLocalSpace() const;
+    glm::vec4 getMaxWorldSpace() const;
+};
+
+struct Plane : public Cuboid
+{
+    using Cuboid::overlapsWith;
+
+    Plane(cmx::Transformable *);
+
+    virtual void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
+
+    ~Plane() {};
+
     glm::vec3 getCenterOfMass() const override
     {
         return glm::vec3{0.f};
     }
-    glm::mat3 getInertiaTensor() const override;
+
+    virtual std::pair<float, float> projectOnto(const glm::vec3 &) const override;
+
+    bool overlapsWith(const Plane &, HitInfo &) const override;
+    bool overlapsWith(const Cuboid &, HitInfo &) const override;
 
     virtual std::string getName() const override;
 
-    glm::vec4 getMin(const glm::mat4 & = glm::mat4{1.f}) const;
-    glm::vec4 getMax(const glm::mat4 & = glm::mat4{1.f}) const;
+    glm::vec4 getMinLocalSpace() const override;
+    glm::vec4 getMaxLocalSpace() const override;
 };
 
 // A---------B

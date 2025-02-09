@@ -63,12 +63,13 @@ class PhysicsComponent : public Component
     void editor(int i) override;
 
   protected:
-    glm::vec3 _linearVelocity{};
-    glm::vec3 _angularVelocity{};
+    glm::vec3 _linearVelocity{0.f};
+    glm::vec3 _angularVelocity{0.f};
     glm::vec3 _gravity{0.f, 10.f, 0.f};
 
     float _inverseMass{0.f};
     float _bounciness{0.5f};
+    float _friction{0.5f};
 
     uint8_t _mask{MASK_ALL};
     PhysicsMode _physicsMode{PhysicsMode::STATIC};
