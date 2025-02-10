@@ -9,10 +9,13 @@
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
 #include "cmx_shapes.h"
+
+// lib
 #include "imgui.h"
 #include <glm/ext/quaternion_common.hpp>
 #include <glm/ext/quaternion_geometric.hpp>
 #include <glm/ext/scalar_constants.hpp>
+#include <glm/geometric.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 namespace cmx
@@ -247,57 +250,68 @@ void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const Ph
     if (_inverseMass == 0.f)
         return;
 
-    HitInfo otherHitInfo = hitInfo;
-    otherHitInfo.flip();
+    const float bounciness = _bounciness * other._bounciness;
 
-    const Transform transform = getParent()->getWorldSpaceTransform();
+    const glm::mat3 inverseWorldInertia = getInverseInertiaTensorWorldSpace();
+    const glm::mat3 otherInverseWorldInertia = other.getInverseInertiaTensorWorldSpace();
 
-    const float otherInvMass = other.isRigid() ? other._inverseMass : 0.f;
+    const glm::vec3 relHitPoint = hitInfo.point - getCenterOfMassWorldSpace();
+    const glm::vec3 otherRelHitPoint = hitInfo.getFlipped().point - other.getCenterOfMassWorldSpace();
+
+    const glm::vec3 angularJ = glm::cross(inverseWorldInertia * glm::cross(relHitPoint, -hitInfo.normal), relHitPoint);
+    const glm::vec3 otherAngularJ =
+        glm::cross(otherInverseWorldInertia * glm::cross(otherRelHitPoint, hitInfo.normal), otherRelHitPoint);
+    const float angularFactor = glm::dot((angularJ + otherAngularJ), -hitInfo.normal);
+
+    // Get world space velocity of the motion and rotation
+    const glm::vec3 combinedVel = _linearVelocity + glm::cross(_angularVelocity, relHitPoint);
+    const glm::vec3 otherCombinedVel = other._linearVelocity + glm::cross(other._angularVelocity, otherRelHitPoint);
 
     // Collision impulse
-    const glm::vec3 relPoint = hitInfo.point - getCenterOfMassWorldSpace();
-    const glm::vec3 otherRelPoint = otherHitInfo.point = other.getCenterOfMassWorldSpace();
+    const glm::vec3 relVel = combinedVel - otherCombinedVel;
 
-    const glm::vec3 angularJ =
-        glm::cross(relPoint, (getInverseInertiaTensorWorldSpace() * glm::cross(relPoint, hitInfo.normal)));
-    const glm::vec3 otherAngularJ =
-        glm::cross(relPoint, (getInverseInertiaTensorWorldSpace() * glm::cross(relPoint, hitInfo.normal)));
+    // -- Sign is changed here
+    const float impulseValueJ =
+        (1.0f + bounciness) * glm::dot(relVel, -hitInfo.normal) / (_inverseMass + other._inverseMass + angularFactor);
 
-    const float angularFactor = glm::dot((angularJ + otherAngularJ), hitInfo.normal);
-
-    const glm::vec3 &relVelocity = (_linearVelocity + glm::cross(_angularVelocity, relPoint)) -
-                                   (other._linearVelocity + glm::cross(other._angularVelocity, otherRelPoint));
-
-    const float impulse = (-(1.0f + _bounciness * other._bounciness) * glm::dot(hitInfo.normal, relVelocity)) /
-                          (_inverseMass + otherInvMass + angularFactor);
-
-    applyImpulse(hitInfo.point, hitInfo.normal * impulse);
-
-    // Resolve contact
-    const float t = _inverseMass / (otherInvMass + _inverseMass);
-    const glm::vec3 d = hitInfo.normal * hitInfo.depth;
-
-    getParent()->setPosition(transform.position - (t * d));
+    const glm::vec3 impulse = -hitInfo.normal * impulseValueJ;
+    applyImpulse(hitInfo.point, impulse * -1.f);
 
     // Friction-caused impulse
     const float friction = _friction * other._friction;
 
-    const glm::vec3 velNormal = hitInfo.normal * glm::dot(_linearVelocity, hitInfo.normal);
-    const glm::vec3 velTangent = relVelocity - velNormal;
-    const glm::vec3 relVelTangent = glm::normalize(velTangent);
+    // -- Find the normal direction of the velocity
+    // -- with respect to the normal of the collision
+    const glm::vec3 velNormal = -hitInfo.normal * glm::dot(hitInfo.normal, relVel);
 
-    const glm::vec3 inertiaA =
-        glm::cross(getInverseInertiaTensorWorldSpace() * glm::cross(hitInfo.point, relVelTangent), hitInfo.point);
+    // -- Find the tengent direction of the velocity
+    // -- with respect to the normal of the collision
+    const glm::vec3 velTangent = relVel - velNormal;
 
-    const glm::vec3 inertiaB = glm::cross(
-        other.getInverseInertiaTensorWorldSpace() * glm::cross(hitInfo.point, relVelTangent), otherHitInfo.point);
+    // -- Get the tengential velocities relative to the other body
+    glm::vec3 normalizedVelTangent = velTangent;
+    if (glm::length(velTangent) > 1.f)
+    {
+        normalizedVelTangent = glm::normalize(normalizedVelTangent);
+    }
 
-    const float inverseInertia = glm::dot(inertiaA + inertiaB, relVelTangent);
+    const glm::vec3 inertia =
+        glm::cross((inverseWorldInertia * glm::cross(relHitPoint, normalizedVelTangent)), relHitPoint);
+    const glm::vec3 otherInertia =
+        glm::cross((otherInverseWorldInertia * glm::cross(otherRelHitPoint, normalizedVelTangent)), otherRelHitPoint);
+    const float inverseInertia = glm::dot(inertia + otherInertia, normalizedVelTangent);
 
+    // -- Tangential impulse for friction
     const float reducedMass = 1.0f / (_inverseMass + other._inverseMass + inverseInertia);
     const glm::vec3 impulseFriction = velTangent * reducedMass * friction;
 
+    // -- Apply kinetic friction
     applyImpulse(hitInfo.point, impulseFriction * -1.0f);
+
+    // -- If object are interpenetrating,
+    // -- use this to set them on contact
+    getParent()->setPosition(getWorldSpaceTransform().position +
+                             (-hitInfo.normal * hitInfo.depth) * (_inverseMass / (_inverseMass + other._inverseMass)));
 
     _shape->reassess();
 }
@@ -334,7 +348,7 @@ void PhysicsComponent::applyImpulseAngular(const glm::vec3 &impulse)
     _angularVelocity += getInverseInertiaTensorWorldSpace() * _inverseMass * impulse;
 
     const float maxAngularSpeed = 30.f;
-    if (_angularVelocity.length() > maxAngularSpeed)
+    if (glm::length(_angularVelocity) > maxAngularSpeed)
     {
         _angularVelocity = glm::normalize(_angularVelocity) * maxAngularSpeed;
     }
@@ -364,8 +378,7 @@ void PhysicsComponent::applyVelocity(float dt)
     _angularVelocity += alpha * dt;
 
     const glm::vec3 dAngle = _angularVelocity * dt;
-    const glm::quat dq =
-        glm::quat_cast(glm::rotate<float>(glm::mat4(1.0f), glm::radians<float>(dAngle.length()), dAngle));
+    const glm::quat dq = glm::quat_cast(glm::rotate<float>(glm::mat4(1.0f), glm::length(dAngle), dAngle));
 
     getParent()->setRotation(dq * transform.rotation);
     getParent()->setPosition(centerOfMass + glm::vec3(glm::mat4_cast(dq) * glm::vec4(CMToPosition, 1.0f)));

@@ -23,12 +23,21 @@ struct HitInfo
     float depth{0.f};
 
     void flip();
+    HitInfo getFlipped() const;
 };
 
 inline void HitInfo::flip()
 {
     normal = -normal;
     point += normal * depth;
+}
+
+inline HitInfo HitInfo::getFlipped() const
+{
+    HitInfo copy = *this;
+    copy.flip();
+
+    return copy;
 }
 
 class Shape : private Transformable
