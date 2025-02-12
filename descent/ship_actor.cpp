@@ -29,6 +29,9 @@ void ShipActor::onBegin()
     _cameraComponent = std::make_shared<ShipCameraComponent>();
     attachComponent(_cameraComponent);
 
+    _hudComponent = std::make_shared<cmx::HudComponent>();
+    attachComponent(_hudComponent);
+
     cmx::InputManager *inputManager = getScene()->getGame()->getInputManager();
     if (inputManager)
     {

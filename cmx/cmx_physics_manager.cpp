@@ -44,8 +44,8 @@ void PhysicsManager::executeStep(float dt)
         (*it)->applyVelocity(dt);
     }
 
-    for (auto it = _rigidComponents.begin(); it != _rigidComponents.end() && it != _staticComponents.begin();
-         advance(it))
+    auto it = (_rigidComponents.size() > 0) ? _rigidComponents.begin() : _dynamicComponents.begin();
+    for (; it != _dynamicComponents.end() && it != _staticComponents.begin(); advance(it))
     {
         std::shared_ptr<PhysicsComponent> physicsComponent = *it;
         std::shared_ptr<Shape> shape = physicsComponent->getShape();

@@ -1,12 +1,12 @@
 #include "cmx_billboard_component.h"
 
 // cmx
-#include "cmx/cmx_assets_manager.h"
-#include "cmx/cmx_texture.h"
+#include "cmx_assets_manager.h"
 #include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_render_system.h"
+#include "cmx_texture.h"
 
 // lib
 #include <imgui.h>
@@ -24,7 +24,7 @@ BillboardComponent::BillboardComponent()
 
 void BillboardComponent::onAttach()
 {
-    if (_texture)
+    if (_texture == nullptr)
     {
         setTexture("cmx_missing");
     }

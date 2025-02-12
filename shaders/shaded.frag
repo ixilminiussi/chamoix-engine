@@ -50,4 +50,5 @@ void main()
     }
 
     outColor = vec4(diffuseLight * push.normalMatrix[3].xyz, 1.0f) * texture(textureSampler, fragUV);
+    outColor.a = 1.0f;
 }

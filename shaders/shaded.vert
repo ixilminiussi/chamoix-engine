@@ -44,13 +44,14 @@ void main()
     vec2 uvOffset = vec2(push.normalMatrix[0][3], push.normalMatrix[1][3]);
 
     // if we have push.normalMatrix[3][3] != 0, then we should be using tiling uv mapping. otherwise it's regular uv
-
     if (push.normalMatrix[2][3] == 0)
     {
         fragUV = vec2(uv.x, 1.0 - uv.y) + uvOffset;
     }
     else
     {
+        vec2 adaptedUV = vec2(uv.x, 1.0 - uv.y);
+
         float scale = push.normalMatrix[2][3];
         float theta = push.normalMatrix[3][3];
 
@@ -63,5 +64,4 @@ void main()
         fragUV = rotationMatrix *
                  (vec2(dot(fragPositionWorld, tangent), dot(fragPositionWorld, bitangent)) / scale + uvOffset);
     }
-    fragUV = vec2(uv.x, 1.0 - uv.y);
 }

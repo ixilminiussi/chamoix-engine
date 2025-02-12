@@ -47,8 +47,9 @@ void EnemyShipActor::onBegin()
     auto meshComponent = std::make_shared<cmx::MeshComponent>();
     attachComponent(meshComponent);
     meshComponent->setModel("enemy-ship");
-    meshComponent->setColor({1.f, 0.f, 0.f});
-    meshComponent->setRotation({glm::pi<float>(), 0.f, 0.f});
+    meshComponent->setTexture("enemy-ship");
+    meshComponent->setScale({50.f, 50.f, 50.f});
+    meshComponent->setRotation({glm::pi<float>(), glm::half_pi<float>(), 0.f});
 
     player = getScene()->getActorByName("Player");
 }
@@ -76,7 +77,7 @@ void EnemyShipActor::tiltToPlayer(float dt)
 {
     if (!player)
     {
-        player = getScene()->getActorByName("Player");
+        player = getScene()->getActorByName("Ship");
         return;
     }
 

@@ -2,6 +2,7 @@
 #define SHIP_ACTOR
 
 // cmx
+#include <cmx/cmx_hud_component.h>
 #include <cmx/cmx_physics_actor.h>
 
 class ShipActor : public cmx::PhysicsActor
@@ -34,6 +35,7 @@ class ShipActor : public cmx::PhysicsActor
     void tiltToLocked(float dt);
 
     std::shared_ptr<class ShipCameraComponent> _cameraComponent;
+    std::shared_ptr<cmx::HudComponent> _hudComponent;
 
     std::vector<std::shared_ptr<class GunComponent>> _gunComponents;
     int _equippedGun = 0;

@@ -10,6 +10,7 @@
 #include "cmx_physics_component.h"
 #include "cmx_point_light_actor.h"
 #include "cmx_point_light_component.h"
+#include "cmx_hud_component.h"
 
 // lib
 #include <spdlog/spdlog.h>
@@ -43,6 +44,7 @@ Register::Register()
     componentRegister["cmx::PointLightComponent"] = []() { return std::make_shared<PointLightComponent>(); };
     componentRegister["cmx::CameraComponent"] = []() { return std::make_shared<CameraComponent>(); };
     componentRegister["cmx::PhysicsComponent"] = []() { return std::make_shared<PhysicsComponent>(); };
+    componentRegister["cmx::HudComponent"] = []() { return std::make_shared<HudComponent>(); };
 }
 
 Register::~Register()
