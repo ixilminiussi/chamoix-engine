@@ -56,9 +56,6 @@ void CameraComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipe
     {
         return;
     }
-#else
-    return;
-#endif
     if (getParent() == nullptr)
     {
         spdlog::critical("MeshComponent: _parent is expired");
@@ -77,6 +74,9 @@ void CameraComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipe
         _model->bind(frameInfo.commandBuffer);
         _model->draw(frameInfo.commandBuffer);
     }
+#else
+    return;
+#endif
 }
 
 void CameraComponent::editor(int i)

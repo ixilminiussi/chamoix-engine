@@ -32,6 +32,12 @@ Window Game::_window = Window{WIDTH, HEIGHT, "chamoix"};
 Game::Game()
 {
     _inputManager = std::make_unique<InputManager>(_window);
+
+#ifdef NDEBUG
+    auto my_logger = spdlog::default_logger();
+    my_logger->set_level(spdlog::level::off);
+    spdlog::set_default_logger(my_logger);
+#endif
 }
 
 Game::~Game()
