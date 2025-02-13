@@ -10,13 +10,13 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(.external)
 add_subdirectory(cmx)
-add_subdirectory(descent)
+add_subdirectory(demo)
 
-add_executable(VulkanTest descent/main.cpp) 
+add_executable(VulkanTest demo/main.cpp) 
 
 target_link_libraries(VulkanTest PRIVATE
     cmx
-    descent
+    demo
 )
 
 add_custom_target(clean_all

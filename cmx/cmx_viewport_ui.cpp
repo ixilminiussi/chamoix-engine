@@ -336,6 +336,7 @@ void ViewportUI::renderSceneTree()
             {
                 _attachedScene->removeActor(actor);
                 ImGui::PopID();
+                _inspectedActor = nullptr;
                 continue;
             }
         }
@@ -388,12 +389,11 @@ void ViewportUI::renderInspector()
     _showInspector = true;
     ImGui::Begin("Inspector", &_showInspector, ImGuiWindowFlags_AlwaysAutoResize);
 
-    Actor *actor = _inspectedActor;
-    if (actor)
+    if (_inspectedActor != nullptr)
     {
-        ImGui::Text("%s", actor->name.c_str());
+        ImGui::Text("%s", _inspectedActor->name.c_str());
         ImGui::Separator();
-        actor->editor();
+        _inspectedActor->editor();
     }
     else
     {
