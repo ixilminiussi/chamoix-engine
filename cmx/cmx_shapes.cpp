@@ -291,18 +291,26 @@ bool Cuboid::overlapsWith(const Shape &other, HitInfo &hitInfo) const
     return false;
 }
 
+std::vector<glm::vec3> Cuboid::getVerticesWorldSpace() const
+{
+    std::vector<glm::vec3> vertices;
+    vertices.reserve(8);
+
+    vertices[0] = getMinWorldSpace();
+    vertices[1] = getMaxWorldSpace();
+    vertices[2] = {vertices[0].x, vertices[0].y, vertices[1].z};
+    vertices[3] = {vertices[0].x, vertices[1].y, vertices[0].z};
+    vertices[4] = {vertices[0].x, vertices[1].y, vertices[1].z};
+    vertices[5] = {vertices[1].x, vertices[0].y, vertices[0].z};
+    vertices[6] = {vertices[1].x, vertices[0].y, vertices[1].z};
+    vertices[7] = {vertices[1].x, vertices[1].y, vertices[0].z};
+
+    return vertices;
+}
+
 std::pair<float, float> Cuboid::projectOnto(const glm::vec3 &vec) const
 {
-    glm::vec3 points[8] = {};
-
-    points[0] = getMinWorldSpace();
-    points[1] = getMaxWorldSpace();
-    points[2] = {points[0].x, points[0].y, points[1].z};
-    points[3] = {points[0].x, points[1].y, points[0].z};
-    points[4] = {points[0].x, points[1].y, points[1].z};
-    points[5] = {points[1].x, points[0].y, points[0].z};
-    points[6] = {points[1].x, points[0].y, points[1].z};
-    points[7] = {points[1].x, points[1].y, points[0].z};
+    const std::vector<glm::vec3> points = getVerticesWorldSpace();
 
     float min = std::numeric_limits<float>::infinity();
     float max = -std::numeric_limits<float>::infinity();
@@ -315,6 +323,25 @@ std::pair<float, float> Cuboid::projectOnto(const glm::vec3 &vec) const
     }
 
     return {min, max};
+}
+
+glm::vec3 Cuboid::getSupportPoint(const glm::vec3 &direction) const
+{
+    const std::vector<glm::vec3> vertices = getVerticesWorldSpace();
+    glm::vec3 bestPoint = vertices[0];
+    float maxDot = glm::dot(vertices[0], direction);
+
+    for (const auto &vertex : vertices)
+    {
+        float dotProduct = glm::dot(vertex, direction);
+        if (dotProduct > maxDot)
+        {
+            maxDot = dotProduct;
+            bestPoint = vertex;
+        }
+    }
+
+    return bestPoint;
 }
 
 bool Cuboid::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
@@ -376,6 +403,8 @@ bool Cuboid::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
         }
     }
 
+    hitInfo.point = (getSupportPoint(-hitInfo.normal) + other.getSupportPoint(hitInfo.normal)) / 2.0f;
+
     return true;
 }
 
@@ -433,14 +462,22 @@ bool Cuboid::overlapsWith(const Plane &other, HitInfo &hitInfo) const
     return true;
 }
 
+std::vector<glm::vec3> Plane::getVerticesWorldSpace() const
+{
+    std::vector<glm::vec3> vertices;
+    vertices.reserve(4);
+
+    vertices[0] = getMinWorldSpace();
+    vertices[1] = getMaxWorldSpace();
+    vertices[2] = {vertices[0].x, vertices[0].y, vertices[1].z};
+    vertices[3] = {vertices[1].x, vertices[0].y, vertices[0].z};
+
+    return vertices;
+}
+
 std::pair<float, float> Plane::projectOnto(const glm::vec3 &vec) const
 {
-    glm::vec3 points[4] = {};
-
-    points[0] = getMinWorldSpace();
-    points[1] = getMaxWorldSpace();
-    points[2] = {points[0].x, points[0].y, points[1].z};
-    points[3] = {points[1].x, points[0].y, points[0].z};
+    std::vector<glm::vec3> points = getVerticesWorldSpace();
 
     float min = std::numeric_limits<float>::infinity();
     float max = -std::numeric_limits<float>::infinity();

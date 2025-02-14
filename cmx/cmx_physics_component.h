@@ -2,6 +2,7 @@
 #define CMX_PHYSICS_COMPONENT
 
 // cmx
+#include "cmx/cmx_register.h"
 #include "cmx_component.h"
 #include "cmx_physics.h"
 
@@ -77,6 +78,8 @@ class PhysicsComponent : public Component
     PhysicsMode _physicsMode{PhysicsMode::STATIC};
     std::shared_ptr<class Shape> _shape;
 };
+
+REGISTER_COMPONENT(cmx::PhysicsComponent)
 
 } // namespace cmx
 

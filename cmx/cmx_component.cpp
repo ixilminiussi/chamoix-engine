@@ -3,6 +3,7 @@
 // cmx
 #include "cmx_actor.h"
 #include "cmx_frame_info.h"
+#include "cmx_register.h"
 
 // lib
 #include <spdlog/spdlog.h>
@@ -10,6 +11,8 @@
 // std
 #include "cxxabi.h"
 #include "imgui.h"
+
+REGISTER_COMPONENT(cmx::Component)
 
 namespace cmx
 {

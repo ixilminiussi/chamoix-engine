@@ -1,11 +1,12 @@
 #ifndef CMX_REGISTER
 #define CMX_REGISTER
 
-// cmx
 #include "cmx_actor.h"
+#include "cmx_component.h"
 
 // std
 #include <cstdlib>
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -15,7 +16,7 @@ namespace cmx
 class Register
 {
   public:
-    static Register *getInstance();
+    static Register &getInstance();
 
     void addActor(std::string, std::function<class Actor *(class Scene *, const std::string &)>);
     void addComponent(std::string, std::function<std::shared_ptr<class Component>()>);
@@ -38,11 +39,9 @@ class Register
     Register();
     ~Register();
 
-    std::unordered_map<std::string, std::function<class Actor *(class Scene *, const std::string &)>> actorRegister{};
+    std::unordered_map<std::string, std::function<class Actor *(class Scene *, const std::string &)>> actorRegister;
 
-    std::unordered_map<std::string, std::function<std::shared_ptr<class Component>()>> componentRegister{};
-
-    static Register *_instance;
+    std::unordered_map<std::string, std::function<std::shared_ptr<class Component>()>> componentRegister;
 };
 
 } // namespace cmx

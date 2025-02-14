@@ -39,22 +39,22 @@
 
 Descent::Descent()
 {
-    cmx::Register *cmxRegister = cmx::Register::getInstance();
+    cmx::Register &cmxRegister = cmx::Register::getInstance();
 
-    cmxRegister->addActor("WallActor", [](cmx::Scene *scene, const std::string &name) {
+    cmxRegister.addActor("WallActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<WallActor>(scene, name);
     });
-    cmxRegister->addActor("RoomActor", [](cmx::Scene *scene, const std::string &name) {
+    cmxRegister.addActor("RoomActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<RoomActor>(scene, name);
     });
-    cmxRegister->addActor("ShipActor", [](cmx::Scene *scene, const std::string &name) {
+    cmxRegister.addActor("ShipActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<ShipActor>(scene, name);
     });
-    cmxRegister->addActor("EnemyShipActor", [](cmx::Scene *scene, const std::string &name) {
+    cmxRegister.addActor("EnemyShipActor", [](cmx::Scene *scene, const std::string &name) {
         return cmx::Actor::spawn<EnemyShipActor>(scene, name);
     });
-    cmxRegister->addComponent("ShipCameraComponent", []() { return std::make_shared<ShipCameraComponent>(); });
-    cmxRegister->addComponent("GunComponent", []() { return std::make_shared<GunComponent>(); });
+    cmxRegister.addComponent("ShipCameraComponent", []() { return std::make_shared<ShipCameraComponent>(); });
+    cmxRegister.addComponent("GunComponent", []() { return std::make_shared<GunComponent>(); });
 
     _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<cmx::ShadedRenderSystem>();
     _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<cmx::BillboardRenderSystem>();

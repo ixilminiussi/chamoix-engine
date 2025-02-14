@@ -3,6 +3,7 @@
 
 // cmx
 #include "cmx_component.h"
+#include "cmx_register.h"
 
 // lib
 #define GLM_FORCE_RADIANS
@@ -48,5 +49,7 @@ class CameraComponent : public Component
 };
 
 } // namespace cmx
+
+REGISTER_COMPONENT(cmx::CameraComponent);
 
 #endif

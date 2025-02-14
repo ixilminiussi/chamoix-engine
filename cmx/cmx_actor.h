@@ -1,6 +1,8 @@
 #ifndef CMX_ACTOR
 #define CMX_ACTOR
 
+// cmx
+#include "cmx_component.h"
 #include "cmx_scene.h"
 #include "cmx_transform.h"
 
@@ -9,6 +11,7 @@
 
 // std
 #include <cstdlib>
+#include <functional>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <string>
@@ -160,6 +163,29 @@ template <typename T> inline std::weak_ptr<T> Actor::getComponentByType()
 
     return std::weak_ptr<T>();
 }
+
+#define CONCAT_IMPL(x, y) x##y
+#define CONCAT(x, y) CONCAT_IMPL(x, y)
+
+#define UNIQUE_ID CONCAT(__COUNTER__, __LINE__)
+
+#define REGISTER_ACTOR_INTERNAL(Type, ID)                                                                              \
+    namespace cmx                                                                                                      \
+    {                                                                                                                  \
+    class Scene;                                                                                                       \
+    }                                                                                                                  \
+    struct CONCAT(ActorRegistrar_, ID)                                                                                 \
+    {                                                                                                                  \
+        CONCAT(ActorRegistrar_, ID)()                                                                                  \
+        {                                                                                                              \
+            cmx::Register::getInstance().addActor(#Type, [](cmx::Scene *scene, const std::string &name) {              \
+                return cmx::Actor::spawn<Type>(scene, name);                                                           \
+            });                                                                                                        \
+        }                                                                                                              \
+    };                                                                                                                 \
+    [[maybe_unused]] inline CONCAT(ActorRegistrar_, ID) CONCAT(actorRegistrar_, ID){};
+
+#define REGISTER_ACTOR(Type) REGISTER_ACTOR_INTERNAL(Type, UNIQUE_ID)
 
 } // namespace cmx
 

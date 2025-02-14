@@ -2,6 +2,7 @@
 #define CMX_POINT_LIGHT_COMPONENT
 
 #include "cmx_component.h"
+#include "cmx_register.h"
 
 // lib
 #include <vulkan/vulkan_core.h>
@@ -38,6 +39,8 @@ class PointLightComponent : public Component
     uint32_t _key;
     static uint32_t _keyChain;
 };
+
+REGISTER_COMPONENT(cmx::PointLightComponent)
 
 } // namespace cmx
 

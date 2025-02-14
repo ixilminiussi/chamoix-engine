@@ -2,6 +2,7 @@
 #define CMX_PHYSICS_ACTOR
 
 #include "cmx_actor.h"
+#include "cmx_register.h"
 
 // lib
 #include <glm/ext/vector_float3.hpp>
@@ -28,5 +29,7 @@ class PhysicsActor : public Actor
 };
 
 } // namespace cmx
+
+REGISTER_ACTOR(cmx::PhysicsActor)
 
 #endif

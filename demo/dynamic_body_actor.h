@@ -13,4 +13,6 @@ class DynamicBodyActor : public cmx::PhysicsActor
     void onBegin() override;
 };
 
+REGISTER_ACTOR(DynamicBodyActor)
+
 #endif

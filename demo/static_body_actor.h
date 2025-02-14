@@ -13,4 +13,6 @@ class StaticBodyActor : public cmx::PhysicsActor
     void onBegin() override;
 };
 
+REGISTER_ACTOR(StaticBodyActor)
+
 #endif

@@ -16,6 +16,7 @@
 #include <vulkan/vulkan.hpp>
 
 // std
+#include <functional>
 #include <memory>
 
 namespace cmx
@@ -99,5 +100,21 @@ inline bool operator<(std::shared_ptr<Component> a, std::shared_ptr<Component> b
 }
 
 } // namespace cmx
+
+#define CONCAT_IMPL(x, y) x##y
+#define CONCAT(x, y) CONCAT_IMPL(x, y)
+#define UNIQUE_ID CONCAT(__COUNTER__, __LINE__)
+
+#define REGISTER_COMPONENT_INTERNAL(Type, ID)                                                                          \
+    struct CONCAT(Registrar_, ID)                                                                                      \
+    {                                                                                                                  \
+        CONCAT(Registrar_, ID)()                                                                                       \
+        {                                                                                                              \
+            cmx::Register::getInstance().addComponent(#Type, []() { return std::make_shared<Type>(); });               \
+        }                                                                                                              \
+    };                                                                                                                 \
+    [[maybe_unused]] inline CONCAT(Registrar_, ID) CONCAT(registrar_, ID){};
+
+#define REGISTER_COMPONENT(Type) REGISTER_COMPONENT_INTERNAL(Type, UNIQUE_ID)
 
 #endif

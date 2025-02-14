@@ -2,6 +2,7 @@
 #define CMX_POINT_LIGHT_ACTOR
 
 #include "cmx_actor.h"
+#include "cmx_register.h"
 
 namespace cmx
 {
@@ -19,5 +20,7 @@ class PointLightActor : public Actor
 };
 
 } // namespace cmx
+
+REGISTER_ACTOR(cmx::PointLightActor)
 
 #endif

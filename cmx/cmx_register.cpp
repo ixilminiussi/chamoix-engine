@@ -1,12 +1,9 @@
 #include "cmx_register.h"
 
 // cmx
-#include "cmx_actor.h"
 #include "cmx_camera_component.h"
-#include "cmx_component.h"
 #include "cmx_hud_component.h"
 #include "cmx_mesh_actor.h"
-#include "cmx_mesh_component.h"
 #include "cmx_physics_actor.h"
 #include "cmx_physics_component.h"
 #include "cmx_point_light_actor.h"
@@ -22,43 +19,18 @@
 namespace cmx
 {
 
-Register *Register::_instance{};
-
-Register::Register()
+Register::Register() : actorRegister{}, componentRegister{}
 {
-    actorRegister["cmx::Actor"] = [](class Scene *scene, const std::string &name) {
-        return Actor::spawn<Actor>(scene, name);
-    };
-    actorRegister["cmx::MeshActor"] = [](class Scene *scene, const std::string &name) {
-        return Actor::spawn<MeshActor>(scene, name);
-    };
-    actorRegister["cmx::PointLightActor"] = [](class Scene *scene, const std::string &name) {
-        return Actor::spawn<PointLightActor>(scene, name);
-    };
-    actorRegister["cmx::PhysicsActor"] = [](class Scene *scene, const std::string &name) {
-        return Actor::spawn<PhysicsActor>(scene, name);
-    };
-
-    componentRegister["cmx::Component"] = []() { return std::make_shared<Component>(); };
-    componentRegister["cmx::MeshComponent"] = []() { return std::make_shared<MeshComponent>(); };
-    componentRegister["cmx::PointLightComponent"] = []() { return std::make_shared<PointLightComponent>(); };
-    componentRegister["cmx::CameraComponent"] = []() { return std::make_shared<CameraComponent>(); };
-    componentRegister["cmx::PhysicsComponent"] = []() { return std::make_shared<PhysicsComponent>(); };
-    componentRegister["cmx::HudComponent"] = []() { return std::make_shared<HudComponent>(); };
 }
 
 Register::~Register()
 {
 }
 
-Register *Register::getInstance()
+Register &Register::getInstance()
 {
-    if (_instance == nullptr)
-    {
-        _instance = new Register();
-    }
-
-    return _instance;
+    static Register instance;
+    return instance;
 }
 
 void Register::addActor(std::string name, std::function<Actor *(class Scene *, const std::string &)> builder)

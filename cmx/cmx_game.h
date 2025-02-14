@@ -47,7 +47,7 @@ class Game
     // getters and setters :: end
 
   protected:
-    class Scene *_activeScene;
+    class Scene *_activeScene{nullptr};
     std::vector<Scene *> _scenes;
 
     static Window _window;

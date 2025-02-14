@@ -46,7 +46,7 @@ Game::~Game()
 
 void Game::setScene(int i)
 {
-    if (_activeScene)
+    if (_activeScene != nullptr)
     {
         _activeScene->unload();
     }

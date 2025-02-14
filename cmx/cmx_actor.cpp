@@ -15,7 +15,8 @@
 // std
 #include <cxxabi.h>
 #include <memory>
-#include <stdexcept>
+
+REGISTER_ACTOR(cmx::Actor)
 
 namespace cmx
 {
@@ -168,14 +169,14 @@ void Actor::editor()
     }
 
     // create new actor
-    Register *cmxRegister = Register::getInstance();
-    static const char *selected = cmxRegister->getComponentRegister().begin()->first.c_str();
+    Register &cmxRegister = Register::getInstance();
+    static const char *selected = cmxRegister.getComponentRegister().begin()->first.c_str();
 
     ImGui::SeparatorText("New Component");
     ImGui::SetNextItemWidth(203);
     if (ImGui::BeginCombo("##unique2", selected))
     {
-        for (const auto &pair : cmxRegister->getComponentRegister())
+        for (const auto &pair : cmxRegister.getComponentRegister())
         {
             bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 
@@ -199,7 +200,7 @@ void Actor::editor()
     ImGui::SameLine();
     if (ImGui::Button(ICON_MS_ADD "##unique5"))
     {
-        cmxRegister->attachComponent(selected, this, buffer, true);
+        cmxRegister.attachComponent(selected, this, buffer, true);
     }
 }
 
@@ -232,11 +233,11 @@ void Actor::load(tinyxml2::XMLElement *actorElement)
         _transform.load(transformElement);
     }
 
-    Register *cmxRegister = Register::getInstance();
+    Register &cmxRegister = Register::getInstance();
     tinyxml2::XMLElement *componentElement = actorElement->FirstChildElement("component");
     while (componentElement)
     {
-        cmxRegister->attachComponent(componentElement->Attribute("type"), this, componentElement->Attribute("name"))
+        cmxRegister.attachComponent(componentElement->Attribute("type"), this, componentElement->Attribute("name"))
             ->load(componentElement);
 
         // TODO: Implement this shit

@@ -36,7 +36,7 @@ namespace cmx
 
 ViewportUI::ViewportUI()
 {
-    _cmxRegister = Register::getInstance();
+    _cmxRegister = &Register::getInstance();
 }
 
 ViewportUI::~ViewportUI()

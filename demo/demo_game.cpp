@@ -36,17 +36,7 @@
 
 Demo::Demo()
 {
-    cmx::Register *cmxRegister = cmx::Register::getInstance();
-
-    cmxRegister->addActor("RotatingActor", [](cmx::Scene *scene, const std::string &name) {
-        return cmx::Actor::spawn<RotatingActor>(scene, name);
-    });
-    cmxRegister->addActor("StaticBodyActor", [](cmx::Scene *scene, const std::string &name) {
-        return cmx::Actor::spawn<StaticBodyActor>(scene, name);
-    });
-    cmxRegister->addActor("DynamicBodyActor", [](cmx::Scene *scene, const std::string &name) {
-        return cmx::Actor::spawn<DynamicBodyActor>(scene, name);
-    });
+    cmx::Register &cmxRegister = cmx::Register::getInstance();
 
     _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<cmx::ShadedRenderSystem>();
     _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<cmx::BillboardRenderSystem>();

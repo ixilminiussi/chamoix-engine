@@ -1,7 +1,8 @@
 #ifndef ROTATING_ACTOR
 #define ROTATING_ACTOR
 
-#include "cmx/cmx_actor.h"
+#include <cmx/cmx_actor.h>
+#include <cmx/cmx_register.h>
 
 class RotatingActor : public cmx::Actor
 {
@@ -23,5 +24,7 @@ class RotatingActor : public cmx::Actor
     float rotationSpeedFast{1.f};
     float rotationSpeed{rotationSpeedFast};
 };
+
+REGISTER_ACTOR(RotatingActor)
 
 #endif

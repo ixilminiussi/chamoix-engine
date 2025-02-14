@@ -2,9 +2,12 @@
 #define CMX_MESH_COMPONENT
 
 #include "cmx_component.h"
-#include "tinyxml2.h"
+
+// cmx
+#include "cmx_register.h"
 
 // lib
+#include "tinyxml2.h"
 #include <vulkan/vulkan_core.h>
 
 namespace cmx
@@ -56,5 +59,7 @@ class MeshComponent : public Component
 };
 
 } // namespace cmx
+
+REGISTER_COMPONENT(cmx::MeshComponent)
 
 #endif

@@ -49,7 +49,7 @@ void Scene::loadFrom(const std::string &filepath)
     _activeCamera = std::make_shared<Camera>();
     _activeCamera->setViewDirection(glm::vec3{0.f}, glm::vec3{0.f, 0.f, 1.f});
 
-    Register *cmxRegister = Register::getInstance();
+    Register &cmxRegister = Register::getInstance();
 
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(filepath.c_str()) == tinyxml2::XML_SUCCESS)
@@ -67,8 +67,8 @@ void Scene::loadFrom(const std::string &filepath)
             try
             {
                 cmxRegister
-                    ->spawnActor(std::string(actorElement->Attribute("type")), this,
-                                 std::string(actorElement->Attribute("name")))
+                    .spawnActor(std::string(actorElement->Attribute("type")), this,
+                                std::string(actorElement->Attribute("name")))
                     ->load(actorElement);
             }
             catch (std::out_of_range e)

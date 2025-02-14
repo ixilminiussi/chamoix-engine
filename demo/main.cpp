@@ -5,6 +5,7 @@
 
 // cmx
 #include <cmx/cmx_editor.h>
+#include <cmx/cmx_register.h>
 
 int main()
 {

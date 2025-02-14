@@ -127,10 +127,13 @@ class Cuboid : public Shape
     virtual bool overlapsWith(const Cuboid &, HitInfo &) const override;
 
     virtual std::pair<float, float> projectOnto(const glm::vec3 &) const;
+    glm::vec3 getSupportPoint(const glm::vec3 &direction) const;
 
     virtual glm::mat3 getInertiaTensor() const override;
 
     virtual std::string getName() const override;
+
+    virtual std::vector<glm::vec3> getVerticesWorldSpace() const;
 
     virtual glm::vec4 getMinLocalSpace() const;
     glm::vec4 getMinWorldSpace() const;
@@ -159,6 +162,8 @@ struct Plane : public Cuboid
     bool overlapsWith(const Cuboid &, HitInfo &) const override;
 
     virtual std::string getName() const override;
+
+    virtual std::vector<glm::vec3> getVerticesWorldSpace() const override;
 
     glm::vec4 getMinLocalSpace() const override;
     glm::vec4 getMaxLocalSpace() const override;
