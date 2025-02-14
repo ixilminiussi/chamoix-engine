@@ -27,6 +27,8 @@ class MeshComponent : public Component
     MeshComponent();
     ~MeshComponent() = default;
 
+    CLONEABLE(MeshComponent)
+
     void onAttach() override;
 
     void render(const class FrameInfo &, vk::PipelineLayout) override;

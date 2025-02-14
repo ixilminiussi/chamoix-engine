@@ -1,13 +1,14 @@
 #include "cmx_scene.h"
 
 // cmx
-#include "cmx/cmx_camera.h"
-#include "cmx/cmx_editor.h"
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
+#include "cmx_camera.h"
 #include "cmx_component.h"
+#include "cmx_editor.h"
 #include "cmx_game.h"
 #include "cmx_graphics_manager.h"
+#include "cmx_misc.h"
 #include "cmx_physics_component.h"
 #include "cmx_physics_manager.h"
 #include "cmx_register.h"
@@ -145,13 +146,15 @@ void Scene::setCamera(std::shared_ptr<Camera> camera)
 
 void Scene::addActor(class Actor *actor)
 {
-#ifdef DEBUG
-#else
+#ifndef DEBUG
     // expensive operation so we only use it in debug mode
     if (getActorByName(actor->name) != nullptr)
     {
         spdlog::warn("Scene {0}: An actor with name <{1}> already exists", name, actor->name);
-        return;
+        while (getActorByName(actor->name) != nullptr)
+        {
+            actor->name = incrementNumberInParentheses(actor->name);
+        }
     }
 #endif
 

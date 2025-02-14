@@ -31,6 +31,7 @@ class ViewportUI
     void guizmoToRotate(float, int);
     void guizmoToScale(float, int);
     void guizmoToTranslate(float, int);
+    void duplicateSelected(float, int);
 
     void initImGUI();
 
@@ -66,7 +67,7 @@ class ViewportUI
     bool _showInspector{false};
     ImGuiID _assetsManagerDockID;
     bool _showAssetsManager{true};
-    Actor *_inspectedActor;
+    Actor *_inspectedActor{nullptr};
 
     class Scene *_attachedScene;
     class Register *_cmxRegister;

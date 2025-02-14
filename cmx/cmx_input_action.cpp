@@ -1,6 +1,7 @@
 #include "cmx_input_action.h"
 
 // cmx
+#include "cmx_input_manager.h"
 #include "cmx_inputs.h"
 #include "cmx_window.h"
 #include "imgui.h"
@@ -82,7 +83,7 @@ const char *toString(AxisAction::Type axisType)
 
 void ButtonAction::poll(const Window &window, float dt)
 {
-    int newStatus = 0;
+    int newStatus = (_buttonType == Type::SHORTCUT && _buttons.size() > 0) ? 1 : 0;
 
     for (Button &button : _buttons)
     {
@@ -105,6 +106,10 @@ void ButtonAction::poll(const Window &window, float dt)
                 }
 #ifndef NDEBUG
             }
+            else
+            {
+                newStatus = 0;
+            }
 #endif
             break;
         case InputSource::MOUSE:
@@ -122,6 +127,10 @@ void ButtonAction::poll(const Window &window, float dt)
                     newStatus |= button.status;
                 }
 #ifndef NDEBUG
+            }
+            else
+            {
+                newStatus = 0;
             }
 #endif
             break;
@@ -246,6 +255,14 @@ void AxisAction::poll(const Window &window, float dt)
                 y *= window.getExtent().height * 0.01f;
                 _axes[i].value = float(y) - _axes[i].absValue;
                 _axes[i].absValue = float(y);
+            }
+            if (_axes[i] == CMX_MOUSE_SCROLL_X_RELATIVE)
+            {
+                _axes[i].value = float(InputManager::scrollX);
+            }
+            if (_axes[i] == CMX_MOUSE_SCROLL_Y_RELATIVE)
+            {
+                _axes[i].value = float(InputManager::scrollY);
             }
         }
 

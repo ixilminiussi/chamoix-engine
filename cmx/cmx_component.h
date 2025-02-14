@@ -1,6 +1,12 @@
 #ifndef CMX_COMPONENT
 #define CMX_COMPONENT
 
+#define CLONEABLE(Type)                                                                                                \
+    std::shared_ptr<Component> clone() const override                                                                  \
+    {                                                                                                                  \
+        return std::make_shared<Type>(*this);                                                                          \
+    }
+
 // cmx
 #include "cmx_scene.h"
 #include "cmx_transform.h"
@@ -23,6 +29,12 @@ class Component : public std::enable_shared_from_this<Component>, public Transfo
 
     virtual void onDetach() {};
     virtual void onAttach() {};
+
+    virtual std::shared_ptr<Component> clone() const
+    {
+        return std::make_shared<Component>(*this);
+    }
+
     virtual void update(float dt) {};
     virtual void render(const class FrameInfo &, vk::PipelineLayout);
 

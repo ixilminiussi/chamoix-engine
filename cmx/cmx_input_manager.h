@@ -36,6 +36,10 @@ class InputManager
     void addInput(const std::string &name, class InputAction *);
     void pollEvents(float dt);
     static void setMouseCapture(bool);
+    static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
+    static void onScrollStop();
+    static double scrollX, scrollY;
+    static bool isScrolling;
 
     void editor();
 

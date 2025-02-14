@@ -2,6 +2,7 @@
 
 // cmx
 #include "cmx_component.h"
+#include "cmx_misc.h"
 #include "cmx_register.h"
 
 // lib
@@ -42,15 +43,34 @@ void Actor::despawn()
     }
 }
 
-std::shared_ptr<Component> Actor::attachComponent(std::shared_ptr<Component> component, std::string componentName)
+std::shared_ptr<Component> Actor::attachComponent(std::shared_ptr<Component> component, std::string componentName,
+                                                  bool force)
 {
     componentName = (componentName.compare("") == 0) ? component->getType() : componentName;
+#ifndef DEBUG
+    // expensive operation so we only use it in debug mode
     auto it = _components.find(componentName);
     if (it != _components.end())
     {
-        spdlog::warn("Actor {0}: component of same name <{1}> already bound to actor", name, componentName);
-        return it->second;
+        if (!force)
+        {
+            spdlog::error(
+                "Actor {0}: component of same name <{1}> already bound to actor. Use 'force = true' to simply "
+                "rename component automatically",
+                name, componentName);
+            return (*it).second;
+        }
+        else
+        {
+            spdlog::warn("Actor {0}: component of same name <{1}> already bound to actor", name, componentName);
+            while (it != _components.end())
+            {
+                componentName = incrementNumberInParentheses(componentName);
+                it = _components.find(componentName);
+            }
+        }
     }
+#endif
 
     Actor *actor = component->getParent();
     if (actor != nullptr)
@@ -179,7 +199,7 @@ void Actor::editor()
     ImGui::SameLine();
     if (ImGui::Button(ICON_MS_ADD "##unique5"))
     {
-        cmxRegister->attachComponent(selected, this, buffer);
+        cmxRegister->attachComponent(selected, this, buffer, true);
     }
 }
 
@@ -240,6 +260,27 @@ std::string Actor::getType()
         spdlog::critical("Actor {0}: Error demangling component type", name);
         return typeid(this).name();
     }
+}
+
+void Actor::duplicate(class Scene *scene, Actor *actor)
+{
+    Actor *copy = new Actor(*actor);
+    copy->_id = currentID++;
+    copy->name = incrementNumberInParentheses(actor->name);
+
+    // currently all our components are still owned / pointing to the previous actor, we need to copy them and add them
+    // to the scene manually
+    copy->_components.clear();
+    for (auto [name, component] : actor->_components)
+    {
+        std::shared_ptr<Component> componentCopy = component->clone();
+        componentCopy->setParent(copy);
+
+        copy->_components[componentCopy->name] = componentCopy;
+        scene->addComponent(componentCopy);
+    }
+
+    scene->addActor(copy);
 }
 
 } // namespace cmx

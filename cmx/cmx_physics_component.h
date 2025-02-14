@@ -19,6 +19,8 @@ class PhysicsComponent : public Component
     PhysicsComponent();
     ~PhysicsComponent();
 
+    CLONEABLE(PhysicsComponent)
+
     void render(const class FrameInfo &, vk::PipelineLayout) override;
 
     void onDetach() override;

@@ -507,4 +507,12 @@ void ViewportUI::guizmoToTranslate(float, int)
     Transformable::currentGuizmoOperation = ImGuizmo::TRANSLATE;
 }
 
+void ViewportUI::duplicateSelected(float, int)
+{
+    if (_inspectedActor != nullptr)
+    {
+        Actor::duplicate(_attachedScene, _inspectedActor);
+    }
+}
+
 } // namespace cmx

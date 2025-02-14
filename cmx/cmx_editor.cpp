@@ -52,6 +52,8 @@ void Editor::load(Window &cmxWindow)
     _inputManager->bindButton("translate mode", &ViewportUI::guizmoToTranslate, _viewportUI.get());
     _inputManager->bindButton("scale mode", &ViewportUI::guizmoToScale, _viewportUI.get());
     _inputManager->bindButton("rotate mode", &ViewportUI::guizmoToRotate, _viewportUI.get());
+    _inputManager->bindButton("duplicate selected", &ViewportUI::duplicateSelected, _viewportUI.get());
+    _inputManager->bindAxis("movement speed update", &ViewportActor::updateMoveSpeed, _viewportActor.get());
 }
 
 void Editor::attachScene(Scene *scene)

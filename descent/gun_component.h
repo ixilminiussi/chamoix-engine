@@ -20,6 +20,8 @@ class GunComponent : public cmx::Component
     GunComponent() = default;
     ~GunComponent() = default;
 
+    CLONEABLE(GunComponent)
+
     void onAttach() override;
     void update(float dt) override;
 

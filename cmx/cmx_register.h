@@ -21,7 +21,8 @@ class Register
     void addComponent(std::string, std::function<std::shared_ptr<class Component>()>);
 
     class Actor *spawnActor(const std::string &, class Scene *, const std::string &);
-    std::shared_ptr<class Component> attachComponent(const std::string &, class Actor *, const std::string &);
+    std::shared_ptr<class Component> attachComponent(const std::string &, class Actor *, const std::string &,
+                                                     bool force = false);
 
     const auto &getActorRegister()
     {

@@ -2,12 +2,15 @@
 #define SHIP_CAMERA_COMPONENT
 
 // cmx
+#include "cmx/cmx_component.h"
 #include <cmx/cmx_camera_component.h>
 
 class ShipCameraComponent : public cmx::CameraComponent
 {
   public:
     using cmx::CameraComponent::CameraComponent;
+
+    CLONEABLE(ShipCameraComponent)
 
     void update(float dt) override;
 

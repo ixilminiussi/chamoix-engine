@@ -25,6 +25,7 @@ InputManager::InputManager(Window &window, const std::string &filepath)
 {
     _gamepadDetected = glfwJoystickPresent(GLFW_JOYSTICK_1);
     glfwSetInputMode(window.getGLFWwindow(), GLFW_STICKY_KEYS, GLFW_TRUE);
+    glfwSetScrollCallback(window.getGLFWwindow(), InputManager::scrollCallback);
 }
 
 InputManager::~InputManager()
@@ -53,7 +54,12 @@ void InputManager::addInput(const std::string &name, InputAction *newInput)
 
 void InputManager::pollEvents(float dt)
 {
+    isScrolling = false;
     glfwPollEvents();
+    if (!isScrolling)
+    {
+        onScrollStop();
+    }
 
     for (auto &[name, input] : _inputDictionary)
     {
@@ -87,6 +93,23 @@ void InputManager::setMouseCapture(bool b)
     {
         glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
+}
+
+double InputManager::scrollX{0.};
+double InputManager::scrollY{0.};
+bool InputManager::isScrolling{false};
+
+void InputManager::scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    scrollX = xoffset;
+    scrollY = yoffset;
+    isScrolling = true;
+}
+
+void InputManager::onScrollStop()
+{
+    scrollX = 0.0;
+    scrollY = 0.0;
 }
 
 void InputManager::save()

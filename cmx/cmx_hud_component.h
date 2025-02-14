@@ -13,6 +13,8 @@ class HudComponent : public Component
     HudComponent();
     ~HudComponent();
 
+    CLONEABLE(HudComponent)
+
     void onAttach() override;
     void render(const FrameInfo &, vk::PipelineLayout) override;
 

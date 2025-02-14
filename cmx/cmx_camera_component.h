@@ -22,6 +22,8 @@ class CameraComponent : public Component
     CameraComponent();
     ~CameraComponent() = default;
 
+    CLONEABLE(CameraComponent)
+
     void update(float dt) override;
     void render(const FrameInfo &, vk::PipelineLayout) override;
 

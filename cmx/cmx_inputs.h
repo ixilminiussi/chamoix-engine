@@ -92,6 +92,8 @@ inline Axis CMX_MOUSE_AXIS_X_ABSOLUTE{0, InputSource::MOUSE};
 inline Axis CMX_MOUSE_AXIS_Y_ABSOLUTE{1, InputSource::MOUSE};
 inline Axis CMX_MOUSE_AXIS_X_RELATIVE{0, InputSource::MOUSE, 1};
 inline Axis CMX_MOUSE_AXIS_Y_RELATIVE{1, InputSource::MOUSE, 1};
+inline Axis CMX_MOUSE_SCROLL_X_RELATIVE{2, InputSource::MOUSE, 0};
+inline Axis CMX_MOUSE_SCROLL_Y_RELATIVE{2, InputSource::MOUSE, 1};
 
 inline Button CMX_KEY_SPACE{GLFW_KEY_SPACE, InputSource::KEYBOARD};
 inline Button CMX_KEY_APOSTROPHE{GLFW_KEY_APOSTROPHE, InputSource::KEYBOARD};
@@ -252,6 +254,8 @@ inline static const std::pair<const char *, Axis *> CMX_AXIS_DICTIONARY[] = {
     {"MOUSE_AXIS_Y_ABSOLUTE", &CMX_MOUSE_AXIS_Y_ABSOLUTE},
     {"MOUSE_AXIS_X_RELATIVE", &CMX_MOUSE_AXIS_X_RELATIVE},
     {"MOUSE_AXIS_Y_RELATIVE", &CMX_MOUSE_AXIS_Y_RELATIVE},
+    {"MOUSE_MOUSE_SCROLL_X_RELATIVE", &CMX_MOUSE_SCROLL_X_RELATIVE},
+    {"MOUSE_MOUSE_SCROLL_Y_RELATIVE", &CMX_MOUSE_SCROLL_Y_RELATIVE},
 };
 
 inline static const std::pair<const char *, Button *> CMX_BUTTON_DICTIONARY[] = {

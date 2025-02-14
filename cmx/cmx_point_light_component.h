@@ -15,6 +15,8 @@ class PointLightComponent : public Component
     PointLightComponent();
     ~PointLightComponent() = default;
 
+    CLONEABLE(PointLightComponent)
+
     void onAttach() override;
     void onDetach() override;
 

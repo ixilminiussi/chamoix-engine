@@ -15,6 +15,8 @@ class BillboardComponent : public Component
     BillboardComponent();
     ~BillboardComponent() = default;
 
+    CLONEABLE(BillboardComponent)
+
     void onAttach() override;
 
     void render(const class FrameInfo &, vk::PipelineLayout) override;

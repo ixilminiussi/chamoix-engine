@@ -35,13 +35,14 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
   public:
     template <class T>
     static T *spawn(class Scene *, const std::string &name, const Transform &transform = Transform{});
+    static void duplicate(class Scene *, Actor *actor);
 
     void despawn();
 
     Actor() = delete;
     virtual ~Actor();
+    Actor(const Actor &) = default;
     Actor &operator=(const Actor &) = delete;
-    Actor(const Actor &) = delete;
 
     std::string getType();
 
@@ -52,7 +53,8 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     virtual void load(tinyxml2::XMLElement *);
     virtual void editor();
 
-    std::shared_ptr<class Component> attachComponent(std::shared_ptr<class Component>, std::string name = "");
+    std::shared_ptr<class Component> attachComponent(std::shared_ptr<class Component>, std::string name = "",
+                                                     bool force = false);
     void detachComponent(const std::string &name);
     template <typename T> std::weak_ptr<T> getComponentByType();
     std::weak_ptr<class Component> getComponentByName(const std::string &name);
@@ -100,7 +102,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     friend void Scene::removeActor(Actor *);
     friend Actor *Scene::getActorByName(const std::string &);
 
-    const std::string name;
+    std::string name;
 
     Positioning positioning{Positioning::RELATIVE};
 

@@ -53,11 +53,11 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     if (!_selected || !Editor::isActive())
         return;
 
-    // Calculate pitch (around X-axis) and yaw (around Y-axis)
+    // Calculate pitch
     float yawAngle = mousePosition.x * _mouseSensitivity * dt;
     float pitchAngle = -mousePosition.y * _mouseSensitivity * dt;
 
-    // Prevent excessive pitch to avoid gimbal lock (usually between -89 and +89 degrees)
+    // Prevent excessive pitch to avoid gimbal lock
     static float accumulatedPitch = 0.0f;
     pitchAngle = std::min(glm::half_pi<float>() - 0.01f - accumulatedPitch, pitchAngle);
     pitchAngle = std::max(-glm::half_pi<float>() + 0.01f - accumulatedPitch, pitchAngle);
@@ -65,14 +65,13 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     accumulatedPitch = glm::clamp(accumulatedPitch, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
 
     // Create quaternions for yaw and pitch
-    glm::quat yaw = glm::angleAxis(yawAngle, glm::vec3(0.0f, 1.0f, 0.0f));      // Rotate around the Y-axis
-    glm::quat pitch = glm::angleAxis(-pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate around the X-axis
+    glm::quat yaw = glm::angleAxis(yawAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::quat pitch = glm::angleAxis(-pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f));
 
-    // Combine the new rotations: yaw first, then pitch relative to yaw
-    _transform.rotation = yaw * _transform.rotation;   // Apply yaw
-    _transform.rotation = _transform.rotation * pitch; // Apply pitch in local space
+    // Combine the new rotations
+    _transform.rotation = yaw * _transform.rotation;
+    _transform.rotation = _transform.rotation * pitch;
 
-    // Ensure the quaternion remains normalized
     _transform.rotation = glm::normalize(_transform.rotation);
 }
 
@@ -91,6 +90,11 @@ void ViewportActor::select(float dt, int val)
         _selected = false;
         InputManager::setMouseCapture(false);
     }
+}
+
+void ViewportActor::updateMoveSpeed(float dt, glm::vec2 vec)
+{
+    _moveSpeed *= 1.f + vec.y * 0.1f;
 }
 
 void ViewportActor::editor()

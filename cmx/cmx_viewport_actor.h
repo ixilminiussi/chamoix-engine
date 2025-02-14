@@ -25,7 +25,8 @@ class ViewportActor
     void onMovementInput(float dt, glm::vec2);
     void onMouseMovement(float dt, glm::vec2);
     void select(float dt, int val);
-    void deselect(float dt);
+
+    void updateMoveSpeed(float dt, glm::vec2);
 
     void lock()
     {

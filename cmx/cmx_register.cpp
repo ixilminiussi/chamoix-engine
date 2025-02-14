@@ -4,13 +4,13 @@
 #include "cmx_actor.h"
 #include "cmx_camera_component.h"
 #include "cmx_component.h"
+#include "cmx_hud_component.h"
 #include "cmx_mesh_actor.h"
 #include "cmx_mesh_component.h"
 #include "cmx_physics_actor.h"
 #include "cmx_physics_component.h"
 #include "cmx_point_light_actor.h"
 #include "cmx_point_light_component.h"
-#include "cmx_hud_component.h"
 
 // lib
 #include <spdlog/spdlog.h>
@@ -101,11 +101,11 @@ Actor *Register::spawnActor(const std::string &typeName, class Scene *scene, con
 }
 
 std::shared_ptr<class Component> Register::attachComponent(const std::string &typeName, class Actor *actor,
-                                                           const std::string &componentName)
+                                                           const std::string &componentName, bool force)
 {
     try
     {
-        return actor->attachComponent(componentRegister.at(typeName)(), componentName);
+        return actor->attachComponent(componentRegister.at(typeName)(), componentName, force);
     }
     catch (std::out_of_range e)
     {
