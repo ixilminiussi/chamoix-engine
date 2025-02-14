@@ -93,10 +93,9 @@ glm::mat3 PhysicsComponent::getInverseInertiaTensorLocalSpace() const
 
 glm::mat3 PhysicsComponent::getInverseInertiaTensorWorldSpace() const
 {
-    glm::mat3 inverseInertiaTensor = glm::inverse(_shape->getInertiaTensor()) * _inverseMass;
     glm::mat3 orient = glm::mat3_cast(getWorldSpaceTransform().rotation);
 
-    return orient * inverseInertiaTensor * glm::transpose(orient);
+    return orient * getInverseInertiaTensorLocalSpace() * glm::transpose(orient);
 }
 
 void PhysicsComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
@@ -154,11 +153,12 @@ void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const Ph
     const float impulseValueJ =
         (1.0f + bounciness) * glm::dot(relVel, -hitInfo.normal) / (_inverseMass + other._inverseMass + angularFactor);
 
-    const glm::vec3 impulse = -hitInfo.normal * impulseValueJ;
-    applyImpulse(hitInfo.point, impulse * -1.f);
+    const glm::vec3 impulse = hitInfo.normal * impulseValueJ;
+    applyImpulse(hitInfo.point, impulse);
 
     // Friction-caused impulse
-    const float friction = _friction * other._friction;
+    const float staticFriction = _friction * other._friction;
+    const float dynamicFriction = staticFriction * 0.7f;
 
     // -- Find the normal direction of the velocity
     // -- with respect to the normal of the collision
@@ -183,10 +183,22 @@ void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const Ph
 
     // -- Tangential impulse for friction
     const float reducedMass = 1.0f / (_inverseMass + other._inverseMass + inverseInertia);
-    const glm::vec3 impulseFriction = velTangent * reducedMass * friction;
+
+    const float maxStaticFrictionImpulse = impulseValueJ * staticFriction;
+    const glm::vec3 desiredFrictionImpulse = -velTangent * reducedMass;
+
+    glm::vec3 impulseFriction;
+    if (glm::length(desiredFrictionImpulse) <= maxStaticFrictionImpulse)
+    {
+        impulseFriction = desiredFrictionImpulse;
+    }
+    else
+    {
+        impulseFriction = glm::normalize(velTangent) * maxStaticFrictionImpulse * dynamicFriction;
+    }
 
     // -- Apply kinetic friction
-    applyImpulse(hitInfo.point, impulseFriction * -1.0f);
+    applyImpulse(hitInfo.point, impulseFriction);
 
     // -- If object are interpenetrating,
     // -- use this to set them on contact
@@ -225,7 +237,7 @@ void PhysicsComponent::applyImpulseLinear(const glm::vec3 &impulse)
 
 void PhysicsComponent::applyImpulseAngular(const glm::vec3 &impulse)
 {
-    _angularVelocity += getInverseInertiaTensorWorldSpace() * _inverseMass * impulse;
+    _angularVelocity += getInverseInertiaTensorWorldSpace() * impulse;
 
     const float maxAngularSpeed = 30.f;
     if (glm::length(_angularVelocity) > maxAngularSpeed)
@@ -247,7 +259,8 @@ void PhysicsComponent::applyVelocity(float dt)
     const glm::vec3 CMToPosition = transform.position - centerOfMass;
 
     const glm::mat3 orientationMatrix = glm::mat3_cast(transform.rotation);
-    const glm::mat3 inertiaTensor = orientationMatrix * _shape->getInertiaTensor() * glm::transpose(orientationMatrix);
+    const glm::mat3 inertiaTensor =
+        orientationMatrix * getInverseInertiaTensorLocalSpace() * glm::transpose(orientationMatrix);
 
     if (_angularVelocity == glm::vec3{0.f})
         return;

@@ -481,7 +481,7 @@ bool Cuboid::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
     hitInfo.normal = glm::vec3(noScale * (newCenter - glm::vec4(closestPoint, 1.0f)));
     hitInfo.depth = other.getRadius() - glm::length(hitInfo.normal);
     hitInfo.normal = (hitInfo.depth <= glm::epsilon<float>()) ? hitInfo.normal : glm::normalize(hitInfo.normal);
-    hitInfo.point = closestPoint - (hitInfo.depth * hitInfo.normal);
+    hitInfo.point = glm::vec3(noScale * glm::vec4(closestPoint, 1.0f));
 
     return hitInfo.depth > 0;
 }
@@ -490,11 +490,12 @@ glm::mat3 Cuboid::getInertiaTensor() const
 {
     const glm::vec3 dimensions = getMaxLocalSpace() - getMinLocalSpace();
 
-    float Ixx = (1.0f / 12.0f) * (dimensions.y * dimensions.y + dimensions.z * dimensions.z);
-    float Iyy = (1.0f / 12.0f) * (dimensions.x * dimensions.x + dimensions.z * dimensions.z);
-    float Izz = (1.0f / 12.0f) * (dimensions.x * dimensions.x + dimensions.y * dimensions.y);
+    glm::mat3 mat3{0.f};
+    mat3[0][0] = (1.0f / 12.0f) * (dimensions.y * dimensions.y + dimensions.z * dimensions.z);
+    mat3[1][1] = (1.0f / 12.0f) * (dimensions.x * dimensions.x + dimensions.z * dimensions.z);
+    mat3[2][2] = (1.0f / 12.0f) * (dimensions.x * dimensions.x + dimensions.y * dimensions.y);
 
-    return glm::mat3(Ixx, 0.0f, 0.0f, 0.0f, Iyy, 0.0f, 0.0f, 0.0f, Izz);
+    return mat3;
 }
 
 glm::vec4 Cuboid::getMinLocalSpace() const
