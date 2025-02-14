@@ -288,6 +288,8 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 {
     spdlog::info("Scene {0}: saving scene to `{1}`...", name, filepath);
 
+    _xmlPath = std::string(filepath);
+
     tinyxml2::XMLDocument doc;
     doc.InsertFirstChild(doc.NewDeclaration());
 
@@ -303,12 +305,12 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 
     doc.InsertEndChild(sceneElement);
 
-    if (doc.SaveFile(filepath) != tinyxml2::XML_SUCCESS)
+    if (doc.SaveFile(_xmlPath.c_str()) != tinyxml2::XML_SUCCESS)
     {
         spdlog::error("Scene {0}: {1}", name, doc.ErrorStr());
     };
 
-    spdlog::info("Scene {0}: Succesfully saved to `{1}`!", name, filepath);
+    spdlog::info("Scene {0}: Succesfully saved to `{1}`!", name, _xmlPath);
     return *sceneElement;
 }
 

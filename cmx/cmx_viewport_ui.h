@@ -51,6 +51,9 @@ class ViewportUI
     void renderGuizmoManager();
     void renderAssetsManager();
     void renderPlayButton();
+    void renderCurrentSceneMetaData();
+
+    void autoSave();
 
     ImGui::FileBrowser _fileDialog;
     ImGuiDockNode *_centralNode{nullptr};

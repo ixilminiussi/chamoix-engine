@@ -72,7 +72,7 @@ class Scene
         return _physicsManager.get();
     }
 
-    const std::string _xmlPath;
+    std::string _xmlPath;
     std::string name;
 
   private:

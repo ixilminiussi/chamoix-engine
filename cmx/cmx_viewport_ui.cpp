@@ -119,6 +119,7 @@ void ViewportUI::render(const class FrameInfo &frameInfo)
     renderTopBar();
     renderGraphicsManager();
     renderGuizmoManager();
+    renderCurrentSceneMetaData();
 
     if (_showProjectSettings)
         renderProjectSettings();
@@ -316,6 +317,8 @@ void ViewportUI::renderSceneTree()
     std::vector<Actor *> actorList{};
     _attachedScene->getAllActorsByType<Actor>(actorList);
 
+    std::sort(actorList.begin(), actorList.end(), [](const Actor *a, const Actor *b) { return (a->name < b->name); });
+
     auto it = actorList.begin();
     int i = 0;
 
@@ -490,6 +493,34 @@ void ViewportUI::renderPlayButton()
     //     }
     //
     //     ImGui::End();
+}
+
+void ViewportUI::renderCurrentSceneMetaData()
+{
+    if (_centralNode != nullptr)
+    {
+        ImVec2 pos = _centralNode->Pos;
+        ImVec2 size = _centralNode->Size;
+        pos.x += 20.f;
+        pos.y += size.y - 40.f;
+        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+    }
+
+    ImGui::Begin("##3", nullptr,
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNavFocus |
+                     ImGuiWindowFlags_NoBackground);
+
+    ImGui::Text("%s", _attachedScene->_xmlPath.c_str());
+
+    ImGui::End();
+}
+
+void ViewportUI::autoSave()
+{
+    const std::string path = _attachedScene->_xmlPath;
+    _attachedScene->saveAs("temp/auto-save.xml");
+    _attachedScene->_xmlPath = path;
 }
 
 void ViewportUI::guizmoToRotate(float, int)
