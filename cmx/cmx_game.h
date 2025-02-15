@@ -35,6 +35,8 @@ class Game
     class Scene *getScene();
     void setScene(int i);
 
+    class Scene *newScene();
+
     class InputManager *getInputManager() const
     {
         return _inputManager.get();

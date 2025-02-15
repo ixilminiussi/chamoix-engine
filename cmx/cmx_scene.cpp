@@ -83,7 +83,7 @@ void Scene::loadFrom(const std::string &filepath)
     }
     else
     {
-        spdlog::error("Scene {0}: Couldn't load scene from `{1}`, {2}", name, filepath, doc.ErrorStr());
+        spdlog::warn("Scene {0}: Couldn't load scene from `{1}`, {2}", name, filepath, doc.ErrorStr());
     }
 }
 

@@ -12,6 +12,7 @@
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
+#include <string>
 #include <vulkan/vulkan_core.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -59,6 +60,20 @@ void Game::setScene(int i)
     {
         spdlog::error("Scene: no scene at index {0}", i);
     }
+}
+
+Scene *Game::newScene()
+{
+    srand(static_cast<unsigned>(time(0)));
+    int randomNumber = rand();
+
+    std::string randomPath = std::string(".temp/new_" + std::to_string(randomNumber) + ".xml");
+
+    _scenes.push_back(new Scene(randomPath, this, "temp"));
+
+    int index = _scenes.size() - 1;
+    setScene(index);
+    return _scenes.at(index);
 }
 
 Scene *Game::getScene()
