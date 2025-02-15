@@ -92,6 +92,17 @@ void PhysicsManager::executeStep(float dt)
                 shape->addOverlappingComponent(itAlt->get());
                 otherShape->addOverlappingComponent(physicsComponent.get());
 
+                if (auto parent = dynamic_cast<PhysicsActor *>(physicsComponent->getParent()))
+                {
+                    parent->onContinuousOverlap(physicsComponent.get(), itAlt->get(), (*itAlt)->getParent(), hitInfo);
+                }
+                if (auto parent = dynamic_cast<PhysicsActor *>((*itAlt)->getParent()))
+                {
+                    hitInfo.flip();
+                    parent->onContinuousOverlap(itAlt->get(), physicsComponent.get(), physicsComponent->getParent(),
+                                                hitInfo);
+                }
+
                 if (!shape->wasOverlapping(itAlt->get()))
                 {
                     if (auto parent = dynamic_cast<PhysicsActor *>(physicsComponent->getParent()))

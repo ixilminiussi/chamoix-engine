@@ -381,7 +381,8 @@ void ViewportUI::renderSceneTree()
     ImGui::SameLine();
     if (ImGui::Button(ICON_MS_ADD))
     {
-        _cmxRegister->spawnActor(selected, _attachedScene, buffer);
+        std::string name = (std::string(buffer).compare("") == 0) ? std::string(selected) : std::string(buffer);
+        _cmxRegister->spawnActor(selected, _attachedScene, name.c_str());
     }
 
     ImGui::End();

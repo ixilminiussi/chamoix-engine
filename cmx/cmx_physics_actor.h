@@ -21,6 +21,9 @@ class PhysicsActor : public Actor
                                 Actor *overlappingActor, const class HitInfo &hitInfo) {};
     virtual void onEndOverlap(class PhysicsComponent *ownedComponent, class PhysicsComponent *overlappingComponent,
                               Actor *overlappingActor) {};
+    virtual void onContinuousOverlap(class PhysicsComponent *ownedComponent,
+                                     class PhysicsComponent *overlappingComponent, Actor *overlappingActor,
+                                     const class HitInfo &hitInfo) {};
 
   protected:
     std::shared_ptr<class PhysicsComponent> _physicsComponent;

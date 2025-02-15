@@ -48,6 +48,15 @@ class PhysicsComponent : public Component
     glm::vec3 getCenterOfMassLocalSpace() const;
     glm::vec3 getCenterOfMassWorldSpace() const;
 
+    glm::vec3 getLinearVelocity() const
+    {
+        return _linearVelocity;
+    }
+    void setLinearVelocity(const glm::vec3 &velocity)
+    {
+        _linearVelocity = velocity;
+    }
+
     // rigid body functions BEGIN
     bool isRigid() const
     {
