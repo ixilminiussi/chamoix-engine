@@ -4,6 +4,7 @@
 #include "cmx_actor.h"
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
+#include "cmx_math.h"
 #include "cmx_physics.h"
 #include "cmx_physics_manager.h"
 #include "cmx_primitives.h"
@@ -156,6 +157,9 @@ void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const Ph
     const glm::vec3 impulse = hitInfo.normal * impulseValueJ;
     applyImpulse(hitInfo.point, impulse);
 
+    // Resistance
+    _linearVelocity = cmx::lerp(_linearVelocity, glm::vec3{0.f}, _airResistance * dt);
+
     // Friction-caused impulse
     const float staticFriction = _friction * other._friction;
     const float dynamicFriction = staticFriction * 0.7f;
@@ -173,32 +177,32 @@ void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const Ph
     if (glm::length(velTangent) > glm::epsilon<float>())
     {
         normalizedVelTangent = glm::normalize(normalizedVelTangent);
+
+        const glm::vec3 inertia =
+            glm::cross((inverseWorldInertia * glm::cross(relHitPoint, normalizedVelTangent)), relHitPoint);
+        const glm::vec3 otherInertia = glm::cross(
+            (otherInverseWorldInertia * glm::cross(otherRelHitPoint, normalizedVelTangent)), otherRelHitPoint);
+        const float inverseInertia = glm::dot(inertia + otherInertia, normalizedVelTangent);
+
+        // -- Tangential impulse for friction
+        const float reducedMass = 1.0f / (_inverseMass + other._inverseMass + inverseInertia);
+
+        const float maxStaticFrictionImpulse = impulseValueJ * staticFriction;
+        const glm::vec3 desiredFrictionImpulse = -velTangent * reducedMass;
+
+        glm::vec3 impulseFriction;
+        if (glm::length(desiredFrictionImpulse) <= maxStaticFrictionImpulse)
+        {
+            impulseFriction = desiredFrictionImpulse;
+        }
+        else
+        {
+            impulseFriction = glm::normalize(velTangent) * maxStaticFrictionImpulse * dynamicFriction;
+        }
+
+        // -- Apply kinetic friction
+        applyImpulse(hitInfo.point, impulseFriction);
     }
-
-    const glm::vec3 inertia =
-        glm::cross((inverseWorldInertia * glm::cross(relHitPoint, normalizedVelTangent)), relHitPoint);
-    const glm::vec3 otherInertia =
-        glm::cross((otherInverseWorldInertia * glm::cross(otherRelHitPoint, normalizedVelTangent)), otherRelHitPoint);
-    const float inverseInertia = glm::dot(inertia + otherInertia, normalizedVelTangent);
-
-    // -- Tangential impulse for friction
-    const float reducedMass = 1.0f / (_inverseMass + other._inverseMass + inverseInertia);
-
-    const float maxStaticFrictionImpulse = impulseValueJ * staticFriction;
-    const glm::vec3 desiredFrictionImpulse = -velTangent * reducedMass;
-
-    glm::vec3 impulseFriction;
-    if (glm::length(desiredFrictionImpulse) <= maxStaticFrictionImpulse)
-    {
-        impulseFriction = desiredFrictionImpulse;
-    }
-    else
-    {
-        impulseFriction = glm::normalize(velTangent) * maxStaticFrictionImpulse * dynamicFriction;
-    }
-
-    // -- Apply kinetic friction
-    applyImpulse(hitInfo.point, impulseFriction);
 
     // -- If object are interpenetrating,
     // -- use this to set them on contact

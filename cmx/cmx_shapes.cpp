@@ -296,14 +296,14 @@ std::vector<glm::vec3> Cuboid::getVerticesWorldSpace() const
     std::vector<glm::vec3> vertices;
     vertices.reserve(8);
 
-    vertices[0] = getMinWorldSpace();
-    vertices[1] = getMaxWorldSpace();
-    vertices[2] = {vertices[0].x, vertices[0].y, vertices[1].z};
-    vertices[3] = {vertices[0].x, vertices[1].y, vertices[0].z};
-    vertices[4] = {vertices[0].x, vertices[1].y, vertices[1].z};
-    vertices[5] = {vertices[1].x, vertices[0].y, vertices[0].z};
-    vertices[6] = {vertices[1].x, vertices[0].y, vertices[1].z};
-    vertices[7] = {vertices[1].x, vertices[1].y, vertices[0].z};
+    vertices.push_back(getMinWorldSpace());
+    vertices.push_back(getMaxWorldSpace());
+    vertices.emplace_back(vertices[0].x, vertices[0].y, vertices[1].z);
+    vertices.emplace_back(vertices[0].x, vertices[1].y, vertices[0].z);
+    vertices.emplace_back(vertices[0].x, vertices[1].y, vertices[1].z);
+    vertices.emplace_back(vertices[1].x, vertices[0].y, vertices[0].z);
+    vertices.emplace_back(vertices[1].x, vertices[0].y, vertices[1].z);
+    vertices.emplace_back(vertices[1].x, vertices[1].y, vertices[0].z);
 
     return vertices;
 }
@@ -403,8 +403,6 @@ bool Cuboid::overlapsWith(const Cuboid &other, HitInfo &hitInfo) const
         }
     }
 
-    hitInfo.point = (getSupportPoint(-hitInfo.normal) + other.getSupportPoint(hitInfo.normal)) / 2.0f;
-
     return true;
 }
 
@@ -467,10 +465,10 @@ std::vector<glm::vec3> Plane::getVerticesWorldSpace() const
     std::vector<glm::vec3> vertices;
     vertices.reserve(4);
 
-    vertices[0] = getMinWorldSpace();
-    vertices[1] = getMaxWorldSpace();
-    vertices[2] = {vertices[0].x, vertices[0].y, vertices[1].z};
-    vertices[3] = {vertices[1].x, vertices[0].y, vertices[0].z};
+    vertices.push_back(getMinWorldSpace());
+    vertices.push_back(getMaxWorldSpace());
+    vertices.emplace_back(vertices[0].x, vertices[0].y, vertices[1].z);
+    vertices.emplace_back(vertices[1].x, vertices[0].y, vertices[0].z);
 
     return vertices;
 }

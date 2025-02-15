@@ -6,6 +6,7 @@ add_library(demo
     rotating_actor.cpp
     static_body_actor.cpp
     dynamic_body_actor.cpp
+    rigid_body_actor.cpp
 )
 
 target_include_directories(demo PUBLIC

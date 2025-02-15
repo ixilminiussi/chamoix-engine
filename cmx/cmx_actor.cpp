@@ -276,6 +276,7 @@ void Actor::duplicate(class Scene *scene, Actor *actor)
     {
         std::shared_ptr<Component> componentCopy = component->clone();
         componentCopy->setParent(copy);
+        componentCopy->onAttach();
 
         copy->_components[componentCopy->name] = componentCopy;
         scene->addComponent(componentCopy);

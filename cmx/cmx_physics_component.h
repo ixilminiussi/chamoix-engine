@@ -72,6 +72,7 @@ class PhysicsComponent : public Component
 
     float _inverseMass{0.f};
     float _bounciness{0.5f};
+    float _airResistance{1.f};
     float _friction{0.5f};
 
     uint8_t _mask{MASK_ALL};
