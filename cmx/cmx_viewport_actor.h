@@ -35,7 +35,7 @@ class ViewportActor
     void unlock()
     {
         _locked = false;
-        InputManager::setMouseCapture(false);
+        InputManager::setMouseCapture(false, true);
     };
 
     std::shared_ptr<class Camera> getCamera()

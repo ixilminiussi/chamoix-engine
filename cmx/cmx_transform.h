@@ -63,6 +63,19 @@ class Transformable
     void setRotation(const glm::vec3 &euler);
     void setScale(const glm::vec3 &scale);
 
+    glm::vec3 getWorldSpaceForward()
+    {
+        return getWorldSpaceTransform().forward();
+    }
+    glm::vec3 getWorldSpaceRight()
+    {
+        return getWorldSpaceTransform().right();
+    }
+    glm::vec3 getWorldSpaceUp()
+    {
+        return getWorldSpaceTransform().up();
+    }
+
     static ImGuizmo::OPERATION currentGuizmoOperation;
     static bool guizmoSnap;
     static float guizmoSnapTo;

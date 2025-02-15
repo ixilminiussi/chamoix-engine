@@ -17,7 +17,17 @@
 namespace cmx
 {
 
-AssetsManager::AssetsManager(class Scene *parent) : _parentScene{parent} {};
+AssetsManager::AssetsManager(class Scene *parent) : _parentScene{parent}
+{
+    addModel("assets/cmx/cube.obj", PRIMITIVE_CUBE);
+    addModel("assets/cmx/cylinder.obj", PRIMITIVE_CYLINDER);
+    addModel("assets/cmx/plane.obj", PRIMITIVE_PLANE);
+    addModel("assets/cmx/sphere.obj", PRIMITIVE_SPHERE);
+    addModel("assets/cmx/torus.obj", PRIMITIVE_TORUS);
+    addModel("assets/cmx/camera.obj", "cmx_camera");
+    addTexture("assets/cmx/missing-texture.png", "cmx_missing");
+    addTexture("assets/cmx/point-light.png", "cmx_point_light");
+};
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
 {
@@ -48,12 +58,6 @@ AssetsManager::~AssetsManager()
 
 void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 {
-    addModel("assets/cmx/cube.obj", PRIMITIVE_CUBE);
-    addModel("assets/cmx/cylinder.obj", PRIMITIVE_CYLINDER);
-    addModel("assets/cmx/plane.obj", PRIMITIVE_PLANE);
-    addModel("assets/cmx/sphere.obj", PRIMITIVE_SPHERE);
-    addModel("assets/cmx/torus.obj", PRIMITIVE_TORUS);
-
     if (tinyxml2::XMLElement *assetsElement = parentElement->FirstChildElement("assets"))
     {
         tinyxml2::XMLElement *modelElement = assetsElement->FirstChildElement("model");

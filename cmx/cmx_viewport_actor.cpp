@@ -83,12 +83,12 @@ void ViewportActor::select(float dt, int val)
     if (val == 1)
     {
         _selected = true;
-        InputManager::setMouseCapture(true);
+        InputManager::setMouseCapture(true, true);
     }
     else
     {
         _selected = false;
-        InputManager::setMouseCapture(false);
+        InputManager::setMouseCapture(false, true);
     }
 }
 

@@ -1,6 +1,7 @@
 #include "cmx_input_manager.h"
 
 // cmx
+#include "cmx_editor.h"
 #include "cmx_game.h"
 #include "cmx_input_action.h"
 #include "cmx_window.h"
@@ -82,8 +83,12 @@ void InputManager::unbindAll()
     }
 }
 
-void InputManager::setMouseCapture(bool b)
+void InputManager::setMouseCapture(bool b, bool force)
 {
+#ifndef NDEBUG
+    if (!force && Editor::isActive())
+        return;
+#endif
     if (b)
     {
         glfwSetInputMode(Game::getWindow().getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
