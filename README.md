@@ -17,13 +17,31 @@ git clone --recurse-submodules https://github.com/ixilminiussi/chamoix-engine.gi
 
 ### Compilation
 
+#### For Editor:
+
 ``` bash
 mkdir build
 cd build
-../compile.sh descent # copies the game files into build, compiles shaders
+../compile.sh petanque # copies the game files into build, compiles shaders
 cmake -GNinja -DCMAKE_BUILD_TYPE=Debug .. # build can be rather slow, ninja is recommended for faster compilation. make also works
 ninja
 ./VulkanTest
 ```
 
+*Once in editor, use the mouse to move around, and the various editors to test out different situations*
+*You can use the "game properties" window to change game inputs*
+*To toggle *play* mode, press "F9"*
+
+#### For Release:
+
+``` bash
+mkdir build
+cd build
+../compile.sh petanque # copies the game files into build, compiles shaders
+cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. 
+ninja
+./VulkanTest
+```
+
+*Release mode essentially takes you straight to the petanque game. Use WASD to move around, Mouse to look. Press Space/Left-Mouse to throw cochonet / boule, long press to throw further* 
 
