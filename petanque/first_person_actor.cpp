@@ -1,6 +1,9 @@
 #include "first_person_actor.h"
+#include "boule_actor.h"
 #include "cmx/cmx_game.h"
 #include "cmx/cmx_input_manager.h"
+#include "cmx/cmx_math.h"
+#include "cmx/cmx_point_light_actor.h"
 
 // cmx
 #include <cmx/cmx_camera_component.h>
@@ -11,7 +14,9 @@
 void FirstPersonActor::onBegin()
 {
     DynamicBodyActor::onBegin();
+
     _physicsComponent->setShape(PRIMITIVE_SPHERE);
+    _physicsComponent->setMask(0b01000000);
 
     _cameraComponent = std::make_shared<cmx::CameraComponent>();
     attachComponent(_cameraComponent);
@@ -19,14 +24,19 @@ void FirstPersonActor::onBegin()
     cmx::InputManager *inputManager = getScene()->getGame()->getInputManager();
     inputManager->bindAxis("movement", &FirstPersonActor::onMovementInput, this);
     inputManager->bindAxis("look", &FirstPersonActor::onMouseMovement, this);
+    inputManager->bindButton("shoot start", &FirstPersonActor::onShootStart, this);
+    inputManager->bindButton("shoot release", &FirstPersonActor::onShootRelease, this);
 
     cmx::InputManager::setMouseCapture(true);
+    BouleActor::reset();
 
     _oldPosition = _transform.position;
 }
 
 void FirstPersonActor::update(float dt)
 {
+    _shootTime += dt;
+
     _falling += 10.f * dt;
     _transform.position.y += _falling * dt;
 
@@ -34,6 +44,8 @@ void FirstPersonActor::update(float dt)
     _physicsComponent->setLinearVelocity(linearVelocity);
 
     _oldPosition = _transform.position;
+
+    updateTurnIndicator();
 }
 
 void FirstPersonActor::onContinuousOverlap(class cmx::PhysicsComponent *ownedComponent,
@@ -82,4 +94,53 @@ void FirstPersonActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     // Combine the new rotations
     glm::quat cameraRotation = _cameraComponent->getLocalSpaceTransform().rotation;
     _cameraComponent->setRotation((yaw * cameraRotation) * pitch);
+}
+
+void FirstPersonActor::onShootStart(float, int)
+{
+    _shootTime = 0.f;
+}
+
+void FirstPersonActor::onShootRelease(float, int)
+{
+    BouleActor::Team whoseTurn = BouleActor::whoseTurn();
+    if (whoseTurn != BouleActor::Team::COCHONET)
+    {
+        BouleActor *boule = Actor::spawn<BouleActor>(getScene(), "Boule", _cameraComponent->getWorldSpaceTransform());
+
+        boule->setTeam(whoseTurn);
+        boule->shoot(_cameraComponent->getWorldSpaceForward(), cmx::map(2.f, 6.f, 0.f, 2.f, _shootTime));
+    }
+    else
+    {
+        BouleActor *cochonet =
+            Actor::spawn<BouleActor>(getScene(), "Cochonet", _cameraComponent->getWorldSpaceTransform());
+
+        cochonet->setTeam(BouleActor::Team::COCHONET);
+        cochonet->shoot(_cameraComponent->getWorldSpaceForward(), cmx::map(0.5f, 2.0f, 0.f, 2.f, _shootTime));
+    }
+}
+
+void FirstPersonActor::updateTurnIndicator()
+{
+    Actor *turnIndicator = getScene()->getActorByName("Turn Indicator");
+
+    if (turnIndicator == nullptr)
+        return;
+
+    if (cmx::PointLightActor *lightActor = dynamic_cast<cmx::PointLightActor *>(turnIndicator))
+    {
+        switch (BouleActor::whoseTurn())
+        {
+        case BouleActor::Team::BLUE:
+            lightActor->setLightColor({0.f, 0.f, 1.f});
+            break;
+        case BouleActor::Team::RED:
+            lightActor->setLightColor({1.f, 0.f, 0.f});
+            break;
+        case BouleActor::Team::COCHONET:
+            lightActor->setLightColor({0.f, 1.f, 0.f});
+            break;
+        }
+    }
 }

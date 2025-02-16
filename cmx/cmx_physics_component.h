@@ -68,6 +68,9 @@ class PhysicsComponent : public Component
     void applyImpulseAngular(const glm::vec3 &);
     void applyGravity(float dt);
     void applyVelocity(float dt);
+
+    void setMass(float mass);
+    void setInverseMass(float inverseMass);
     // rigid body functions END
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;

@@ -157,9 +157,6 @@ void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const Ph
     const glm::vec3 impulse = hitInfo.normal * impulseValueJ;
     applyImpulse(hitInfo.point, impulse);
 
-    // Resistance
-    _linearVelocity = cmx::lerp(_linearVelocity, glm::vec3{0.f}, _airResistance * dt);
-
     // Friction-caused impulse
     const float staticFriction = _friction * other._friction;
     const float dynamicFriction = staticFriction * 0.7f;
@@ -208,6 +205,10 @@ void PhysicsComponent::applyCollision(float dt, const HitInfo &hitInfo, const Ph
     // -- use this to set them on contact
     getParent()->setPosition(getWorldSpaceTransform().position +
                              (-hitInfo.normal * hitInfo.depth) * (_inverseMass / (_inverseMass + other._inverseMass)));
+
+    // Resistance
+    _linearVelocity = cmx::lerp(_linearVelocity, glm::vec3{0.f}, _airResistance * dt);
+    _angularVelocity = cmx::lerp(_angularVelocity, glm::vec3{0.f}, _airResistance * dt);
 
     _shape->reassess();
 }
@@ -266,7 +267,7 @@ void PhysicsComponent::applyVelocity(float dt)
     const glm::mat3 inertiaTensor =
         orientationMatrix * getInverseInertiaTensorLocalSpace() * glm::transpose(orientationMatrix);
 
-    if (_angularVelocity == glm::vec3{0.f})
+    if (glm::length(_angularVelocity) <= glm::epsilon<float>())
         return;
 
     const glm::vec3 alpha =
@@ -399,6 +400,16 @@ void PhysicsComponent::editor(int i)
     }
 
     Component::editor(i);
+}
+
+void PhysicsComponent::setMass(float mass)
+{
+    _inverseMass = 1.f / glm::max(glm::epsilon<float>(), mass);
+}
+
+void PhysicsComponent::setInverseMass(float inverseMass)
+{
+    _inverseMass = glm::max(0.f, inverseMass);
 }
 
 } // namespace cmx

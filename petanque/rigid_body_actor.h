@@ -10,7 +10,7 @@ class RigidBodyActor : public cmx::PhysicsActor
   public:
     using cmx::PhysicsActor::PhysicsActor;
 
-    void onBegin() override;
+    virtual void onBegin() override;
 };
 
 REGISTER_ACTOR(RigidBodyActor)

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inputs>
+    <buttonAction type="RELEASED" name="shoot release">
+        <button code="32" source="KEYBOARD" id="0"/>
+        <button code="0" source="MOUSE" id="1"/>
+    </buttonAction>
+    <buttonAction type="PRESSED" name="shoot start">
+        <button code="32" source="KEYBOARD" id="0"/>
+        <button code="0" source="MOUSE" id="1"/>
+    </buttonAction>
     <axisAction modifierX="1" modifierY="1" type="AXES" name="look">
         <axis code="0" source="MOUSE" id="1"/>
         <axis code="1" source="MOUSE" id="1"/>

@@ -21,6 +21,11 @@ class FirstPersonActor : public DynamicBodyActor
     void onMovementInput(float dt, glm::vec2 movement);
     void onMouseMovement(float dt, glm::vec2 mousePosition);
 
+    void onShootStart(float, int);
+    void onShootRelease(float, int);
+
+    void updateTurnIndicator();
+
   protected:
     std::shared_ptr<cmx::CameraComponent> _cameraComponent;
 
@@ -28,6 +33,8 @@ class FirstPersonActor : public DynamicBodyActor
     float _falling{0.f};
     float _moveSpeed{3.f};
     float _mouseSensitivity{0.02f};
+
+    float _shootTime{0.f};
 };
 
 REGISTER_ACTOR(FirstPersonActor)

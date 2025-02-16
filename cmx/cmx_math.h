@@ -32,6 +32,13 @@ template <typename T> T lerp(T a, T b, float amount)
     return a + (b - a) * amount;
 }
 
+template <typename T> T map(T a, T b, T lo, T hi, float amount)
+{
+    float lerpVal = glm::clamp((amount - lo) / (hi - lo), 0.f, 1.f);
+
+    return lerp(a, b, lerpVal);
+}
+
 struct Polygon
 {
     glm::vec3 a;
