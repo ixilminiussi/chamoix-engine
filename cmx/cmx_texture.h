@@ -19,6 +19,8 @@ class Texture
     {
         int width;
         int height;
+        uint32_t mipLevels;
+        vk::Format format;
         vk::DeviceSize imageSize;
         stbi_uc *image;
         std::string filepath;
@@ -44,8 +46,9 @@ class Texture
 
   protected:
     void createImage(class Device *, const Builder &);
-    void createImageView(class Device *, const vk::Image &);
+    void createImageView(class Device *, const Builder &);
     void createSampler(class Device *);
+    void generateMipmaps(class Device *, const Builder &);
 
     vk::Image _image;
     vk::ImageView _imageView;

@@ -597,7 +597,8 @@ void Device::createImageWithInfo(const vk::ImageCreateInfo &imageInfo, vk::Memor
     _device.bindImageMemory(image, imageMemory, 0);
 }
 
-void Device::transitionImageLayout(vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void Device::transitionImageLayout(vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+                                   uint32_t mipLevels)
 {
     vk::CommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -609,7 +610,7 @@ void Device::transitionImageLayout(vk::Image image, vk::ImageLayout oldLayout, v
     imageMemoryBarrier.image = image;
     imageMemoryBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
     imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-    imageMemoryBarrier.subresourceRange.levelCount = 1;
+    imageMemoryBarrier.subresourceRange.levelCount = mipLevels;
     imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
     imageMemoryBarrier.subresourceRange.layerCount = 1;
 

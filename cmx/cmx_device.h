@@ -95,7 +95,7 @@ class Device
     void copyBufferToImage(vk::Buffer, vk::Image, uint32_t width, uint32_t height, uint32_t layerCount);
 
     void createImageWithInfo(const vk::ImageCreateInfo &, vk::MemoryPropertyFlags, vk::Image &, vk::DeviceMemory &);
-    void transitionImageLayout(vk::Image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+    void transitionImageLayout(vk::Image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t mipLevels);
 
     vk::PhysicalDeviceProperties _properties;
 
