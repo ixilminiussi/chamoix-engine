@@ -76,4 +76,6 @@ class ShipActor : public cmx::PhysicsActor
     int health{100};
 };
 
+REGISTER_ACTOR(ShipActor)
+
 #endif

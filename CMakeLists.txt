@@ -10,13 +10,13 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(.external)
 add_subdirectory(cmx)
-add_subdirectory(petanque)
+add_subdirectory(descent)
 
-add_executable(VulkanTest petanque/main.cpp) 
+add_executable(VulkanTest descent/main.cpp) 
 
 target_link_libraries(VulkanTest PRIVATE
     cmx
-    petanque
+    descent
 )
 
 add_custom_target(clean_all

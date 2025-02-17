@@ -45,4 +45,6 @@ class GunComponent : public cmx::Component
     std::weak_ptr<class ShipCameraComponent> _cameraComponent;
 };
 
+REGISTER_COMPONENT(GunComponent)
+
 #endif

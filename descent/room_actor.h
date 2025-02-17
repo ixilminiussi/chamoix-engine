@@ -23,4 +23,6 @@ class RoomActor : public cmx::Actor
     std::shared_ptr<class cmx::PhysicsComponent> _wall4Collision;
 };
 
+REGISTER_ACTOR(RoomActor)
+
 #endif

@@ -15,4 +15,6 @@ class WallActor : public cmx::PhysicsActor
     std::shared_ptr<class cmx::MeshComponent> _meshComponent;
 };
 
+REGISTER_ACTOR(WallActor)
+
 #endif

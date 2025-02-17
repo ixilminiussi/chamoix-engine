@@ -35,12 +35,12 @@ void ShipActor::onBegin()
     cmx::InputManager *inputManager = getScene()->getGame()->getInputManager();
     if (inputManager)
     {
-        inputManager->bindAxis("Movement", &ShipActor::onMovementInput, this);
-        inputManager->bindAxis("View", &ShipActor::onViewInput, this);
-        inputManager->bindAxis("View Keyboard", &ShipActor::onViewInput, this);
-        inputManager->bindAxis("Tilt", &ShipActor::onTiltInput, this);
-        inputManager->bindAxis("Lift", &ShipActor::onLiftInput, this);
-        inputManager->bindButton("Shoot", &ShipActor::shoot, this);
+        inputManager->bindAxis("movement", &ShipActor::onMovementInput, this);
+        inputManager->bindAxis("look", &ShipActor::onViewInput, this);
+        inputManager->bindAxis("look keyboard", &ShipActor::onViewInput, this);
+        inputManager->bindAxis("tilt", &ShipActor::onTiltInput, this);
+        inputManager->bindAxis("lift", &ShipActor::onLiftInput, this);
+        inputManager->bindButton("shoot", &ShipActor::shoot, this);
     }
 
     _gunComponents.push_back(std::make_shared<GunComponent>());
@@ -94,11 +94,11 @@ void ShipActor::update(float dt)
         }
         if (!_movingRight)
         {
-            movementDecelerate(dt, -_transform.right());
+            movementDecelerate(dt, _transform.right());
         }
         if (!_movingLeft)
         {
-            movementDecelerate(dt, _transform.right());
+            movementDecelerate(dt, -_transform.right());
         }
         if (!_movingUp)
         {

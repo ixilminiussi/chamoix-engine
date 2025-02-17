@@ -32,4 +32,6 @@ class EnemyShipActor : public cmx::PhysicsActor
     int _health{50};
 };
 
+REGISTER_ACTOR(EnemyShipActor)
+
 #endif

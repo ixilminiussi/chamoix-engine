@@ -26,4 +26,6 @@ class ShipCameraComponent : public cmx::CameraComponent
     float _cummulatedTime{0.f};
 };
 
+REGISTER_COMPONENT(ShipCameraComponent)
+
 #endif

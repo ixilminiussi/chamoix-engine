@@ -59,4 +59,6 @@ class BulletActor : public cmx::PhysicsActor
     std::shared_ptr<cmx::BillboardComponent> _billboardComponent;
 };
 
+REGISTER_ACTOR(BulletActor)
+
 #endif
