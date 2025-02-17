@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<inputs>
-    <buttonAction type="RELEASED" name="exit">
-        <button code="256" source="KEYBOARD" id="0"/>
-    </buttonAction>
-    <buttonAction type="TOGGLE" name="slowdown toggle">
-        <button code="32" source="KEYBOARD" id="0"/>
-    </buttonAction>
-</inputs>
