@@ -55,15 +55,13 @@ std::shared_ptr<Component> Actor::attachComponent(std::shared_ptr<Component> com
     {
         if (!force)
         {
-            spdlog::error(
-                "Actor {0}: component of same name <{1}> already bound to actor. Use 'force = true' to simply "
-                "rename component automatically",
-                name, componentName);
+            spdlog::warn("Actor {0}: component of same name <{1}> already bound to actor. Use 'force = true' to simply "
+                         "rename component automatically",
+                         name, componentName);
             return (*it).second;
         }
         else
         {
-            spdlog::warn("Actor {0}: component of same name <{1}> already bound to actor", name, componentName);
             while (it != _components.end())
             {
                 componentName = incrementNumberInParentheses(componentName);
