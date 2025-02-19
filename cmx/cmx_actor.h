@@ -22,8 +22,8 @@ namespace cmx
 
 enum Positioning
 {
-    ABSOLUTE,
-    RELATIVE
+    Pos_ABSOLUTE,
+    Pos_RELATIVE
 };
 
 enum State
@@ -107,7 +107,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 
     std::string name;
 
-    Positioning positioning{Positioning::RELATIVE};
+    Positioning positioning{Positioning::Pos_RELATIVE};
 
   protected:
     State _state{State::LIVING};

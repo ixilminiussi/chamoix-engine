@@ -118,7 +118,7 @@ std::weak_ptr<Component> Actor::getComponentByName(const std::string &name)
 
 Transform Actor::getWorldSpaceTransform() const
 {
-    if (positioning == Positioning::RELATIVE)
+    if (positioning == Positioning::Pos_RELATIVE)
     {
         if (auto parentActor = _parent.lock())
         {
