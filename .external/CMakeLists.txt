@@ -23,6 +23,9 @@ add_library(imgui STATIC
 if(WIN32)
     message(STATUS "Compiling on Windows")
     
+    # First, try to find Vulkan normally
+    find_package(Vulkan QUIET)
+
     # Set Vulkan paths manually if needed
     if(NOT Vulkan_FOUND)
         set(VULKAN_SDK "$ENV{VULKAN_SDK}")
