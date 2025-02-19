@@ -28,3 +28,6 @@
 [submodule ".external/glfw"]
 	path = .external/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule ".external/vulkan"]
+	path = .external/vulkan
+	url = https://github.com/KhronosGroup/Vulkan-Hpp.git

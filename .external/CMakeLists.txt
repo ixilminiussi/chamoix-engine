@@ -19,8 +19,30 @@ add_library(imgui STATIC
   imgui/backends/imgui_impl_vulkan.cpp  
 )
 
-# find_package(glfw3 REQUIRED)
-find_package(Vulkan REQUIRED)
+# Cross-platform Vulkan detection
+if(WIN32)
+    message(STATUS "Compiling on Windows")
+    
+    # Set Vulkan paths manually if needed
+    if(NOT Vulkan_FOUND)
+        set(VULKAN_SDK "$ENV{VULKAN_SDK}")
+        if(VULKAN_SDK)
+            set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK}/Include")
+            set(Vulkan_LIBRARIES "${VULKAN_SDK}/Lib/vulkan-1.lib")
+            message(STATUS "Using Vulkan from: ${VULKAN_SDK}")
+        else()
+            message(FATAL_ERROR "Vulkan SDK not found! Please install it and set the VULKAN_SDK environment variable.")
+        endif()
+    endif()
+
+    # GLFW handling for Windows
+    if(NOT TARGET glfw)
+        find_package(glfw3 REQUIRED)
+    endif()
+else()
+    message(STATUS "Compiling on Linux/macOS")
+    find_package(Vulkan REQUIRED)
+endif()
 
 target_include_directories(imgui PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imgui>
