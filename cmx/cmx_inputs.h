@@ -70,8 +70,8 @@ inline bool operator==(const Button &a, const Button &b)
 
 struct Axis
 {
-    int code;
-    InputSource source;
+    int code{};
+    InputSource source{};
 
     short unsigned int id = 0; // used to set apart inputs of same code but different use
 
