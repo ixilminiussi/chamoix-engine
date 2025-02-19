@@ -3,13 +3,13 @@
 ## Chamoix
 
 ### Textures
-- [ ] Shader
-- [ ] Bind
+- [X] Shader
+- [X] Bind
 
 ### Play state
-- [ ] Toggle between
+- [X] Toggle between
 - [ ] Load/Create new scenes
-- [ ] Toggle mesh renderer
+- [X] Toggle mesh renderer
 
 ### Sounds
 - [ ] AssetsManager
@@ -18,15 +18,15 @@
 ## Descent
 
 ### Walls
-- [ ] Create collisions / physics
+- [X] Create collisions / physics
 
 ### Shaceship 
-- [ ] Movement
-- [ ] Projectiles
+- [X] Movement
+- [X] Projectiles
 
 ### Enemies
 - [ ] Spawner
-- [ ] AI
+- [X] AI
 
 ### Levels
 - [ ] Change level
