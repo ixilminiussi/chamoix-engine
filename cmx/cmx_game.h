@@ -10,6 +10,7 @@
 
 // std
 #include <cstdlib>
+#include <map>
 #include <memory>
 
 namespace cmx

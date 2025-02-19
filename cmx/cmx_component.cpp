@@ -9,8 +9,14 @@
 #include <spdlog/spdlog.h>
 
 // std
-#include "cxxabi.h"
-#include "imgui.h"
+#ifdef _WIN32
+#include <DbgHelp.h>
+#pragma comment(lib, "Dbghelp.lib")
+#else
+#include <cxxabi.h>
+#endif
+
+#include <imgui.h>
 
 REGISTER_COMPONENT(cmx::Component)
 
@@ -60,6 +66,24 @@ void Component::load(tinyxml2::XMLElement *componentElement)
     }
 }
 
+#ifdef _WIN32
+std::string Component::getType()
+{
+    const char *mangledName = typeid(*this).name();
+    char demangledName[1024];
+    DWORD size = sizeof(demangledName);
+
+    if (UnDecorateSymbolName(mangledName, demangledName, size, UNDNAME_COMPLETE))
+    {
+        return std::string(demangledName);
+    }
+    else
+    {
+        spdlog::critical("Component: Error demangling component type");
+        return mangledName;
+    }
+}
+#else
 std::string Component::getType()
 {
     int status;
@@ -77,6 +101,7 @@ std::string Component::getType()
         return typeid(this).name();
     }
 }
+#endif
 
 bool Component::getVisible()
 {
