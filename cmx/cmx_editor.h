@@ -20,7 +20,7 @@ class Editor
     void attachScene(class Scene *);
     void toggle(float dt, int);
     void update(float dt);
-    void render(const class FrameInfo &);
+    void render(const struct FrameInfo &);
 
     void initInputManager(class Window &, const std::string &shortcutsPath = "editor/shortcuts.xml");
 

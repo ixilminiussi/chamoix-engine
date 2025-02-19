@@ -22,7 +22,7 @@ class PhysicsComponent : public Component
 
     CLONEABLE(PhysicsComponent)
 
-    void render(const class FrameInfo &, vk::PipelineLayout) override;
+    void render(const struct FrameInfo &, vk::PipelineLayout) override;
 
     void onDetach() override;
     void onAttach() override;

@@ -23,7 +23,7 @@ class ViewportUI
     ViewportUI();
     ~ViewportUI();
 
-    void render(const class FrameInfo &);
+    void render(const struct FrameInfo &);
 
     void load();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parent);

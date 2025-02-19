@@ -45,7 +45,7 @@ class Shape : private Transformable
   public:
     Shape(Transformable *parent);
 
-    virtual void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) {};
+    virtual void render(const struct FrameInfo &, vk::PipelineLayout, class AssetsManager *) {};
 
     virtual bool overlapsWith(const Shape &, HitInfo &) const = 0;
     virtual bool overlapsWith(const class Sphere &, HitInfo &) const = 0;
@@ -88,7 +88,7 @@ class Sphere : public Shape
     Sphere(cmx::Transformable *);
     ~Sphere() {};
 
-    void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
+    void render(const struct FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
 
     bool overlapsWith(const Shape &, HitInfo &) const override;
     bool overlapsWith(const Sphere &, HitInfo &) const override;
@@ -112,7 +112,7 @@ class Cuboid : public Shape
   public:
     Cuboid(cmx::Transformable *);
 
-    virtual void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
+    virtual void render(const struct FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
 
     ~Cuboid() {};
 
@@ -147,7 +147,7 @@ struct Plane : public Cuboid
 
     Plane(cmx::Transformable *);
 
-    virtual void render(const class FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
+    virtual void render(const struct FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
 
     ~Plane() {};
 

@@ -36,7 +36,7 @@ class Component : public std::enable_shared_from_this<Component>, public Transfo
     }
 
     virtual void update(float dt) {};
-    virtual void render(const class FrameInfo &, vk::PipelineLayout);
+    virtual void render(const struct FrameInfo &, vk::PipelineLayout);
 
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
     virtual void load(tinyxml2::XMLElement *);

@@ -19,7 +19,7 @@ class BillboardComponent : public Component
 
     void onAttach() override;
 
-    void render(const class FrameInfo &, vk::PipelineLayout) override;
+    void render(const struct FrameInfo &, vk::PipelineLayout) override;
 
     void setTexture(const std::string &name);
     std::string getTextureName() const;

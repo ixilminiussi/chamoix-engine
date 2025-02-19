@@ -33,7 +33,7 @@ class EdgeRenderSystem : public RenderSystem
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
-    void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
+    void render(const struct FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                 class GraphicsManager *) override;
     virtual void editor(int i) override;
 };

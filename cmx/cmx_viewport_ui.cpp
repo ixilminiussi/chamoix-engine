@@ -106,7 +106,7 @@ void ViewportUI::initImGUI()
     _fileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
 }
 
-void ViewportUI::render(const class FrameInfo &frameInfo)
+void ViewportUI::render(const struct FrameInfo &frameInfo)
 {
     // imgui new frame
     ImGui_ImplVulkan_NewFrame();

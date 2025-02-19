@@ -47,7 +47,7 @@ class RenderSystem
     RenderSystem &operator=(const RenderSystem &) = delete;
 
     static void checkAspectRatio(class Camera *);
-    static FrameInfo *beginRender(class Camera *, PointLight pointLights[MAX_POINT_LIGHTS], int numLights);
+    static struct FrameInfo *beginRender(class Camera *, PointLight pointLights[MAX_POINT_LIGHTS], int numLights);
     static void endRender();
 
     virtual void free();
@@ -58,7 +58,7 @@ class RenderSystem
     static vk::DescriptorSet &getSamplerDescriptorSet(unsigned int index);
 
     virtual void initialize() = 0;
-    virtual void render(const class FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
+    virtual void render(const struct FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                         class GraphicsManager *) = 0;
 
     friend void ViewportUI::initImGUI();
