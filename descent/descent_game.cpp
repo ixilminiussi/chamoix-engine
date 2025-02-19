@@ -63,7 +63,7 @@ void Descent::run()
 #endif
     while (!_window.shouldClose())
     {
-        float dt = glfwGetTime();
+        float dt = (float)glfwGetTime();
         glfwSetTime(0.);
 
 #ifndef NDEBUG

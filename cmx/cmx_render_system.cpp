@@ -113,7 +113,7 @@ void RenderSystem::closeWindow()
     delete _window;
 }
 
-unsigned int RenderSystem::createSamplerDescriptor(vk::ImageView imageView, vk::Sampler sampler)
+size_t RenderSystem::createSamplerDescriptor(vk::ImageView imageView, vk::Sampler sampler)
 {
     vk::DescriptorSet descriptorSet;
 

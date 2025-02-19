@@ -55,7 +55,7 @@ class Texture
     vk::DeviceMemory _imageMemory;
 
     vk::Sampler _sampler;
-    unsigned int _descriptorSetID;
+    size_t _descriptorSetID;
 
     std::string _filepath;
 
