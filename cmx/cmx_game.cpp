@@ -45,7 +45,7 @@ Game::~Game()
 {
 }
 
-void Game::setScene(int i)
+void Game::setScene(size_t i)
 {
     if (_activeScene != nullptr)
     {
@@ -71,7 +71,7 @@ Scene *Game::newScene()
 
     _scenes.push_back(new Scene(randomPath, this, "temp"));
 
-    int index = _scenes.size() - 1;
+    size_t index = _scenes.size() - 1;
     setScene(index);
     return _scenes.at(index);
 }

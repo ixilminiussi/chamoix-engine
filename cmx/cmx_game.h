@@ -34,7 +34,7 @@ class Game
 
     // getters and setters :: begin
     class Scene *getScene();
-    void setScene(int i);
+    void setScene(size_t i);
 
     class Scene *newScene();
 

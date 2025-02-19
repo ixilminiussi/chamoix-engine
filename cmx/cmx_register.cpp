@@ -35,28 +35,26 @@ Register &Register::getInstance()
 
 void Register::addActor(std::string name, std::function<Actor *(class Scene *, const std::string &)> builder)
 {
-    try
+    if (actorRegister.find(name) != actorRegister.end())
     {
         actorRegister.at(name);
         spdlog::warn("Register: duplicate actor '{0}' in register", name);
+        return;
     }
-    catch (std::out_of_range e)
-    {
-        actorRegister[name] = builder;
-    }
+
+    actorRegister[name] = builder;
 }
 
 void Register::addComponent(std::string name, std::function<std::shared_ptr<class Component>()> builder)
 {
-    try
+    if (componentRegister.find(name) != componentRegister.end())
     {
         componentRegister.at(name);
         spdlog::warn("Register: duplicate component '{0}' in register", name);
+        return;
     }
-    catch (std::out_of_range e)
-    {
-        componentRegister[name] = builder;
-    }
+
+    componentRegister[name] = builder;
 }
 
 Actor *Register::spawnActor(const std::string &typeName, class Scene *scene, const std::string &actorName)

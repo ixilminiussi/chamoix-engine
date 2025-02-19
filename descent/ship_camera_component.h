@@ -20,7 +20,7 @@ class ShipCameraComponent : public cmx::CameraComponent
     void bob();
 
     float _maxTilt = 20.f;
-    float _bobbingRange = .1;
+    float _bobbingRange = .1f;
     float _bobbingSpeed = 4.f;
 
     float _cummulatedTime{0.f};
