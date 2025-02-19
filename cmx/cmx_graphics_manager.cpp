@@ -80,7 +80,7 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
         RenderSystem::checkAspectRatio(camera);
 
         PointLight pointLights[10];
-        int numPointLights = _pointLightsMap.size();
+        size_t numPointLights = _pointLightsMap.size();
 
         int i = 0;
         for (auto &pair : _pointLightsMap)
@@ -90,7 +90,7 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
             i++;
         }
 
-        const FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, numPointLights);
+        const FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, (int)numPointLights);
 
         i = 0;
         for (auto &pair : _componentRenderQueue)

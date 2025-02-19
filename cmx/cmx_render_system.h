@@ -54,8 +54,8 @@ class RenderSystem
     static void closeWindow();
 
     static size_t createSamplerDescriptor(vk::ImageView, vk::Sampler);
-    static void freeSamplerDescriptor(unsigned int descriptorSetID);
-    static vk::DescriptorSet &getSamplerDescriptorSet(unsigned int index);
+    static void freeSamplerDescriptor(size_t descriptorSetID);
+    static vk::DescriptorSet &getSamplerDescriptorSet(size_t index);
 
     virtual void initialize() = 0;
     virtual void render(const struct FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
