@@ -141,8 +141,9 @@ class Cuboid : public Shape
     glm::vec4 getMaxWorldSpace() const;
 };
 
-struct Plane : public Cuboid
+class Plane : public Cuboid
 {
+  public:
     using Cuboid::overlapsWith;
 
     Plane(cmx::Transformable *);
