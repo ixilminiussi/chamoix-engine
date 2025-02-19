@@ -11,6 +11,8 @@
 // std
 #ifndef _WIN32
 #include <cxxabi.h>
+#else
+#include <regex>
 #endif
 
 #include <imgui.h>
