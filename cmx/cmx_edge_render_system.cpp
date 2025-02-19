@@ -19,7 +19,6 @@
 #include <imgui.h>
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
-#include <unistd.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
 #define GLM_FORCE_RADIANS
