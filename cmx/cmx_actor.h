@@ -7,13 +7,12 @@
 #include "cmx_transform.h"
 
 // lib
+#include <spdlog/spdlog.h>
 #include <tinyxml2.h>
 
 // std
 #include <cstdlib>
-#include <functional>
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <string>
 #include <unordered_map>
 

@@ -16,7 +16,6 @@
 #include <vulkan/vulkan.hpp>
 
 // std
-#include <functional>
 #include <memory>
 
 namespace cmx

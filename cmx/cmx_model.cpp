@@ -1,8 +1,8 @@
 #include "cmx_model.h"
 
 // cmx
-#include "cmx/cmx_physics.h"
 #include "cmx_buffer.h"
+#include "cmx_physics.h"
 #include "cmx_utils.h"
 
 // lib

@@ -1,9 +1,7 @@
 #include "cmx_hud_render_system.h"
 
 // cmx
-#include "cmx_actor.h"
 #include "cmx_buffer.h"
-#include "cmx_camera.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
 #include "cmx_frame_info.h"
@@ -29,7 +27,6 @@
 #include <glm/gtc/constants.hpp>
 
 // std
-#include <bits/stdc++.h>
 #include <memory>
 #include <stdexcept>
 

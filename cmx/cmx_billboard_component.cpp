@@ -1,10 +1,10 @@
 #include "cmx_billboard_component.h"
 
 // cmx
+#include "cmx_actor.h"
 #include "cmx_assets_manager.h"
 #include "cmx_billboard_render_system.h"
 #include "cmx_frame_info.h"
-#include "cmx_graphics_manager.h"
 #include "cmx_render_system.h"
 #include "cmx_texture.h"
 
