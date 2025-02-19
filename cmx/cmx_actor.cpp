@@ -13,7 +13,9 @@
 #include <tinyxml2.h>
 
 // std
+#ifndef _WIN32
 #include <cxxabi.h>
+#endif
 #include <memory>
 
 REGISTER_ACTOR(cmx::Actor)
@@ -243,6 +245,12 @@ void Actor::load(tinyxml2::XMLElement *actorElement)
     }
 }
 
+#ifdef _WIN32
+std::string Component::getType()
+{
+    return std::regex_replace(typeid(obj).name(), std::regex(R"(^(class |struct ))"), "");
+}
+#else
 std::string Actor::getType()
 {
     int status;
@@ -260,6 +268,7 @@ std::string Actor::getType()
         return typeid(this).name();
     }
 }
+#endif
 
 void Actor::duplicate(class Scene *scene, Actor *actor)
 {

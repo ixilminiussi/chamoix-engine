@@ -9,10 +9,7 @@
 #include <spdlog/spdlog.h>
 
 // std
-#ifdef _WIN32
-#include <DbgHelp.h>
-#pragma comment(lib, "Dbghelp.lib")
-#else
+#ifndef _WIN32
 #include <cxxabi.h>
 #endif
 
@@ -69,19 +66,7 @@ void Component::load(tinyxml2::XMLElement *componentElement)
 #ifdef _WIN32
 std::string Component::getType()
 {
-    const char *mangledName = typeid(*this).name();
-    char demangledName[1024];
-    DWORD size = sizeof(demangledName);
-
-    if (UnDecorateSymbolName(mangledName, demangledName, size, UNDNAME_COMPLETE))
-    {
-        return std::string(demangledName);
-    }
-    else
-    {
-        spdlog::critical("Component: Error demangling component type");
-        return mangledName;
-    }
+    return std::regex_replace(typeid(obj).name(), std::regex(R"(^(class |struct ))"), "");
 }
 #else
 std::string Component::getType()

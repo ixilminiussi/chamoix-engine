@@ -20,7 +20,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <strings.h>
 #include <unordered_map>
 
 template <> struct std::hash<cmx::Model::Vertex>
