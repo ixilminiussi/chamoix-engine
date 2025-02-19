@@ -68,7 +68,7 @@ void Component::load(tinyxml2::XMLElement *componentElement)
 #ifdef _WIN32
 std::string Component::getType()
 {
-    return std::regex_replace(typeid(obj).name(), std::regex(R"(^(class |struct ))"), "");
+    return std::regex_replace(typeid(*this).name(), std::regex(R"(^(class |struct ))"), "");
 }
 #else
 std::string Component::getType()

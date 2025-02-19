@@ -246,9 +246,9 @@ void Actor::load(tinyxml2::XMLElement *actorElement)
 }
 
 #ifdef _WIN32
-std::string Component::getType()
+std::string Actor::getType()
 {
-    return std::regex_replace(typeid(obj).name(), std::regex(R"(^(class |struct ))"), "");
+    return std::regex_replace(typeid(*this).name(), std::regex(R"(^(class |struct ))"), "");
 }
 #else
 std::string Actor::getType()
