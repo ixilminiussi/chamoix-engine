@@ -62,7 +62,7 @@ class PhysicsComponent : public Component
     {
         return _physicsMode == PhysicsMode::RIGID;
     }
-    void applyCollision(float dt, const class HitInfo &hitInfo, const PhysicsComponent &other);
+    void applyCollision(float dt, const struct HitInfo &hitInfo, const PhysicsComponent &other);
     void applyImpulse(const glm::vec3 &impulseOrigin, const glm::vec3 &impulse);
     void applyImpulseLinear(const glm::vec3 &);
     void applyImpulseAngular(const glm::vec3 &);

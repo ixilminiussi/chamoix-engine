@@ -124,7 +124,7 @@ Actor *Scene::getActorByID(uint32_t id)
     {
         actor = _actors.at(id);
     }
-    catch (const std::out_of_range &e)
+    catch (const std::out_of_range &)
     {
         spdlog::warn("Scene {0}: Attempt to get actor from invalid id: {1}'", name, id);
     }

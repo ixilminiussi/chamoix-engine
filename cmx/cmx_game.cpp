@@ -56,7 +56,7 @@ void Game::setScene(int i)
         _activeScene = _scenes.at(i);
         _activeScene->load();
     }
-    catch (const std::out_of_range &e)
+    catch (const std::out_of_range &)
     {
         spdlog::error("Scene: no scene at index {0}", i);
     }

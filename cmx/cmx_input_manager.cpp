@@ -44,7 +44,7 @@ void InputManager::addInput(const std::string &name, InputAction *newInput)
     {
         auto attempt = _inputDictionary.at(name);
     }
-    catch (const std::out_of_range &e)
+    catch (const std::out_of_range &)
     {
         _inputDictionary[name] = newInput;
         spdlog::info("InputManager: New input [{0}] added", name.c_str());

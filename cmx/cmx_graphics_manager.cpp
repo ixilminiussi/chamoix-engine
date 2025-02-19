@@ -99,7 +99,7 @@ void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
             {
                 _renderSystems.at(pair.first)->render(frameInfo, pair.second, this);
             }
-            catch (const std::out_of_range &e)
+            catch (const std::out_of_range &)
             {
                 spdlog::error("GraphicsManager: Component requesting render system {0} which isn't part of graphics "
                               "manager's list",

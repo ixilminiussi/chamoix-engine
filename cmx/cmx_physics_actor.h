@@ -18,12 +18,12 @@ class PhysicsActor : public Actor
     void onBegin() override;
 
     virtual void onBeginOverlap(class PhysicsComponent *ownedComponent, class PhysicsComponent *overlappingComponent,
-                                Actor *overlappingActor, const class HitInfo &hitInfo) {};
+                                Actor *overlappingActor, const struct HitInfo &hitInfo) {};
     virtual void onEndOverlap(class PhysicsComponent *ownedComponent, class PhysicsComponent *overlappingComponent,
                               Actor *overlappingActor) {};
     virtual void onContinuousOverlap(class PhysicsComponent *ownedComponent,
                                      class PhysicsComponent *overlappingComponent, Actor *overlappingActor,
-                                     const class HitInfo &hitInfo) {};
+                                     const struct HitInfo &hitInfo) {};
 
   protected:
     std::shared_ptr<class PhysicsComponent> _physicsComponent;
