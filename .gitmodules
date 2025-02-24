@@ -25,9 +25,3 @@
 [submodule ".external/imguizmo"]
 	path = .external/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
-[submodule ".external/glfw"]
-	path = .external/glfw
-	url = https://github.com/glfw/glfw.git
-[submodule ".external/spdlog"]
-	path = .external/spdlog
-	url = https://github.com/gabime/spdlog.git

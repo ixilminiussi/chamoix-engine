@@ -1,9 +1,39 @@
 cmake_minimum_required(VERSION 3.10)
 
+include(FetchContent)
+
 add_subdirectory(tinyobjloader)
 add_subdirectory(tinyxml2)
-add_subdirectory(glfw)
-add_subdirectory(spdlog)
+
+# -- GLFW: Try to use system glfw3 first
+find_package(glfw3 QUIET)
+if(NOT glfw3_FOUND)
+  message(STATUS "System glfw3 not found, fetching from GitHub")
+  FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.3.8 
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/glfw
+  )
+  FetchContent_MakeAvailable(glfw)
+else()
+  message(STATUS "Found system glfw3")
+endif()
+
+# -- spdlog: Try to use system spdlog first
+find_package(spdlog QUIET)
+if(NOT spdlog_FOUND)
+  message(STATUS "System spdlog not found, fetching from GitHub")
+  FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.12.0
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/spdlog
+  )
+  FetchContent_MakeAvailable(spdlog)
+else()
+  message(STATUS "Found system spdlog")
+endif()
 
 add_library(iconfonts INTERFACE)
 
