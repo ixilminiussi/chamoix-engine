@@ -73,7 +73,7 @@ class PhysicsComponent : public Component
     void setInverseMass(float inverseMass);
     // rigid body functions END
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const override;
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
 

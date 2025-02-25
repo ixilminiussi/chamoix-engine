@@ -51,7 +51,7 @@ void RotatingActor::editor()
     cmx::Actor::editor();
 }
 
-tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement &actorElement = cmx::Actor::save(doc, parentElement);
 

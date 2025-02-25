@@ -7,6 +7,7 @@
 #include <cmx/cmx_physics_component.h>
 #include <cmx/cmx_primitives.h>
 #include <cmx/cmx_shapes.h>
+#include <glm/geometric.hpp>
 
 void FirstPersonActor::onBegin()
 {
@@ -56,8 +57,10 @@ void FirstPersonActor::onMovementInput(float dt, glm::vec2 movement)
 
     movement *= _moveSpeed;
 
-    glm::vec3 forward = _transform.forward() * movement.y * dt;
+    glm::vec3 forward = _transform.forward();
     forward.y = 0;
+    forward = glm::normalize(forward);
+    forward *= movement.y * dt;
     _transform.position += forward;
     _transform.position += _transform.right() * -movement.x * dt;
 }

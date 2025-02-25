@@ -45,6 +45,7 @@ class ViewportUI
     void renderTopBar();
     void renderViewportSettings();
     void renderProjectSettings();
+    void renderSceneManager();
     void renderSceneTree();
     void renderInspector();
     void renderGraphicsManager();
@@ -64,6 +65,7 @@ class ViewportUI
     bool _showViewportSettings{false};
     ImGuiID _projectDockID;
     bool _showProjectSettings{false};
+    bool _showSceneManager{false};
     ImGuiID _sceneTreeDockID;
     bool _showSceneTree{true};
     ImGuiID _inspectorDockID;
