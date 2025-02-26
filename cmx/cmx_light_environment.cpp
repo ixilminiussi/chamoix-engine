@@ -118,6 +118,8 @@ tinyxml2::XMLElement &LightEnvironment::save(tinyxml2::XMLDocument &doc, tinyxml
 
 void LightEnvironment::load(tinyxml2::XMLElement *parentElement)
 {
+    loadDefaults();
+
     if (tinyxml2::XMLElement *lightEnvironmentElement = parentElement->FirstChildElement("lightEnvironment"))
     {
         _timeOfDay = lightEnvironmentElement->FloatAttribute("timeOfDay");
@@ -157,10 +159,6 @@ void LightEnvironment::load(tinyxml2::XMLElement *parentElement)
                 _ambientLighting.a = ambientLightElement->FloatAttribute("a");
             }
         }
-    }
-    else
-    {
-        loadDefaults();
     }
 }
 
