@@ -185,6 +185,7 @@ void LightEnvironment::loadDefaults()
     atmosphereWidget.gradient().add_mark(mark_1);
     atmosphereWidget.gradient().add_mark(mark_2);
     atmosphereWidget.gradient().add_mark(mark_3);
+    atmosphereWidget.gradient().add_mark(mark_4);
 
     _hasSun = false;
 }
