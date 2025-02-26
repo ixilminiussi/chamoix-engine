@@ -4,6 +4,7 @@
 // lib
 #include "tinyxml2.h"
 #include <glm/ext/vector_float3.hpp>
+#include <glm/ext/vector_float4.hpp>
 
 // std
 #include <cstdint>
@@ -41,6 +42,10 @@ class LightEnvironment
 
     float _timeOfDay{11.f};
     float _sunAxis{0.f};
+
+    bool _hasSun;
+
+    glm::vec4 _ambientLighting{1.f, 1.f, 1.f, 0.2f};
 };
 
 } // namespace cmx

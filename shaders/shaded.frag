@@ -60,8 +60,11 @@ void main()
     }
 
     // directional light
-    float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
-    diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * cosAngIncidence;
+    if (ubo.sun.color.w > 0)
+    {
+        float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
+        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * cosAngIncidence;
+    }
 
     // if we have push.normalMatrix[3][3] != 100, then we should be using vertex color
     if (push.normalMatrix[3][3] == 100)
