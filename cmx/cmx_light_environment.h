@@ -31,6 +31,7 @@ class LightEnvironment
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
     void load(tinyxml2::XMLElement *);
+    void loadDefaults();
     void editor();
 
   private:

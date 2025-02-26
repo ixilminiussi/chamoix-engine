@@ -14,6 +14,16 @@
         <texture filepath="assets/textures/snow.png" name="snow"/>
         <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
     </assets>
+    <lightEnvironment timeOfDay="12.74">
+        <sun axis="0">
+            <gradient>
+                <mark position="0" r="0.55252874" g="0.50210971" b="1"/>
+                <mark position="0.39399999" r="1" g="0.48244423" b="0.40928268"/>
+                <mark position="0.57599998" r="1" g="0.6058324" b="0.24050635"/>
+                <mark position="1" r="0.89873415" g="0.96795392" b="1"/>
+            </gradient>
+        </sun>
+    </lightEnvironment>
     <actor type="cmx::MeshActor" name="cmx::MeshActor" id="1" visible="true">
         <transform>
             <position x="0" y="4" z="-6"/>
