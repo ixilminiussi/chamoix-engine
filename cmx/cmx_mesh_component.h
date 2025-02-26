@@ -42,6 +42,15 @@ class MeshComponent : public Component
     void setTexture(const std::string &name);
     std::string getTextureName() const;
 
+    bool isTextured() const
+    {
+        return _textured;
+    }
+    void setTextured(bool textured)
+    {
+        _textured = textured;
+    }
+
     void setColor(const glm::vec3 &color);
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const override;

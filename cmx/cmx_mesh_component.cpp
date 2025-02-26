@@ -106,6 +106,7 @@ void MeshComponent::setTexture(const std::string &name)
 {
     if (getScene() != nullptr)
     {
+        _textured = true;
         _texture = getScene()->getAssetsManager()->getTexture(name);
     }
     else
