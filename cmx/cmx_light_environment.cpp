@@ -1,9 +1,8 @@
 #include "cmx_light_environment.h"
 
 // cmx
-#include ".external/imgui-gradient-hotfix/src/ColorRGBA.hpp"
-#include ".external/imgui-gradient-hotfix/src/RelativePosition.hpp"
 #include "cmx_render_system.h"
+#include "imgui.h"
 
 // lib
 #include <glm/gtc/constants.hpp>
@@ -35,7 +34,15 @@ void LightEnvironment::populateUbo(GlobalUbo *ubo) const
     }
     ubo->numLights = i;
 
-    calculateSun(ubo);
+    if (_hasSun)
+    {
+        calculateSun(ubo);
+    }
+    else
+    {
+        ubo->sun.color = {1.f, 1.f, 1.f, 0.f};
+        ubo->ambientLight = _ambientLighting;
+    }
 }
 
 void LightEnvironment::calculateSun(GlobalUbo *ubo) const
@@ -73,23 +80,37 @@ tinyxml2::XMLElement &LightEnvironment::save(tinyxml2::XMLDocument &doc, tinyxml
     tinyxml2::XMLElement *lightEnvironmentElement = doc.NewElement("lightEnvironment");
     lightEnvironmentElement->SetAttribute("timeOfDay", _timeOfDay);
 
-    tinyxml2::XMLElement *sunElement = doc.NewElement("sun");
-    sunElement->SetAttribute("axis", _sunAxis);
-
-    tinyxml2::XMLElement *gradientElement = doc.NewElement("gradient");
-
-    for (const auto &mark : atmosphereWidget.gradient().get_marks())
+    if (_hasSun)
     {
-        tinyxml2::XMLElement *markElement = doc.NewElement("mark");
-        markElement->SetAttribute("position", mark.position.get());
-        markElement->SetAttribute("r", mark.color.x);
-        markElement->SetAttribute("g", mark.color.y);
-        markElement->SetAttribute("b", mark.color.z);
-        gradientElement->InsertEndChild(markElement);
+        tinyxml2::XMLElement *sunElement = doc.NewElement("sun");
+        sunElement->SetAttribute("axis", _sunAxis);
+
+        tinyxml2::XMLElement *gradientElement = doc.NewElement("gradient");
+
+        for (const auto &mark : atmosphereWidget.gradient().get_marks())
+        {
+            tinyxml2::XMLElement *markElement = doc.NewElement("mark");
+            markElement->SetAttribute("position", mark.position.get());
+            markElement->SetAttribute("r", mark.color.x);
+            markElement->SetAttribute("g", mark.color.y);
+            markElement->SetAttribute("b", mark.color.z);
+            gradientElement->InsertEndChild(markElement);
+        }
+
+        lightEnvironmentElement->InsertEndChild(sunElement);
+        sunElement->InsertEndChild(gradientElement);
+    }
+    else
+    {
+        tinyxml2::XMLElement *ambientLightElement = doc.NewElement("ambientLight");
+        ambientLightElement->SetAttribute("r", _ambientLighting.r);
+        ambientLightElement->SetAttribute("g", _ambientLighting.g);
+        ambientLightElement->SetAttribute("b", _ambientLighting.b);
+        ambientLightElement->SetAttribute("a", _ambientLighting.a);
+
+        lightEnvironmentElement->InsertEndChild(ambientLightElement);
     }
 
-    lightEnvironmentElement->InsertEndChild(sunElement);
-    sunElement->InsertEndChild(gradientElement);
     parentElement->InsertEndChild(lightEnvironmentElement);
 
     return *lightEnvironmentElement;
@@ -103,6 +124,7 @@ void LightEnvironment::load(tinyxml2::XMLElement *parentElement)
 
         if (tinyxml2::XMLElement *sunElement = lightEnvironmentElement->FirstChildElement("sun"))
         {
+            _hasSun = true;
             _sunAxis = sunElement->FloatAttribute("axis");
 
             if (tinyxml2::XMLElement *gradientELement = sunElement->FirstChildElement("gradient"))
@@ -121,6 +143,18 @@ void LightEnvironment::load(tinyxml2::XMLElement *parentElement)
 
                     markElement = markElement->NextSiblingElement("mark");
                 }
+            }
+        }
+        else
+        {
+            _hasSun = false;
+
+            if (tinyxml2::XMLElement *ambientLightElement = lightEnvironmentElement->FirstChildElement("ambientLight"))
+            {
+                _ambientLighting.r = ambientLightElement->FloatAttribute("r");
+                _ambientLighting.g = ambientLightElement->FloatAttribute("g");
+                _ambientLighting.b = ambientLightElement->FloatAttribute("b");
+                _ambientLighting.a = ambientLightElement->FloatAttribute("a");
             }
         }
     }
@@ -151,13 +185,25 @@ void LightEnvironment::loadDefaults()
     atmosphereWidget.gradient().add_mark(mark_1);
     atmosphereWidget.gradient().add_mark(mark_2);
     atmosphereWidget.gradient().add_mark(mark_3);
+
+    _hasSun = false;
 }
 
 void LightEnvironment::editor()
 {
-    ImGui::DragFloat("Time of day", &_timeOfDay, 0.25f, 0.0f, 23.99f, "%.2f");
-    ImGui::DragFloat("Sun axis", &_sunAxis, 5.f, 0.f, 180.f, "%.0f");
-    atmosphereWidget.widget("Atmosphere color");
+    ImGui::Checkbox("has sun", &_hasSun);
+
+    if (_hasSun)
+    {
+        ImGui::DragFloat("Time of day", &_timeOfDay, 0.25f, 0.0f, 23.99f, "%.2f");
+        ImGui::DragFloat("Sun axis", &_sunAxis, 5.f, 0.f, 180.f, "%.0f");
+        atmosphereWidget.widget("Atmosphere color");
+    }
+    else
+    {
+        ImGui::ColorPicker4("Ambient light", (float *)&_ambientLighting,
+                            ImGuiColorEditFlags_Float && ImGuiColorEditFlags_InputRGB);
+    }
 }
 
 } // namespace cmx
