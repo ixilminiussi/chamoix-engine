@@ -184,7 +184,7 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
                 _UVOffset = glm::vec2{componentElement->FloatAttribute("UVoffsetX"),
                                       componentElement->FloatAttribute("UVoffsetY")};
                 _UVScale = componentElement->FloatAttribute("UVscale");
-                _UVRotate = componentElement->FloatAttribute("UVRotate");
+                _UVRotate = componentElement->FloatAttribute("UVrotate");
             }
         }
     }
