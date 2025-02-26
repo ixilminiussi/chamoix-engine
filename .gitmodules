@@ -13,9 +13,7 @@
 [submodule ".external/stb"]
 	path = .external/stb
 	url = https://github.com/nothings/stb.git
-[submodule "external/imgui"]
-	branch = docking
-[submodule "imgui-filebrowser"]
+[submodule ".external/imgui-filebrowser"]
 	path = .external/imgui-filebrowser
 	url = https://github.com/AirGuanZ/imgui-filebrowser.git
 [submodule ".external/imgui"]
@@ -25,3 +23,6 @@
 [submodule ".external/imguizmo"]
 	path = .external/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule ".external/imgui-gradient-hotfix"]
+	path = .external/imgui-gradient-hotfix
+	url = https://github.com/ixilminiussi/imgui_gradient_hotfix
