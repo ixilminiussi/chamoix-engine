@@ -44,7 +44,7 @@ class MeshComponent : public Component
 
     void setColor(const glm::vec3 &color);
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const override;
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
 
@@ -56,6 +56,7 @@ class MeshComponent : public Component
     float _UVScale{1.f};
     float _UVRotate{0.f};
     glm::vec3 _color{1.f};
+    bool _textured{false};
 };
 
 } // namespace cmx

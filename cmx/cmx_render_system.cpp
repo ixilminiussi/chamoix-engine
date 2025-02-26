@@ -1,6 +1,7 @@
 #include "cmx_render_system.h"
 
 // cmx
+#include "cmx/cmx_light_environment.h"
 #include "cmx_buffer.h"
 #include "cmx_camera.h"
 #include "cmx_descriptors.h"
@@ -176,7 +177,7 @@ void RenderSystem::checkAspectRatio(class Camera *camera)
     camera->updateAspectRatio(aspect);
 }
 
-FrameInfo *RenderSystem::beginRender(Camera *camera, PointLight pointLights[MAX_POINT_LIGHTS], int numLights)
+FrameInfo *RenderSystem::beginRender(Camera *camera, const LightEnvironment *lightEnvironment)
 {
     FrameInfo *frameInfo;
 
@@ -189,13 +190,10 @@ FrameInfo *RenderSystem::beginRender(Camera *camera, PointLight pointLights[MAX_
         ubo.projection = camera->getProjection();
         ubo.view = camera->getView();
 
-        for (int i = 0; i < numLights; i++)
+        if (lightEnvironment != nullptr)
         {
-            ubo.pointLights[i].position = pointLights[i].position;
-            ubo.pointLights[i].color = pointLights[i].color;
+            lightEnvironment->populateUbo(&ubo);
         }
-
-        ubo.numLights = numLights;
 
         _uboBuffers[frameIndex]->writeToBuffer(&ubo);
         _uboBuffers[frameIndex]->flush();

@@ -37,12 +37,12 @@ void PointLightComponent::onAttach()
     _absolutePosition = absoluteTransform.position;
     _absoluteScaleXY = glm::vec2(absoluteTransform.scale.x, absoluteTransform.scale.y);
 
-    getScene()->getGraphicsManager()->addPointLight(_key, {&_absolutePosition, &_lightColor, &_lightIntensity});
+    getScene()->getLightEnvironment()->addPointLight(_key, {&_absolutePosition, &_lightColor, &_lightIntensity});
 }
 
 void PointLightComponent::onDetach()
 {
-    getScene()->getGraphicsManager()->removePointLight(_key);
+    getScene()->getLightEnvironment()->removePointLight(_key);
 }
 
 void PointLightComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
@@ -95,7 +95,7 @@ void PointLightComponent::load(tinyxml2::XMLElement *componentElement)
     _lightColor.b = componentElement->FloatAttribute("b");
 }
 
-tinyxml2::XMLElement &PointLightComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+tinyxml2::XMLElement &PointLightComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
 

@@ -1,6 +1,7 @@
 #include "cmx_scene.h"
 
 // cmx
+#include "cmx/cmx_light_environment.h"
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
 #include "cmx_camera.h"
@@ -45,6 +46,7 @@ void Scene::loadFrom(const std::string &filepath)
     _assetsManager = std::make_unique<AssetsManager>(this);
     _graphicsManager = std::make_unique<GraphicsManager>(getGame()->getRenderSystems());
     _physicsManager = std::make_unique<PhysicsManager>();
+    _lightEnvironment = std::make_unique<LightEnvironment>();
 
     _activeCamera = std::make_shared<Camera>();
     _activeCamera->setViewDirection(glm::vec3{0.f}, glm::vec3{0.f, 0.f, 1.f});
@@ -60,6 +62,7 @@ void Scene::loadFrom(const std::string &filepath)
         name = std::string(rootElement->Attribute("name"));
 
         _assetsManager->load(rootElement);
+        _lightEnvironment->load(rootElement);
 
         tinyxml2::XMLElement *actorElement = rootElement->FirstChildElement("actor");
         while (actorElement)
@@ -178,7 +181,7 @@ void Scene::update(float dt)
 
 void Scene::render()
 {
-    _graphicsManager->drawComponents(getCamera());
+    _graphicsManager->drawComponents(getCamera(), _lightEnvironment.get());
 }
 
 void Scene::removeActor(Actor *actor)
@@ -297,6 +300,7 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
     sceneElement->SetAttribute("name", name.c_str());
 
     _assetsManager->save(doc, sceneElement);
+    _lightEnvironment->save(doc, sceneElement);
 
     for (auto &actorPair : _actors)
     {

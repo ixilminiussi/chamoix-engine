@@ -2,6 +2,7 @@
 #define CMX_SCENE
 
 // lib
+#include "cmx/cmx_light_environment.h"
 #include <spdlog/spdlog.h>
 #include <tinyxml2.h>
 
@@ -57,6 +58,16 @@ class Scene
         return _game;
     }
 
+    const std::string &getXMLPath() const
+    {
+        return _xmlPath;
+    }
+
+    void setXMLPath(const std::string &xmlPath)
+    {
+        _xmlPath = xmlPath;
+    }
+
     auto getAssetsManager()
     {
         return _assetsManager.get();
@@ -72,7 +83,11 @@ class Scene
         return _physicsManager.get();
     }
 
-    std::string _xmlPath;
+    auto getLightEnvironment()
+    {
+        return _lightEnvironment.get();
+    }
+
     std::string name;
 
   private:
@@ -87,7 +102,9 @@ class Scene
     std::unique_ptr<class AssetsManager> _assetsManager;
     std::unique_ptr<class GraphicsManager> _graphicsManager;
     std::unique_ptr<class PhysicsManager> _physicsManager;
+    std::unique_ptr<class LightEnvironment> _lightEnvironment;
 
+    std::string _xmlPath;
     class Game *_game;
 };
 

@@ -38,7 +38,7 @@ class Component : public std::enable_shared_from_this<Component>, public Transfo
     virtual void update(float dt) {};
     virtual void render(const struct FrameInfo &, vk::PipelineLayout);
 
-    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent);
+    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const;
     virtual void load(tinyxml2::XMLElement *);
 
     // for viewport
@@ -46,7 +46,7 @@ class Component : public std::enable_shared_from_this<Component>, public Transfo
 
     void despawn();
 
-    std::string getType();
+    std::string getType() const;
 
     // getters and setters :: begin
     void setParent(class Actor *actor);

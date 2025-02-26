@@ -1,6 +1,7 @@
 #include "cmx_graphics_manager.h"
 
 // cmx
+#include "cmx/cmx_light_environment.h"
 #include "cmx_actor.h"
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
@@ -16,7 +17,6 @@ namespace cmx
 GraphicsManager::GraphicsManager(std::map<uint8_t, std::shared_ptr<RenderSystem>> &renderSystems)
     : _renderSystems{renderSystems}
 {
-    _pointLightsMap.reserve(MAX_POINT_LIGHTS);
 }
 
 void GraphicsManager::addToQueue(std::shared_ptr<Component> component)
@@ -54,45 +54,15 @@ void GraphicsManager::removeFromQueue(std::shared_ptr<Component> component)
     }
 }
 
-void GraphicsManager::addPointLight(uint32_t id, PointLightStruct pointLight)
-{
-    if (_pointLightsMap.size() < MAX_POINT_LIGHTS)
-    {
-        _pointLightsMap[id] = pointLight;
-    }
-    else
-    {
-        spdlog::error("GraphicsManager: Reached maximum amount of point lights alloded by RenderSystem");
-    }
-}
-
-void GraphicsManager::removePointLight(uint32_t id)
-{
-    _pointLightsMap.erase(id);
-}
-
-void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk)
+void GraphicsManager::drawComponents(std::weak_ptr<Camera> cameraWk, const LightEnvironment *lightEnvironment)
 {
     if (auto camera = cameraWk.lock().get())
     {
         _noCameraFlag = false;
 
         RenderSystem::checkAspectRatio(camera);
+        const FrameInfo *frameInfo = RenderSystem::beginRender(camera, lightEnvironment);
 
-        PointLight pointLights[10];
-        size_t numPointLights = _pointLightsMap.size();
-
-        int i = 0;
-        for (auto &pair : _pointLightsMap)
-        {
-            pointLights[i] = PointLight{glm::vec4(*pair.second.position, 1.0f),
-                                        glm::vec4(*pair.second.lightColor, *pair.second.lightIntensity)};
-            i++;
-        }
-
-        const FrameInfo *frameInfo = RenderSystem::beginRender(camera, pointLights, (int)numPointLights);
-
-        i = 0;
         for (auto &pair : _componentRenderQueue)
         {
             try

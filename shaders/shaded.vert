@@ -6,9 +6,15 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 uv;
 
 layout(location = 0) out vec3 fragPositionWorld;
-layout(location = 1) out vec3 fragNormalWorld;
-layout(location = 2) out vec2 fragUV;
-// layout(location = 2) out vec3 fragColor;
+layout(location = 1) out vec3 fragColor;
+layout(location = 2) out vec3 fragNormalWorld;
+layout(location = 3) out vec2 fragUV;
+
+struct DirectionalLight
+{
+    vec4 direction;
+    vec4 color;
+};
 
 struct PointLight
 {
@@ -21,6 +27,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo
     mat4 projectionMatrix;
     mat4 viewMatrix;
     vec4 ambientLight;
+    DirectionalLight sun;
     PointLight pointLights[10];
     int numPointLights;
 }
@@ -40,10 +47,11 @@ void main()
 
     fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
     fragPositionWorld = worldPosition.xyz;
+    fragColor = color;
 
     vec2 uvOffset = vec2(push.normalMatrix[0][3], push.normalMatrix[1][3]);
 
-    // if we have push.normalMatrix[3][3] != 0, then we should be using tiling uv mapping. otherwise it's regular uv
+    // if we have push.normalMatrix[2][3] != 0, then we should be using tiling uv mapping. otherwise it's regular uv
     if (push.normalMatrix[2][3] == 0)
     {
         fragUV = vec2(uv.x, 1.0 - uv.y) + uvOffset;

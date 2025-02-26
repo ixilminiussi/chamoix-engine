@@ -42,7 +42,7 @@ void Component::editor(int i)
     ImGui::PopID();
 }
 
-tinyxml2::XMLElement &Component::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+tinyxml2::XMLElement &Component::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
 {
     tinyxml2::XMLElement *componentElement = doc.NewElement("component");
     componentElement->SetAttribute("type", getType().c_str());
@@ -66,12 +66,12 @@ void Component::load(tinyxml2::XMLElement *componentElement)
 }
 
 #ifdef _WIN32
-std::string Component::getType()
+std::string Component::getType() const
 {
     return std::regex_replace(typeid(*this).name(), std::regex(R"(^(class |struct ))"), "");
 }
 #else
-std::string Component::getType()
+std::string Component::getType() const
 {
     int status;
     char *demangled = abi::__cxa_demangle(typeid(*this).name(), nullptr, nullptr, &status);
