@@ -129,7 +129,7 @@ void BillboardComponent::load(tinyxml2::XMLElement *componentElement)
     }
 }
 
-tinyxml2::XMLElement &BillboardComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+tinyxml2::XMLElement &BillboardComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
 

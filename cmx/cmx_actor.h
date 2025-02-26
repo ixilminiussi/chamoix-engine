@@ -46,12 +46,12 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     Actor(const Actor &) = default;
     Actor &operator=(const Actor &) = delete;
 
-    std::string getType();
+    std::string getType() const;
 
     virtual void onBegin() {};
     virtual void update(float dt) {};
 
-    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
+    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
     virtual void load(tinyxml2::XMLElement *);
     virtual void editor();
 

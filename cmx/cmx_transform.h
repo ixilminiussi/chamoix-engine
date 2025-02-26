@@ -32,7 +32,7 @@ struct Transform
     glm::vec3 up() const;
 
     void editor();
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
     void load(tinyxml2::XMLElement *);
 
     static Transform ONE;

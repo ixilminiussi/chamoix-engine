@@ -51,15 +51,19 @@ void MeshComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipeli
         return;
     }
 
-    if (_model == nullptr)
+    if (!_textured && _texture == nullptr)
     {
-        spdlog::error("MeshComponent <{0}->{1}>: missing model", getParent()->name.c_str(), name.c_str());
-        return;
+        setTexture("cmx_missing");
     }
-
     if (_texture == nullptr)
     {
         spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
+        return;
+    }
+
+    if (_model == nullptr)
+    {
+        spdlog::error("MeshComponent <{0}->{1}>: missing model", getParent()->name.c_str(), name.c_str());
         return;
     }
 
@@ -72,8 +76,8 @@ void MeshComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipeli
 
     push.normalMatrix[0][3] = _UVOffset.x;
     push.normalMatrix[1][3] = _UVOffset.y;
-    push.normalMatrix[2][3] = _worldSpaceUV ? _UVScale : 0;
-    push.normalMatrix[3][3] = glm::radians(_UVRotate);
+    push.normalMatrix[2][3] = _worldSpaceUV ? _UVScale : 0.f;
+    push.normalMatrix[3][3] = _textured ? glm::radians(_UVRotate) : 100.f;
 
     frameInfo.commandBuffer.pushConstants(pipelineLayout,
                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
@@ -102,6 +106,7 @@ void MeshComponent::setTexture(const std::string &name)
 {
     if (getScene() != nullptr)
     {
+        _textured = true;
         _texture = getScene()->getAssetsManager()->getTexture(name);
     }
     else
@@ -134,17 +139,24 @@ std::string MeshComponent::getTextureName() const
     return "Missing texture";
 }
 
-tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
 
     componentElement.SetAttribute("model", _model->name.c_str());
     componentElement.SetAttribute("texture", _texture->name.c_str());
-    componentElement.SetAttribute("worldSpaceUV", _worldSpaceUV);
-    componentElement.SetAttribute("UVoffsetX", _UVOffset.x);
-    componentElement.SetAttribute("UVoffsetY", _UVOffset.y);
-    componentElement.SetAttribute("UVscale", _UVScale);
-    componentElement.SetAttribute("UVrotate", _UVRotate);
+    componentElement.SetAttribute("textured", _textured);
+    if (_textured)
+    {
+        componentElement.SetAttribute("worldSpaceUV", _worldSpaceUV);
+        if (_worldSpaceUV)
+        {
+            componentElement.SetAttribute("UVoffsetX", _UVOffset.x);
+            componentElement.SetAttribute("UVoffsetY", _UVOffset.y);
+            componentElement.SetAttribute("UVscale", _UVScale);
+            componentElement.SetAttribute("UVrotate", _UVRotate);
+        }
+    }
     componentElement.SetAttribute("r", _color.r);
     componentElement.SetAttribute("g", _color.g);
     componentElement.SetAttribute("b", _color.b);
@@ -163,11 +175,18 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
         _color.r = componentElement->FloatAttribute("r");
         _color.g = componentElement->FloatAttribute("g");
         _color.b = componentElement->FloatAttribute("b");
-        _worldSpaceUV = componentElement->BoolAttribute("worldSpaceUV");
-        _UVOffset =
-            glm::vec2{componentElement->FloatAttribute("UVoffsetX"), componentElement->FloatAttribute("UVoffsetY")};
-        _UVScale = componentElement->FloatAttribute("UVscale");
-        _UVRotate = componentElement->FloatAttribute("UVRotate");
+        _textured = componentElement->BoolAttribute("textured");
+        if (_textured)
+        {
+            _worldSpaceUV = componentElement->BoolAttribute("worldSpaceUV");
+            if (_worldSpaceUV)
+            {
+                _UVOffset = glm::vec2{componentElement->FloatAttribute("UVoffsetX"),
+                                      componentElement->FloatAttribute("UVoffsetY")};
+                _UVScale = componentElement->FloatAttribute("UVscale");
+                _UVRotate = componentElement->FloatAttribute("UVRotate");
+            }
+        }
     }
     catch (...)
     {
@@ -203,33 +222,38 @@ void MeshComponent::editor(int i)
     selected = _texture->name.c_str();
     assetsManager = getScene()->getAssetsManager();
 
-    if (ImGui::BeginCombo("Texture##", selected))
+    ImGui::Checkbox("use texture", &_textured);
+
+    if (_textured)
     {
-        for (const auto &pair : assetsManager->getTextures())
+        if (ImGui::BeginCombo("Texture##", selected))
         {
-            bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
-
-            if (ImGui::Selectable(pair.first.c_str(), isSelected))
+            for (const auto &pair : assetsManager->getTextures())
             {
-                selected = pair.first.c_str();
-                setTexture(pair.first);
+                bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+
+                if (ImGui::Selectable(pair.first.c_str(), isSelected))
+                {
+                    selected = pair.first.c_str();
+                    setTexture(pair.first);
+                }
+
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
             }
 
-            if (isSelected)
-            {
-                ImGui::SetItemDefaultFocus();
-            }
+            ImGui::EndCombo();
         }
 
-        ImGui::EndCombo();
-    }
-
-    ImGui::Checkbox("World space UV", &_worldSpaceUV);
-    if (_worldSpaceUV)
-    {
-        ImGui::SliderFloat2("UV offset", (float *)&_UVOffset, -1.f, 1.f);
-        ImGui::DragFloat("Scale", &_UVScale);
-        ImGui::DragFloat("Rotate", &_UVRotate);
+        ImGui::Checkbox("World space UV", &_worldSpaceUV);
+        if (_worldSpaceUV)
+        {
+            ImGui::SliderFloat2("UV offset", (float *)&_UVOffset, -1.f, 1.f);
+            ImGui::DragFloat("Scale", &_UVScale);
+            ImGui::DragFloat("Rotate", &_UVRotate, 1.f, -180.f, 180.f);
+        }
     }
 
     ImGui::ColorEdit3("Color##", (float *)&_color);
