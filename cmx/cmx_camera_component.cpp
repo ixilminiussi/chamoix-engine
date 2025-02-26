@@ -101,7 +101,7 @@ void CameraComponent::load(tinyxml2::XMLElement *componentElement)
     onAttach();
 }
 
-tinyxml2::XMLElement &CameraComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent)
+tinyxml2::XMLElement &CameraComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
 {
     tinyxml2::XMLElement &cameraComponent = Component::save(doc, parentComponent);
     cameraComponent.SetAttribute("fov", _camera->getFOV());

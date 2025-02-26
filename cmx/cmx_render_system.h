@@ -2,6 +2,7 @@
 #define CMX_RENDER_SYSTEM
 
 #include "cmx/cmx_descriptors.h"
+#include "cmx/cmx_light_environment.h"
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
 #define SHADED_RENDER_SYSTEM 0u
@@ -22,17 +23,24 @@
 namespace cmx
 {
 
+struct DirectionalLight
+{
+    glm::vec4 direction{1.f};
+    glm::vec4 color{0.f};
+};
+
 struct PointLight
 {
-    glm::vec4 position; // ignore w
-    glm::vec4 color;    // a is intensity
+    glm::vec4 position{}; // ignore w
+    glm::vec4 color{};    // a is intensity
 };
 
 struct GlobalUbo
 {
     glm::mat4 projection{1.f};
     glm::mat4 view{1.f};
-    glm::vec4 ambientLight{1.f, 1.f, 1.f, .02f};
+    glm::vec4 ambientLight{1.f};
+    DirectionalLight sun{};
     PointLight pointLights[MAX_POINT_LIGHTS];
     int numLights;
 };
@@ -47,7 +55,7 @@ class RenderSystem
     RenderSystem &operator=(const RenderSystem &) = delete;
 
     static void checkAspectRatio(class Camera *);
-    static struct FrameInfo *beginRender(class Camera *, PointLight pointLights[MAX_POINT_LIGHTS], int numLights);
+    static struct FrameInfo *beginRender(class Camera *, const class LightEnvironment *);
     static void endRender();
 
     virtual void free();

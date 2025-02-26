@@ -2,7 +2,6 @@
 
 // cmx
 #include "ImGuizmo.h"
-#include "cmx/cmx_transform.h"
 #include "cmx_actor.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
@@ -14,6 +13,7 @@
 #include "cmx_register.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
+#include "cmx_transform.h"
 #include "cmx_viewport_actor.h"
 
 // lib
@@ -136,6 +136,9 @@ void ViewportUI::render(const struct FrameInfo &frameInfo)
     if (_showAssetsManager)
         renderAssetsManager();
 
+    if (_showSceneManager)
+        renderSceneManager();
+
     renderPlayButton();
 
     _fileDialog.Display();
@@ -227,11 +230,11 @@ void ViewportUI::renderTopBar()
     }
     if (ImGui::BeginMenu("Settings"))
     {
-        if (ImGui::MenuItem(ICON_MS_SETTINGS " Viewport Settings", "Ctrl+V"))
+        if (ImGui::MenuItem(ICON_MS_SETTINGS " Viewport Settings"))
         {
             renderViewportSettings();
         }
-        if (ImGui::MenuItem(ICON_MS_SETTINGS " Project Settings", "Ctrl+V"))
+        if (ImGui::MenuItem(ICON_MS_SETTINGS " Project Settings"))
         {
             renderProjectSettings();
         }
@@ -246,6 +249,10 @@ void ViewportUI::renderTopBar()
         if (ImGui::MenuItem(ICON_MS_ALBUM " Assets", "Ctrl+A"))
         {
             renderAssetsManager();
+        }
+        if (ImGui::MenuItem(ICON_MS_SETTINGS " Scene Manager"))
+        {
+            renderSceneManager();
         }
         ImGui::EndMenu();
     }
@@ -294,6 +301,36 @@ void ViewportUI::renderProjectSettings()
             activeTab = 0;
 
             game->getInputManager()->editor();
+
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+
+        ImGui::End();
+    }
+}
+
+void ViewportUI::renderSceneManager()
+{
+    if (_attachedScene == nullptr)
+    {
+        spdlog::warn("ViewportUI: No attached scene!");
+    }
+
+    static int activeTab = 0;
+
+    _showSceneManager = true;
+
+    ImGui::Begin("Scene Manager", &_showSceneManager, ImGuiWindowFlags_AlwaysAutoResize);
+
+    if (ImGui::BeginTabBar(""))
+    {
+        if (ImGui::BeginTabItem("Light Environmnent"))
+        {
+            activeTab = 0;
+
+            _attachedScene->getLightEnvironment()->editor();
 
             ImGui::EndTabItem();
         }
@@ -512,16 +549,16 @@ void ViewportUI::renderCurrentSceneMetaData()
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoNavFocus |
                      ImGuiWindowFlags_NoBackground);
 
-    ImGui::Text("%s", _attachedScene->_xmlPath.c_str());
+    ImGui::Text("%s", _attachedScene->getXMLPath().c_str());
 
     ImGui::End();
 }
 
 void ViewportUI::autoSave()
 {
-    const std::string path = _attachedScene->_xmlPath;
+    const std::string path = _attachedScene->getXMLPath();
     _attachedScene->saveAs("temp/auto-save.xml");
-    _attachedScene->_xmlPath = path;
+    _attachedScene->setXMLPath(path);
 }
 
 void ViewportUI::guizmoToRotate(float, int)

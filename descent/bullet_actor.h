@@ -28,7 +28,7 @@ class BulletActor : public cmx::PhysicsActor
 
     void editor() override {}; // should not be edited
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *e) override
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *e) const override
     {
         return *e;
     }; // cannot be saved

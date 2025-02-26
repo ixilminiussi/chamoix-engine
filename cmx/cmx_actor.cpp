@@ -204,7 +204,7 @@ void Actor::editor()
     }
 }
 
-tinyxml2::XMLElement &Actor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+tinyxml2::XMLElement &Actor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement *actorElement = doc.NewElement("actor");
     actorElement->SetAttribute("type", getType().c_str());
@@ -246,12 +246,12 @@ void Actor::load(tinyxml2::XMLElement *actorElement)
 }
 
 #ifdef _WIN32
-std::string Actor::getType()
+std::string Actor::getType() const
 {
     return std::regex_replace(typeid(*this).name(), std::regex(R"(^(class |struct ))"), "");
 }
 #else
-std::string Actor::getType()
+std::string Actor::getType() const
 {
     int status;
     char *demangled = abi::__cxa_demangle(typeid(*this).name(), nullptr, nullptr, &status);

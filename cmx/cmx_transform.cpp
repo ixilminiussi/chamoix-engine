@@ -125,7 +125,7 @@ void Transform::editor()
     _wasActive = _isActive;
 }
 
-tinyxml2::XMLElement &Transform::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+tinyxml2::XMLElement &Transform::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement *transformElement = doc.NewElement("transform");
 
