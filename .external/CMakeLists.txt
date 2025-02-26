@@ -5,6 +5,10 @@ include(FetchContent)
 add_subdirectory(tinyobjloader)
 add_subdirectory(tinyxml2)
 
+add_subdirectory(imgui-gradient-hotfix)
+
+target_include_directories(imgui_gradient SYSTEM PRIVATE imgui)
+
 # -- GLFW: Try to use system glfw3 first
 find_package(glfw3 QUIET)
 if(NOT glfw3_FOUND)
