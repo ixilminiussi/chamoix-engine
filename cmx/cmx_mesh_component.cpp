@@ -16,6 +16,7 @@
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 #include <tinyxml2.h>
+#include <unistd.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
 #define GLM_FORCE_RADIANS
@@ -24,6 +25,8 @@
 
 namespace cmx
 {
+
+Texture *MeshComponent::_ditheringPattern{nullptr};
 
 MeshComponent::MeshComponent()
 {
@@ -40,6 +43,10 @@ void MeshComponent::onAttach()
     if (!_texture)
     {
         setTexture("cmx_missing");
+    }
+    if (!_ditheringPattern)
+    {
+        setDitheringPattern("cmx_threshold_dithering");
     }
 }
 
@@ -84,7 +91,8 @@ void MeshComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipeli
                                           sizeof(SimplePushConstantData), &push);
 
     _model->bind(frameInfo.commandBuffer);
-    _texture->bind(frameInfo.commandBuffer, pipelineLayout);
+
+    Texture::bind(frameInfo.commandBuffer, pipelineLayout, {_texture, _ditheringPattern});
 
     _model->draw(frameInfo.commandBuffer);
 }
@@ -112,6 +120,19 @@ void MeshComponent::setTexture(const std::string &name)
     else
     {
         spdlog::error("MeshComponent <{0}->{1}>: Cannot setTexture before attaching to Scene object",
+                      getParent()->name.c_str(), name.c_str());
+    }
+}
+
+void MeshComponent::setDitheringPattern(const std::string &name)
+{
+    if (getScene() != nullptr)
+    {
+        _ditheringPattern = getScene()->getAssetsManager()->getTexture(name);
+    }
+    else
+    {
+        spdlog::error("MeshComponent <{0}->{1}>: Cannot setDitheringPattern before attaching to Scene object",
                       getParent()->name.c_str(), name.c_str());
     }
 }
@@ -254,6 +275,29 @@ void MeshComponent::editor(int i)
             ImGui::DragFloat("Scale", &_UVScale);
             ImGui::DragFloat("Rotate", &_UVRotate, 1.f, -180.f, 180.f);
         }
+    }
+
+    selected = _ditheringPattern->name.c_str();
+
+    if (ImGui::BeginCombo("Dithering Pattern##", selected))
+    {
+        for (const auto &pair : assetsManager->getTextures())
+        {
+            bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+
+            if (ImGui::Selectable(pair.first.c_str(), isSelected))
+            {
+                selected = pair.first.c_str();
+                setDitheringPattern(pair.first);
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
     }
 
     ImGui::ColorEdit3("Color##", (float *)&_color);

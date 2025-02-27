@@ -1,13 +1,13 @@
 #include "cmx_render_system.h"
 
 // cmx
-#include "cmx/cmx_light_environment.h"
 #include "cmx_buffer.h"
 #include "cmx_camera.h"
 #include "cmx_descriptors.h"
 #include "cmx_device.h"
 #include "cmx_frame_info.h"
 #include "cmx_game.h"
+#include "cmx_light_environment.h"
 #include "cmx_pipeline.h"
 #include "cmx_renderer.h"
 #include "cmx_window.h"

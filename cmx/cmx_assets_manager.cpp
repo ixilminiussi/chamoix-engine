@@ -104,6 +104,7 @@ void AssetsManager::unload()
 
         _textures.clear();
     }
+
     spdlog::info("AssetsManager: Successfully unloaded assets manager!");
 }
 
@@ -133,6 +134,17 @@ void AssetsManager::removeModel(const std::string &name)
     // TODO: implement
 }
 
+Model *AssetsManager::getModel(const std::string &name)
+{
+    if (_models.find(name) == _models.end())
+    {
+        spdlog::warn("AssetsManager: No such model named '{0}'", name);
+        return nullptr;
+    }
+
+    return _models[name].get();
+}
+
 void AssetsManager::addTexture(const std::string &filepath, const std::string &name)
 {
     if (_textures.find(name) != _textures.end())
@@ -152,17 +164,6 @@ void AssetsManager::addTexture(const std::string &filepath, const std::string &n
 void AssetsManager::removeTexture(const std::string &name)
 {
     // TODO: implement
-}
-
-Model *AssetsManager::getModel(const std::string &name)
-{
-    if (_models.find(name) == _models.end())
-    {
-        spdlog::warn("AssetsManager: No such model named '{0}'", name);
-        return nullptr;
-    }
-
-    return _models[name].get();
 }
 
 Texture *AssetsManager::getTexture(const std::string &name)

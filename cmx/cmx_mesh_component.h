@@ -40,6 +40,7 @@ class MeshComponent : public Component
     std::string getModelName() const;
 
     void setTexture(const std::string &name);
+    void setDitheringPattern(const std::string &name);
     std::string getTextureName() const;
 
     bool isTextured() const
@@ -60,11 +61,14 @@ class MeshComponent : public Component
   private:
     class Model *_model{nullptr};
     class Texture *_texture{nullptr};
+    static class Texture *_ditheringPattern;
+
     bool _worldSpaceUV{false};
     glm::vec2 _UVOffset{0.f};
     float _UVScale{1.f};
     float _UVRotate{0.f};
     glm::vec3 _color{1.f};
+
     bool _textured{false};
 };
 

@@ -1,11 +1,5 @@
 #include "demo_game.h"
 
-#include "dynamic_body_actor.h"
-#include "first_person_actor.h"
-#include "rigid_body_actor.h"
-#include "rotating_actor.h"
-#include "static_body_actor.h"
-
 // cmx
 #include <algorithm>
 #include <cmx/cmx_actor.h>

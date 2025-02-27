@@ -41,9 +41,14 @@ void ShadedRenderSystem::initialize()
                       .addPoolSize(vk::DescriptorType::eUniformBuffer, SwapChain::MAX_FRAMES_IN_FLIGHT)
                       .build();
 
-    auto globalSetLayout = DescriptorSetLayout::Builder(*_device.get())
-                               .addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAllGraphics)
-                               .build();
+    globalSetLayout = DescriptorSetLayout::Builder(*_device.get())
+                          .addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAllGraphics)
+                          .build();
+
+    ditheringSamplerDescriptorSetLayout =
+        DescriptorSetLayout::Builder(*_device.get())
+            .addBinding(0, vk::DescriptorType::eCombinedImageSampler, {vk::ShaderStageFlagBits::eFragment})
+            .build();
 
     for (int i = 0; i < _globalDescriptorSets.size(); i++)
     {
@@ -51,8 +56,9 @@ void ShadedRenderSystem::initialize()
         DescriptorWriter(*globalSetLayout, *_globalPool).writeBuffer(0, &bufferInfo).build(_globalDescriptorSets[i]);
     }
 
-    createPipelineLayout(
-        {globalSetLayout->getDescriptorSetLayout(), _samplerDescriptorSetLayout->getDescriptorSetLayout()});
+    createPipelineLayout({globalSetLayout->getDescriptorSetLayout(),
+                          _samplerDescriptorSetLayout->getDescriptorSetLayout(),
+                          ditheringSamplerDescriptorSetLayout->getDescriptorSetLayout()});
     createPipeline(_renderer->getSwapChainRenderPass());
 
     spdlog::info("ShadedRenderSystem: Successfully initialized!");
@@ -132,7 +138,7 @@ void ShadedRenderSystem::createPipeline(vk::RenderPass renderPass)
     Pipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
-    _pipeline = std::make_unique<Pipeline>(*_device.get(), "shaders/shaded.vert.spv", "shaders/shaded.frag.spv",
+    _pipeline = std::make_unique<Pipeline>(*_device.get(), "shaders/dithered.vert.spv", "shaders/dithered.frag.spv",
                                            pipelineConfig);
 }
 

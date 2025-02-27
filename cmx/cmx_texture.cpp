@@ -19,14 +19,14 @@
 namespace cmx
 {
 
-Texture::Texture(Device *device, const Texture::Builder &builder, const std::string &name) : name{name}
+Texture::Texture(Device *device, const Builder &builder, const std::string &name) : name{name}
 {
     createImage(device, builder);
     createImageView(device, builder);
     generateMipmaps(device, builder);
     createSampler(device);
     _descriptorSetID = RenderSystem::createSamplerDescriptor(_imageView, _sampler);
-    _filepath = builder.filepath;
+    _filepaths = builder.filepaths;
 }
 
 Texture::~Texture()
@@ -61,7 +61,7 @@ Texture *Texture::createTextureFromFile(class Device *device, const std::string 
     Builder builder{};
     builder.loadTexture(filepath);
 
-    spdlog::info("Texture: '{0}' loaded with resolution {1}x{2}", filepath, builder.width, builder.height);
+    spdlog::info("Texture: '{0}', <{1}> loaded with resolution {2}x{3}", filepath, name, builder.width, builder.height);
     return new Texture(device, builder, name);
 }
 
@@ -118,7 +118,7 @@ void Texture::Builder::loadTexture(const std::string &filepath)
         std::exit(EXIT_FAILURE);
     }
 
-    this->filepath = filepath;
+    this->filepaths = {filepath};
     imageSize = width * height * 4;
     format = vk::Format::eR8G8B8A8Unorm;
 }
@@ -148,7 +148,14 @@ tinyxml2::XMLElement &Texture::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEle
 {
     tinyxml2::XMLElement *textureElement = doc.NewElement("texture");
 
-    textureElement->SetAttribute("filepath", _filepath.c_str());
+    if (_filepaths.size() <= 1)
+    {
+        textureElement->SetAttribute("filepath", _filepaths[0].c_str());
+    }
+    else
+    {
+    }
+
     parentElement->InsertEndChild(textureElement);
 
     return *textureElement;
@@ -252,6 +259,19 @@ void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineL
 {
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, 1,
                                      &(RenderSystem::getSamplerDescriptorSet(_descriptorSetID)), 0, nullptr);
+}
+
+void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout, std::vector<Texture *> textures)
+{
+    std::vector<vk::DescriptorSet> descriptorSets{};
+
+    for (Texture *texture : textures)
+    {
+        descriptorSets.push_back(RenderSystem::getSamplerDescriptorSet(texture->_descriptorSetID));
+    }
+
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, descriptorSets.size(),
+                                     descriptorSets.data(), 0, nullptr);
 }
 
 } // namespace cmx

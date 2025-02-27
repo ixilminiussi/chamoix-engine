@@ -172,11 +172,11 @@ void LightEnvironment::loadDefaults()
     mark_1.position.set(0.f);
     mark_1.color = {.55f, .50f, 1.f, 1.f};
     ImGG::Mark mark_2{};
-    mark_2.position.set(0.4f);
-    mark_2.color = {1.f, .48f, 40.f, 1.f};
+    mark_2.position.set(0.5f);
+    mark_2.color = {1.f, .56f, 45.f, 1.f};
     ImGG::Mark mark_3{};
-    mark_3.position.set(0.58f);
-    mark_3.color = {1.f, .60f, .24f, 1.f};
+    mark_3.position.set(0.56f);
+    mark_3.color = {1.f, .64f, .27f, 1.f};
     ImGG::Mark mark_4{};
     mark_4.position.set(1.f);
     mark_4.color = {.9f, .97f, 1.f, 1.f};

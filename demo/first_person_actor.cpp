@@ -1,18 +1,23 @@
 #include "first_person_actor.h"
-#include "cmx/cmx_game.h"
-#include "cmx/cmx_input_manager.h"
 
 // cmx
 #include <cmx/cmx_camera_component.h>
+#include <cmx/cmx_game.h>
+#include <cmx/cmx_input_manager.h>
+#include <cmx/cmx_physics.h>
+#include <cmx/cmx_physics_actor.h>
 #include <cmx/cmx_physics_component.h>
 #include <cmx/cmx_primitives.h>
 #include <cmx/cmx_shapes.h>
+
+// lib
 #include <glm/geometric.hpp>
 
 void FirstPersonActor::onBegin()
 {
-    DynamicBodyActor::onBegin();
+    cmx::PhysicsActor::onBegin();
     _physicsComponent->setShape(PRIMITIVE_SPHERE);
+    _physicsComponent->setPhysicsMode(cmx::PhysicsMode::DYNAMIC);
 
     _cameraComponent = std::make_shared<cmx::CameraComponent>();
     attachComponent(_cameraComponent);

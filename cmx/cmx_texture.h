@@ -20,12 +20,13 @@ class Texture
         int width;
         int height;
         uint32_t mipLevels;
-        vk::Format format;
+        vk::Format format{vk::Format::eR8G8B8A8Unorm};
         vk::DeviceSize imageSize;
         stbi_uc *image;
-        std::string filepath;
+        std::vector<std::string> filepaths;
 
         void loadTexture(const std::string &filepath);
+        void loadTexture3D(const std::vector<std::string> &filepaths);
     };
 
     Texture(class Device *, const Texture::Builder &, const std::string &name);
@@ -39,6 +40,7 @@ class Texture
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
     void bind(vk::CommandBuffer, vk::PipelineLayout);
+    static void bind(vk::CommandBuffer, vk::PipelineLayout, std::vector<Texture *> textures);
 
     static Texture *createTextureFromFile(class Device *, const std::string &filepath, const std::string &name);
 
@@ -57,7 +59,7 @@ class Texture
     vk::Sampler _sampler;
     size_t _descriptorSetID;
 
-    std::string _filepath;
+    std::vector<std::string> _filepaths;
 
     bool _freed{false};
 };

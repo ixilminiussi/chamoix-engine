@@ -92,7 +92,8 @@ class Device
     vk::CommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(vk::CommandBuffer);
     void copyBuffer(vk::Buffer src, vk::Buffer dst, vk::DeviceSize);
-    void copyBufferToImage(vk::Buffer, vk::Image, uint32_t width, uint32_t height, uint32_t layerCount);
+    void copyBufferToImage(vk::Buffer, vk::Image, uint32_t width, uint32_t height, uint32_t depth = 1,
+                           uint32_t layerCount = 1);
 
     void createImageWithInfo(const vk::ImageCreateInfo &, vk::MemoryPropertyFlags, vk::Image &, vk::DeviceMemory &);
     void transitionImageLayout(vk::Image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t mipLevels);

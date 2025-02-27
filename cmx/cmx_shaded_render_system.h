@@ -36,6 +36,9 @@ class ShadedRenderSystem : public RenderSystem
     void render(const struct FrameInfo *, std::vector<std::shared_ptr<class Component>> &,
                 class GraphicsManager *) override;
     virtual void editor(int i) override;
+
+    std::unique_ptr<DescriptorSetLayout> globalSetLayout;
+    std::unique_ptr<DescriptorSetLayout> ditheringSamplerDescriptorSetLayout;
 };
 
 } // namespace cmx

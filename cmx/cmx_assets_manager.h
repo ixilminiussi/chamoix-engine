@@ -50,6 +50,7 @@ class AssetsManager final
 
     std::unordered_map<std::string, std::unique_ptr<class Model>> _models;
     std::unordered_map<std::string, std::unique_ptr<class Texture>> _textures;
+
     // TODO:
     // fonts
     // sprites
