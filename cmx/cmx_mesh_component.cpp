@@ -46,7 +46,7 @@ void MeshComponent::onAttach()
     }
     if (!_ditheringPattern)
     {
-        setDitheringPattern("cmx_threshold_dithering");
+        setDitheringPattern("cmx_radial_dithering");
     }
 }
 
@@ -114,8 +114,7 @@ void MeshComponent::setTexture(const std::string &name)
 {
     if (getScene() != nullptr)
     {
-        _textured = true;
-        _texture = getScene()->getAssetsManager()->getTexture(name);
+        _texture = getScene()->getAssetsManager()->get2DTexture(name);
     }
     else
     {
@@ -128,7 +127,7 @@ void MeshComponent::setDitheringPattern(const std::string &name)
 {
     if (getScene() != nullptr)
     {
-        _ditheringPattern = getScene()->getAssetsManager()->getTexture(name);
+        _ditheringPattern = getScene()->getAssetsManager()->get3DTexture(name);
     }
     else
     {
@@ -249,7 +248,7 @@ void MeshComponent::editor(int i)
     {
         if (ImGui::BeginCombo("Texture##", selected))
         {
-            for (const auto &pair : assetsManager->getTextures())
+            for (const auto &pair : assetsManager->get2DTextures())
             {
                 bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 
@@ -281,7 +280,7 @@ void MeshComponent::editor(int i)
 
     if (ImGui::BeginCombo("Dithering Pattern##", selected))
     {
-        for (const auto &pair : assetsManager->getTextures())
+        for (const auto &pair : assetsManager->get3DTextures())
         {
             bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 

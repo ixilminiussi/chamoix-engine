@@ -21,10 +21,13 @@ namespace cmx
 
 Texture::Texture(Device *device, const Builder &builder, const std::string &name) : name{name}
 {
+    _imageType = builder.depth > 1 ? vk::ImageType::e3D : vk::ImageType::e2D;
+
     createImage(device, builder);
     createImageView(device, builder);
     generateMipmaps(device, builder);
     createSampler(device);
+
     _descriptorSetID = RenderSystem::createSamplerDescriptor(_imageView, _sampler);
     _filepaths = builder.filepaths;
 }
@@ -65,6 +68,17 @@ Texture *Texture::createTextureFromFile(class Device *device, const std::string 
     return new Texture(device, builder, name);
 }
 
+Texture *Texture::createTextureFromFile(class Device *device, const std::vector<std::string> &filepaths,
+                                        const std::string &name)
+{
+    Builder builder{};
+    builder.loadTexture3D(filepaths);
+
+    spdlog::info("Texture: <{0}> loaded with resolution {1}x{2}x{3}", name, builder.width, builder.height,
+                 filepaths.size());
+    return new Texture(device, builder, name);
+}
+
 void Texture::createImage(Device *device, const Builder &builder)
 {
     // Create staging buffer to hold loaded data, ready to copy to device
@@ -72,19 +86,22 @@ void Texture::createImage(Device *device, const Builder &builder)
                               vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent};
 
     imageStagingBuffer.map(builder.imageSize, 0);
-    imageStagingBuffer.writeToBuffer(builder.image);
-    imageStagingBuffer.unmap();
 
-    // Free original image data
-    stbi_image_free(builder.image);
+    int sliceSize = builder.width * builder.height * 4;
+    for (int i = 0; i < builder.depth; i++)
+    {
+        imageStagingBuffer.writeToBuffer(builder.images[i], sliceSize, i * sliceSize);
+        stbi_image_free(builder.images[i]);
+    }
+    imageStagingBuffer.unmap();
 
     vk::ImageCreateInfo imageInfo{};
 
     imageInfo.sType = vk::StructureType::eImageCreateInfo;
-    imageInfo.imageType = vk::ImageType::e2D;
+    imageInfo.imageType = _imageType;
     imageInfo.extent.width = builder.width;
     imageInfo.extent.height = builder.height;
-    imageInfo.extent.depth = 1;
+    imageInfo.extent.depth = builder.depth;
     imageInfo.mipLevels = builder.mipLevels;
     imageInfo.arrayLayers = 1;
     imageInfo.format = vk::Format::eR8G8B8A8Unorm;
@@ -99,7 +116,7 @@ void Texture::createImage(Device *device, const Builder &builder)
     // Copy image data
     device->transitionImageLayout(_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal,
                                   builder.mipLevels);
-    device->copyBufferToImage(imageStagingBuffer.getBuffer(), _image, builder.width, builder.height, 1);
+    device->copyBufferToImage(imageStagingBuffer.getBuffer(), _image, builder.width, builder.height, builder.depth);
 
     imageStagingBuffer.free();
 }
@@ -108,11 +125,11 @@ void Texture::Builder::loadTexture(const std::string &filepath)
 {
     int channels;
 
-    image = stbi_load(filepath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+    images = {stbi_load(filepath.c_str(), &width, &height, &channels, STBI_rgb_alpha)};
 
     mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
 
-    if (!image)
+    if (!images[0])
     {
         spdlog::info("stbiload: failed to load texture file {0}", filepath.c_str());
         std::exit(EXIT_FAILURE);
@@ -123,12 +140,54 @@ void Texture::Builder::loadTexture(const std::string &filepath)
     format = vk::Format::eR8G8B8A8Unorm;
 }
 
+void Texture::Builder::loadTexture3D(const std::vector<std::string> &filepaths)
+{
+    int channels;
+
+    int numImages = filepaths.size();
+
+    if (numImages == 0)
+    {
+        spdlog::error("Texture: cannot load 3d texture with 0 paths");
+        std::exit(EXIT_FAILURE);
+    }
+
+    int imgWidth, imgHeight;
+    images = std::vector<stbi_uc *>(numImages);
+
+    for (int i = 0; i < numImages; i++)
+    {
+        images[i] = stbi_load(filepaths[i].c_str(), &imgWidth, &imgHeight, &channels, STBI_rgb_alpha);
+
+        if (!images[i])
+        {
+            spdlog::error("stbiload: failed to load texture file {0}", filepaths[i].c_str());
+            std::exit(EXIT_FAILURE);
+        }
+
+        if (i > 0 && (imgWidth != width || imgHeight != height))
+        {
+            spdlog::error("Texture: cannot load 3d texture with images of different resolutions");
+            std::exit(EXIT_FAILURE);
+        }
+
+        width = imgWidth;
+        height = imgHeight;
+    }
+
+    depth = numImages;
+    this->filepaths = filepaths;
+    mipLevels = numImages > 1 ? 1 : static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+    imageSize = width * height * 4 * depth;
+    format = vk::Format::eR8G8B8A8Unorm;
+}
+
 void Texture::createImageView(Device *device, const Builder &builder)
 {
     vk::ImageViewCreateInfo imageViewCreateInfo{};
     imageViewCreateInfo.image = _image;
     imageViewCreateInfo.sType = vk::StructureType::eImageViewCreateInfo;
-    imageViewCreateInfo.viewType = vk::ImageViewType::e2D;
+    imageViewCreateInfo.viewType = builder.depth == 1 ? vk::ImageViewType::e2D : vk::ImageViewType::e3D;
     imageViewCreateInfo.format = builder.format;
     imageViewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity;
     imageViewCreateInfo.components.g = vk::ComponentSwizzle::eIdentity;
@@ -154,6 +213,12 @@ tinyxml2::XMLElement &Texture::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEle
     }
     else
     {
+        for (std::string &filepath : _filepaths)
+        {
+            tinyxml2::XMLElement *filepathElement = doc.NewElement("layer");
+            textureElement->InsertEndChild(filepathElement);
+            filepathElement->SetAttribute("filepath", filepath.c_str());
+        }
     }
 
     parentElement->InsertEndChild(textureElement);
@@ -168,7 +233,7 @@ void Texture::createSampler(class Device *device)
     samplerCreateInfo.minFilter = vk::Filter::eLinear;
     samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
     samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
-    samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
+    samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
     samplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
     samplerCreateInfo.unnormalizedCoordinates = false;
     samplerCreateInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;

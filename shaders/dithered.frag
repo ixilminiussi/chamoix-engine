@@ -6,7 +6,7 @@ layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUV;
 
 layout(set = 1, binding = 0) uniform sampler2D textureSampler;
-layout(set = 2, binding = 0) uniform sampler2D ditheringSampler;
+layout(set = 2, binding = 0) uniform sampler3D ditheringSampler;
 
 layout(location = 0) out vec4 outColor;
 
@@ -40,33 +40,45 @@ layout(push_constant) uniform Push
 }
 push;
 
-float getLuminance(vec4 color)
+float getLuminance(vec3 color)
 {
     return 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
 }
 
-float targetScreenSpaceScale = .05f;
-
-float propperDitheringScale()
+vec2 getUVFrequency()
 {
     vec2 dx = dFdx(fragUV);
     vec2 dy = dFdy(fragUV);
-    float screenSpaceRateOfChange = length(vec2(length(dx), length(dy)));
 
-    float scale = 1.f;
+    mat2 matr = {dx, dy};
+    vec4 vectorized = vec4(dx, dy);
+    float Q = dot(vectorized, vectorized);
+    float R = determinant(matr); // ad-bc
+    float discriminantSqr = max(0, Q * Q - 4 * R * R);
+    float discriminant = sqrt(discriminantSqr);
 
-    while (screenSpaceRateOfChange < targetScreenSpaceScale / 2.f)
-    {
-        screenSpaceRateOfChange *= 2.f;
-        scale *= 2.f;
-    }
-    while (screenSpaceRateOfChange > targetScreenSpaceScale * 2.f)
-    {
-        screenSpaceRateOfChange /= 2.f;
-        scale /= 2.f;
-    }
+    return sqrt(vec2(Q + discriminant, Q - discriminant) / 2);
+}
 
-    return scale;
+vec2 propperDitheringScale(float brightness)
+{
+    const float scale = 5.f;
+    const int dotsPerSide = 8;
+    const float invZRes = 1.f / 12.f;
+
+    vec2 uvFrequency = getUVFrequency();
+    float spacing = uvFrequency.y; // smaller of the two
+    spacing *= exp2(scale);
+    spacing /= brightness;
+    spacing *= dotsPerSide * 0.125;
+
+    float logCurve = log2(spacing);
+    float roundedLogCurve = floor(logCurve);
+
+    float subLayer = logCurve - roundedLogCurve;
+    subLayer = 1.f - subLayer;
+
+    return vec2(exp2(roundedLogCurve), subLayer);
 }
 
 void main()
@@ -96,23 +108,11 @@ void main()
         diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * cosAngIncidence;
     }
 
-    // if we have push.normalMatrix[3][3] != 100, then we should be using vertex color
-    if (push.normalMatrix[3][3] == 100)
-    {
-        outColor = vec4(diffuseLight * push.normalMatrix[3].xyz * fragColor, 1.0f);
-    }
-    else
-    {
-        outColor = vec4(diffuseLight * push.normalMatrix[3].xyz, 1.0f) * texture(textureSampler, fragUV);
-    }
+    float brightness = getLuminance(diffuseLight);
+    brightness /= 2;
 
-    vec4 ditheringSample = texture(ditheringSampler, fragUV * propperDitheringScale());
-    if (getLuminance(outColor) < ditheringSample.x)
-    {
-        outColor = vec4(0, 0, 0, 1);
-    }
-    else
-    {
-        outColor = vec4(1, 1, 1, 1);
-    }
+    vec2 ditheringLevel = propperDitheringScale(brightness);
+    vec4 ditheringSample = texture(ditheringSampler, vec3(fragUV / ditheringLevel.x, ditheringLevel.y));
+
+    outColor = brightness < 1 - ditheringSample.x ? vec4(0.004f, 0.125f, 0.306f, 1) : vec4(0.965f, 0.863f, 0.675f, 1.f);
 }

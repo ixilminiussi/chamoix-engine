@@ -37,8 +37,8 @@ class ShadedRenderSystem : public RenderSystem
                 class GraphicsManager *) override;
     virtual void editor(int i) override;
 
-    std::unique_ptr<DescriptorSetLayout> globalSetLayout;
-    std::unique_ptr<DescriptorSetLayout> ditheringSamplerDescriptorSetLayout;
+    std::unique_ptr<DescriptorSetLayout> _globalSetLayout;
+    std::unique_ptr<DescriptorSetLayout> _ditheringSamplerDescriptorSetLayout;
 };
 
 } // namespace cmx

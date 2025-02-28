@@ -41,11 +41,11 @@ void ShadedRenderSystem::initialize()
                       .addPoolSize(vk::DescriptorType::eUniformBuffer, SwapChain::MAX_FRAMES_IN_FLIGHT)
                       .build();
 
-    globalSetLayout = DescriptorSetLayout::Builder(*_device.get())
-                          .addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAllGraphics)
-                          .build();
+    _globalSetLayout = DescriptorSetLayout::Builder(*_device.get())
+                           .addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAllGraphics)
+                           .build();
 
-    ditheringSamplerDescriptorSetLayout =
+    _ditheringSamplerDescriptorSetLayout =
         DescriptorSetLayout::Builder(*_device.get())
             .addBinding(0, vk::DescriptorType::eCombinedImageSampler, {vk::ShaderStageFlagBits::eFragment})
             .build();
@@ -53,12 +53,12 @@ void ShadedRenderSystem::initialize()
     for (int i = 0; i < _globalDescriptorSets.size(); i++)
     {
         auto bufferInfo = _uboBuffers[i]->descriptorInfo();
-        DescriptorWriter(*globalSetLayout, *_globalPool).writeBuffer(0, &bufferInfo).build(_globalDescriptorSets[i]);
+        DescriptorWriter(*_globalSetLayout, *_globalPool).writeBuffer(0, &bufferInfo).build(_globalDescriptorSets[i]);
     }
 
-    createPipelineLayout({globalSetLayout->getDescriptorSetLayout(),
+    createPipelineLayout({_globalSetLayout->getDescriptorSetLayout(),
                           _samplerDescriptorSetLayout->getDescriptorSetLayout(),
-                          ditheringSamplerDescriptorSetLayout->getDescriptorSetLayout()});
+                          _ditheringSamplerDescriptorSetLayout->getDescriptorSetLayout()});
     createPipeline(_renderer->getSwapChainRenderPass());
 
     spdlog::info("ShadedRenderSystem: Successfully initialized!");

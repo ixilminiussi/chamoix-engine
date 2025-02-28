@@ -8,6 +8,7 @@
 
 // std
 #include <string>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -19,10 +20,11 @@ class Texture
     {
         int width;
         int height;
+        int depth{1};
         uint32_t mipLevels;
         vk::Format format{vk::Format::eR8G8B8A8Unorm};
         vk::DeviceSize imageSize;
-        stbi_uc *image;
+        std::vector<stbi_uc *> images;
         std::vector<std::string> filepaths;
 
         void loadTexture(const std::string &filepath);
@@ -43,8 +45,15 @@ class Texture
     static void bind(vk::CommandBuffer, vk::PipelineLayout, std::vector<Texture *> textures);
 
     static Texture *createTextureFromFile(class Device *, const std::string &filepath, const std::string &name);
+    static Texture *createTextureFromFile(class Device *, const std::vector<std::string> &filepaths,
+                                          const std::string &name);
 
     const std::string name;
+
+    vk::ImageType getType()
+    {
+        return _imageType;
+    }
 
   protected:
     void createImage(class Device *, const Builder &);
@@ -60,6 +69,7 @@ class Texture
     size_t _descriptorSetID;
 
     std::vector<std::string> _filepaths;
+    vk::ImageType _imageType;
 
     bool _freed{false};
 };

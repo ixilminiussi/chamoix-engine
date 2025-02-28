@@ -6,6 +6,7 @@
 // cmx
 #include <cmx/cmx_editor.h>
 #include <cmx/cmx_register.h>
+#include <first_person_actor.h>
 
 int main()
 {

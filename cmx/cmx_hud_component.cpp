@@ -52,7 +52,7 @@ void HudComponent::setTexture(const std::string &name)
 {
     if (getScene() != nullptr)
     {
-        _texture = getScene()->getAssetsManager()->getTexture(name);
+        _texture = getScene()->getAssetsManager()->get2DTexture(name);
     }
     else
     {

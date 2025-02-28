@@ -1,27 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scene name="first scene">
     <assets>
-        <model filepath="assets/models/penguin.obj" name="penguin"/>
-        <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
         <model filepath="assets/models/bunny.obj" name="bunny"/>
-        <model filepath="assets/cmx/sphere.obj" name="cmx_sphere"/>
         <model filepath="assets/cmx/camera.obj" name="cmx_camera"/>
-        <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
-        <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
-        <texture filepath="assets/cmx/dithering/radial.png" name="cmx_radial_dithering"/>
-        <texture filepath="assets/cmx/dithering/bayer8.png" name="cmx_bayer8_dithering"/>
-        <texture filepath="assets/textures/penguin.png" name="penguin"/>
-        <texture filepath="assets/textures/chiseled_bookshelf_occupied.png" name="chiseled_bookshelf_occupied"/>
+        <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
+        <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
+        <model filepath="assets/cmx/sphere.obj" name="cmx_sphere"/>
+        <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
+        <model filepath="assets/cmx/uv-sphere.obj" name="cmx_uv_sphere"/>
+        <model filepath="assets/models/penguin.obj" name="penguin"/>
         <texture filepath="assets/textures/acacia_planks.png" name="acacia_planks"/>
-        <texture filepath="assets/cmx/dithering/noise.png" name="cmx_noise_dithering"/>
-        <texture filepath="assets/cmx/dithering/threshold.png" name="cmx_threshold_dithering"/>
-        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
-        <texture filepath="assets/textures/snow.png" name="snow"/>
-        <texture filepath="assets/textures/mossy_stone_bricks.png" name="mossy_stone_bricks"/>
+        <texture filepath="assets/textures/chiseled_bookshelf_occupied.png" name="chiseled_bookshelf_occupied"/>
         <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
+        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
+        <texture filepath="assets/textures/mossy_stone_bricks.png" name="mossy_stone_bricks"/>
+        <texture filepath="assets/textures/penguin.png" name="penguin"/>
+        <texture filepath="assets/textures/snow.png" name="snow"/>
+        <texture name="cmx_bayer8_dithering">
+            <layer filepath="assets/cmx/dithering/bayer8.png"/>
+            <layer filepath="assets/cmx/dithering/bayer8.png"/>
+        </texture>
+        <texture name="cmx_noise_dithering">
+            <layer filepath="assets/cmx/dithering/noise.png"/>
+            <layer filepath="assets/cmx/dithering/noise.png"/>
+        </texture>
+        <texture name="cmx_radial_dithering">
+            <layer filepath="assets/cmx/dithering/radial5.png"/>
+            <layer filepath="assets/cmx/dithering/radial6.png"/>
+            <layer filepath="assets/cmx/dithering/radial7.png"/>
+            <layer filepath="assets/cmx/dithering/radial8.png"/>
+            <layer filepath="assets/cmx/dithering/radial9.png"/>
+            <layer filepath="assets/cmx/dithering/radial10.png"/>
+            <layer filepath="assets/cmx/dithering/radial11.png"/>
+            <layer filepath="assets/cmx/dithering/radial12.png"/>
+            <layer filepath="assets/cmx/dithering/radial13.png"/>
+            <layer filepath="assets/cmx/dithering/radial14.png"/>
+            <layer filepath="assets/cmx/dithering/radial15.png"/>
+            <layer filepath="assets/cmx/dithering/radial16.png"/>
+        </texture>
+        <texture name="cmx_threshold_dithering">
+            <layer filepath="assets/cmx/dithering/threshold.png"/>
+            <layer filepath="assets/cmx/dithering/threshold.png"/>
+        </texture>
     </assets>
-    <lightEnvironment timeOfDay="13">
+    <lightEnvironment timeOfDay="15">
         <sun axis="0">
             <gradient>
                 <mark position="0" r="0.55000001" g="0.5" b="1"/>
@@ -31,13 +54,20 @@
             </gradient>
         </sun>
     </lightEnvironment>
-    <actor type="cmx::MeshActor" name="Penguin" id="9" visible="true">
+    <actor type="FirstPersonActor" name="Player" id="11" visible="true">
         <transform>
-            <position x="0" y="-1" z="0.25"/>
-            <rotation pitch="0" yaw="0" roll="1" w="-4.3711385e-08"/>
-            <scale x="3" y="3" z="3"/>
+            <position x="0" y="0" z="8"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="penguin" texture="cmx_threshold_dithering" textured="true" worldSpaceUV="false" r="1" g="1" b="1">
+        <component type="cmx::CameraComponent" name="cmx::CameraComponent" visible="true" fov="80" nearPlane="0.1" farPlane="1000" isMain="true">
+            <transform>
+                <position x="0" y="-2.2" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" visible="true" shape="cmx_sphere" physicsMode="Dynamic" bounciness="0.5" friction="0.5">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -45,13 +75,13 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::MeshActor" name="Floor" id="7" visible="true">
+    <actor type="cmx::MeshActor" name="Floor" id="9" visible="true">
         <transform>
             <position x="0" y="1" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_plane" texture="cmx_threshold_dithering" textured="true" worldSpaceUV="true" UVoffsetX="0" UVoffsetY="0" UVscale="1" UVrotate="0" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_plane" texture="cmx_missing" textured="false" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -59,13 +89,13 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::MeshActor" name="cmx::MeshActor" id="5" visible="true">
+    <actor type="cmx::MeshActor" name="cmx::MeshActor" id="7" visible="true">
         <transform>
-            <position x="0" y="0" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
+            <position x="0" y="-4" z="-3"/>
+            <rotation pitch="0.19907957" yaw="-0.040480349" roll="0.35437271" w="0.91276979"/>
+            <scale x="1.5" y="1.5" z="1.5"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" texture="cmx_threshold_dithering" textured="true" worldSpaceUV="false" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" texture="cmx_missing" textured="false" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -73,13 +103,13 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::Actor" name="cmx::MeshActor(1)" id="3" visible="true">
+    <actor type="cmx::Actor" name="cmx::MeshActor(1)" id="5" visible="true">
         <transform>
             <position x="3" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_sphere" texture="cmx_threshold_dithering" textured="true" worldSpaceUV="false" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_uv_sphere" texture="cmx_missing" textured="false" r="0.49789029" g="0.49789029" b="0.49789029">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -87,13 +117,27 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::Actor" name="cmx::MeshActor(2)" id="1" visible="true">
+    <actor type="cmx::Actor" name="cmx::MeshActor(2)" id="3" visible="true">
         <transform>
             <position x="-2.75" y="-0.75" z="3.25"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="2" y="2" z="2"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_sphere" texture="cmx_threshold_dithering" textured="true" worldSpaceUV="false" r="1" g="1" b="1">
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_uv_sphere" texture="cmx_missing" textured="false" r="0.49789029" g="0.49789029" b="0.49789029">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="cmx::MeshActor(3)" id="1" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="-0.19936766" roll="0" w="0.97992486"/>
+            <scale x="0.99999678" y="1" z="0.99999678"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent" visible="true" model="cmx_cube" texture="cmx_missing" textured="false" r="1" g="1" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>

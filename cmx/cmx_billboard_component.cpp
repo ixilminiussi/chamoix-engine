@@ -64,7 +64,7 @@ void BillboardComponent::setTexture(const std::string &name)
 {
     if (getScene() != nullptr)
     {
-        _texture = getScene()->getAssetsManager()->getTexture(name);
+        _texture = getScene()->getAssetsManager()->get2DTexture(name);
     }
     else
     {
@@ -89,7 +89,7 @@ void BillboardComponent::editor(int i)
 
     if (ImGui::BeginCombo("Texture##", selected))
     {
-        for (const auto &pair : assetsManager->getTextures())
+        for (const auto &pair : assetsManager->get2DTextures())
         {
             bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 
