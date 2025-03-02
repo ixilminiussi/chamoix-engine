@@ -4,7 +4,7 @@
 #include "dynamic_body_actor.h"
 
 // cmx
-#include <cmx/cmx_camera_component.h>
+#include <cmx_camera_component.h>
 
 class FirstPersonActor : public DynamicBodyActor
 {

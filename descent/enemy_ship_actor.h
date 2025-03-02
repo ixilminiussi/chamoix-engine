@@ -2,7 +2,7 @@
 #define ENEMY_SHIP_ACTOR
 
 // cmx
-#include <cmx/cmx_physics_actor.h>
+#include <cmx_physics_actor.h>
 
 class EnemyShipActor : public cmx::PhysicsActor
 {

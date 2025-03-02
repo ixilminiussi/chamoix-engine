@@ -1,8 +1,8 @@
 #ifndef ROTATING_ACTOR
 #define ROTATING_ACTOR
 
-#include <cmx/cmx_actor.h>
-#include <cmx/cmx_register.h>
+#include <cmx_actor.h>
+#include <cmx_register.h>
 
 class RotatingActor : public cmx::Actor
 {
@@ -16,7 +16,7 @@ class RotatingActor : public cmx::Actor
 
     void slowdownToggle(float dt, int val);
 
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) override;
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const override;
     void load(tinyxml2::XMLElement *) override;
 
   private:

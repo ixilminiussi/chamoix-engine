@@ -1,11 +1,15 @@
 #include "ship_camera_component.h"
-#include "cmx/cmx_math.h"
 
 // cmx
-#include <cmath>
-#include <cmx/cmx_actor.h>
-#include <cmx/cmx_camera.h>
+#include <cmx_actor.h>
+#include <cmx_camera.h>
+#include <cmx_math.h>
+
+// lib
 #include <glm/ext/quaternion_trigonometric.hpp>
+
+// std
+#include <cmath>
 
 void ShipCameraComponent::update(float dt)
 {

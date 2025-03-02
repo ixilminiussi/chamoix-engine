@@ -4,7 +4,7 @@
 #include "dynamic_body_actor.h"
 
 // cmx
-#include <cmx/cmx_camera_component.h>
+#include <cmx_camera_component.h>
 
 class FirstPersonActor : public DynamicBodyActor
 {
@@ -14,9 +14,8 @@ class FirstPersonActor : public DynamicBodyActor
     virtual void onBegin() override;
     virtual void update(float dt) override;
 
-    void onContinuousOverlap(class cmx::PhysicsComponent *ownedComponent,
-                             class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor,
-                             const cmx::HitInfo &) override;
+    void onContinuousOverlap(class cmx::PhysicsBody *ownedComponent, class cmx::PhysicsBody *overlappingComponent,
+                             cmx::Actor *overlappingActor, const cmx::HitInfo &) override;
 
     void onMovementInput(float dt, glm::vec2 movement);
     void onMouseMovement(float dt, glm::vec2 mousePosition);

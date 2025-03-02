@@ -2,8 +2,8 @@
 #define RIGID_BODY_ACTOR
 
 // cmx
-#include <cmx/cmx_mesh_actor.h>
-#include <cmx/cmx_physics_actor.h>
+#include <cmx_mesh_actor.h>
+#include <cmx_physics_actor.h>
 
 class RigidBodyActor : public cmx::PhysicsActor
 {

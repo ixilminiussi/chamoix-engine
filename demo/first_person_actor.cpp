@@ -1,12 +1,12 @@
 #include "first_person_actor.h"
-#include "cmx/cmx_game.h"
-#include "cmx/cmx_input_manager.h"
 
 // cmx
-#include <cmx/cmx_camera_component.h>
-#include <cmx/cmx_physics_component.h>
-#include <cmx/cmx_primitives.h>
-#include <cmx/cmx_shapes.h>
+#include <cmx_camera_component.h>
+#include <cmx_game.h>
+#include <cmx_input_manager.h>
+#include <cmx_physics_component.h>
+#include <cmx_primitives.h>
+#include <cmx_shapes.h>
 
 void FirstPersonActor::onBegin()
 {
@@ -36,9 +36,9 @@ void FirstPersonActor::update(float dt)
     _oldPosition = _transform.position;
 }
 
-void FirstPersonActor::onContinuousOverlap(class cmx::PhysicsComponent *ownedComponent,
-                                           class cmx::PhysicsComponent *overlappingComponent,
-                                           cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
+void FirstPersonActor::onContinuousOverlap(class cmx::PhysicsBody *ownedComponent,
+                                           class cmx::PhysicsBody *overlappingComponent, cmx::Actor *overlappingActor,
+                                           const cmx::HitInfo &hitInfo)
 {
     _transform.position -= (hitInfo.depth + glm::epsilon<float>()) * hitInfo.normal;
     _falling = 0.f;

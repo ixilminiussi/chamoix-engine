@@ -1,8 +1,8 @@
 #ifndef WALL_ACTOR
 #define WALL_ACTOR
 
-#include <cmx/cmx_mesh_actor.h>
-#include <cmx/cmx_physics_actor.h>
+#include <cmx_mesh_actor.h>
+#include <cmx_physics_actor.h>
 
 class WallActor : public cmx::PhysicsActor
 {

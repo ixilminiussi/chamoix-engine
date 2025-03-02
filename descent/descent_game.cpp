@@ -8,18 +8,14 @@
 #include "wall_actor.h"
 
 // cmx
-#include <cmx/cmx_actor.h>
-#include <cmx/cmx_assets_manager.h>
-#include <cmx/cmx_billboard_render_system.h>
-#include <cmx/cmx_edge_render_system.h>
-#include <cmx/cmx_editor.h>
-#include <cmx/cmx_hud_render_system.h>
-#include <cmx/cmx_input_manager.h>
-#include <cmx/cmx_register.h>
-#include <cmx/cmx_render_system.h>
-#include <cmx/cmx_scene.h>
-#include <cmx/cmx_shaded_render_system.h>
-#include <cmx/cmx_window.h>
+#include <cmx_actor.h>
+#include <cmx_assets_manager.h>
+#include <cmx_editor.h>
+#include <cmx_input_manager.h>
+#include <cmx_register.h>
+#include <cmx_render_system.h>
+#include <cmx_scene.h>
+#include <cmx_window.h>
 
 // lib
 #include <GLFW/glfw3.h>
@@ -40,16 +36,6 @@
 Descent::Descent()
 {
     cmx::Register &cmxRegister = cmx::Register::getInstance();
-
-    _renderSystems[SHADED_RENDER_SYSTEM] = std::make_shared<cmx::ShadedRenderSystem>();
-    _renderSystems[BILLBOARD_RENDER_SYSTEM] = std::make_shared<cmx::BillboardRenderSystem>();
-    _renderSystems[EDGE_RENDER_SYSTEM] = std::make_shared<cmx::EdgeRenderSystem>();
-    _renderSystems[HUD_RENDER_SYSTEM] = std::make_shared<cmx::HudRenderSystem>();
-
-    _renderSystems[SHADED_RENDER_SYSTEM]->initialize();
-    _renderSystems[BILLBOARD_RENDER_SYSTEM]->initialize();
-    _renderSystems[EDGE_RENDER_SYSTEM]->initialize();
-    _renderSystems[HUD_RENDER_SYSTEM]->initialize();
 }
 
 Descent::~Descent()

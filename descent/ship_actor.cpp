@@ -5,16 +5,16 @@
 #include "ship_camera_component.h"
 
 // cmx
-#include <cmx/cmx_camera_component.h>
-#include <cmx/cmx_editor.h>
-#include <cmx/cmx_game.h>
-#include <cmx/cmx_input_action.h>
-#include <cmx/cmx_input_manager.h>
-#include <cmx/cmx_math.h>
-#include <cmx/cmx_physics.h>
-#include <cmx/cmx_physics_actor.h>
-#include <cmx/cmx_physics_component.h>
-#include <cmx/cmx_shapes.h>
+#include <cmx_camera_component.h>
+#include <cmx_editor.h>
+#include <cmx_game.h>
+#include <cmx_input_action.h>
+#include <cmx_input_manager.h>
+#include <cmx_math.h>
+#include <cmx_physics.h>
+#include <cmx_physics_actor.h>
+#include <cmx_physics_component.h>
+#include <cmx_shapes.h>
 
 // std
 #include <glm/ext/scalar_constants.hpp>

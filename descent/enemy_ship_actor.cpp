@@ -1,24 +1,24 @@
 #include "enemy_ship_actor.h"
 
 #include "bullet_actor.h"
-#include "cmx/cmx_mesh_component.h"
 #include "gun_component.h"
 #include "ship_camera_component.h"
 
 // cmx
-#include <algorithm>
-#include <cmx/cmx_camera_component.h>
-#include <cmx/cmx_editor.h>
-#include <cmx/cmx_game.h>
-#include <cmx/cmx_input_action.h>
-#include <cmx/cmx_input_manager.h>
-#include <cmx/cmx_math.h>
-#include <cmx/cmx_physics.h>
-#include <cmx/cmx_physics_actor.h>
-#include <cmx/cmx_physics_component.h>
-#include <cmx/cmx_shapes.h>
+#include <cmx_camera_component.h>
+#include <cmx_editor.h>
+#include <cmx_game.h>
+#include <cmx_input_action.h>
+#include <cmx_input_manager.h>
+#include <cmx_math.h>
+#include <cmx_mesh_component.h>
+#include <cmx_physics.h>
+#include <cmx_physics_actor.h>
+#include <cmx_physics_component.h>
+#include <cmx_shapes.h>
 
 // std
+#include <algorithm>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/gtc/constants.hpp>
 #include <memory>

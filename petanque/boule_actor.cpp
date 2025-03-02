@@ -1,9 +1,15 @@
 #include "boule_actor.h"
-#include "cmx/cmx_mesh_component.h"
-#include "cmx/cmx_physics_component.h"
-#include "cmx/cmx_point_light_component.h"
-#include "cmx/cmx_primitives.h"
+
+// cmx
+#include <cmx_mesh_component.h>
+#include <cmx_physics_component.h>
+#include <cmx_point_light_component.h>
+#include <cmx_primitives.h>
+
+// lib
 #include <glm/geometric.hpp>
+
+// std
 #include <memory>
 
 BouleActor *BouleActor::cochonet{nullptr};

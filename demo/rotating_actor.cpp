@@ -1,12 +1,11 @@
 #include "rotating_actor.h"
 
 // cmx
-#include "cmx/cmx_game.h"
-#include "cmx/cmx_input_manager.h"
-#include "cmx/cmx_mesh_component.h"
+#include "cmx_game.h"
+#include "cmx_input_manager.h"
+#include "cmx_mesh_component.h"
 
 // lib
-#include "cmx/cmx_render_system.h"
 #include "imgui.h"
 #include <glm/ext/scalar_constants.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -51,7 +50,7 @@ void RotatingActor::editor()
     cmx::Actor::editor();
 }
 
-tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
+tinyxml2::XMLElement &RotatingActor::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement &actorElement = cmx::Actor::save(doc, parentElement);
 

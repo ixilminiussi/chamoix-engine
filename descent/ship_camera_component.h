@@ -2,8 +2,8 @@
 #define SHIP_CAMERA_COMPONENT
 
 // cmx
-#include "cmx/cmx_component.h"
-#include <cmx/cmx_camera_component.h>
+#include <cmx_camera_component.h>
+#include <cmx_component.h>
 
 class ShipCameraComponent : public cmx::CameraComponent
 {

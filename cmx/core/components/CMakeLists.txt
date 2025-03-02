@@ -1,0 +1,8 @@
+# cmx/core/components/CMakeLists.txt
+cmake_minimum_required(VERSION 3.10)
+
+target_include_directories(cmx PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+file(GLOB CORE_COMPONENTS_SOURCES *.cpp)
+
+target_sources(cmx PRIVATE ${CORE_COMPONENTS_SOURCES})

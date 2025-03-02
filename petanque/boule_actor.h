@@ -1,8 +1,10 @@
 #ifndef BOULE_ACTOR
 #define BOULE_ACTOR
 
-#include "cmx/cmx_mesh_component.h"
 #include "rigid_body_actor.h"
+
+// cmx
+#include <cmx_mesh_component.h>
 
 class BouleActor : public RigidBodyActor
 {

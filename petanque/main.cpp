@@ -4,8 +4,8 @@
 #include <cstdlib>
 
 // cmx
-#include <cmx/cmx_editor.h>
-#include <cmx/cmx_register.h>
+#include <cmx_editor.h>
+#include <cmx_register.h>
 
 int main()
 {

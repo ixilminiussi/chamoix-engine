@@ -1,10 +1,10 @@
 #include "wall_actor.h"
 
 // cmx
-#include <cmx/cmx_mesh_component.h>
-#include <cmx/cmx_physics.h>
-#include <cmx/cmx_physics_component.h>
-#include <cmx/cmx_primitives.h>
+#include <cmx_mesh_component.h>
+#include <cmx_physics.h>
+#include <cmx_physics_component.h>
+#include <cmx_primitives.h>
 
 void WallActor::onBegin()
 {

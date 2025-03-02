@@ -2,8 +2,8 @@
 #define SHIP_ACTOR
 
 // cmx
-#include <cmx/cmx_hud_component.h>
-#include <cmx/cmx_physics_actor.h>
+#include <cmx_hud_component.h>
+#include <cmx_physics_actor.h>
 
 class ShipActor : public cmx::PhysicsActor
 {
