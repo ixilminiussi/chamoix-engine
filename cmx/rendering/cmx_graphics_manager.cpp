@@ -74,7 +74,7 @@ void GraphicsManager::remove(const DrawOption *drawOption)
 
 void GraphicsManager::remove(const Drawable *drawable)
 {
-    const std::map<uint8_t, DrawOption> &drawOptions = drawable->getDrawOptions();
+    const std::map<size_t, DrawOption> &drawOptions = drawable->getDrawOptions();
 
     for (const auto [discard, drawOption] : drawOptions)
     {

@@ -17,7 +17,7 @@
 #include "cmx_viewport_actor.h"
 
 // lib
-#include "IconsMaterialSymbols.h"
+#include <IconsMaterialSymbols.h>
 #include <glm/fwd.hpp>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>

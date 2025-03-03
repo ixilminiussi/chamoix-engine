@@ -26,3 +26,6 @@
 [submodule ".external/imgui-gradient-hotfix"]
 	path = .external/imgui-gradient-hotfix
 	url = https://github.com/ixilminiussi/imgui_gradient_hotfix
+[submodule ".external/spirv-reflect"]
+	path = .external/spirv-reflect
+	url = https://github.com/KhronosGroup/SPIRV-Reflect.git

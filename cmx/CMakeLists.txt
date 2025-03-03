@@ -11,4 +11,4 @@ add_subdirectory(rendering)
 add_subdirectory(core)
 add_subdirectory(misc)
 
-target_link_libraries(cmx PRIVATE tinyxml2 imgui imguizmo imgui_gradient tinyobjloader spdlog iconfonts glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi)
+target_link_libraries(cmx PRIVATE tinyxml2 imgui imguizmo imgui_gradient tinyobjloader spdlog iconfonts glfw vulkan dl pthread X11 Xxf86vm Xrandr Xi spirv-reflect-static)

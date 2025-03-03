@@ -5,8 +5,10 @@
 #include "cmx_assets_manager.h"
 
 // lib
-#include "tinyxml2.h"
+#include <SPIRV-Reflect/spirv_reflect.h>
+#include <tinyxml2.h>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
 // std
@@ -14,6 +16,14 @@
 
 namespace cmx
 {
+
+struct BindingInfo
+{
+    uint32_t set;
+    uint32_t binding;
+    SpvReflectDescriptorType type;
+    vk::ShaderStageFlagBits shaderStage;
+};
 
 class Material
 {
@@ -42,6 +52,13 @@ class Material
 
     static void resetBoundID();
 
+    const std::vector<BindingInfo> &getBindings() const
+    {
+        return _bindings;
+    }
+    size_t getTotalSamplers() const;
+
+    void loadBindings();
     // virtual Material *newInstance() = 0;
 
     friend void AssetsManager::load(tinyxml2::XMLElement *parentElement);
@@ -49,10 +66,13 @@ class Material
     std::string name;
 
   protected:
+    Material(int ID);
+
     virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) = 0;
     virtual void createPipeline(vk::RenderPass) = 0;
 
-    Material(int ID);
+    static std::vector<SpvReflectDescriptorBinding *> loadBindings(const std::string &filename);
+    static std::vector<uint32_t> loadSpirvData(const std::string &filename);
 
     class Actor *parent{nullptr};
     bool _transparent{false};
@@ -67,6 +87,8 @@ class Material
 
     vk::PipelineLayout _pipelineLayout;
     std::unique_ptr<class Pipeline> _pipeline;
+
+    std::vector<BindingInfo> _bindings;
 
     class RenderSystem *_renderSystem{nullptr};
 

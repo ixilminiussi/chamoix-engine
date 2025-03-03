@@ -91,69 +91,7 @@ void MeshComponent::load(tinyxml2::XMLElement *componentElement)
 
 void MeshComponent::editor(int i)
 {
-    // const char *selected = _model->name.c_str();
-    // AssetsManager *assetsManager = getScene()->getAssetsManager();
-
-    // if (ImGui::BeginCombo("Model##", selected))
-    // {
-    //     for (const auto &pair : assetsManager->getModels())
-    //     {
-    //         bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
-
-    //         if (ImGui::Selectable(pair.first.c_str(), isSelected))
-    //         {
-    //             selected = pair.first.c_str();
-    //             setModel(pair.first);
-    //         }
-
-    //         if (isSelected)
-    //         {
-    //             ImGui::SetItemDefaultFocus();
-    //         }
-    //     }
-
-    //     ImGui::EndCombo();
-    // }
-
-    // selected = _texture->name.c_str();
-    // assetsManager = getScene()->getAssetsManager();
-
-    // ImGui::Checkbox("use texture", &_textured);
-
-    // if (_textured)
-    // {
-    //     if (ImGui::BeginCombo("Texture##", selected))
-    //     {
-    //         for (const auto &pair : assetsManager->getTextures())
-    //         {
-    //             bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
-
-    //             if (ImGui::Selectable(pair.first.c_str(), isSelected))
-    //             {
-    //                 selected = pair.first.c_str();
-    //                 setTexture(pair.first);
-    //             }
-
-    //             if (isSelected)
-    //             {
-    //                 ImGui::SetItemDefaultFocus();
-    //             }
-    //         }
-
-    //         ImGui::EndCombo();
-    //     }
-
-    //     ImGui::Checkbox("World space UV", &_worldSpaceUV);
-    //     if (_worldSpaceUV)
-    //     {
-    //         ImGui::SliderFloat2("UV offset", (float *)&_UVOffset, -1.f, 1.f);
-    //         ImGui::DragFloat("Scale", &_UVScale);
-    //         ImGui::DragFloat("Rotate", &_UVRotate, 1.f, -180.f, 180.f);
-    //     }
-    // }
-
-    // ImGui::ColorEdit3("Color##", (float *)&_color);
-
+    Drawable::editor(i);
     Component::editor(i);
 }
 

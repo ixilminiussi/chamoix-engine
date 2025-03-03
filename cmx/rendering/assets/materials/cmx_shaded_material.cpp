@@ -44,6 +44,20 @@ void ShadedMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 
 void ShadedMaterial::editor()
 {
+    ImGui::Checkbox("use texture", &_textured);
+
+    if (_textured)
+    {
+        ImGui::Checkbox("World space UV", &_worldSpaceUV);
+        if (_worldSpaceUV)
+        {
+            ImGui::SliderFloat2("UV offset", (float *)&_UVoffset, -1.f, 1.f);
+            ImGui::DragFloat("Scale", &_UVScale);
+            ImGui::DragFloat("Rotate", &_UVRotate, 1.f, -180.f, 180.f);
+        }
+    }
+
+    ImGui::ColorEdit3("Color##", (float *)&_color);
 }
 
 void ShadedMaterial::initialize()

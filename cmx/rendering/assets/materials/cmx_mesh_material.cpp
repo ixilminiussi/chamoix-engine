@@ -6,6 +6,7 @@
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
+#include "imgui.h"
 
 // lib
 #include <vulkan/vulkan_enums.hpp>
@@ -36,6 +37,7 @@ void MeshMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 
 void MeshMaterial::editor()
 {
+    ImGui::ColorPicker3("hue", (float *)&_color);
 }
 
 void MeshMaterial::initialize()
