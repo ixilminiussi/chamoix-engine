@@ -5,25 +5,40 @@
 #include "cmx_material.h"
 
 // lib
+#include <glm/ext/matrix_float4x4.hpp>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
 namespace cmx
 {
 
+struct BillboardPushConstant
+{
+    glm::vec4 position;
+    glm::vec4 color;
+    glm::vec2 scale;
+};
+
 class BillboardMaterial : public Material
 {
   public:
     BillboardMaterial() : Material{"shaders/billboard.vert.spv", "shaders/billboard.frag.spv"} {};
 
-    void bind(struct FrameInfo *) override;
+    void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
 
     void initialize() override;
 
+    void setHue(const glm::vec4 hue)
+    {
+        _hue = hue;
+    }
+
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
+
+    glm::vec4 _hue{1.f};
 };
 
 } // namespace cmx

@@ -2,17 +2,11 @@
 
 // cmx
 #include "cmx_actor.h"
-#include "cmx_assets_manager.h"
 #include "cmx_camera.h"
-#include "cmx_editor.h"
-#include "cmx_frame_info.h"
-#include "cmx_model.h"
 #include "cmx_register.h"
-#include "cmx_render_system.h"
 
 // lib
 #include "imgui.h"
-#include <iostream>
 #include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
@@ -32,14 +26,6 @@ void CameraComponent::onAttach()
     {
         parent->getScene()->setCamera(_camera);
     }
-
-#ifndef NDEBUG
-    AssetsManager *assetsManager = parent->getScene()->getAssetsManager();
-    if (assetsManager)
-    {
-        _model = assetsManager->getModel("cmx_camera");
-    }
-#endif
 }
 
 void CameraComponent::update(float dt)

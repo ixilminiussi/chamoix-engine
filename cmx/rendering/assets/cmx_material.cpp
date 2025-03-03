@@ -21,16 +21,6 @@ Material::Material(std::string vertPath, std::string fragPath)
     _boundID = _idProvider + 1;
 }
 
-void Material::bind(FrameInfo *frameInfo)
-{
-    if (_boundID != _id)
-    {
-        _pipeline->bind(frameInfo->commandBuffer);
-
-        _boundID = _id;
-    }
-}
-
 void Material::editor()
 {
 }
@@ -46,36 +36,17 @@ Material::Material(int ID) : _id(ID)
 
 void Material::initialize()
 {
-    RenderSystem *renderer = RenderSystem::getInstance();
+    RenderSystem *renderSystem = RenderSystem::getInstance();
 
     createPipelineLayout({});
-    createPipeline(renderer->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }
 
-void Material::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
+void Material::free()
 {
-    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;
-    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = NULL;
-    if (_renderSystem->getDevice()->device().createPipelineLayout(&pipelineLayoutInfo, nullptr, &_pipelineLayout) !=
-        vk::Result::eSuccess)
-    {
-        throw std::runtime_error("failed to create pipeline layout!");
-    }
-}
+    _pipeline->free();
 
-void Material::createPipeline(vk::RenderPass renderPass)
-{
-    assert(_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
-
-    PipelineConfigInfo pipelineConfig{};
-    Pipeline::defaultPipelineConfigInfo(pipelineConfig);
-    pipelineConfig.renderPass = renderPass;
-    pipelineConfig.pipelineLayout = _pipelineLayout;
-    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig);
+    RenderSystem::getInstance()->getDevice()->device().destroyPipelineLayout(_pipelineLayout);
 }
 
 } // namespace cmx

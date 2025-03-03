@@ -31,6 +31,10 @@ AssetsManager::AssetsManager(class Scene *parent) : _parentScene{parent}
     addModel("assets/cmx/camera.obj", "cmx_camera");
     addTexture("assets/cmx/missing-texture.png", "cmx_missing");
     addTexture("assets/cmx/point-light.png", "cmx_point_light");
+    addMaterial(new HudMaterial(), "hud_material");
+    addMaterial(new ShadedMaterial(), "shaded_material");
+    addMaterial(new MeshMaterial(), "mesh_material");
+    addMaterial(new BillboardMaterial(), "billboard_material");
 };
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
@@ -62,11 +66,6 @@ AssetsManager::~AssetsManager()
 
 void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 {
-    _materials["hud_material"] = new HudMaterial();
-    _materials["shaded_material"] = new ShadedMaterial();
-    _materials["mesh_material"] = new MeshMaterial();
-    _materials["billboard_material"] = new BillboardMaterial();
-
     if (tinyxml2::XMLElement *assetsElement = parentElement->FirstChildElement("assets"))
     {
         tinyxml2::XMLElement *modelElement = assetsElement->FirstChildElement("model");
@@ -115,12 +114,39 @@ void AssetsManager::unload()
 
         _textures.clear();
     }
+
+    {
+        auto it = _materials.begin();
+
+        while (it != _materials.end())
+        {
+            (*it).second->free();
+            spdlog::info("AssetsManager: Unloaded material [{0}]", (*it).first);
+            it++;
+        }
+
+        _materials.clear();
+    }
     spdlog::info("AssetsManager: Successfully unloaded assets manager!");
 }
 
 void AssetsManager::editor()
 {
     ImGui::Button("testing");
+}
+
+void AssetsManager::addMaterial(Material *material, const std::string &name)
+{
+    material->name = name;
+
+    if (_materials.find(name) != _materials.end())
+    {
+        _materials[name]->free();
+        delete _materials[name];
+    }
+
+    _materials[name] = material;
+    _materials[name]->initialize();
 }
 
 Material *AssetsManager::getMaterial(const std::string &name)

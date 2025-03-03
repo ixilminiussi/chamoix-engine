@@ -35,52 +35,6 @@ void MeshComponent::onAttach()
     });
 }
 
-// void MeshComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
-// {
-// if (getParent() == nullptr)
-// {
-//     spdlog::critical("MeshComponent {0}: _parent is expired", name.c_str());
-//     return;
-// }
-
-// if (!_textured && _texture == nullptr)
-// {
-//     setTexture("cmx_missing");
-// }
-// if (_texture == nullptr)
-// {
-//     spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
-//     return;
-// }
-
-// if (_model == nullptr)
-// {
-//     spdlog::error("MeshComponent <{0}->{1}>: missing model", getParent()->name.c_str(), name.c_str());
-//     return;
-// }
-
-// SimplePushConstantData push{};
-// Transform transform = getWorldSpaceTransform();
-
-// push.modelMatrix = transform.mat4();
-// push.normalMatrix = transform.normalMatrix();
-// push.normalMatrix[3] = glm::vec4(_color, 1.0f);
-
-// push.normalMatrix[0][3] = _UVOffset.x;
-// push.normalMatrix[1][3] = _UVOffset.y;
-// push.normalMatrix[2][3] = _worldSpaceUV ? _UVScale : 0.f;
-// push.normalMatrix[3][3] = _textured ? glm::radians(_UVRotate) : 100.f;
-
-// frameInfo.commandBuffer.pushConstants(pipelineLayout,
-//                                       vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-//                                       sizeof(SimplePushConstantData), &push);
-
-// _model->bind(frameInfo.commandBuffer);
-// _texture->bind(frameInfo.commandBuffer, pipelineLayout);
-
-// _model->draw(frameInfo.commandBuffer);
-// }
-
 tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);

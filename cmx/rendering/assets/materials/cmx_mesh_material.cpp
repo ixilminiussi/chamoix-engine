@@ -1,6 +1,7 @@
 #include "cmx_mesh_material.h"
 
 // cmx
+#include "cmx_drawable.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
@@ -13,7 +14,7 @@
 namespace cmx
 {
 
-void MeshMaterial::bind(FrameInfo *frameInfo)
+void MeshMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 {
     if (_boundID != _id)
     {
@@ -23,6 +24,14 @@ void MeshMaterial::bind(FrameInfo *frameInfo)
 
         _boundID = _id;
     }
+
+    EdgePushConstantData push{};
+    push.modelMatrix = drawable->getWorldSpaceTransform().mat4();
+    push.color = _color;
+
+    frameInfo->commandBuffer.pushConstants(_pipelineLayout,
+                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                           sizeof(EdgePushConstantData), &push);
 }
 
 void MeshMaterial::editor()
@@ -42,7 +51,7 @@ void MeshMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> des
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+    pushConstantRange.size = sizeof(EdgePushConstantData);
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;

@@ -12,21 +12,18 @@
 namespace cmx
 {
 
-#ifndef SIMPLE_PUSH_CONSTANT
-#define SIMPLE_PUSH_CONSTANT
 struct SimplePushConstantData
 {
     glm::mat4 modelMatrix{1.f};
     glm::mat4 normalMatrix{1.f};
 };
-#endif
 
 class ShadedMaterial : public Material
 {
   public:
     ShadedMaterial() : Material{"shaders/shaded.vert.spv", "shaders/shaded.frag.spv"} {};
 
-    void bind(struct FrameInfo *) override;
+    void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
 
     void initialize() override;
@@ -34,6 +31,13 @@ class ShadedMaterial : public Material
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
+
+    glm::vec3 _color{1.f, 1.f, 1.f};
+    glm::vec2 _UVoffset{};
+    bool _worldSpaceUV{false};
+    float _UVScale{1.f};
+    float _UVRotate{0.f};
+    bool _textured{true};
 };
 
 } // namespace cmx

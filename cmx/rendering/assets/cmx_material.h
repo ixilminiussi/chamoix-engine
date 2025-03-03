@@ -21,10 +21,11 @@ class Material
     Material(std::string vertPath, std::string fragPath);
     virtual ~Material() = default;
 
-    virtual void bind(struct FrameInfo *);
+    virtual void bind(struct FrameInfo *, const class Drawable *) = 0;
     virtual void editor();
 
     virtual void initialize();
+    virtual void free();
 
     bool isTransparent() const
     {
@@ -41,16 +42,15 @@ class Material
 
     static void resetBoundID();
 
-    Material *newInstance()
-    {
-        return new Material(_id);
-    }
+    // virtual Material *newInstance() = 0;
 
     friend void AssetsManager::load(tinyxml2::XMLElement *parentElement);
 
+    std::string name;
+
   protected:
-    virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>);
-    virtual void createPipeline(vk::RenderPass);
+    virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) = 0;
+    virtual void createPipeline(vk::RenderPass) = 0;
 
     Material(int ID);
 

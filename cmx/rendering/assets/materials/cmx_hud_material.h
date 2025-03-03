@@ -8,9 +8,6 @@
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
-// std
-#include <memory>
-
 namespace cmx
 {
 
@@ -19,7 +16,7 @@ class HudMaterial : public Material
   public:
     HudMaterial() : Material{"shaders/hud.vert.spv", "shaders/hud.frag.spv"} {};
 
-    void bind(struct FrameInfo *) override;
+    void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
 
     void initialize() override;

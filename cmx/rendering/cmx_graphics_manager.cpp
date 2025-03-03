@@ -5,12 +5,12 @@
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
 #include "cmx_light_environment.h"
+#include "cmx_material.h"
 #include "cmx_render_system.h"
+#include "cmx_texture.h"
 
 // lib
-#include <list>
 #include <spdlog/spdlog.h>
-#include <stdexcept>
 
 namespace cmx
 {
@@ -20,18 +20,21 @@ GraphicsManager::GraphicsManager()
     _renderSystem = RenderSystem::getInstance();
 }
 
-void GraphicsManager::update(Drawable *drawable, DrawOption *drawOption, unsigned int oldID)
+void GraphicsManager::update(Drawable *drawable, DrawOption *drawOption, size_t oldID)
 {
-    auto it = _drawableRenderQueue[oldID].begin();
-
-    while (it != _drawableRenderQueue[oldID].end())
+    if (oldID != 0)
     {
-        if (it->second == drawOption)
+        auto it = _drawableRenderQueue[oldID].begin();
+
+        while (it != _drawableRenderQueue[oldID].end())
         {
-            _drawableRenderQueue[oldID].erase(it);
-            break;
+            if (it->second == drawOption)
+            {
+                _drawableRenderQueue[oldID].erase(it);
+                break;
+            }
+            it++;
         }
-        it++;
     }
 
     add(drawable, drawOption);
@@ -44,7 +47,7 @@ void GraphicsManager::add(Drawable *drawable, DrawOption *drawOption)
         throw("attempted to add empty drawable to graphics manager");
     }
 
-    unsigned int id = drawOption->getMaterialID();
+    size_t id = drawOption->getMaterialID();
     if (id == 0)
     {
         return;
@@ -55,7 +58,7 @@ void GraphicsManager::add(Drawable *drawable, DrawOption *drawOption)
 
 void GraphicsManager::remove(const DrawOption *drawOption)
 {
-    unsigned int id = drawOption->getMaterialID();
+    size_t id = drawOption->getMaterialID();
     auto it = _drawableRenderQueue[id].begin();
 
     while (it != _drawableRenderQueue[id].end())
@@ -81,6 +84,9 @@ void GraphicsManager::remove(const Drawable *drawable)
 
 void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const LightEnvironment *lightEnvironment)
 {
+    Material::resetBoundID();
+    Texture::resetBoundID();
+
     if (auto camera = cameraWk.lock().get())
     {
         _noCameraFlag = false;

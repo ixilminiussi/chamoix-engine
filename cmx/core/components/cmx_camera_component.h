@@ -26,7 +26,6 @@ class CameraComponent : public Component
     CLONEABLE(CameraComponent)
 
     void update(float dt) override;
-    // void render(const FrameInfo &, vk::PipelineLayout) override;
 
     void onAttach() override;
 
@@ -42,10 +41,6 @@ class CameraComponent : public Component
   protected:
     std::shared_ptr<class Camera> _camera;
     bool _mainCamera{false};
-
-#ifndef NDEBUG
-    class Model *_model;
-#endif
 };
 
 } // namespace cmx

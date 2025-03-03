@@ -1,5 +1,6 @@
 #include "cmx_billboard_material.h"
 
+#include "cmx_drawable.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
@@ -10,7 +11,7 @@
 namespace cmx
 {
 
-void BillboardMaterial::bind(FrameInfo *frameInfo)
+void BillboardMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 {
     if (_boundID != _id)
     {
@@ -18,6 +19,17 @@ void BillboardMaterial::bind(FrameInfo *frameInfo)
 
         _boundID = _id;
     }
+
+    Transform transform = drawable->getWorldSpaceTransform();
+
+    BillboardPushConstant push{};
+    push.position = glm::vec4(transform.position, 1.f);
+    push.color = _hue;
+    push.scale = glm::vec2(transform.scale.x, transform.scale.y);
+
+    frameInfo->commandBuffer.pushConstants(_pipelineLayout,
+                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                           sizeof(BillboardPushConstant), &push);
 }
 
 void BillboardMaterial::editor()
@@ -34,12 +46,17 @@ void BillboardMaterial::initialize()
 
 void BillboardMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
+    vk::PushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(BillboardPushConstant);
+
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;
     pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = NULL;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     if (_renderSystem->getDevice()->device().createPipelineLayout(&pipelineLayoutInfo, nullptr, &_pipelineLayout) !=
         vk::Result::eSuccess)
     {

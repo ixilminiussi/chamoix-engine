@@ -10,7 +10,7 @@
 namespace cmx
 {
 
-void HudMaterial::bind(FrameInfo *frameInfo)
+void HudMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 {
     if (_boundID != _id)
     {

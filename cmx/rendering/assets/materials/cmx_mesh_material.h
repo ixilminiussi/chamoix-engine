@@ -9,34 +9,35 @@
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
-// std
-#include <memory>
-
 namespace cmx
 {
 
-#ifndef SIMPLE_PUSH_CONSTANT
-#define SIMPLE_PUSH_CONSTANT
-struct SimplePushConstantData
+struct EdgePushConstantData
 {
     glm::mat4 modelMatrix{1.f};
-    glm::mat4 normalMatrix{1.f};
+    glm::vec3 color;
 };
-#endif
 
 class MeshMaterial : public Material
 {
   public:
     MeshMaterial() : Material{"shaders/mesh.vert.spv", "shaders/mesh.frag.spv"} {};
 
-    void bind(struct FrameInfo *) override;
+    void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
 
     void initialize() override;
 
+    void setColor(const glm::vec3 color)
+    {
+        _color = color;
+    }
+
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
+
+    glm::vec3 _color{0.f, 0.f, 1.f};
 };
 
 } // namespace cmx

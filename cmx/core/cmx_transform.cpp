@@ -227,8 +227,6 @@ void Transformable::editor(class Camera *camera)
                          (float *)&localMat, NULL, (guizmoSnap) ? snap : defaultSnap);
 
     _transform.fromMat4(localMat);
-
-    _transform.editor();
 }
 
 } // namespace cmx

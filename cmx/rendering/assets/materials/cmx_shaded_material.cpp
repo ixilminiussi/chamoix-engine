@@ -1,6 +1,7 @@
 #include "cmx_shaded_material.h"
 
 // cmx
+#include "cmx_drawable.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
@@ -13,7 +14,7 @@
 namespace cmx
 {
 
-void ShadedMaterial::bind(FrameInfo *frameInfo)
+void ShadedMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 {
     if (_boundID != _id)
     {
@@ -23,6 +24,22 @@ void ShadedMaterial::bind(FrameInfo *frameInfo)
 
         _boundID = _id;
     }
+
+    SimplePushConstantData push{};
+    Transform transform = drawable->getWorldSpaceTransform();
+
+    push.modelMatrix = transform.mat4();
+    push.normalMatrix = transform.normalMatrix();
+    push.normalMatrix[3] = glm::vec4(_color, 1.0f);
+
+    push.normalMatrix[0][3] = _UVoffset.x;
+    push.normalMatrix[1][3] = _UVoffset.y;
+    push.normalMatrix[2][3] = _worldSpaceUV ? _UVScale : 0.f;
+    push.normalMatrix[3][3] = _textured ? glm::radians(_UVRotate) : 100.f;
+
+    frameInfo->commandBuffer.pushConstants(_pipelineLayout,
+                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                           sizeof(SimplePushConstantData), &push);
 }
 
 void ShadedMaterial::editor()

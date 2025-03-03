@@ -33,21 +33,21 @@ class Drawable : public virtual Transformable
         return *_parentP;
     };
 
-    void editor();
+    virtual void editor(int i);
     void load();
     void save();
 
     void render(struct FrameInfo &, DrawOption *drawOption) const;
 
-    void setDrawOption(const DrawOption &, uint8_t index = 0);
-    void setMaterial(Material *, uint8_t index = 0);
-    void setTextures(const std::vector<class Texture *>, uint8_t index = 0);
-    void setModel(Model *, uint8_t index = 0);
+    void setDrawOption(const DrawOption &, size_t index = 0);
+    void setMaterial(const std::string &, size_t index = 0);
+    void setTextures(const std::vector<std::string>, size_t index = 0);
+    void setModel(const std::string &, size_t index = 0);
 
-    const std::map<uint8_t, DrawOption> &getDrawOptions() const;
+    const std::map<size_t, DrawOption> &getDrawOptions() const;
 
   private:
-    std::map<uint8_t, DrawOption> _drawOptions;
+    std::map<size_t, DrawOption> _drawOptions;
     bool _isVisible{true};
 
     class Actor **_parentP{nullptr};

@@ -7,7 +7,9 @@
 #include "cmx_material.h"
 #include "cmx_model.h"
 #include "cmx_texture.h"
+#include <cstdio>
 #include <list>
+#include <string>
 
 namespace cmx
 {
@@ -20,7 +22,7 @@ Drawable::Drawable(Actor **parentP) : _parentP{parentP}
     }
 }
 
-void Drawable::setDrawOption(const DrawOption &drawOption, uint8_t index)
+void Drawable::setDrawOption(const DrawOption &drawOption, size_t index)
 {
     unsigned int oldID = _drawOptions[index].getMaterialID();
 
@@ -34,23 +36,32 @@ void Drawable::setDrawOption(const DrawOption &drawOption, uint8_t index)
     getParentActor()->getScene()->getGraphicsManager()->update(this, &_drawOptions[index], oldID);
 }
 
-void Drawable::setMaterial(class Material *material, uint8_t index)
+void Drawable::setMaterial(const std::string &name, size_t index)
 {
     unsigned int oldID = _drawOptions[index].getMaterialID();
 
-    _drawOptions[index].material = material;
+    AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
+    _drawOptions[index].material = assetsManager->getMaterial(name);
 
     getParentActor()->getScene()->getGraphicsManager()->update(this, &_drawOptions[index], oldID);
 }
 
-void Drawable::setTextures(const std::vector<class Texture *> textures, uint8_t index)
+void Drawable::setTextures(const std::vector<std::string> textures, size_t index)
 {
-    _drawOptions[index].textures = textures;
+    AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
+
+    _drawOptions[index].textures.clear();
+
+    for (const std::string &name : textures)
+    {
+        _drawOptions[index].textures.push_back(assetsManager->getTexture(name));
+    }
 }
 
-void Drawable::setModel(Model *model, uint8_t index)
+void Drawable::setModel(const std::string &name, size_t index)
 {
-    _drawOptions[index].model = model;
+    AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
+    _drawOptions[index].model = assetsManager->getModel(name);
 }
 
 unsigned int DrawOption::getMaterialID() const
@@ -63,8 +74,40 @@ unsigned int DrawOption::getMaterialID() const
     return material->getID();
 }
 
-void Drawable::editor()
+void Drawable::editor(int i)
 {
+    if (ImGui::TreeNode("Rendering"))
+    {
+        AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
+        for (auto &[id, drawOption] : _drawOptions)
+        {
+            if (ImGui::TreeNode(std::to_string(id).c_str()))
+            {
+                const char *selected = drawOption.material != nullptr ? drawOption.material->name.c_str() : "";
+
+                if (ImGui::BeginCombo("Material##", selected))
+                {
+                    for (const auto &pair : assetsManager->getMaterials())
+                    {
+                        bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+
+                        if (ImGui::Selectable(pair.first.c_str(), isSelected))
+                        {
+                            selected = pair.first.c_str();
+                            setMaterial(pair.first);
+                        }
+
+                        if (isSelected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+
+                    ImGui::EndCombo();
+                }
+            }
+        }
+    }
 }
 
 void Drawable::load()
@@ -77,7 +120,7 @@ void Drawable::save()
 
 void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
 {
-    drawOption->material->bind(&frameInfo);
+    drawOption->material->bind(&frameInfo, this);
 
     for (Texture *texture : drawOption->textures)
     {
@@ -95,7 +138,7 @@ void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
     }
 }
 
-const std::map<uint8_t, DrawOption> &Drawable::getDrawOptions() const
+const std::map<size_t, DrawOption> &Drawable::getDrawOptions() const
 {
     return _drawOptions;
 }

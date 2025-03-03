@@ -20,7 +20,7 @@ class GraphicsManager
     void add(class Drawable *, class DrawOption *);
     void remove(const class Drawable *);
     void remove(const class DrawOption *);
-    void update(class Drawable *, class DrawOption *, unsigned int oldID);
+    void update(class Drawable *, class DrawOption *, size_t oldID);
 
     void drawRenderQueue(std::weak_ptr<class Camera>, const class LightEnvironment *);
 

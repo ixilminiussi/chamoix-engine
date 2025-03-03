@@ -4,6 +4,7 @@
 #include "cmx_model.h"
 
 // lib
+#include <exception>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 
