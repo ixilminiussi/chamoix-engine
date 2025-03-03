@@ -35,7 +35,6 @@ void Component::render(const FrameInfo &, vk::PipelineLayout)
 void Component::editor(int i)
 {
     ImGui::PushID(i);
-    ImGui::Checkbox("is visible", &_isVisible);
 
     _transform.editor();
 
@@ -47,7 +46,6 @@ tinyxml2::XMLElement &Component::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLE
     tinyxml2::XMLElement *componentElement = doc.NewElement("component");
     componentElement->SetAttribute("type", getType().c_str());
     componentElement->SetAttribute("name", name.c_str());
-    componentElement->SetAttribute("visible", _isVisible);
     parentComponent->InsertEndChild(componentElement);
 
     _transform.save(doc, componentElement);
@@ -57,8 +55,6 @@ tinyxml2::XMLElement &Component::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLE
 
 void Component::load(tinyxml2::XMLElement *componentElement)
 {
-    _isVisible = componentElement->BoolAttribute("visible");
-
     if (tinyxml2::XMLElement *transformElement = componentElement->FirstChildElement("transform"))
     {
         _transform.load(transformElement);
@@ -89,16 +85,6 @@ std::string Component::getType() const
     }
 }
 #endif
-
-bool Component::getVisible()
-{
-    if (getParent() == nullptr)
-    {
-        return false;
-    }
-
-    return _isVisible && getParent()->getVisible();
-}
 
 void Component::setParent(Actor *actor)
 {

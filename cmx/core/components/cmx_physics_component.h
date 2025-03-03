@@ -6,9 +6,6 @@
 #include "cmx_physics_body.h"
 #include "cmx_register.h"
 
-// std
-#include <memory>
-
 namespace cmx
 {
 
@@ -16,7 +13,7 @@ class PhysicsComponent : public Component, public virtual PhysicsBody
 {
   public:
     PhysicsComponent();
-    ~PhysicsComponent();
+    ~PhysicsComponent() = default;
 
     CLONEABLE(PhysicsComponent)
 

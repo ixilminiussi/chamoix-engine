@@ -46,10 +46,11 @@ ViewportUI::~ViewportUI()
 
 void ViewportUI::initImGUI()
 {
+    RenderSystem *renderSystem = RenderSystem::getInstance();
     // 1: create descriptor pool for IMGUI
     // the size of the pool is very oversize, but it's copied from imgui demo itself.
-    Device &cmxDevice = *RenderSystem::getDevice();
-    Window &cmxWindow = *RenderSystem::_window;
+    Device &cmxDevice = *renderSystem->getDevice();
+    Window &cmxWindow = *renderSystem->_window;
 
     _imguiPool = DescriptorPool::Builder(cmxDevice)
                      .setMaxSets(1000)
@@ -84,7 +85,7 @@ void ViewportUI::initImGUI()
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = RenderSystem::_renderer->getSwapChainRenderPass();
+    init_info.RenderPass = renderSystem->_renderer->getSwapChainRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
 

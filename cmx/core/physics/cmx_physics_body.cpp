@@ -86,28 +86,28 @@ glm::mat3 PhysicsBody::getInverseInertiaTensorWorldSpace() const
     return orient * getInverseInertiaTensorLocalSpace() * glm::transpose(orient);
 }
 
-void PhysicsBody::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
-{
-#ifndef NDEBUG
-    if (!Editor::isActive())
-    {
-        return;
-    }
-#else
-    return;
-#endif
-    if (getParentActor() == nullptr)
-    {
-        spdlog::critical("MeshComponent: _parent is expired");
-        return;
-    }
-    if (_shape.get() == nullptr)
-    {
-        return;
-    }
-
-    _shape->render(frameInfo, pipelineLayout, getParentActor()->getScene()->getAssetsManager());
-}
+// void PhysicsBody::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
+// {
+// #ifndef NDEBUG
+//     if (!Editor::isActive())
+//     {
+//         return;
+//     }
+// #else
+//     return;
+// #endif
+//     if (getParentActor() == nullptr)
+//     {
+//         spdlog::critical("MeshComponent: _parent is expired");
+//         return;
+//     }
+//     if (_shape.get() == nullptr)
+//     {
+//         return;
+//     }
+//
+//     _shape->render(frameInfo, pipelineLayout, getParentActor()->getScene()->getAssetsManager());
+// }
 
 void PhysicsBody::applyCollision(float dt, const HitInfo &hitInfo, const PhysicsBody &other)
 {

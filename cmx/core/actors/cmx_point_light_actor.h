@@ -1,8 +1,8 @@
 #ifndef CMX_POINT_LIGHT_ACTOR
 #define CMX_POINT_LIGHT_ACTOR
 
-#include "cmx/cmx_point_light_component.h"
 #include "cmx_actor.h"
+#include "cmx_point_light_component.h"
 #include "cmx_register.h"
 
 namespace cmx

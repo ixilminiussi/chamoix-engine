@@ -17,14 +17,14 @@ namespace cmx
 class HudMaterial : public Material
 {
   public:
+    HudMaterial() : Material{"shaders/hud.vert.spv", "shaders/hud.frag.spv"} {};
+
     void bind(struct FrameInfo *) override;
     void editor() override;
 
     void initialize() override;
 
   protected:
-    HudMaterial() : Material{"shaders/hud.vert.spv", "shaders/hud.frag.spv"} {};
-
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 };

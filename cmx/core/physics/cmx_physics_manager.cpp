@@ -6,7 +6,6 @@
 #include "cmx_shapes.h"
 
 // lib
-#include <algorithm>
 #include <glm/ext/scalar_constants.hpp>
 
 // std
@@ -135,42 +134,6 @@ void PhysicsManager::executeStep(float dt)
         }
 
         first = false;
-    }
-}
-
-void PhysicsManager::clean()
-{
-    auto it = _rigidBodies.begin();
-    while (it != _rigidBodies.end())
-    {
-        if (*it == nullptr)
-        {
-            it = _rigidBodies.erase(it);
-            continue;
-        }
-        it++;
-    }
-
-    it = _staticBodies.begin();
-    while (it != _staticBodies.end())
-    {
-        if (*it == nullptr)
-        {
-            it = _staticBodies.erase(it);
-            continue;
-        }
-        it++;
-    }
-
-    it = _dynamicBodies.begin();
-    while (it != _dynamicBodies.end())
-    {
-        if (*it == nullptr)
-        {
-            it = _dynamicBodies.erase(it);
-            continue;
-        }
-        it++;
     }
 }
 

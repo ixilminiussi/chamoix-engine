@@ -86,7 +86,7 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
         _noCameraFlag = false;
 
         _renderSystem->checkAspectRatio(camera);
-        const FrameInfo *frameInfo = _renderSystem->beginRender(camera, lightEnvironment);
+        FrameInfo *frameInfo = _renderSystem->beginRender(camera, lightEnvironment);
 
         for (auto &[materialID, drawableQueue] : _drawableRenderQueue)
         {

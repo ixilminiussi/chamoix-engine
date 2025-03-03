@@ -4,7 +4,6 @@
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
 #include "cmx_camera.h"
-#include "cmx_edge_render_system.h"
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
 #include "cmx_model.h"
@@ -21,8 +20,6 @@ namespace cmx
 
 CameraComponent::CameraComponent() : _camera{std::make_shared<Camera>()}
 {
-    _renderZ = DEBUG_BILLBOARD_Z;
-    _requestedRenderSystem = EDGE_RENDER_SYSTEM;
 }
 
 void CameraComponent::onAttach()
@@ -51,35 +48,35 @@ void CameraComponent::update(float dt)
     _camera->setViewDirection(absoluteTransform.position, absoluteTransform.forward(), absoluteTransform.up());
 }
 
-void CameraComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
-{
-#ifndef NDEBUG
-    if (!Editor::isActive())
-    {
-        return;
-    }
-    if (getParent() == nullptr)
-    {
-        spdlog::critical("MeshComponent: _parent is expired");
-        return;
-    }
-
-    if (_model)
-    {
-        EdgePushConstantData push{};
-        push.modelMatrix = getWorldSpaceTransform().mat4();
-        push.color = _mainCamera ? glm::vec3{0.f, 1.f, 0.f} : glm::vec3{1.f, 1.f, 1.f};
-        frameInfo.commandBuffer.pushConstants(pipelineLayout,
-                                              vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-                                              sizeof(EdgePushConstantData), &push);
-
-        _model->bind(frameInfo.commandBuffer);
-        _model->draw(frameInfo.commandBuffer);
-    }
-#else
-    return;
-#endif
-}
+// void CameraComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
+// {
+// #ifndef NDEBUG
+//     if (!Editor::isActive())
+//     {
+//         return;
+//     }
+//     if (getParent() == nullptr)
+//     {
+//         spdlog::critical("MeshComponent: _parent is expired");
+//         return;
+//     }
+//
+//     if (_model)
+//     {
+//         EdgePushConstantData push{};
+//         push.modelMatrix = getWorldSpaceTransform().mat4();
+//         push.color = _mainCamera ? glm::vec3{0.f, 1.f, 0.f} : glm::vec3{1.f, 1.f, 1.f};
+//         frameInfo.commandBuffer.pushConstants(pipelineLayout,
+//                                               vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+//                                               0, sizeof(EdgePushConstantData), &push);
+//
+//         _model->bind(frameInfo.commandBuffer);
+//         _model->draw(frameInfo.commandBuffer);
+//     }
+// #else
+//     return;
+// #endif
+// }
 
 void CameraComponent::editor(int i)
 {

@@ -1,21 +1,20 @@
-#ifndef CMX_SHADED_MATERIAL
-#define CMX_SHADED_MATERIAL
+#ifndef CMX_BILLBOARD_MATERIAL
+#define CMX_BILLBOARD_MATERIAL
 
 // cmx
 #include "cmx_material.h"
 
 // lib
-#include <glm/ext/matrix_float4x4.hpp>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
 namespace cmx
 {
 
-class ShadedMaterial : public Material
+class BillboardMaterial : public Material
 {
   public:
-    ShadedMaterial() : Material{"shaders/shaded.vert.spv", "shaders/shaded.frag.spv"} {};
+    BillboardMaterial() : Material{"shaders/billboard.vert.spv", "shaders/billboard.frag.spv"} {};
 
     void bind(struct FrameInfo *) override;
     void editor() override;

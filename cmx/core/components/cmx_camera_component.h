@@ -26,7 +26,7 @@ class CameraComponent : public Component
     CLONEABLE(CameraComponent)
 
     void update(float dt) override;
-    void render(const FrameInfo &, vk::PipelineLayout) override;
+    // void render(const FrameInfo &, vk::PipelineLayout) override;
 
     void onAttach() override;
 

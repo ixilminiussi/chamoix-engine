@@ -20,20 +20,13 @@ struct DrawOption
     std::vector<class Texture *> textures{};
 
     unsigned int getMaterialID() const;
-    uint8_t getIndex() const
-    {
-        return index;
-    }
-
-  private:
-    uint8_t index{0};
 };
 
 class Drawable : public virtual Transformable
 {
   public:
     Drawable(class Actor **parentP);
-    ~Drawable();
+    virtual ~Drawable() = default;
 
     Actor *getParentActor() const
     {
@@ -44,7 +37,7 @@ class Drawable : public virtual Transformable
     void load();
     void save();
 
-    void render(const struct FrameInfo &, DrawOption *drawOption) const;
+    void render(struct FrameInfo &, DrawOption *drawOption) const;
 
     void setDrawOption(const DrawOption &, uint8_t index = 0);
     void setMaterial(Material *, uint8_t index = 0);

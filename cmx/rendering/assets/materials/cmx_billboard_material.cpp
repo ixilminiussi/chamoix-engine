@@ -1,4 +1,4 @@
-#include "cmx_hud_material.h"
+#include "cmx_billboard_material.h"
 
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
@@ -10,7 +10,7 @@
 namespace cmx
 {
 
-void HudMaterial::bind(FrameInfo *frameInfo)
+void BillboardMaterial::bind(FrameInfo *frameInfo)
 {
     if (_boundID != _id)
     {
@@ -20,19 +20,19 @@ void HudMaterial::bind(FrameInfo *frameInfo)
     }
 }
 
-void HudMaterial::editor()
+void BillboardMaterial::editor()
 {
 }
 
-void HudMaterial::initialize()
+void BillboardMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
-    createPipelineLayout({});
+    createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }
 
-void HudMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
+void BillboardMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;
@@ -47,7 +47,7 @@ void HudMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> desc
     }
 }
 
-void HudMaterial::createPipeline(vk::RenderPass renderPass)
+void BillboardMaterial::createPipeline(vk::RenderPass renderPass)
 {
     assert(_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 

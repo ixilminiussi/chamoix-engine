@@ -27,6 +27,8 @@ class AssetsManager final
 
     void editor();
 
+    class Material *getMaterial(const std::string &name);
+
     void addModel(const std::string &filepath, const std::string &name);
     void removeModel(const std::string &name);
     class Model *getModel(const std::string &name);
@@ -50,7 +52,7 @@ class AssetsManager final
 
     std::unordered_map<std::string, std::unique_ptr<class Model>> _models;
     std::unordered_map<std::string, std::unique_ptr<class Texture>> _textures;
-    std::unordered_map<std::string, std::unique_ptr<class Material>> _materials;
+    std::unordered_map<std::string, class Material *> _materials;
     // TODO:
     // fonts
     // sprites

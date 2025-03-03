@@ -1,12 +1,11 @@
 #include "cmx_point_light_component.h"
 
 // cmx
-#include "cmx/cmx_assets_manager.h"
-#include "cmx/cmx_texture.h"
-#include "cmx_billboard_render_system.h"
+#include "cmx_assets_manager.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_render_system.h"
+#include "cmx_texture.h"
 
 // lib
 #include <imgui.h>
@@ -20,8 +19,6 @@ uint32_t PointLightComponent::_keyChain{0u};
 
 PointLightComponent::PointLightComponent()
 {
-    _renderZ = TRANSPARENT_BILLBOARD_Z;
-    _requestedRenderSystem = BILLBOARD_RENDER_SYSTEM;
 }
 
 void PointLightComponent::onAttach()
@@ -47,34 +44,34 @@ void PointLightComponent::onDetach()
 
 void PointLightComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
 {
-    if (getParent() == nullptr)
-    {
-        spdlog::critical("MeshComponent <{0}>: _parent is expired", name.c_str());
-        return;
-    }
+    // if (getParent() == nullptr)
+    // {
+    //     spdlog::critical("MeshComponent <{0}>: _parent is expired", name.c_str());
+    //     return;
+    // }
 
-    if (_texture == nullptr)
-    {
-        spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
-        return;
-    }
+    // if (_texture == nullptr)
+    // {
+    //     spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
+    //     return;
+    // }
 
-    Transform transform = getWorldSpaceTransform();
-    _absolutePosition = transform.position;
-    _absoluteScaleXY = glm::vec2(transform.scale.x, transform.scale.y);
+    // Transform transform = getWorldSpaceTransform();
+    // _absolutePosition = transform.position;
+    // _absoluteScaleXY = glm::vec2(transform.scale.x, transform.scale.y);
 
-    BillboardPushConstant pushConstant;
-    pushConstant.position = glm::vec4(_absolutePosition, 1.0f);
-    pushConstant.color = glm::vec4(_lightColor, _lightIntensity);
-    pushConstant.scale = _absoluteScaleXY;
+    // BillboardPushConstant pushConstant;
+    // pushConstant.position = glm::vec4(_absolutePosition, 1.0f);
+    // pushConstant.color = glm::vec4(_lightColor, _lightIntensity);
+    // pushConstant.scale = _absoluteScaleXY;
 
-    frameInfo.commandBuffer.pushConstants(pipelineLayout,
-                                          vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-                                          sizeof(BillboardPushConstant), &pushConstant);
+    // frameInfo.commandBuffer.pushConstants(pipelineLayout,
+    //                                       vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+    //                                       sizeof(BillboardPushConstant), &pushConstant);
 
-    _texture->bind(frameInfo.commandBuffer, pipelineLayout);
+    // _texture->bind(frameInfo.commandBuffer, pipelineLayout);
 
-    frameInfo.commandBuffer.draw(6, 1, 0, 0);
+    // frameInfo.commandBuffer.draw(6, 1, 0, 0);
 }
 
 void PointLightComponent::editor(int i)

@@ -1,12 +1,15 @@
 #include "cmx_assets_manager.h"
 
 // cmx
-#include "cmx_game.h"
+#include "cmx_billboard_material.h"
 #include "cmx_hud_material.h"
+#include "cmx_mesh_material.h"
 #include "cmx_model.h"
+#include "cmx_pipeline.h"
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
 #include "cmx_scene.h"
+#include "cmx_shaded_material.h"
 #include "cmx_texture.h"
 
 // lib
@@ -59,7 +62,10 @@ AssetsManager::~AssetsManager()
 
 void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 {
-    _materials["hud_material"] = std::make_unique<HudMaterial>();
+    _materials["hud_material"] = new HudMaterial();
+    _materials["shaded_material"] = new ShadedMaterial();
+    _materials["mesh_material"] = new MeshMaterial();
+    _materials["billboard_material"] = new BillboardMaterial();
 
     if (tinyxml2::XMLElement *assetsElement = parentElement->FirstChildElement("assets"))
     {
@@ -117,6 +123,17 @@ void AssetsManager::editor()
     ImGui::Button("testing");
 }
 
+Material *AssetsManager::getMaterial(const std::string &name)
+{
+    if (_materials.find(name) == _materials.end())
+    {
+        spdlog::warn("AssetsManager: No such material named '{0}'", name);
+        return nullptr;
+    }
+
+    return _materials[name];
+}
+
 void AssetsManager::addModel(const std::string &filepath, const std::string &name)
 {
     if (_models.find(name) != _models.end())
@@ -125,7 +142,7 @@ void AssetsManager::addModel(const std::string &filepath, const std::string &nam
     }
     else
     {
-        Device *device = RenderSystem::getDevice();
+        Device *device = RenderSystem::getInstance()->getDevice();
         if (device)
         {
             _models[name] = std::unique_ptr<Model>(Model::createModelFromFile(device, filepath, name));
@@ -134,27 +151,6 @@ void AssetsManager::addModel(const std::string &filepath, const std::string &nam
 }
 
 void AssetsManager::removeModel(const std::string &name)
-{
-    // TODO: implement
-}
-
-void AssetsManager::addTexture(const std::string &filepath, const std::string &name)
-{
-    if (_textures.find(name) != _textures.end())
-    {
-        spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
-    }
-    else
-    {
-        Device *device = RenderSystem::getDevice();
-        if (device)
-        {
-            _textures[name] = std::unique_ptr<Texture>(Texture::createTextureFromFile(device, filepath, name));
-        }
-    }
-}
-
-void AssetsManager::removeTexture(const std::string &name)
 {
     // TODO: implement
 }
@@ -168,6 +164,27 @@ Model *AssetsManager::getModel(const std::string &name)
     }
 
     return _models[name].get();
+}
+
+void AssetsManager::addTexture(const std::string &filepath, const std::string &name)
+{
+    if (_textures.find(name) != _textures.end())
+    {
+        spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
+    }
+    else
+    {
+        Device *device = RenderSystem::getInstance()->getDevice();
+        if (device)
+        {
+            _textures[name] = std::unique_ptr<Texture>(Texture::createTextureFromFile(device, filepath, name));
+        }
+    }
+}
+
+void AssetsManager::removeTexture(const std::string &name)
+{
+    // TODO: implement
 }
 
 Texture *AssetsManager::getTexture(const std::string &name)

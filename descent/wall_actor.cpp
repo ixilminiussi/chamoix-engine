@@ -15,5 +15,4 @@ void WallActor::onBegin()
 
     std::shared_ptr<cmx::MeshComponent> _meshComponent = std::make_shared<cmx::MeshComponent>();
     attachComponent(_meshComponent);
-    _meshComponent->setModel(PRIMITIVE_CUBE);
 }

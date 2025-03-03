@@ -20,10 +20,6 @@ Drawable::Drawable(Actor **parentP) : _parentP{parentP}
     }
 }
 
-Drawable::~Drawable()
-{
-}
-
 void Drawable::setDrawOption(const DrawOption &drawOption, uint8_t index)
 {
     unsigned int oldID = _drawOptions[index].getMaterialID();
@@ -79,9 +75,9 @@ void Drawable::save()
 {
 }
 
-void Drawable::render(const FrameInfo &frameInfo, DrawOption *drawOption) const
+void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
 {
-    drawOption->material->bind(frameInfo.commandBuffer);
+    drawOption->material->bind(&frameInfo);
 
     for (Texture *texture : drawOption->textures)
     {

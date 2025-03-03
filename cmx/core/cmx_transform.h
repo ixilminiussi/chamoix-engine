@@ -49,6 +49,10 @@ struct Transform
 class Transformable
 {
   public:
+    Transformable() = default;
+    Transformable(const Transform &transform) : _transform{transform} {};
+    virtual ~Transformable() = default;
+
     virtual const Transform &getLocalSpaceTransform() const = 0;
     virtual Transform getWorldSpaceTransform() const = 0;
 

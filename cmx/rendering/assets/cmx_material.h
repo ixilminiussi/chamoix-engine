@@ -18,7 +18,8 @@ namespace cmx
 class Material
 {
   public:
-    ~Material();
+    Material(std::string vertPath, std::string fragPath);
+    virtual ~Material() = default;
 
     virtual void bind(struct FrameInfo *);
     virtual void editor();
@@ -51,7 +52,6 @@ class Material
     virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>);
     virtual void createPipeline(vk::RenderPass);
 
-    Material(std::string vertPath, std::string fragPath);
     Material(int ID);
 
     class Actor *parent{nullptr};

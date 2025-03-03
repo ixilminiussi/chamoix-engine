@@ -63,8 +63,6 @@ class Component : public virtual Transformable
     {
         return _scene;
     }
-
-    bool getVisible();
     // getters and setters :: end
 
     std::string name;

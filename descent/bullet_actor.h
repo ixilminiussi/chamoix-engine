@@ -1,9 +1,9 @@
 #ifndef BULLET_ACTOR
 #define BULLET_ACTOR
 
-#include <cmx/cmx_billboard_component.h>
-#include <cmx/cmx_component.h>
-#include <cmx/cmx_physics_actor.h>
+#include <cmx_billboard_component.h>
+#include <cmx_component.h>
+#include <cmx_physics_actor.h>
 
 struct BulletInfo
 {
@@ -23,7 +23,7 @@ class BulletActor : public cmx::PhysicsActor
     void onBegin() override;
     void update(float dt) override;
 
-    void onBeginOverlap(class cmx::PhysicsComponent *ownedComponent, class cmx::PhysicsComponent *overlappingComponent,
+    void onBeginOverlap(class cmx::PhysicsBody *ownedBody, class cmx::PhysicsBody *overlappingBody,
                         cmx::Actor *overlappingActor, const cmx::HitInfo &) override;
 
     void editor() override {}; // should not be edited

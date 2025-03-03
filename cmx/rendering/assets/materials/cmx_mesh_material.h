@@ -1,5 +1,5 @@
-#ifndef CMX_SHADED_MATERIAL
-#define CMX_SHADED_MATERIAL
+#ifndef CMX_MESH_MATERIAL
+#define CMX_MESH_MATERIAL
 
 // cmx
 #include "cmx_material.h"
@@ -9,13 +9,16 @@
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
+// std
+#include <memory>
+
 namespace cmx
 {
 
-class ShadedMaterial : public Material
+class MeshMaterial : public Material
 {
   public:
-    ShadedMaterial() : Material{"shaders/shaded.vert.spv", "shaders/shaded.frag.spv"} {};
+    MeshMaterial() : Material{"shaders/mesh.vert.spv", "shaders/mesh.frag.spv"} {};
 
     void bind(struct FrameInfo *) override;
     void editor() override;

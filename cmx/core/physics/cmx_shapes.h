@@ -2,7 +2,6 @@
 #define SHAPES
 
 // cmx
-#include "cmx_drawable.h"
 #include "cmx_physics_body.h"
 #include "cmx_transform.h"
 
@@ -10,9 +9,6 @@
 #include <glm/ext/vector_float3.hpp>
 #include <set>
 #include <vulkan/vulkan.hpp>
-
-// std
-#include <memory>
 
 namespace cmx
 {
@@ -41,12 +37,10 @@ inline HitInfo HitInfo::getFlipped() const
     return copy;
 }
 
-class Shape : public virtual Transformable, public virtual Drawable
+class Shape : public virtual Transformable
 {
   public:
     Shape(Transformable *parent);
-
-    virtual void render(const struct FrameInfo &, vk::PipelineLayout, class AssetsManager *) {};
 
     virtual bool overlapsWith(const Shape &, HitInfo &) const = 0;
     virtual bool overlapsWith(const class Sphere &, HitInfo &) const = 0;
@@ -89,8 +83,6 @@ class Sphere : public Shape
     Sphere(cmx::Transformable *);
     ~Sphere() {};
 
-    void render(const struct FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
-
     bool overlapsWith(const Shape &, HitInfo &) const override;
     bool overlapsWith(const Sphere &, HitInfo &) const override;
     bool overlapsWith(const Plane &, HitInfo &) const override;
@@ -112,8 +104,6 @@ class Cuboid : public Shape
 {
   public:
     Cuboid(cmx::Transformable *);
-
-    virtual void render(const struct FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
 
     ~Cuboid() {};
 
@@ -148,8 +138,6 @@ class Plane : public Cuboid
     using Cuboid::overlapsWith;
 
     Plane(cmx::Transformable *);
-
-    virtual void render(const struct FrameInfo &, vk::PipelineLayout, class AssetsManager *) override;
 
     ~Plane() {};
 

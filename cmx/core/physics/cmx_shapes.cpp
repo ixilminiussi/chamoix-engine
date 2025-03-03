@@ -1,17 +1,11 @@
 #include "cmx_shapes.h"
 
 // cmx
-#include "cmx_assets_manager.h"
-#include "cmx_edge_render_system.h"
-#include "cmx_frame_info.h"
 #include "cmx_math.h"
-#include "cmx_model.h"
 #include "cmx_physics_actor.h"
-#include "cmx_physics_component.h"
 #include "cmx_primitives.h"
 
 // lib
-#include "imgui.h"
 #include <glm/ext/matrix_projection.hpp>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -97,11 +91,11 @@ void Shape::reassess()
         {
             if (auto ourComponent = dynamic_cast<PhysicsBody *>(_parent))
             {
-                if (auto ourActor = dynamic_cast<PhysicsActor *>(ourComponent->getParent()))
+                if (auto ourActor = dynamic_cast<PhysicsActor *>(ourComponent->getParentActor()))
                 {
                     if (*previousIt != nullptr)
                     {
-                        ourActor->onEndOverlap(ourComponent, *previousIt, (*previousIt)->getParent());
+                        ourActor->onEndOverlap(ourComponent, *previousIt, (*previousIt)->getParentActor());
                     }
                     else
                     {
@@ -134,28 +128,28 @@ std::string Sphere::getName() const
     return PRIMITIVE_SPHERE;
 }
 
-void Sphere::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
-{
-    EdgePushConstantData push{};
-
-    Transform transform = getWorldSpaceTransform();
-    transform.scale.x = getRadius();
-    transform.scale.y = transform.scale.x;
-    transform.scale.z = transform.scale.y;
-
-    push.modelMatrix = transform.mat4();
-    push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
-
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
-                       &push);
-
-    if (Model *model = assetsManager->getModel(PRIMITIVE_SPHERE))
-    {
-        model->bind(frameInfo.commandBuffer);
-        model->draw(frameInfo.commandBuffer);
-    }
-}
+// void Sphere::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
+// {
+//     EdgePushConstantData push{};
+//
+//     Transform transform = getWorldSpaceTransform();
+//     transform.scale.x = getRadius();
+//     transform.scale.y = transform.scale.x;
+//     transform.scale.z = transform.scale.y;
+//
+//     push.modelMatrix = transform.mat4();
+//     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
+//
+//     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+//                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
+//                        &push);
+//
+//     if (Model *model = assetsManager->getModel(PRIMITIVE_SPHERE))
+//     {
+//         model->bind(frameInfo.commandBuffer);
+//         model->draw(frameInfo.commandBuffer);
+//     }
+// }
 
 bool Sphere::overlapsWith(const Shape &other, HitInfo &hitInfo) const
 {
@@ -255,25 +249,25 @@ std::string Cuboid::getName() const
     return PRIMITIVE_CUBE;
 }
 
-void Cuboid::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
-{
-    EdgePushConstantData push{};
-
-    Transform transform = getWorldSpaceTransform();
-
-    push.modelMatrix = transform.mat4();
-    push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
-
-    frameInfo.commandBuffer.pushConstants(pipelineLayout,
-                                          vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-                                          sizeof(EdgePushConstantData), &push);
-
-    if (Model *model = assetsManager->getModel(PRIMITIVE_CUBE))
-    {
-        model->bind(frameInfo.commandBuffer);
-        model->draw(frameInfo.commandBuffer);
-    }
-}
+// void Cuboid::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
+// {
+//     EdgePushConstantData push{};
+//
+//     Transform transform = getWorldSpaceTransform();
+//
+//     push.modelMatrix = transform.mat4();
+//     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
+//
+//     frameInfo.commandBuffer.pushConstants(pipelineLayout,
+//                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+//                                           sizeof(EdgePushConstantData), &push);
+//
+//     if (Model *model = assetsManager->getModel(PRIMITIVE_CUBE))
+//     {
+//         model->bind(frameInfo.commandBuffer);
+//         model->draw(frameInfo.commandBuffer);
+//     }
+// }
 
 bool Cuboid::overlapsWith(const Shape &other, HitInfo &hitInfo) const
 {
@@ -570,25 +564,25 @@ std::string Plane::getName() const
     return PRIMITIVE_PLANE;
 }
 
-void Plane::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
-{
-    EdgePushConstantData push{};
-
-    Transform transform = getWorldSpaceTransform();
-
-    push.modelMatrix = transform.mat4();
-    push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
-
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
-                       &push);
-
-    if (Model *model = assetsManager->getModel(PRIMITIVE_PLANE))
-    {
-        model->bind(frameInfo.commandBuffer);
-        model->draw(frameInfo.commandBuffer);
-    }
-}
+// void Plane::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
+// {
+//     EdgePushConstantData push{};
+//
+//     Transform transform = getWorldSpaceTransform();
+//
+//     push.modelMatrix = transform.mat4();
+//     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
+//
+//     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+//                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(EdgePushConstantData),
+//                        &push);
+//
+//     if (Model *model = assetsManager->getModel(PRIMITIVE_PLANE))
+//     {
+//         model->bind(frameInfo.commandBuffer);
+//         model->draw(frameInfo.commandBuffer);
+//     }
+// }
 
 bool Plane::overlapsWith(const Plane &other, HitInfo &hitInfo) const
 {

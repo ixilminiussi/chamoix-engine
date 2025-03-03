@@ -14,9 +14,9 @@ class ShipActor : public cmx::PhysicsActor
 
     void update(float dt) override;
 
-    void onBeginOverlap(class cmx::PhysicsComponent *ownedComponent, class cmx::PhysicsComponent *overlappingComponent,
+    void onBeginOverlap(class cmx::PhysicsBody *ownedBody, class cmx::PhysicsBody *overlappingBody,
                         cmx::Actor *overlappingActor, const cmx::HitInfo &) override;
-    void onEndOverlap(class cmx::PhysicsComponent *ownedComponent, class cmx::PhysicsComponent *overlappingComponent,
+    void onEndOverlap(class cmx::PhysicsBody *ownedBody, class cmx::PhysicsBody *overlappingBody,
                       cmx::Actor *overlappingActor) override;
 
     void onMovementInput(float dt, glm::vec2);

@@ -17,6 +17,7 @@ class PhysicsBody : public virtual Transformable
 {
   public:
     PhysicsBody(class Actor **parentP);
+    virtual ~PhysicsBody() = default;
 
     Actor *getParentActor() const
     {

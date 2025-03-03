@@ -1,14 +1,15 @@
 #ifndef CMX_HUD_COMPONENT
 #define CMX_HUD_COMPONENT
 
-#include <cmx/cmx_component.h>
-#include <cmx/cmx_frame_info.h>
-#include <cmx/cmx_register.h>
+#include <cmx_component.h>
+#include <cmx_drawable.h>
+#include <cmx_frame_info.h>
+#include <cmx_register.h>
 
 namespace cmx
 {
 
-class HudComponent : public Component
+class HudComponent : public Component, public virtual Drawable
 {
   public:
     HudComponent();
@@ -17,10 +18,6 @@ class HudComponent : public Component
     CLONEABLE(HudComponent)
 
     void onAttach() override;
-    void render(const FrameInfo &, vk::PipelineLayout) override;
-
-    void setTexture(const std::string &name);
-    std::string getTextureName() const;
 
   protected:
     class Texture *_texture{nullptr};

@@ -1,10 +1,10 @@
 #ifndef ROOM_ACTOR
 #define ROOM_ACTOR
 
-#include "cmx/cmx_mesh_component.h"
-#include "cmx/cmx_physics_component.h"
-#include <cmx/cmx_mesh_actor.h>
-#include <cmx/cmx_physics_actor.h>
+#include <cmx_mesh_actor.h>
+#include <cmx_mesh_component.h>
+#include <cmx_physics_actor.h>
+#include <cmx_physics_component.h>
 
 class RoomActor : public cmx::Actor
 {

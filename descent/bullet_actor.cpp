@@ -1,10 +1,10 @@
 #include "bullet_actor.h"
-#include "cmx/cmx_shapes.h"
 
 // cmx
-#include <cmx/cmx_billboard_component.h>
-#include <cmx/cmx_physics.h>
-#include <cmx/cmx_physics_component.h>
+#include <cmx_billboard_component.h>
+#include <cmx_physics.h>
+#include <cmx_physics_component.h>
+#include <cmx_shapes.h>
 
 unsigned int BulletActor::bulletId{0};
 
@@ -38,7 +38,7 @@ void BulletActor::setBulletInfo(const BulletInfo &info)
     _physicsComponent->setMask(info.mask);
 }
 
-void BulletActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
+void BulletActor::onBeginOverlap(cmx::PhysicsBody *ownedBody, cmx::PhysicsBody *overlappingBody,
                                  cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
 {
     if (_bounceCount <= 0)
