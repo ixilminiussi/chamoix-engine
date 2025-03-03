@@ -17,8 +17,6 @@ class PhysicsComponent : public Component, public virtual PhysicsBody
 
     CLONEABLE(PhysicsComponent)
 
-    void render(const struct FrameInfo &, vk::PipelineLayout) override;
-
     void onDetach() override;
     void onAttach() override;
 

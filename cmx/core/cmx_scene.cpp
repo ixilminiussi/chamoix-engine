@@ -11,7 +11,6 @@
 #include "cmx_graphics_manager.h"
 #include "cmx_light_environment.h"
 #include "cmx_physics_body.h"
-#include "cmx_physics_component.h"
 #include "cmx_physics_manager.h"
 #include "cmx_register.h"
 #include "cmx_utils.h"
@@ -230,7 +229,7 @@ void Scene::removeComponent(std::shared_ptr<Component> component)
     {
         _graphicsManager->remove(drawable.get());
     }
-    if (std::shared_ptr<PhysicsBody> physicsBody = std::dynamic_pointer_cast<PhysicsComponent>(component))
+    if (std::shared_ptr<PhysicsBody> physicsBody = std::dynamic_pointer_cast<PhysicsBody>(component))
     {
         _physicsManager->remove(physicsBody.get());
     }
@@ -269,7 +268,7 @@ void Scene::updateComponents(float dt)
             {
                 _graphicsManager->remove(drawable.get());
             }
-            if (std::shared_ptr<PhysicsBody> physicsBody = std::dynamic_pointer_cast<PhysicsComponent>(component))
+            if (std::shared_ptr<PhysicsBody> physicsBody = std::dynamic_pointer_cast<PhysicsBody>(component))
             {
                 _physicsManager->remove(physicsBody.get());
             }

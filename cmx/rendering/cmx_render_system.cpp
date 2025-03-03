@@ -61,6 +61,8 @@ RenderSystem::RenderSystem()
             .build();
 
     _samplerDescriptorSets.reserve(MAX_SAMPLER_SETS);
+
+    initializeUbo();
 }
 
 RenderSystem::~RenderSystem()
