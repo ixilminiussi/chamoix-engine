@@ -344,6 +344,8 @@ void ViewportUI::renderSceneManager()
 
 void ViewportUI::renderSceneTree()
 {
+    static Actor *editing{nullptr};
+
     if (_attachedScene == nullptr)
     {
         spdlog::warn("ViewportUI: No attached scene!");
@@ -367,10 +369,34 @@ void ViewportUI::renderSceneTree()
         Actor *actor = *it;
         if (actor)
         {
-            if (ImGui::Button(actor->name.c_str()))
+            if (editing == actor)
             {
-                _inspectedActor = *it;
-                renderInspector();
+                static char buffer[100];
+                if (ImGui::Button(ICON_MS_CHECK))
+                {
+                    if (_attachedScene->renameActor(actor, std::string(buffer)))
+                        editing = nullptr;
+                }
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(135);
+                if (ImGui::InputText("##", buffer, 100, ImGuiInputTextFlags_EnterReturnsTrue))
+                {
+                    if (_attachedScene->renameActor(actor, std::string(buffer)))
+                        editing = nullptr;
+                }
+            }
+            else
+            {
+                if (ImGui::Button(ICON_MS_EDIT))
+                {
+                    editing = actor;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(actor->name.c_str()))
+                {
+                    _inspectedActor = *it;
+                    renderInspector();
+                }
             }
             ImGui::SameLine();
             if (ImGui::Button(ICON_MS_DELETE))
@@ -391,7 +417,7 @@ void ViewportUI::renderSceneTree()
 
     ImGui::SeparatorText("New Actor");
     ImGui::PushID(i++);
-    ImGui::SetNextItemWidth(203);
+    ImGui::SetNextItemWidth(170);
     if (ImGui::BeginCombo("##", selected))
     {
         for (const auto &pair : _cmxRegister->getActorRegister())
@@ -413,13 +439,10 @@ void ViewportUI::renderSceneTree()
     }
     ImGui::PopID();
 
-    static char buffer[100];
-    ImGui::SetNextItemWidth(170);
-    ImGui::InputText("##", buffer, 100);
     ImGui::SameLine();
     if (ImGui::Button(ICON_MS_ADD))
     {
-        std::string name = (std::string(buffer).compare("") == 0) ? std::string(selected) : std::string(buffer);
+        std::string name = std::string(selected);
         _cmxRegister->spawnActor(selected, _attachedScene, name.c_str());
     }
 

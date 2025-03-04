@@ -90,6 +90,8 @@ class Scene
         return _lightEnvironment.get();
     }
 
+    bool renameActor(Actor *, std::string name);
+
     std::string name;
 
   private:

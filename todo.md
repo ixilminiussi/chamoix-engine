@@ -15,6 +15,7 @@
 
 ### editor
 - [ ] rename elements
+- [ ] camera renderer
 
 ### misc
 - [ ] test physics

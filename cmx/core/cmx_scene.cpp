@@ -205,6 +205,23 @@ void Scene::removeActor(Actor *actor)
     spdlog::info("Scene {0}: Removed actor <{1}>", name, actor->name);
 }
 
+bool Scene::renameActor(Actor *actor, std::string name)
+{
+    if (name.compare("") == 0)
+        return false;
+
+    for (auto &[uint32_t, actor] : _actors)
+    {
+        if (name.compare(actor->name) == 0)
+        {
+            return false;
+        }
+    }
+
+    actor->name = name;
+    return true;
+}
+
 void Scene::updateActors(float dt)
 {
     auto it = _actors.begin();
