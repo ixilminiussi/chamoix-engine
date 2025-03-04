@@ -3,32 +3,18 @@
 ## Chamoix
 
 ### Textures
-- [X] Shader
-- [X] Bind
+- [ ] 3d textures
 
-### Play state
-- [X] Toggle between
-- [ ] Load/Create new scenes
-- [X] Toggle mesh renderer
+### Materials
+- [ ] save
+- [ ] load
+- [ ] adapt existing scenes
+- [ ] material instances
+- [ ] dithering
 
-### Sounds
-- [ ] AssetsManager
-- [ ] FMOD Integration
+### editor
+- [ ] rename elements
 
-## Descent
+### misc
+- [ ] test physics
 
-### Walls
-- [X] Create collisions / physics
-
-### Shaceship 
-- [X] Movement
-- [X] Projectiles
-
-### Enemies
-- [ ] Spawner
-- [X] AI
-
-### Levels
-- [ ] Change level
-
-### Pause menu
