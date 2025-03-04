@@ -28,7 +28,7 @@ struct BindingInfo
 class Material
 {
   public:
-    Material(std::string vertPath, std::string fragPath);
+    Material(std::string vertPath, std::string fragPath, bool modelBased = true);
     virtual ~Material() = default;
 
     virtual void bind(struct FrameInfo *, const class Drawable *) = 0;
@@ -48,6 +48,10 @@ class Material
     vk::PipelineLayout getPipelineLayout() const
     {
         return _pipelineLayout;
+    }
+    bool needsModel() const
+    {
+        return _modelBased;
     }
 
     static void resetBoundID();
@@ -76,6 +80,8 @@ class Material
 
     class Actor *parent{nullptr};
     bool _transparent{false};
+
+    bool _modelBased;
 
     const size_t _id;
     static size_t _idProvider;

@@ -16,6 +16,8 @@ void BillboardMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
     if (_boundID != _id)
     {
         _pipeline->bind(frameInfo->commandBuffer);
+        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, 1,
+                                                    &frameInfo->globalDescriptorSet, 0, nullptr);
 
         _boundID = _id;
     }
@@ -39,6 +41,8 @@ void BillboardMaterial::editor()
 void BillboardMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
+
+    loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());

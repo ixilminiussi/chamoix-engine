@@ -29,8 +29,10 @@ AssetsManager::AssetsManager(class Scene *parent) : _parentScene{parent}
     addModel("assets/cmx/sphere.obj", PRIMITIVE_SPHERE);
     addModel("assets/cmx/torus.obj", PRIMITIVE_TORUS);
     addModel("assets/cmx/camera.obj", "cmx_camera");
+
     addTexture("assets/cmx/missing-texture.png", "cmx_missing");
     addTexture("assets/cmx/point-light.png", "cmx_point_light");
+
     addMaterial(new HudMaterial(), "hud_material");
     addMaterial(new ShadedMaterial(), "shaded_material");
     addMaterial(new MeshMaterial(), "mesh_material");
@@ -137,7 +139,11 @@ void AssetsManager::editor()
 
 void AssetsManager::addMaterial(Material *material, const std::string &name)
 {
+    if (material == nullptr)
+        return;
+
     material->name = name;
+    material->initialize();
 
     if (_materials.find(name) != _materials.end())
     {
@@ -146,7 +152,6 @@ void AssetsManager::addMaterial(Material *material, const std::string &name)
     }
 
     _materials[name] = material;
-    _materials[name]->initialize();
 }
 
 Material *AssetsManager::getMaterial(const std::string &name)

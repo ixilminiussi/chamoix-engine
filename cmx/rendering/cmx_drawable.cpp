@@ -11,6 +11,7 @@
 // lib
 #include <IconsMaterialSymbols.h>
 #include <SPIRV-Reflect/spirv_reflect.h>
+#include <cstring>
 #include <imgui.h>
 
 // std
@@ -39,8 +40,6 @@ void Drawable::setDrawOption(const DrawOption &drawOption, size_t index)
         return;
     }
 
-    drawOption.material->loadBindings();
-
     if (drawOption.textures.size() > drawOption.material->getTotalSamplers())
     {
         spdlog::error("Drawable: too many textures assigned to a material [{0}] which does not support it",
@@ -61,7 +60,6 @@ void Drawable::setMaterial(const std::string &name, size_t index)
 
     AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
     _drawOptions[index].material = assetsManager->getMaterial(name);
-    _drawOptions[index].material->loadBindings();
 
     getParentActor()->getScene()->getGraphicsManager()->update(this, &_drawOptions[index], oldID);
 }
@@ -103,28 +101,7 @@ void Drawable::editor(int i)
         {
             if (ImGui::TreeNode(std::to_string(id).c_str()))
             {
-                const char *selected = drawOption.model != nullptr ? drawOption.model->name.c_str() : "";
-
-                if (ImGui::BeginCombo("Model##", selected))
-                {
-                    for (const auto &pair : assetsManager->getModels())
-                    {
-                        bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
-
-                        if (ImGui::Selectable(pair.first.c_str(), isSelected))
-                        {
-                            selected = pair.first.c_str();
-                            setModel(pair.first, id);
-                        }
-
-                        if (isSelected)
-                        {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                    }
-
-                    ImGui::EndCombo();
-                }
+                const char *selected;
 
                 selected = drawOption.material != nullptr ? drawOption.material->name.c_str() : "";
 
@@ -134,7 +111,8 @@ void Drawable::editor(int i)
                     {
                         bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 
-                        if (ImGui::Selectable(pair.first.c_str(), isSelected))
+                        if (ImGui::Selectable(pair.first.c_str(), isSelected) &&
+                            strcmp(selected, pair.first.c_str()) != 0)
                         {
                             selected = pair.first.c_str();
                             setMaterial(pair.first, id);
@@ -153,6 +131,32 @@ void Drawable::editor(int i)
                 {
                     ImGui::Text("Parameters:");
                     drawOption.material->editor();
+
+                    if (drawOption.material->needsModel())
+                    {
+                        selected = drawOption.model != nullptr ? drawOption.model->name.c_str() : "";
+
+                        if (ImGui::BeginCombo("Model##", selected))
+                        {
+                            for (const auto &pair : assetsManager->getModels())
+                            {
+                                bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+
+                                if (ImGui::Selectable(pair.first.c_str(), isSelected))
+                                {
+                                    selected = pair.first.c_str();
+                                    setModel(pair.first, id);
+                                }
+
+                                if (isSelected)
+                                {
+                                    ImGui::SetItemDefaultFocus();
+                                }
+                            }
+
+                            ImGui::EndCombo();
+                        }
+                    }
 
                     ImGui::Text("Textures:");
                     const std::vector<BindingInfo> &bindings = drawOption.material->getBindings();
@@ -215,6 +219,8 @@ void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
     size_t textureCount = drawOption->material->getTotalSamplers();
     if (drawOption->textures.size() < textureCount)
         return;
+    if (drawOption->material->needsModel() && drawOption->model == nullptr)
+        return;
 
     drawOption->material->bind(&frameInfo, this);
     for (int i = 0; i < textureCount; i++)
@@ -222,7 +228,7 @@ void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
         drawOption->textures[i]->bind(frameInfo.commandBuffer, drawOption->material->getPipelineLayout());
     }
 
-    if (drawOption->model != nullptr)
+    if (drawOption->material->needsModel())
     {
         drawOption->model->bind(frameInfo.commandBuffer);
         drawOption->model->draw(frameInfo.commandBuffer);

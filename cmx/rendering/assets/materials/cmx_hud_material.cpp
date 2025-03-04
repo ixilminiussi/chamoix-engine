@@ -28,6 +28,8 @@ void HudMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
+    loadBindings();
+
     createPipelineLayout({});
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }

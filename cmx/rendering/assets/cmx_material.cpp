@@ -21,8 +21,8 @@ namespace cmx
 size_t Material::_idProvider{0};
 size_t Material::_boundID{1};
 
-Material::Material(std::string vertPath, std::string fragPath)
-    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _id{_idProvider}
+Material::Material(std::string vertPath, std::string fragPath, bool modelBased)
+    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{_idProvider}
 {
     _renderSystem = RenderSystem::getInstance();
 
@@ -75,6 +75,7 @@ void Material::loadBindings()
               });
 
     _bindings.clear();
+    _bindings = std::vector<BindingInfo>{};
     _bindings.reserve(vertBindings.size() + fragBindings.size());
 
     auto vertIt = vertBindings.begin();

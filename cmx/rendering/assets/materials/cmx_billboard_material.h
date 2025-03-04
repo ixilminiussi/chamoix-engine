@@ -22,7 +22,7 @@ struct BillboardPushConstant
 class BillboardMaterial : public Material
 {
   public:
-    BillboardMaterial() : Material{"shaders/billboard.vert.spv", "shaders/billboard.frag.spv"} {};
+    BillboardMaterial() : Material{"shaders/billboard.vert.spv", "shaders/billboard.frag.spv", false} {};
 
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;

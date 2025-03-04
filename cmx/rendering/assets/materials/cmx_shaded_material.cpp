@@ -64,6 +64,8 @@ void ShadedMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
+    loadBindings();
+
     createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }

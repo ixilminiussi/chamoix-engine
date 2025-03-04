@@ -44,6 +44,8 @@ void MeshMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
+    loadBindings();
+
     createPipelineLayout({renderSystem->getGlobalSetLayout()});
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }

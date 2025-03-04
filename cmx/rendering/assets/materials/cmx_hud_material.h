@@ -14,7 +14,7 @@ namespace cmx
 class HudMaterial : public Material
 {
   public:
-    HudMaterial() : Material{"shaders/hud.vert.spv", "shaders/hud.frag.spv"} {};
+    HudMaterial() : Material{"shaders/hud.vert.spv", "shaders/hud.frag.spv", false} {};
 
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
