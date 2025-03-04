@@ -92,9 +92,9 @@ void PointLightComponent::load(tinyxml2::XMLElement *componentElement)
     _lightColor.b = componentElement->FloatAttribute("b");
 }
 
-tinyxml2::XMLElement &PointLightComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
+tinyxml2::XMLElement &PointLightComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
-    tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
+    tinyxml2::XMLElement &componentElement = Component::save(doc, parentElement);
 
     componentElement.SetAttribute("lightIntensity", _lightIntensity);
     componentElement.SetAttribute("r", _lightColor.r);

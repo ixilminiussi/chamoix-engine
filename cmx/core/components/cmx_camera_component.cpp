@@ -84,15 +84,15 @@ void CameraComponent::load(tinyxml2::XMLElement *componentElement)
     onAttach();
 }
 
-tinyxml2::XMLElement &CameraComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
+tinyxml2::XMLElement &CameraComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
-    tinyxml2::XMLElement &cameraComponent = Component::save(doc, parentComponent);
+    tinyxml2::XMLElement &cameraComponent = Component::save(doc, parentElement);
     cameraComponent.SetAttribute("fov", _camera->getFOV());
     cameraComponent.SetAttribute("nearPlane", _camera->getNearPlane());
     cameraComponent.SetAttribute("farPlane", _camera->getFarPlane());
     cameraComponent.SetAttribute("isMain", _mainCamera);
 
-    parentComponent->InsertEndChild(&cameraComponent);
+    parentElement->InsertEndChild(&cameraComponent);
 
     return cameraComponent;
 }

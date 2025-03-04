@@ -25,7 +25,7 @@ class PointLightComponent : public Component
 
     void editor(int i) override;
     void load(tinyxml2::XMLElement *componentElement) override;
-    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const override;
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const override;
 
     float getLightIntensity() const
     {

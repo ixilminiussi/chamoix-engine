@@ -2,10 +2,12 @@
 
 // cmx
 #include "cmx_actor.h"
+#include "cmx_assets_manager.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_material.h"
 #include "cmx_model.h"
+#include "cmx_render_system.h"
 #include "cmx_texture.h"
 
 // lib
@@ -31,7 +33,11 @@ Drawable::Drawable(Actor **parentP) : _parentP{parentP}
 
 void Drawable::setDrawOption(const DrawOption &drawOption, size_t index)
 {
-    unsigned int oldID = _drawOptions[index].getMaterialID();
+    auto existingIT = _drawOptions.find(index);
+    if (existingIT != _drawOptions.end())
+    {
+        getParentActor()->getScene()->getGraphicsManager()->remove(&existingIT->second);
+    }
 
     _drawOptions[index] = drawOption;
 
@@ -46,12 +52,7 @@ void Drawable::setDrawOption(const DrawOption &drawOption, size_t index)
                       drawOption.material->name);
     }
 
-    if (oldID == 0)
-    {
-        getParentActor()->getScene()->getGraphicsManager()->add(this, &_drawOptions[index]);
-    }
-
-    getParentActor()->getScene()->getGraphicsManager()->update(this, &_drawOptions[index], oldID);
+    getParentActor()->getScene()->getGraphicsManager()->add(this, &_drawOptions[index]);
 }
 
 void Drawable::setMaterial(const std::string &name, size_t index)
@@ -206,12 +207,66 @@ void Drawable::editor(int i)
     }
 }
 
-void Drawable::load()
+tinyxml2::XMLElement &Drawable::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
+    tinyxml2::XMLElement *drawableElement = doc.NewElement("rendering");
+
+    for (auto &[index, option] : _drawOptions)
+    {
+        if (option.material != nullptr)
+        {
+            tinyxml2::XMLElement *optionElement = doc.NewElement("option");
+            optionElement->SetAttribute("index", index);
+            optionElement->SetAttribute("material", option.material->name.c_str());
+
+            if (option.model != nullptr && option.material->needsModel())
+            {
+                optionElement->SetAttribute("model", option.model->name.c_str());
+            }
+
+            for (int i = 0; i < std::min(option.material->getTotalSamplers(), option.textures.size()); i++)
+            {
+                optionElement->SetAttribute(("t" + std::to_string(i)).c_str(), option.textures[i]->name.c_str());
+            }
+            drawableElement->InsertEndChild(optionElement);
+        }
+    }
+    parentElement->InsertEndChild(drawableElement);
+
+    return *drawableElement;
 }
 
-void Drawable::save()
+void Drawable::load(tinyxml2::XMLElement *drawableElement)
 {
+    tinyxml2::XMLElement *optionElement = drawableElement->FirstChildElement();
+
+    while (optionElement)
+    {
+        size_t index = optionElement->IntAttribute("index");
+
+        setDrawOption(DrawOption{}, index);
+
+        setMaterial(optionElement->Attribute("material", nullptr), index);
+
+        if (_drawOptions[index].material->needsModel())
+        {
+            setModel(optionElement->Attribute("model", nullptr), index);
+        }
+
+        std::vector<std::string> textureNames{};
+        for (int i = 0; i < _drawOptions[i].material->getTotalSamplers(); i++)
+        {
+            std::string name = optionElement->Attribute(("option" + std::to_string(i)).c_str(), "null");
+            if (name.compare("null") == 0)
+            {
+                break;
+            }
+            textureNames.push_back(name);
+        }
+        setTextures(textureNames);
+
+        optionElement = drawableElement->NextSiblingElement();
+    }
 }
 
 void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
@@ -239,9 +294,19 @@ void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
     }
 }
 
-const std::map<size_t, DrawOption> &Drawable::getDrawOptions() const
+const std::vector<DrawOption const *> Drawable::getDrawOptions() const
 {
-    return _drawOptions;
+    std::vector<DrawOption const *> options;
+
+    auto it = _drawOptions.begin();
+
+    while (it != _drawOptions.end())
+    {
+        options.push_back(&(it->second));
+        it++;
+    }
+
+    return options;
 }
 
 } // namespace cmx

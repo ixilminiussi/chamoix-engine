@@ -15,7 +15,7 @@
 namespace cmx
 {
 
-GraphicsManager::GraphicsManager()
+GraphicsManager::GraphicsManager() : _drawableRenderQueue{}
 {
     _renderSystem = RenderSystem::getInstance();
 }
@@ -31,7 +31,6 @@ void GraphicsManager::update(Drawable *drawable, DrawOption *drawOption, size_t 
             if (it->second == drawOption)
             {
                 _drawableRenderQueue[oldID].erase(it);
-                break;
             }
             it++;
         }
@@ -74,11 +73,11 @@ void GraphicsManager::remove(const DrawOption *drawOption)
 
 void GraphicsManager::remove(const Drawable *drawable)
 {
-    const std::map<size_t, DrawOption> &drawOptions = drawable->getDrawOptions();
+    const std::vector<DrawOption const *> drawOptions = drawable->getDrawOptions();
 
-    for (const auto [discard, drawOption] : drawOptions)
+    for (const DrawOption *drawOption : drawOptions)
     {
-        remove(&drawOption);
+        remove(drawOption);
     }
 }
 

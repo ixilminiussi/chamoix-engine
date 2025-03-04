@@ -58,8 +58,13 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     std::shared_ptr<class Component> attachComponent(std::shared_ptr<class Component>, std::string name = "",
                                                      bool force = false);
     void detachComponent(const std::string &name);
+
     template <typename T> std::weak_ptr<T> getComponentByType();
     std::weak_ptr<class Component> getComponentByName(const std::string &name);
+    std::unordered_map<std::string, std::shared_ptr<Component>> &getComponents()
+    {
+        return _components;
+    }
 
     // getters and setters :: begin
     Scene *getScene()

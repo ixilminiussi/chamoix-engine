@@ -3,6 +3,7 @@
 
 // cmx
 #include "cmx_material.h"
+#include "cmx_register.h"
 
 // lib
 #include <vulkan/vulkan.hpp>
@@ -27,5 +28,7 @@ class HudMaterial : public Material
 };
 
 } // namespace cmx
+
+REGISTER_MATERIAL(cmx::HudMaterial)
 
 #endif

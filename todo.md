@@ -7,10 +7,11 @@
 
 ### Materials
 - [x] save
-- [ ] load
+- [x] load
 - [ ] adapt existing scenes
 - [ ] material instances
 - [ ] dithering
+- [x] fix component deletion
 
 ### editor
 - [ ] rename elements

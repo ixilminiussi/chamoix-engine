@@ -7,6 +7,7 @@
 #include "cmx_model.h"
 #include "cmx_pipeline.h"
 #include "cmx_primitives.h"
+#include "cmx_register.h"
 #include "cmx_render_system.h"
 #include "cmx_scene.h"
 #include "cmx_shaded_material.h"
@@ -90,6 +91,15 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
             addTexture(textureElement->Attribute("filepath"), textureElement->Attribute("name"));
 
             textureElement = textureElement->NextSiblingElement("texture");
+        }
+
+        tinyxml2::XMLElement *materialElement = assetsElement->FirstChildElement("material");
+        while (materialElement)
+        {
+            addMaterial(Register::getInstance().getMaterial(materialElement->Attribute("type")),
+                        materialElement->Attribute("name"));
+
+            materialElement = materialElement->NextSiblingElement("material");
         }
     }
 }

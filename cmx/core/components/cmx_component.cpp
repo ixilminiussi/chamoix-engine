@@ -41,12 +41,12 @@ void Component::editor(int i)
     ImGui::PopID();
 }
 
-tinyxml2::XMLElement &Component::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
+tinyxml2::XMLElement &Component::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement *componentElement = doc.NewElement("component");
     componentElement->SetAttribute("type", getType().c_str());
     componentElement->SetAttribute("name", name.c_str());
-    parentComponent->InsertEndChild(componentElement);
+    parentElement->InsertEndChild(componentElement);
 
     _transform.save(doc, componentElement);
 

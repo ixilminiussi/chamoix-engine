@@ -27,10 +27,10 @@ void PhysicsComponent::onAttach()
     getScene()->getPhysicsManager()->add(this);
 }
 
-tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const
+tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
-    tinyxml2::XMLElement &componentElement = Component::save(doc, parentComponent);
-    PhysicsBody::save(*parentComponent);
+    tinyxml2::XMLElement &componentElement = Component::save(doc, parentElement);
+    PhysicsBody::save(*parentElement);
 
     return componentElement;
 }

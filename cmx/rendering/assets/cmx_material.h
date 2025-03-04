@@ -105,6 +105,26 @@ class Material
     static Material *_instance;
 };
 
+#define CONCAT_IMPL(x, y) x##y
+#define CONCAT(x, y) CONCAT_IMPL(x, y)
+
+#define UNIQUE_ID CONCAT(__COUNTER__, __LINE__)
+
+#define REGISTER_MATERIAL_INTERNAL(Type, ID)                                                                           \
+    namespace cmx                                                                                                      \
+    {                                                                                                                  \
+    struct CONCAT(MaterialRegistrar_, ID)                                                                              \
+    {                                                                                                                  \
+        CONCAT(MaterialRegistrar_, ID)()                                                                               \
+        {                                                                                                              \
+            cmx::Register::getInstance().addMaterial(#Type, []() { return new Type(); });                              \
+        }                                                                                                              \
+    };                                                                                                                 \
+    [[maybe_unused]] inline CONCAT(MaterialRegistrar_, ID) CONCAT(actorRegistrar_, ID){};                              \
+    }
+
+#define REGISTER_MATERIAL(Type) REGISTER_MATERIAL_INTERNAL(Type, UNIQUE_ID)
+
 } // namespace cmx
 
 #endif

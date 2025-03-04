@@ -3,6 +3,7 @@
 
 // cmx
 #include "cmx_material.h"
+#include "cmx_register.h"
 
 // lib
 #include <glm/ext/matrix_float4x4.hpp>
@@ -44,5 +45,7 @@ class BillboardMaterial : public Material
 };
 
 } // namespace cmx
+
+REGISTER_MATERIAL(cmx::BillboardMaterial)
 
 #endif

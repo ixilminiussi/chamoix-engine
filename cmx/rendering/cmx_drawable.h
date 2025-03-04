@@ -2,6 +2,7 @@
 #define CMX_DRAWABLE
 
 // cmx
+#include "cmx_assets_manager.h"
 #include "cmx_transform.h"
 
 // lib
@@ -33,9 +34,9 @@ class Drawable : public virtual Transformable
         return *_parentP;
     };
 
-    virtual void editor(int i);
-    void load();
-    void save();
+    void editor(int i);
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
+    void load(tinyxml2::XMLElement *);
 
     void render(struct FrameInfo &, DrawOption *drawOption) const;
 
@@ -44,7 +45,7 @@ class Drawable : public virtual Transformable
     void setTextures(const std::vector<std::string>, size_t index = 0);
     void setModel(const std::string &, size_t index = 0);
 
-    const std::map<size_t, DrawOption> &getDrawOptions() const;
+    const std::vector<DrawOption const *> getDrawOptions() const;
 
   private:
     std::map<size_t, DrawOption> _drawOptions;

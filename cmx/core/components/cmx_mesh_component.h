@@ -35,19 +35,9 @@ class MeshComponent : public Component, public virtual Drawable
 
     void onAttach() override;
 
-    // void render(const struct FrameInfo &, vk::PipelineLayout) override;
-
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const override;
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
-
-  private:
-    // bool _worldSpaceUV{false};
-    // glm::vec2 _UVOffset{0.f};
-    // float _UVScale{1.f};
-    // float _UVRotate{0.f};
-    // glm::vec3 _color{1.f};
-    // bool _textured{false};
 };
 
 } // namespace cmx

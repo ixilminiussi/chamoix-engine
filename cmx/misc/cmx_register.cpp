@@ -57,31 +57,50 @@ void Register::addComponent(std::string name, std::function<std::shared_ptr<clas
     componentRegister[name] = builder;
 }
 
+void Register::addMaterial(std::string name, std::function<class Material *()> builder)
+{
+    if (materialRegister.find(name) != materialRegister.end())
+    {
+        materialRegister.at(name);
+        spdlog::warn("Register: duplicate material '{0}' in register", name);
+        return;
+    }
+
+    materialRegister[name] = builder;
+}
+
 Actor *Register::spawnActor(const std::string &typeName, class Scene *scene, const std::string &actorName)
 {
-    try
-    {
-        return actorRegister.at(typeName)(scene, actorName);
-    }
-    catch (std::out_of_range e)
+    if (actorRegister.find(typeName) == actorRegister.end())
     {
         spdlog::error("Register: attempt to spawn actor type '{0}' not found in register", typeName);
         return nullptr;
     }
+
+    return actorRegister[typeName](scene, actorName);
 }
 
 std::shared_ptr<class Component> Register::attachComponent(const std::string &typeName, class Actor *actor,
                                                            const std::string &componentName, bool force)
 {
-    try
-    {
-        return actor->attachComponent(componentRegister.at(typeName)(), componentName, force);
-    }
-    catch (std::out_of_range e)
+    if (componentRegister.find(typeName) == componentRegister.end())
     {
         spdlog::error("Register: attempt to create component type '{0}' not found in register", typeName);
         return nullptr;
     }
+
+    return actor->attachComponent(componentRegister.at(typeName)(), componentName, force);
+}
+
+class Material *Register::getMaterial(const std::string &typeName)
+{
+    if (materialRegister.find(typeName) == materialRegister.end())
+    {
+        spdlog::error("Register: attempt to get material type '{0}' not found in register", typeName);
+        return nullptr;
+    }
+
+    return materialRegister[typeName]();
 }
 
 } // namespace cmx

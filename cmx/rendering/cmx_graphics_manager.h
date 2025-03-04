@@ -27,7 +27,7 @@ class GraphicsManager
     void editor();
 
   private:
-    std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> _drawableRenderQueue{};
+    std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> _drawableRenderQueue;
 
     // warning flags
     bool _noCameraFlag{false};

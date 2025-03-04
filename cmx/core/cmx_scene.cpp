@@ -194,6 +194,11 @@ void Scene::removeActor(Actor *actor)
         return;
     }
 
+    for (auto [name, component] : actor->getComponents())
+    {
+        removeComponent(component);
+    }
+
     _actors.erase(it);
     delete actor;
 

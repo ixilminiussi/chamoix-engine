@@ -38,7 +38,7 @@ class Component : public virtual Transformable
     virtual void update(float dt) {};
     virtual void render(const struct FrameInfo &, vk::PipelineLayout);
 
-    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentComponent) const;
+    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
     virtual void load(tinyxml2::XMLElement *);
 
     // for viewport
