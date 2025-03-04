@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scene name="first scene">
     <assets>
+        <material type="cmx::BillboardMaterial" vertex="shaders/billboard.vert.spv" fragment="shaders/billboard.frag.spv" r="1" g="1" b="1" a="1" name="billboard_material"/>
+        <material type="cmx::MeshMaterial" vertex="shaders/mesh.vert.spv" fragment="shaders/mesh.frag.spv" r="0" g="0" b="1" name="mesh_material"/>
+        <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
+        <material type="cmx::HudMaterial" vertex="shaders/hud.vert.spv" fragment="shaders/hud.frag.spv" name="hud_material"/>
         <model filepath="assets/models/penguin.obj" name="penguin"/>
         <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
         <model filepath="assets/models/bunny.obj" name="bunny"/>
@@ -9,9 +13,26 @@
         <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
-        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
-        <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
-        <texture filepath="assets/textures/snow.png" name="snow"/>
         <texture filepath="assets/textures/penguin.png" name="penguin"/>
+        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
+        <texture filepath="assets/textures/snow.png" name="snow"/>
+        <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
     </assets>
+    <lightEnvironment timeOfDay="10">
+        <ambientLight r="1" g="1" b="1" a="0.2"/>
+    </lightEnvironment>
+    <actor type="cmx::MeshActor" name="cmx::MeshActor" id="1" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
 </scene>

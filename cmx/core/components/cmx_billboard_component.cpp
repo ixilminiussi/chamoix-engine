@@ -16,32 +16,6 @@ void BillboardComponent::onAttach()
     AssetsManager *assetsManager = getScene()->getAssetsManager();
     setDrawOption({assetsManager->getMaterial("billboard_material"), nullptr, {}});
 }
-
-// void BillboardComponent::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout)
-// {
-// if (getParent() == nullptr)
-// {
-//     spdlog::critical("MeshComponent <{0}>: _parent is expired", name.c_str());
-//     return;
-// }
-
-// if (_texture == nullptr)
-// {
-//     spdlog::error("MeshComponent <{0}->{1}>: missing texture", getParent()->name.c_str(), name.c_str());
-//     return;
-// }
-
-// Transform transform = getWorldSpaceTransform();
-
-// BillboardPushConstant pushConstant;
-// pushConstant.position = glm::vec4(transform.position, 1.0f);
-// pushConstant.color = glm::vec4(_hue, 1.f);
-// pushConstant.scale = glm::vec2(transform.scale.x, transform.scale.y);
-
-// frameInfo.commandBuffer.pushConstants(pipelineLayout,
-//                                       vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-//                                       sizeof(BillboardPushConstant), &pushConstant);
-
 // _texture->bind(frameInfo.commandBuffer, pipelineLayout);
 
 // frameInfo.commandBuffer.draw(6, 1, 0, 0);

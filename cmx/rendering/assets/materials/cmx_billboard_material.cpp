@@ -36,6 +36,31 @@ void BillboardMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 
 void BillboardMaterial::editor()
 {
+    Material::editor();
+
+    ImGui::ColorPicker4("hue", (float *)&_hue);
+}
+
+tinyxml2::XMLElement &BillboardMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+{
+    tinyxml2::XMLElement &materialElement = Material::save(doc, parentElement);
+
+    materialElement.SetAttribute("r", _hue.r);
+    materialElement.SetAttribute("g", _hue.g);
+    materialElement.SetAttribute("b", _hue.b);
+    materialElement.SetAttribute("a", _hue.a);
+
+    return materialElement;
+}
+
+void BillboardMaterial::load(tinyxml2::XMLElement *materialElement)
+{
+    Material::load(materialElement);
+
+    _hue.r = materialElement->FloatAttribute("r");
+    _hue.g = materialElement->FloatAttribute("g");
+    _hue.b = materialElement->FloatAttribute("b");
+    _hue.a = materialElement->FloatAttribute("a");
 }
 
 void BillboardMaterial::initialize()

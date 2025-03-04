@@ -43,6 +43,12 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
 {
     tinyxml2::XMLElement *assetsElement = doc.NewElement("assets");
 
+    for (const auto &pair : _materials)
+    {
+        tinyxml2::XMLElement &materialElement = pair.second->save(doc, assetsElement);
+        materialElement.SetAttribute("name", pair.first.c_str());
+    }
+
     for (const auto &pair : _models)
     {
         tinyxml2::XMLElement &modelElement = pair.second->save(doc, assetsElement);

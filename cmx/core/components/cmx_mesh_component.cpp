@@ -41,21 +41,6 @@ tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::
 
     // componentElement.SetAttribute("model", _model->name.c_str());
     // componentElement.SetAttribute("texture", _texture->name.c_str());
-    // componentElement.SetAttribute("textured", _textured);
-    // if (_textured)
-    // {
-    //     componentElement.SetAttribute("worldSpaceUV", _worldSpaceUV);
-    //     if (_worldSpaceUV)
-    //     {
-    //         componentElement.SetAttribute("UVoffsetX", _UVOffset.x);
-    //         componentElement.SetAttribute("UVoffsetY", _UVOffset.y);
-    //         componentElement.SetAttribute("UVscale", _UVScale);
-    //         componentElement.SetAttribute("UVrotate", _UVRotate);
-    //     }
-    // }
-    // componentElement.SetAttribute("r", _color.r);
-    // componentElement.SetAttribute("g", _color.g);
-    // componentElement.SetAttribute("b", _color.b);
 
     return componentElement;
 }

@@ -44,6 +44,8 @@ void ShadedMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 
 void ShadedMaterial::editor()
 {
+    Material::editor();
+
     ImGui::Checkbox("use texture", &_textured);
 
     if (_textured)
@@ -58,6 +60,50 @@ void ShadedMaterial::editor()
     }
 
     ImGui::ColorEdit3("Color##", (float *)&_color);
+}
+
+tinyxml2::XMLElement &ShadedMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+{
+    tinyxml2::XMLElement &materialElement = Material::save(doc, parentElement);
+
+    materialElement.SetAttribute("textured", _textured);
+    if (_textured)
+    {
+        materialElement.SetAttribute("worldSpaceUV", _worldSpaceUV);
+        if (_worldSpaceUV)
+        {
+            materialElement.SetAttribute("UVoffsetX", _UVoffset.x);
+            materialElement.SetAttribute("UVoffsetY", _UVoffset.y);
+            materialElement.SetAttribute("UVscale", _UVScale);
+            materialElement.SetAttribute("UVrotate", _UVRotate);
+        }
+    }
+    materialElement.SetAttribute("r", _color.r);
+    materialElement.SetAttribute("g", _color.g);
+    materialElement.SetAttribute("b", _color.b);
+
+    return materialElement;
+}
+
+void ShadedMaterial::load(tinyxml2::XMLElement *materialElement)
+{
+    Material::load(materialElement);
+
+    _color.r = materialElement->FloatAttribute("r");
+    _color.g = materialElement->FloatAttribute("g");
+    _color.b = materialElement->FloatAttribute("b");
+    _textured = materialElement->BoolAttribute("textured");
+    if (_textured)
+    {
+        _worldSpaceUV = materialElement->BoolAttribute("worldSpaceUV");
+        if (_worldSpaceUV)
+        {
+            _UVoffset =
+                glm::vec2{materialElement->FloatAttribute("UVoffsetX"), materialElement->FloatAttribute("UVoffsetY")};
+            _UVScale = materialElement->FloatAttribute("UVscale");
+            _UVRotate = materialElement->FloatAttribute("UVrotate");
+        }
+    }
 }
 
 void ShadedMaterial::initialize()

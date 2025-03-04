@@ -37,7 +37,29 @@ void MeshMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 
 void MeshMaterial::editor()
 {
-    ImGui::ColorPicker3("hue", (float *)&_color);
+    Material::editor();
+
+    ImGui::ColorPicker3("color", (float *)&_color);
+}
+
+tinyxml2::XMLElement &MeshMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+{
+    tinyxml2::XMLElement &materialElement = Material::save(doc, parentElement);
+
+    materialElement.SetAttribute("r", _color.r);
+    materialElement.SetAttribute("g", _color.g);
+    materialElement.SetAttribute("b", _color.b);
+
+    return materialElement;
+}
+
+void MeshMaterial::load(tinyxml2::XMLElement *materialElement)
+{
+    Material::load(materialElement);
+
+    _color.r = materialElement->FloatAttribute("r");
+    _color.g = materialElement->FloatAttribute("g");
+    _color.b = materialElement->FloatAttribute("b");
 }
 
 void MeshMaterial::initialize()

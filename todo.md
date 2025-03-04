@@ -6,7 +6,7 @@
 - [ ] 3d textures
 
 ### Materials
-- [ ] save
+- [x] save
 - [ ] load
 - [ ] adapt existing scenes
 - [ ] material instances

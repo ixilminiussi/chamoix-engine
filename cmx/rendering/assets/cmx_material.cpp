@@ -14,6 +14,10 @@
 
 // std
 #include <fstream>
+#ifndef _WIN32
+#include <cxxabi.h>
+#endif
+#include <memory>
 
 namespace cmx
 {
@@ -32,6 +36,25 @@ Material::Material(std::string vertPath, std::string fragPath, bool modelBased)
 
 void Material::editor()
 {
+}
+
+tinyxml2::XMLElement &Material::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+{
+    tinyxml2::XMLElement *materialElement = doc.NewElement("material");
+
+    materialElement->SetAttribute("type", getType().c_str());
+    materialElement->SetAttribute("vertex", _vertFilepath.c_str());
+    materialElement->SetAttribute("fragment", _fragFilepath.c_str());
+
+    parentElement->InsertEndChild(materialElement);
+
+    return *materialElement;
+}
+
+void Material::load(tinyxml2::XMLElement *materialElement)
+{
+    _vertFilepath = materialElement->Attribute("vertex");
+    _fragFilepath = materialElement->Attribute("fragment");
 }
 
 void Material::resetBoundID()
@@ -214,5 +237,30 @@ std::vector<uint32_t> Material::loadSpirvData(const std::string &filename)
     }
     return buffer;
 }
+
+#ifdef _WIN32
+std::string Material : getType() const
+{
+    return std::regex_replace(typeid(*this).name(), std::regex(R"(^(class |struct ))"), "");
+}
+#else
+std::string Material::getType() const
+{
+    int status;
+    char *demangled = abi::__cxa_demangle(typeid(*this).name(), nullptr, nullptr, &status);
+
+    if (status == 0)
+    {
+        std::string demangledString{demangled};
+        std::free(demangled);
+        return demangledString;
+    }
+    else
+    {
+        spdlog::critical("Material {0}: Error demangling component type", name);
+        return typeid(this).name();
+    }
+}
+#endif
 
 } // namespace cmx
