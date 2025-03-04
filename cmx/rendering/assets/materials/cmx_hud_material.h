@@ -17,6 +17,8 @@ class HudMaterial : public Material
   public:
     HudMaterial() : Material{"shaders/hud.vert.spv", "shaders/hud.frag.spv", false} {};
 
+    CLONEABLE_MATERIAL(HudMaterial)
+
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
 

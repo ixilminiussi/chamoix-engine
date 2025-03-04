@@ -604,7 +604,7 @@ void ViewportUI::duplicateSelected(float, int)
 {
     if (_inspectedActor != nullptr)
     {
-        Actor::duplicate(_attachedScene, _inspectedActor);
+        _inspectedActor = Actor::duplicate(_attachedScene, _inspectedActor);
     }
 }
 

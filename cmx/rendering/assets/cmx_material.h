@@ -25,11 +25,26 @@ struct BindingInfo
     vk::ShaderStageFlagBits shaderStage;
 };
 
+#define CLONEABLE_MATERIAL(Type)                                                                                       \
+    Type(std::string vertFilepath, std::string fragFilepath, size_t id, bool modelBased)                               \
+        : Material{vertFilepath, fragFilepath, id, modelBased}                                                         \
+    {                                                                                                                  \
+    }                                                                                                                  \
+    Material *clone() const override                                                                                   \
+    {                                                                                                                  \
+        return new Type(_vertFilepath, _fragFilepath, _id, _modelBased);                                               \
+    }
+
 class Material
 {
   public:
-    Material(std::string vertPath, std::string fragPath, bool modelBased = true);
+    Material(const std::string &vertPath, const std::string &fragPath, bool modelBased = true);
     virtual ~Material() = default;
+
+    virtual Material *clone() const
+    {
+        return nullptr;
+    }
 
     virtual void bind(struct FrameInfo *, const class Drawable *) = 0;
     virtual void editor();
@@ -74,7 +89,8 @@ class Material
     std::string name;
 
   protected:
-    Material(int ID);
+    Material(size_t ID);
+    Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased = true);
 
     virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) = 0;
     virtual void createPipeline(vk::RenderPass) = 0;

@@ -5,7 +5,7 @@
 #include "ship_camera_component.h"
 
 // cmx
-#include <cmx/cmx_component.h>
+#include <cmx_component.h>
 
 struct GunInfo
 {
@@ -20,7 +20,7 @@ class GunComponent : public cmx::Component
     GunComponent() = default;
     ~GunComponent() = default;
 
-    CLONEABLE(GunComponent)
+    CLONEABLE_COMPONENT(GunComponent)
 
     void onAttach() override;
     void update(float dt) override;

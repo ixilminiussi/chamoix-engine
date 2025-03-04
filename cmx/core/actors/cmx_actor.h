@@ -37,7 +37,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
   public:
     template <class T>
     static T *spawn(class Scene *, const std::string &name, const Transform &transform = Transform{});
-    static void duplicate(class Scene *, Actor *actor);
+    static Actor *duplicate(class Scene *, Actor *actor);
 
     void despawn();
 

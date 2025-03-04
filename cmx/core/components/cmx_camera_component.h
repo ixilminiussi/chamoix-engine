@@ -23,7 +23,7 @@ class CameraComponent : public Component
     CameraComponent();
     ~CameraComponent() = default;
 
-    CLONEABLE(CameraComponent)
+    CLONEABLE_COMPONENT(CameraComponent)
 
     void update(float dt) override;
 

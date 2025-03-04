@@ -15,7 +15,7 @@ class HudComponent : public Component, public virtual Drawable
     HudComponent();
     ~HudComponent();
 
-    CLONEABLE(HudComponent)
+    CLONEABLE_COMPONENT(HudComponent)
 
     void onAttach() override;
 

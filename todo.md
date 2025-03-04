@@ -9,7 +9,7 @@
 - [x] save
 - [x] load
 - [ ] adapt existing scenes
-- [ ] material instances
+- [x] material instances
 - [ ] dithering
 - [x] fix component deletion
 

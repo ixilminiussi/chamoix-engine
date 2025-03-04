@@ -59,7 +59,7 @@ void ShadedMaterial::editor()
         }
     }
 
-    ImGui::ColorEdit3("Color##", (float *)&_color);
+    ImGui::ColorEdit3("##", (float *)&_color);
 }
 
 tinyxml2::XMLElement &ShadedMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const

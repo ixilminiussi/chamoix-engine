@@ -24,6 +24,8 @@ class MeshMaterial : public Material
   public:
     MeshMaterial() : Material{"shaders/mesh.vert.spv", "shaders/mesh.frag.spv"} {};
 
+    CLONEABLE_MATERIAL(MeshMaterial)
+
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const override;

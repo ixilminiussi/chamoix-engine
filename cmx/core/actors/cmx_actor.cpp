@@ -270,7 +270,7 @@ std::string Actor::getType() const
 }
 #endif
 
-void Actor::duplicate(class Scene *scene, Actor *actor)
+Actor *Actor::duplicate(class Scene *scene, Actor *actor)
 {
     Actor *copy = new Actor(*actor);
     copy->_id = _idProvider++;
@@ -290,6 +290,8 @@ void Actor::duplicate(class Scene *scene, Actor *actor)
     }
 
     scene->addActor(copy);
+
+    return copy;
 }
 
 } // namespace cmx

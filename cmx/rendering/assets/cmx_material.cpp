@@ -25,13 +25,19 @@ namespace cmx
 size_t Material::_idProvider{0};
 size_t Material::_boundID{1};
 
-Material::Material(std::string vertPath, std::string fragPath, bool modelBased)
+Material::Material(const std::string &vertPath, const std::string &fragPath, bool modelBased)
     : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{_idProvider}
 {
     _renderSystem = RenderSystem::getInstance();
 
     _idProvider += 1;
     _boundID = _idProvider + 1;
+}
+
+Material::Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased)
+    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{id}
+{
+    _renderSystem = RenderSystem::getInstance();
 }
 
 void Material::editor()
@@ -62,7 +68,7 @@ void Material::resetBoundID()
     _boundID = _idProvider + 1;
 }
 
-Material::Material(int ID) : _id(ID)
+Material::Material(size_t ID) : _id(ID)
 {
 }
 

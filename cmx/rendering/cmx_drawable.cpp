@@ -9,6 +9,7 @@
 #include "cmx_model.h"
 #include "cmx_render_system.h"
 #include "cmx_texture.h"
+#include "cmx_utils.h"
 
 // lib
 #include <IconsMaterialSymbols.h>
@@ -106,12 +107,24 @@ void Drawable::editor(int i)
 
                 selected = drawOption.material != nullptr ? drawOption.material->name.c_str() : "";
 
-                if (ImGui::BeginCombo("Material##", selected))
+                ImGui::Text("Material:");
+                if (drawOption.material != nullptr)
+                {
+                    if (ImGui::Button(ICON_MS_CONTENT_COPY))
+                    {
+                        Material *duplicate = drawOption.material->clone();
+                        assetsManager->addMaterial(duplicate, incrementNumberInParentheses(drawOption.material->name));
+                        setMaterial(duplicate->name);
+
+                        ImGui::SetNextItemWidth(170);
+                        ImGui::SameLine();
+                    }
+                }
+                if (ImGui::BeginCombo("##Material", selected))
                 {
                     for (const auto &pair : assetsManager->getMaterials())
                     {
                         bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
-
                         if (ImGui::Selectable(pair.first.c_str(), isSelected) &&
                             strcmp(selected, pair.first.c_str()) != 0)
                         {
@@ -137,7 +150,8 @@ void Drawable::editor(int i)
                     {
                         selected = drawOption.model != nullptr ? drawOption.model->name.c_str() : "";
 
-                        if (ImGui::BeginCombo("Model##", selected))
+                        ImGui::Text("Model:");
+                        if (ImGui::BeginCombo("##Model", selected))
                         {
                             for (const auto &pair : assetsManager->getModels())
                             {

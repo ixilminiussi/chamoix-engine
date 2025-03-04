@@ -31,7 +31,7 @@ class MeshComponent : public Component, public virtual Drawable
     MeshComponent();
     ~MeshComponent() = default;
 
-    CLONEABLE(MeshComponent)
+    CLONEABLE_COMPONENT(MeshComponent)
 
     void onAttach() override;
 

@@ -25,6 +25,8 @@ class BillboardMaterial : public Material
   public:
     BillboardMaterial() : Material{"shaders/billboard.vert.spv", "shaders/billboard.frag.spv", false} {};
 
+    CLONEABLE_MATERIAL(BillboardMaterial)
+
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const override;

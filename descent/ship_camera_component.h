@@ -10,7 +10,7 @@ class ShipCameraComponent : public cmx::CameraComponent
   public:
     using cmx::CameraComponent::CameraComponent;
 
-    CLONEABLE(ShipCameraComponent)
+    CLONEABLE_COMPONENT(ShipCameraComponent)
 
     void update(float dt) override;
 

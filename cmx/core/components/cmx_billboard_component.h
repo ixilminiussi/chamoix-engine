@@ -17,7 +17,7 @@ class BillboardComponent : public Component, public virtual Drawable
     BillboardComponent() : Drawable{&_parent} {};
     ~BillboardComponent() = default;
 
-    CLONEABLE(BillboardComponent)
+    CLONEABLE_COMPONENT(BillboardComponent)
 
     void onAttach() override;
 

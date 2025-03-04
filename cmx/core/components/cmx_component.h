@@ -1,7 +1,7 @@
 #ifndef CMX_COMPONENT
 #define CMX_COMPONENT
 
-#define CLONEABLE(Type)                                                                                                \
+#define CLONEABLE_COMPONENT(Type)                                                                                      \
     std::shared_ptr<Component> clone() const override                                                                  \
     {                                                                                                                  \
         return std::make_shared<Type>(*this);                                                                          \

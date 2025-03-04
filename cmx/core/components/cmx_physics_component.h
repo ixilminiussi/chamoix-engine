@@ -15,7 +15,7 @@ class PhysicsComponent : public Component, public virtual PhysicsBody
     PhysicsComponent();
     ~PhysicsComponent() = default;
 
-    CLONEABLE(PhysicsComponent)
+    CLONEABLE_COMPONENT(PhysicsComponent)
 
     void onDetach() override;
     void onAttach() override;

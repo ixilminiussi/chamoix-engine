@@ -24,6 +24,8 @@ class ShadedMaterial : public Material
   public:
     ShadedMaterial() : Material{"shaders/shaded.vert.spv", "shaders/shaded.frag.spv"} {};
 
+    CLONEABLE_MATERIAL(ShadedMaterial)
+
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const override;
