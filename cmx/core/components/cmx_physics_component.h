@@ -3,13 +3,14 @@
 
 // cmx
 #include "cmx_component.h"
+#include "cmx_drawable.h"
 #include "cmx_physics_body.h"
 #include "cmx_register.h"
 
 namespace cmx
 {
 
-class PhysicsComponent : public Component, public virtual PhysicsBody
+class PhysicsComponent : public Component, public virtual PhysicsBody, public virtual Drawable
 {
   public:
     PhysicsComponent();

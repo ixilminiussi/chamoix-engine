@@ -46,6 +46,7 @@ tinyxml2::XMLElement &MeshComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::
 void MeshComponent::load(tinyxml2::XMLElement *componentElement)
 {
     Component::load(componentElement);
+    Drawable::load(componentElement);
 }
 
 void MeshComponent::editor(int i)

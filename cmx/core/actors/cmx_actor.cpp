@@ -138,6 +138,8 @@ void Actor::editor()
         Transformable::editor(camera.get());
     }
 
+    _transform.editor();
+
     int i = 0;
     if (_components.size() > 0)
     {
@@ -168,7 +170,7 @@ void Actor::editor()
         }
     }
 
-    // create new actor
+    // create new component
     Register &cmxRegister = Register::getInstance();
     static const char *selected = cmxRegister.getComponentRegister().begin()->first.c_str();
 

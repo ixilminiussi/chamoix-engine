@@ -43,7 +43,6 @@ void PhysicsManager::executeStep(float dt)
     {
         (*it)->applyGravity(dt);
         (*it)->applyVelocity(dt);
-        it++;
     }
 
     for (auto it = (_rigidBodies.size() > 0) ? _rigidBodies.begin() : _dynamicBodies.begin();

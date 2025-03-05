@@ -176,13 +176,21 @@ void Drawable::editor(int i)
                     ImGui::Text("Textures:");
                     const std::vector<BindingInfo> &bindings = drawOption.material->getBindings();
                     int textureIndex = 0;
-                    for (int i = 0; i < bindings.size(); i++)
+
+                    for (const BindingInfo &binding : bindings)
                     {
-                        if (bindings[i].type == SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER)
+                        if (binding.type == SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER)
                         {
-                            selected = drawOption.textures[textureIndex] != nullptr
-                                           ? drawOption.textures[textureIndex]->name.c_str()
-                                           : "";
+                            if (textureIndex < drawOption.textures.size())
+                            {
+                                selected = drawOption.textures[textureIndex] != nullptr
+                                               ? drawOption.textures[textureIndex]->name.c_str()
+                                               : "";
+                            }
+                            else
+                            {
+                                selected = "";
+                            }
 
                             ImGui::PushID(i);
                             if (ImGui::BeginCombo(std::to_string(bindings[i].binding).c_str(), selected))
@@ -250,36 +258,37 @@ tinyxml2::XMLElement &Drawable::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEl
     return *drawableElement;
 }
 
-void Drawable::load(tinyxml2::XMLElement *drawableElement)
+void Drawable::load(tinyxml2::XMLElement *parentElement)
 {
-    tinyxml2::XMLElement *optionElement = drawableElement->FirstChildElement();
-
-    while (optionElement)
+    if (tinyxml2::XMLElement *drawableElement = parentElement->FirstChildElement("rendering"))
     {
-        size_t index = optionElement->IntAttribute("index");
+        tinyxml2::XMLElement *optionElement = drawableElement->FirstChildElement();
 
-        setDrawOption(DrawOption{}, index);
-
-        setMaterial(optionElement->Attribute("material", nullptr), index);
-
-        if (_drawOptions[index].material->needsModel())
+        while (optionElement)
         {
-            setModel(optionElement->Attribute("model", nullptr), index);
-        }
+            int i = 0;
+            size_t index = optionElement->IntAttribute("index");
 
-        std::vector<std::string> textureNames{};
-        for (int i = 0; i < _drawOptions[i].material->getTotalSamplers(); i++)
-        {
-            std::string name = optionElement->Attribute(("option" + std::to_string(i)).c_str(), "null");
-            if (name.compare("null") == 0)
+            setDrawOption(DrawOption{}, index);
+            setMaterial(optionElement->Attribute("material", nullptr), index);
+
+            if (_drawOptions[index].material->needsModel())
             {
-                break;
+                setModel(optionElement->Attribute("model", nullptr), index);
             }
-            textureNames.push_back(name);
-        }
-        setTextures(textureNames);
 
-        optionElement = drawableElement->NextSiblingElement();
+            size_t totalSamplerCount = _drawOptions[i].material->getTotalSamplers();
+            std::vector<std::string> textureNames{};
+            for (int i = 0; i < totalSamplerCount; i++)
+            {
+                std::string attributeName = "t" + std::to_string(i);
+                std::string name = optionElement->Attribute(attributeName.c_str());
+                textureNames.push_back(name);
+            }
+            setTextures(textureNames);
+
+            optionElement = drawableElement->NextSiblingElement();
+        }
     }
 }
 

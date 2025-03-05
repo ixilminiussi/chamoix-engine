@@ -42,11 +42,11 @@ class Register
     Register();
     ~Register();
 
-    std::unordered_map<std::string, std::function<class Actor *(class Scene *, const std::string &)>> actorRegister;
+    std::map<std::string, std::function<class Actor *(class Scene *, const std::string &)>> actorRegister;
 
-    std::unordered_map<std::string, std::function<std::shared_ptr<class Component>()>> componentRegister;
+    std::map<std::string, std::function<std::shared_ptr<class Component>()>> componentRegister;
 
-    std::unordered_map<std::string, std::function<class Material *()>> materialRegister;
+    std::map<std::string, std::function<class Material *()>> materialRegister;
 };
 
 } // namespace cmx

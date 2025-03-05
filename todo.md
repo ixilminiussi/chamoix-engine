@@ -14,8 +14,9 @@
 - [x] fix component deletion
 
 ### editor
-- [ ] rename elements
+- [x] rename elements
 - [ ] camera renderer
+- [ ] order options by alphabet
 
 ### misc
 - [ ] test physics

@@ -14,14 +14,6 @@ namespace cmx
 
 PhysicsBody::PhysicsBody(class Actor **parentP) : _parentP{parentP}
 {
-    if (_parentP == nullptr)
-    {
-        throw("parentP cannot be nullptr");
-    }
-    if (getParentActor() != nullptr)
-    {
-        getParentActor()->getScene()->getPhysicsManager()->add(this);
-    }
 }
 
 void PhysicsBody::setPhysicsMode(PhysicsMode newMode)

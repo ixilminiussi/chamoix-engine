@@ -36,7 +36,7 @@ class Drawable : public virtual Transformable
 
     void editor(int i);
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
-    void load(tinyxml2::XMLElement *);
+    void load(tinyxml2::XMLElement *parentElement);
 
     void render(struct FrameInfo &, DrawOption *drawOption) const;
 

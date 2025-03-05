@@ -155,19 +155,26 @@ void AssetsManager::editor()
 
 void AssetsManager::addMaterial(Material *material, const std::string &name)
 {
-    if (material == nullptr)
-        return;
-
-    material->name = name;
-    material->initialize();
-
     if (_materials.find(name) != _materials.end())
     {
-        _materials[name]->free();
-        delete _materials[name];
+        spdlog::warn("AssetsManager: material of same name '{0}' already exists", name);
     }
+    else
+    {
+        if (material == nullptr)
+            return;
 
-    _materials[name] = material;
+        material->name = name;
+        material->initialize();
+
+        if (_materials.find(name) != _materials.end())
+        {
+            _materials[name]->free();
+            delete _materials[name];
+        }
+
+        _materials[name] = material;
+    }
 }
 
 Material *AssetsManager::getMaterial(const std::string &name)

@@ -189,6 +189,8 @@ void Material::loadBindings()
             }
         }
     }
+
+    spdlog::info("Material: {0}, {1} loaded with {2} bindings", _vertFilepath.c_str(), _fragFilepath, _bindings.size());
 }
 
 size_t Material::getTotalSamplers() const
