@@ -56,10 +56,10 @@ void FirstPersonActor::onMovementInput(float dt, glm::vec2 movement)
 
     movement *= _moveSpeed;
 
-    glm::vec3 forward = _transform.forward() * movement.y * dt;
+    glm::vec3 forward = _cameraComponent->getWorldSpaceForward() * movement.y * dt;
     forward.y = 0;
     _transform.position += forward;
-    _transform.position += _transform.right() * -movement.x * dt;
+    _transform.position += _cameraComponent->getWorldSpaceRight() * -movement.x * dt;
 }
 
 void FirstPersonActor::onMouseMovement(float dt, glm::vec2 mousePosition)
@@ -80,8 +80,6 @@ void FirstPersonActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     glm::quat pitch = glm::angleAxis(-pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f));
 
     // Combine the new rotations
-    _transform.rotation = yaw * _transform.rotation;
-    _transform.rotation = _transform.rotation * pitch;
-
-    _transform.rotation = glm::normalize(_transform.rotation);
+    glm::quat cameraRotation = _cameraComponent->getLocalSpaceTransform().rotation;
+    _cameraComponent->setRotation((yaw * cameraRotation) * pitch);
 }
