@@ -26,7 +26,7 @@ size_t Material::_idProvider{0};
 size_t Material::_boundID{1};
 
 Material::Material(const std::string &vertPath, const std::string &fragPath, bool modelBased)
-    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{_idProvider}
+    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{_idProvider}, _doNotSave{false}
 {
     _renderSystem = RenderSystem::getInstance();
 
@@ -35,7 +35,7 @@ Material::Material(const std::string &vertPath, const std::string &fragPath, boo
 }
 
 Material::Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased)
-    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{id}
+    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{id}, _doNotSave{true}
 {
     _renderSystem = RenderSystem::getInstance();
 }
@@ -44,8 +44,11 @@ void Material::editor()
 {
 }
 
-tinyxml2::XMLElement &Material::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+tinyxml2::XMLElement *Material::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
+    if (_doNotSave)
+        return nullptr;
+
     tinyxml2::XMLElement *materialElement = doc.NewElement("material");
 
     materialElement->SetAttribute("type", getType().c_str());
@@ -54,7 +57,7 @@ tinyxml2::XMLElement &Material::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEl
 
     parentElement->InsertEndChild(materialElement);
 
-    return *materialElement;
+    return materialElement;
 }
 
 void Material::load(tinyxml2::XMLElement *materialElement)
@@ -94,47 +97,20 @@ void Material::free()
 void Material::loadBindings()
 {
     _bindings.clear();
+    _requestedSamplerCount = 0;
 
-    auto vertBindings = loadBindings(_vertFilepath);
-    spdlog::info("Material: {0} loaded with {1} bindings", _vertFilepath, vertBindings.size());
-
-    for (const SpvReflectDescriptorBinding *binding : vertBindings)
-    {
-        spdlog::info("Adding vert binding: set = {0}, binding = {1}, type = {2}", binding->set, binding->binding,
-                     (int)binding->descriptor_type);
-        _bindings.emplace(binding->set, binding->binding, binding->descriptor_type);
-    }
-
-    auto fragBindings = loadBindings(_fragFilepath);
-    spdlog::info("Material: {0} loaded with {1} bindings", _fragFilepath, fragBindings.size());
-
-    for (const SpvReflectDescriptorBinding *binding : fragBindings)
-    {
-        spdlog::info("Adding frag binding: set = {0}, binding = {1}, type = {2}", binding->set, binding->binding,
-                     (int)binding->descriptor_type);
-        _bindings.emplace(binding->set, binding->binding, binding->descriptor_type);
-    }
+    loadBindings(_vertFilepath);
+    loadBindings(_fragFilepath);
 
     spdlog::info("Material: {0}, {1} loaded with {2} bindings", _vertFilepath.c_str(), _fragFilepath.c_str(),
                  _bindings.size());
 }
 
-size_t Material::getTotalSamplers() const
-{
-    size_t count{0};
-    for (const BindingInfo &info : _bindings)
-    {
-        if (info.type == SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER)
-            count++;
-    }
-    return count;
-}
-
-std::vector<SpvReflectDescriptorBinding *> Material::loadBindings(const std::string &filename)
+void Material::loadBindings(const std::string &filename)
 {
     std::vector<uint32_t> spirvCode = loadSpirvData(filename);
 
-    SpvReflectShaderModule module;
+    SpvReflectShaderModule module{};
     SpvReflectResult result =
         spvReflectCreateShaderModule(spirvCode.size() * sizeof(uint32_t), spirvCode.data(), &module);
     if (result != SPV_REFLECT_RESULT_SUCCESS)
@@ -148,9 +124,19 @@ std::vector<SpvReflectDescriptorBinding *> Material::loadBindings(const std::str
     std::vector<SpvReflectDescriptorBinding *> bindings(bindingCount);
     result = spvReflectEnumerateDescriptorBindings(&module, &bindingCount, bindings.data());
 
+    for (const SpvReflectDescriptorBinding *binding : bindings)
+    {
+        if (_bindings.emplace(binding->set, binding->binding, binding->descriptor_type).second)
+        {
+            if (binding->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+            {
+                _requestedSamplerCount++;
+            }
+        }
+    }
+
     // Clean up
     spvReflectDestroyShaderModule(&module);
-    return bindings;
 }
 
 std::vector<uint32_t> Material::loadSpirvData(const std::string &filename)

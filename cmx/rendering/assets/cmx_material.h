@@ -3,6 +3,7 @@
 
 // cmx
 #include "cmx_assets_manager.h"
+#include "cmx_pipeline.h"
 
 // lib
 #include <SPIRV-Reflect/spirv_reflect.h>
@@ -59,14 +60,11 @@ class Material
     Material(const std::string &vertPath, const std::string &fragPath, bool modelBased = true);
     virtual ~Material() = default;
 
-    virtual Material *clone() const
-    {
-        return nullptr;
-    }
+    virtual Material *clone() const = 0;
 
     virtual void bind(struct FrameInfo *, const class Drawable *) = 0;
     virtual void editor();
-    virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
+    virtual tinyxml2::XMLElement *save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
     virtual void load(tinyxml2::XMLElement *materialElement);
 
     std::string getType() const;
@@ -97,12 +95,14 @@ class Material
     {
         return _bindings;
     }
-    size_t getTotalSamplers() const;
-
-    void loadBindings();
+    size_t getRequestedSamplerCount() const
+    {
+        return _requestedSamplerCount;
+    }
     // virtual Material *newInstance() = 0;
 
     friend void AssetsManager::load(tinyxml2::XMLElement *parentElement);
+    void loadBindings();
 
     std::string name;
 
@@ -113,13 +113,14 @@ class Material
     virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) = 0;
     virtual void createPipeline(vk::RenderPass) = 0;
 
-    static std::vector<SpvReflectDescriptorBinding *> loadBindings(const std::string &filename);
+    void loadBindings(const std::string &filename);
     static std::vector<uint32_t> loadSpirvData(const std::string &filename);
 
     class Actor *parent{nullptr};
     bool _transparent{false};
 
     bool _modelBased;
+    bool _doNotSave;
 
     const size_t _id;
     static size_t _idProvider;
@@ -130,9 +131,10 @@ class Material
     std::string _fragFilepath;
 
     vk::PipelineLayout _pipelineLayout;
-    std::unique_ptr<class Pipeline> _pipeline;
+    std::unique_ptr<Pipeline> _pipeline;
 
     std::set<BindingInfo> _bindings;
+    size_t _requestedSamplerCount;
 
     class RenderSystem *_renderSystem{nullptr};
 

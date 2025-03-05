@@ -47,10 +47,11 @@ void Drawable::setDrawOption(const DrawOption &drawOption, size_t index)
         return;
     }
 
-    if (drawOption.textures.size() > drawOption.material->getTotalSamplers())
+    if (drawOption.textures.size() > drawOption.material->getRequestedSamplerCount())
     {
-        spdlog::error("Drawable: too many textures assigned to a material [{0}] which does not support it",
-                      drawOption.material->name);
+        spdlog::warn("Drawable: {0} textures assigned to a material [{1}] which supports {2}",
+                     drawOption.textures.size(), drawOption.material->name,
+                     drawOption.material->getRequestedSamplerCount());
     }
 
     getParentActor()->getScene()->getGraphicsManager()->add(this, &_drawOptions[index]);
@@ -112,10 +113,8 @@ void Drawable::editor(int i)
                 {
                     if (ImGui::Button(ICON_MS_CONTENT_COPY))
                     {
-                        Material *duplicate = drawOption.material->clone();
-                        assetsManager->addMaterial(duplicate,
-                                                   incrementNumberInParentheses(drawOption.material->name).c_str());
-                        setMaterial(duplicate->name.c_str());
+                        Material *duplicate = assetsManager->makeUnique(drawOption.material->name.c_str());
+                        setMaterial(duplicate->name.c_str(), id);
 
                         ImGui::SetNextItemWidth(170);
                         ImGui::SameLine();
@@ -247,7 +246,7 @@ tinyxml2::XMLElement &Drawable::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEl
                 optionElement->SetAttribute("model", option.model->name.c_str());
             }
 
-            for (int i = 0; i < std::min(option.material->getTotalSamplers(), option.textures.size()); i++)
+            for (int i = 0; i < std::min(option.material->getRequestedSamplerCount(), option.textures.size()); i++)
             {
                 optionElement->SetAttribute(("t" + std::to_string(i)).c_str(), option.textures[i]->name.c_str());
             }
@@ -278,7 +277,7 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
                 setModel(optionElement->Attribute("model"), index);
             }
 
-            size_t totalSamplerCount = _drawOptions[i].material->getTotalSamplers();
+            size_t totalSamplerCount = _drawOptions[i].material->getRequestedSamplerCount();
             std::vector<const char *> textureNames{};
             for (int i = 0; i < totalSamplerCount; i++)
             {
@@ -298,7 +297,7 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
 
 void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
 {
-    size_t textureCount = drawOption->material->getTotalSamplers();
+    size_t textureCount = drawOption->material->getRequestedSamplerCount();
     if (drawOption->textures.size() < textureCount)
         return;
     if (drawOption->material->needsModel() && drawOption->model == nullptr)

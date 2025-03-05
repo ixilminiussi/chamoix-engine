@@ -15,7 +15,12 @@
 namespace cmx
 {
 
-PhysicsComponent::PhysicsComponent() : PhysicsBody{&_parent}, Drawable{&_parent}
+PhysicsComponent::PhysicsComponent()
+    : PhysicsBody{&_parent}
+#ifndef NDEBUG
+      ,
+      Drawable{&_parent}
+#endif
 {
 }
 
@@ -27,19 +32,23 @@ void PhysicsComponent::onAttach()
 {
     getScene()->getPhysicsManager()->add(this);
 
+#ifndef NDEBUG
     AssetsManager *assetsManager = getScene()->getAssetsManager();
     setDrawOption({
         assetsManager->getMaterial("mesh_material"),
         assetsManager->getModel(PRIMITIVE_SPHERE),
         {},
     });
+#endif
 }
 
 tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentElement);
     PhysicsBody::save(*parentElement);
+#ifndef NDEBUG
     Drawable::save(doc, &componentElement);
+#endif
 
     return componentElement;
 }
@@ -48,13 +57,17 @@ void PhysicsComponent::load(tinyxml2::XMLElement *componentElement)
 {
     Component::load(componentElement);
     PhysicsBody::load(componentElement);
+#ifndef NDEBUG
     Drawable::load(componentElement);
+#endif
 }
 
 void PhysicsComponent::editor(int i)
 {
     PhysicsBody::editor(i);
+#ifndef NDEBUG
     Drawable::editor(i);
+#endif
     Component::editor(i);
 }
 

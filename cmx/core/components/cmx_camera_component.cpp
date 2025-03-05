@@ -4,6 +4,9 @@
 #include "cmx_actor.h"
 #include "cmx_camera.h"
 #include "cmx_register.h"
+#ifndef NDEBUG
+#include "cmx_mesh_material.h"
+#endif
 
 // lib
 #include "imgui.h"
@@ -12,7 +15,12 @@
 namespace cmx
 {
 
-CameraComponent::CameraComponent() : _camera{std::make_shared<Camera>()}
+CameraComponent::CameraComponent()
+    : _camera{std::make_shared<Camera>()}
+#ifndef NDEBUG
+      ,
+      Drawable{&_parent}
+#endif
 {
 }
 
@@ -26,6 +34,25 @@ void CameraComponent::onAttach()
     {
         parent->getScene()->setCamera(_camera);
     }
+
+#ifndef NDEBUG
+    AssetsManager *assetsManager = getScene()->getAssetsManager();
+    _material = (MeshMaterial *)assetsManager->makeUnique("mesh_material");
+    setDrawOption({
+        (Material *)_material,
+        assetsManager->getModel("cmx_camera"),
+        {},
+    });
+
+    if (_mainCamera)
+    {
+        _material->setColor({1, 1, 0});
+    }
+    else
+    {
+        _material->setColor({0, 1, 1});
+    }
+#endif
 }
 
 void CameraComponent::update(float dt)
@@ -66,27 +93,44 @@ void CameraComponent::update(float dt)
 
 void CameraComponent::editor(int i)
 {
-    ImGui::Checkbox("make main", &_mainCamera);
+#ifndef NDEBUG
+    if (ImGui::Checkbox("make main", &_mainCamera))
+    {
+        if (_mainCamera)
+        {
+            _material->setColor({1, 1, 0});
+        }
+        else
+        {
+            _material->setColor({0, 1, 1});
+        }
+    }
 
     _camera->editor();
     Component::editor(i);
+    Drawable::editor(i);
+#endif
 }
 
 void CameraComponent::load(tinyxml2::XMLElement *componentElement)
 {
     Component::load(componentElement);
+#ifndef NDEBUG
+    Drawable::load(componentElement);
+#endif
 
     _camera->setFOV(componentElement->FloatAttribute("fov"));
     _camera->setNearPlane(componentElement->FloatAttribute("nearPlane"));
     _camera->setFarPlane(componentElement->FloatAttribute("farPlane"));
     _mainCamera = componentElement->BoolAttribute("isMain");
-
-    onAttach();
 }
 
 tinyxml2::XMLElement &CameraComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement &cameraComponent = Component::save(doc, parentElement);
+#ifndef NDEBUG
+    Drawable::save(doc, &cameraComponent);
+#endif
     cameraComponent.SetAttribute("fov", _camera->getFOV());
     cameraComponent.SetAttribute("nearPlane", _camera->getNearPlane());
     cameraComponent.SetAttribute("farPlane", _camera->getFarPlane());

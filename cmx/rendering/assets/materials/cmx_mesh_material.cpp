@@ -42,13 +42,15 @@ void MeshMaterial::editor()
     ImGui::ColorPicker3("color", (float *)&_color);
 }
 
-tinyxml2::XMLElement &MeshMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+tinyxml2::XMLElement *MeshMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
-    tinyxml2::XMLElement &materialElement = Material::save(doc, parentElement);
+    tinyxml2::XMLElement *materialElement = Material::save(doc, parentElement);
+    if (materialElement == nullptr)
+        return materialElement;
 
-    materialElement.SetAttribute("r", _color.r);
-    materialElement.SetAttribute("g", _color.g);
-    materialElement.SetAttribute("b", _color.b);
+    materialElement->SetAttribute("r", _color.r);
+    materialElement->SetAttribute("g", _color.g);
+    materialElement->SetAttribute("b", _color.b);
 
     return materialElement;
 }

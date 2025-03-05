@@ -2,7 +2,6 @@
 #define CMX_PHYSICS_MANAGER
 
 // std
-#include <memory>
 #include <set>
 
 namespace cmx

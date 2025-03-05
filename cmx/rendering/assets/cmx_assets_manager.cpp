@@ -5,7 +5,6 @@
 #include "cmx_hud_material.h"
 #include "cmx_mesh_material.h"
 #include "cmx_model.h"
-#include "cmx_pipeline.h"
 #include "cmx_primitives.h"
 #include "cmx_register.h"
 #include "cmx_render_system.h"
@@ -14,6 +13,7 @@
 #include "cmx_texture.h"
 
 // lib
+#include "cmx_utils.h"
 #include "imgui.h"
 
 // std
@@ -46,8 +46,11 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
 
     for (const auto &pair : _materials)
     {
-        tinyxml2::XMLElement &materialElement = pair.second->save(doc, assetsElement);
-        materialElement.SetAttribute("name", pair.first.c_str());
+        tinyxml2::XMLElement *materialElement = pair.second->save(doc, assetsElement);
+        if (materialElement != nullptr)
+        {
+            materialElement->SetAttribute("name", pair.first.c_str());
+        }
     }
 
     for (const auto &pair : _models)
@@ -184,11 +187,30 @@ bool AssetsManager::addMaterial(Material *material, const char *name)
     return true;
 }
 
+Material *AssetsManager::makeUnique(const char *name)
+{
+    if (_materials.find(std::string(name)) == _materials.end())
+    {
+        spdlog::warn("assetsmanager: no such material named '{0}'", name);
+        return nullptr;
+    }
+
+    Material *duplicate = _materials[name]->clone();
+    std::string newName = incrementNumberInParentheses(name);
+    while (_materials.find(newName) != _materials.end())
+    {
+        newName = incrementNumberInParentheses(newName);
+    }
+    addMaterial(duplicate, newName.c_str());
+
+    return duplicate;
+}
+
 Material *AssetsManager::getMaterial(const char *name)
 {
     if (_materials.find(std::string(name)) == _materials.end())
     {
-        spdlog::warn("AssetsManager: No such material named '{0}'", name);
+        spdlog::warn("assetsmanager: no such material named '{0}'", name);
         return nullptr;
     }
 

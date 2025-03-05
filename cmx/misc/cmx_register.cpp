@@ -1,13 +1,9 @@
 #include "cmx_register.h"
 
 // cmx
-#include "cmx_camera_component.h"
-#include "cmx_hud_component.h"
 #include "cmx_mesh_actor.h"
 #include "cmx_physics_actor.h"
-#include "cmx_physics_component.h"
 #include "cmx_point_light_actor.h"
-#include "cmx_point_light_component.h"
 
 // lib
 #include <spdlog/spdlog.h>

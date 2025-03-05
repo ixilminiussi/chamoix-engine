@@ -10,7 +10,12 @@
 namespace cmx
 {
 
-class PhysicsComponent : public Component, public virtual PhysicsBody, public virtual Drawable
+class PhysicsComponent : public Component,
+                         public virtual PhysicsBody
+#ifndef NDEBUG
+    ,
+                         public virtual Drawable
+#endif
 {
   public:
     PhysicsComponent();

@@ -2,8 +2,6 @@
 
 // cmx
 #include "cmx_actor.h"
-#include "cmx_editor.h"
-#include "cmx_game.h"
 #include "cmx_math.h"
 #include "cmx_physics_manager.h"
 #include "cmx_primitives.h"

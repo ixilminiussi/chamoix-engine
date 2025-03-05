@@ -3,6 +3,7 @@
 
 // cmx
 #include "cmx_component.h"
+#include "cmx_drawable.h"
 #include "cmx_register.h"
 
 // lib
@@ -18,6 +19,10 @@ namespace cmx
 {
 
 class CameraComponent : public Component
+#ifndef NDEBUG
+    ,
+                        public virtual Drawable
+#endif
 {
   public:
     CameraComponent();
@@ -41,6 +46,10 @@ class CameraComponent : public Component
   protected:
     std::shared_ptr<class Camera> _camera;
     bool _mainCamera{false};
+
+#ifndef NDEBUG
+    class MeshMaterial *_material;
+#endif
 };
 
 } // namespace cmx

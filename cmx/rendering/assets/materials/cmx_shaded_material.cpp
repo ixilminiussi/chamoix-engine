@@ -62,25 +62,27 @@ void ShadedMaterial::editor()
     ImGui::ColorEdit3("##", (float *)&_color);
 }
 
-tinyxml2::XMLElement &ShadedMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+tinyxml2::XMLElement *ShadedMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
-    tinyxml2::XMLElement &materialElement = Material::save(doc, parentElement);
+    tinyxml2::XMLElement *materialElement = Material::save(doc, parentElement);
+    if (materialElement == nullptr)
+        return nullptr;
 
-    materialElement.SetAttribute("textured", _textured);
+    materialElement->SetAttribute("textured", _textured);
     if (_textured)
     {
-        materialElement.SetAttribute("worldSpaceUV", _worldSpaceUV);
+        materialElement->SetAttribute("worldSpaceUV", _worldSpaceUV);
         if (_worldSpaceUV)
         {
-            materialElement.SetAttribute("UVoffsetX", _UVoffset.x);
-            materialElement.SetAttribute("UVoffsetY", _UVoffset.y);
-            materialElement.SetAttribute("UVscale", _UVScale);
-            materialElement.SetAttribute("UVrotate", _UVRotate);
+            materialElement->SetAttribute("UVoffsetX", _UVoffset.x);
+            materialElement->SetAttribute("UVoffsetY", _UVoffset.y);
+            materialElement->SetAttribute("UVscale", _UVScale);
+            materialElement->SetAttribute("UVrotate", _UVRotate);
         }
     }
-    materialElement.SetAttribute("r", _color.r);
-    materialElement.SetAttribute("g", _color.g);
-    materialElement.SetAttribute("b", _color.b);
+    materialElement->SetAttribute("r", _color.r);
+    materialElement->SetAttribute("g", _color.g);
+    materialElement->SetAttribute("b", _color.b);
 
     return materialElement;
 }
