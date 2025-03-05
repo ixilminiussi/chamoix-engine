@@ -92,7 +92,6 @@ void GraphicsManager::remove(const Drawable *drawable)
 void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const LightEnvironment *lightEnvironment)
 {
     Material::resetBoundID();
-    Texture::resetBoundID();
 
     if (auto camera = cameraWk.lock().get())
     {
@@ -103,6 +102,7 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
 
         for (auto &[materialID, drawableQueue] : _drawableRenderQueue)
         {
+            Texture::resetBoundID();
             for (auto &[drawable, drawOption] : drawableQueue)
             {
                 drawable->render(*frameInfo, drawOption);
