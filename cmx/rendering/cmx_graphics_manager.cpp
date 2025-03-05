@@ -22,6 +22,11 @@ GraphicsManager::GraphicsManager() : _drawableRenderQueue{}
 
 void GraphicsManager::update(Drawable *drawable, DrawOption *drawOption, size_t oldID)
 {
+    if (drawable == nullptr)
+    {
+        throw("GraphicsManager: attempted to update empty drawable to graphics manager");
+    }
+
     if (oldID != 0)
     {
         auto it = _drawableRenderQueue[oldID].begin();
@@ -30,9 +35,12 @@ void GraphicsManager::update(Drawable *drawable, DrawOption *drawOption, size_t 
         {
             if (it->second == drawOption)
             {
-                _drawableRenderQueue[oldID].erase(it);
+                it = _drawableRenderQueue[oldID].erase(it);
             }
-            it++;
+            else
+            {
+                it++;
+            }
         }
     }
 
@@ -43,7 +51,7 @@ void GraphicsManager::add(Drawable *drawable, DrawOption *drawOption)
 {
     if (drawable == nullptr)
     {
-        throw("attempted to add empty drawable to graphics manager");
+        throw("GraphicsManager: attempted to add empty drawable to graphics manager");
     }
 
     size_t id = drawOption->getMaterialID();

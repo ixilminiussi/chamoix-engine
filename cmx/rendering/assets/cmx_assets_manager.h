@@ -27,24 +27,24 @@ class AssetsManager final
 
     void editor();
 
-    void addMaterial(class Material *material, const std::string &name);
-    class Material *getMaterial(const std::string &name);
+    bool addMaterial(class Material *material, const char *name);
+    class Material *getMaterial(const char *name);
     const auto &getMaterials()
     {
         return _materials;
     }
 
-    void addModel(const std::string &filepath, const std::string &name);
-    void removeModel(const std::string &name);
-    class Model *getModel(const std::string &name);
+    void addModel(const char *filepath, const char *name);
+    void removeModel(const char *name);
+    class Model *getModel(const char *name);
     const auto &getModels()
     {
         return _models;
     }
 
-    void addTexture(const std::string &filepath, const std::string &name);
-    void removeTexture(const std::string &name);
-    class Texture *getTexture(const std::string &name);
+    void addTexture(const char *filepath, const char *name);
+    void removeTexture(const char *name);
+    class Texture *getTexture(const char *name);
     const auto &getTextures()
     {
         return _textures;

@@ -15,6 +15,7 @@
 
 // std
 #include <cstdlib>
+#include <stdexcept>
 
 namespace cmx
 {
@@ -288,8 +289,7 @@ void ButtonAction::bind(std::function<void(float, int)> callbackFunction)
 
 void ButtonAction::bind(std::function<void(float, glm::vec2)> callbackFunction)
 {
-    spdlog::critical("ButtonAction: can only be bound to std::function<void(float, int)>");
-    std::exit(EXIT_FAILURE);
+    throw std::runtime_error("ButtonAction: can only be bound to std::function<void(float, int)>");
 }
 
 void ButtonAction::unbindAll()
@@ -336,8 +336,7 @@ void ButtonAction::load(tinyxml2::XMLElement *buttonActionElement)
 
 void AxisAction::bind(std::function<void(float, int)> callbackFunction)
 {
-    spdlog::critical("AxisAction: can only be bound to std::function<void(float, glm::vec2)>");
-    std::exit(EXIT_FAILURE);
+    throw std::runtime_error("AxisAction: can only be bound to std::function<void(float, glm::vec2)>");
 }
 
 void AxisAction::bind(std::function<void(float, glm::vec2)> callbackFunction)

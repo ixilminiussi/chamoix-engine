@@ -1,3 +1,4 @@
+#include <stdexcept>
 #define STB_IMAGE_IMPLEMENTATION
 #include "cmx_texture.h"
 
@@ -51,8 +52,7 @@ void Texture::free()
 
     if (device == nullptr)
     {
-        spdlog::error("Texture: cannot free texture after having destroyed device");
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error("Texture: cannot free texture after having destroyed device");
     }
 
     device->device().destroySampler(_sampler);
@@ -122,8 +122,7 @@ void Texture::Builder::loadTexture(const std::string &filepath)
 
     if (!image)
     {
-        spdlog::info("stbiload: failed to load texture file {0}", filepath.c_str());
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error("Texture: stbiload failed to load texture file {0}" + filepath);
     }
 
     this->filepath = filepath;

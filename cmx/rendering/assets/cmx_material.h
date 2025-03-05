@@ -6,6 +6,7 @@
 
 // lib
 #include <SPIRV-Reflect/spirv_reflect.h>
+#include <set>
 #include <tinyxml2.h>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
@@ -22,7 +23,24 @@ struct BindingInfo
     uint32_t set;
     uint32_t binding;
     SpvReflectDescriptorType type;
-    vk::ShaderStageFlagBits shaderStage;
+
+    BindingInfo(uint32_t set_, uint32_t binding_, SpvReflectDescriptorType type_)
+        : set{set_}, binding{binding_}, type{type_}
+    {
+    }
+
+    inline bool operator<(const BindingInfo &b) const
+    {
+        if (set < b.set)
+            return true;
+        if (set > b.set)
+            return false;
+        if (binding < b.binding)
+            return true;
+        if (binding > b.binding)
+            return false;
+        return type < b.type;
+    }
 };
 
 #define CLONEABLE_MATERIAL(Type)                                                                                       \
@@ -75,7 +93,7 @@ class Material
 
     static void resetBoundID();
 
-    const std::vector<BindingInfo> &getBindings() const
+    const std::set<BindingInfo> &getBindings() const
     {
         return _bindings;
     }
@@ -114,7 +132,7 @@ class Material
     vk::PipelineLayout _pipelineLayout;
     std::unique_ptr<class Pipeline> _pipeline;
 
-    std::vector<BindingInfo> _bindings;
+    std::set<BindingInfo> _bindings;
 
     class RenderSystem *_renderSystem{nullptr};
 

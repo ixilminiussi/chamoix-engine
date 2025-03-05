@@ -23,7 +23,7 @@ int main()
     }
     catch (const std::exception &e)
     {
-        spdlog::error("{0}", e.what());
+        spdlog::critical("{0}", e.what());
         return EXIT_FAILURE;
     }
 

@@ -44,14 +44,7 @@ void Pipeline::free()
 
 void Pipeline::bind(vk::CommandBuffer commandBuffer)
 {
-    try
-    {
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _graphicsPipeline);
-    }
-    catch (std::exception e)
-    {
-        spdlog::error("{0}", e.what());
-    }
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _graphicsPipeline);
 }
 
 std::vector<char> Pipeline::readFile(const std::string &filepath)

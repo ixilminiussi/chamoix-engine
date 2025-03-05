@@ -20,7 +20,7 @@ struct DrawOption
     class Model *model{nullptr};
     std::vector<class Texture *> textures{};
 
-    unsigned int getMaterialID() const;
+    size_t getMaterialID() const;
 };
 
 class Drawable : public virtual Transformable
@@ -41,9 +41,9 @@ class Drawable : public virtual Transformable
     void render(struct FrameInfo &, DrawOption *drawOption) const;
 
     void setDrawOption(const DrawOption &, size_t index = 0);
-    void setMaterial(const std::string &, size_t index = 0);
-    void setTextures(const std::vector<std::string>, size_t index = 0);
-    void setModel(const std::string &, size_t index = 0);
+    void setMaterial(const char *, size_t index = 0);
+    void setTextures(const std::vector<const char *>, size_t index = 0);
+    void setModel(const char *, size_t index = 0);
 
     const std::vector<DrawOption const *> getDrawOptions() const;
 

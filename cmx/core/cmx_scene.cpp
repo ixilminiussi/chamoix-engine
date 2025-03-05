@@ -70,16 +70,15 @@ void Scene::loadFrom(const std::string &filepath)
         {
             try
             {
-                cmxRegister
-                    .spawnActor(std::string(actorElement->Attribute("type")), this,
-                                std::string(actorElement->Attribute("name")))
+                cmxRegister.spawnActor(actorElement->Attribute("type"), this, actorElement->Attribute("name"))
                     ->load(actorElement);
             }
             catch (std::out_of_range e)
             {
-                spdlog::error("Scene {0}: No actor type <{1}> in register of actors", name,
-                              actorElement->Attribute("type"));
+                throw std::out_of_range(std::string("Scene ") + name + std::string(": No actor type <") +
+                                        actorElement->Attribute("type") + std::string("> in register of actors"));
             }
+
             actorElement = actorElement->NextSiblingElement("actor");
         }
 

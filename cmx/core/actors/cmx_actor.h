@@ -8,6 +8,7 @@
 
 // lib
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 #include <tinyxml2.h>
 
 // std
@@ -35,8 +36,7 @@ enum State
 class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 {
   public:
-    template <class T>
-    static T *spawn(class Scene *, const std::string &name, const Transform &transform = Transform{});
+    template <class T> static T *spawn(class Scene *, const char *name, const Transform &transform = Transform{});
     static Actor *duplicate(class Scene *, Actor *actor);
 
     void despawn();
@@ -130,12 +130,12 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 
 inline uint32_t Actor::_idProvider = 0;
 
-template <typename T> inline T *Actor::spawn(Scene *scene, const std::string &name, const Transform &transform)
+template <typename T> inline T *Actor::spawn(Scene *scene, const char *name, const Transform &transform)
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
-        spdlog::critical("'{0}' is not of base type 'Actor', cannot use with 'Actor::spawn'", typeid(T).name());
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error(std::string("Actor: '") + typeid(T).name() +
+                                 "' is not of base type <Actor>, cannot use with 'Actor::spawn'");
     }
 
     _idProvider++;
@@ -182,9 +182,8 @@ template <typename T> inline std::weak_ptr<T> Actor::getComponentByType()
     {                                                                                                                  \
         CONCAT(ActorRegistrar_, ID)()                                                                                  \
         {                                                                                                              \
-            cmx::Register::getInstance().addActor(#Type, [](cmx::Scene *scene, const std::string &name) {              \
-                return cmx::Actor::spawn<Type>(scene, name);                                                           \
-            });                                                                                                        \
+            cmx::Register::getInstance().addActor(                                                                     \
+                #Type, [](cmx::Scene *scene, const char *name) { return cmx::Actor::spawn<Type>(scene, name); });      \
         }                                                                                                              \
     };                                                                                                                 \
     [[maybe_unused]] inline CONCAT(ActorRegistrar_, ID) CONCAT(actorRegistrar_, ID){};

@@ -18,15 +18,14 @@ class Register
   public:
     static Register &getInstance();
 
-    void addActor(std::string, std::function<class Actor *(class Scene *, const std::string &)>);
-    void addComponent(std::string, std::function<std::shared_ptr<class Component>()>);
-    void addMaterial(std::string, std::function<class Material *()>);
+    void addActor(const char *, std::function<class Actor *(class Scene *, const char *)>);
+    void addComponent(const char *, std::function<std::shared_ptr<class Component>()>);
+    void addMaterial(const char *, std::function<class Material *()>);
 
-    class Actor *spawnActor(const std::string &, class Scene *, const std::string &);
-    std::shared_ptr<class Component> attachComponent(const std::string &, class Actor *, const std::string &,
-                                                     bool force = false);
+    class Actor *spawnActor(const char *, class Scene *, const char *);
+    std::shared_ptr<class Component> attachComponent(const char *, class Actor *, const char *, bool force = false);
 
-    class Material *getMaterial(const std::string &);
+    class Material *getMaterial(const char *);
 
     const auto &getActorRegister()
     {
@@ -42,7 +41,7 @@ class Register
     Register();
     ~Register();
 
-    std::map<std::string, std::function<class Actor *(class Scene *, const std::string &)>> actorRegister;
+    std::map<std::string, std::function<class Actor *(class Scene *, const char *)>> actorRegister;
 
     std::map<std::string, std::function<std::shared_ptr<class Component>()>> componentRegister;
 

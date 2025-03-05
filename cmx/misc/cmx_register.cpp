@@ -14,7 +14,6 @@
 
 // std
 #include <memory>
-#include <stdexcept>
 
 namespace cmx
 {
@@ -33,7 +32,7 @@ Register &Register::getInstance()
     return instance;
 }
 
-void Register::addActor(std::string name, std::function<Actor *(class Scene *, const std::string &)> builder)
+void Register::addActor(const char *name, std::function<Actor *(class Scene *, const char *)> builder)
 {
     if (actorRegister.find(name) != actorRegister.end())
     {
@@ -45,7 +44,7 @@ void Register::addActor(std::string name, std::function<Actor *(class Scene *, c
     actorRegister[name] = builder;
 }
 
-void Register::addComponent(std::string name, std::function<std::shared_ptr<class Component>()> builder)
+void Register::addComponent(const char *name, std::function<std::shared_ptr<class Component>()> builder)
 {
     if (componentRegister.find(name) != componentRegister.end())
     {
@@ -57,7 +56,7 @@ void Register::addComponent(std::string name, std::function<std::shared_ptr<clas
     componentRegister[name] = builder;
 }
 
-void Register::addMaterial(std::string name, std::function<class Material *()> builder)
+void Register::addMaterial(const char *name, std::function<class Material *()> builder)
 {
     if (materialRegister.find(name) != materialRegister.end())
     {
@@ -69,7 +68,7 @@ void Register::addMaterial(std::string name, std::function<class Material *()> b
     materialRegister[name] = builder;
 }
 
-Actor *Register::spawnActor(const std::string &typeName, class Scene *scene, const std::string &actorName)
+Actor *Register::spawnActor(const char *typeName, class Scene *scene, const char *actorName)
 {
     if (actorRegister.find(typeName) == actorRegister.end())
     {
@@ -80,8 +79,8 @@ Actor *Register::spawnActor(const std::string &typeName, class Scene *scene, con
     return actorRegister[typeName](scene, actorName);
 }
 
-std::shared_ptr<class Component> Register::attachComponent(const std::string &typeName, class Actor *actor,
-                                                           const std::string &componentName, bool force)
+std::shared_ptr<class Component> Register::attachComponent(const char *typeName, class Actor *actor,
+                                                           const char *componentName, bool force)
 {
     if (componentRegister.find(typeName) == componentRegister.end())
     {
@@ -92,7 +91,7 @@ std::shared_ptr<class Component> Register::attachComponent(const std::string &ty
     return actor->attachComponent(componentRegister.at(typeName)(), componentName, force);
 }
 
-class Material *Register::getMaterial(const std::string &typeName)
+class Material *Register::getMaterial(const char *typeName)
 {
     if (materialRegister.find(typeName) == materialRegister.end())
     {

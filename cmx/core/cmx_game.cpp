@@ -8,6 +8,7 @@
 
 // lib
 #include <GLFW/glfw3.h>
+#include <exception>
 #include <glm/ext/scalar_constants.hpp>
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
@@ -80,8 +81,7 @@ Scene *Game::getScene()
 {
     if (!_activeScene)
     {
-        spdlog::critical("Game: No active scene! There MUST be an active scene at all times");
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error("Game: No active scene! There MUST be an active scene at all times");
     }
     return _activeScene;
 }

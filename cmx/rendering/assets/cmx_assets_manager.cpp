@@ -22,7 +22,7 @@
 namespace cmx
 {
 
-AssetsManager::AssetsManager(class Scene *parent) : _parentScene{parent}
+AssetsManager::AssetsManager(class Scene *parent) : _parentScene{parent}, _models{}, _textures{}, _materials{}
 {
     addModel("assets/cmx/cube.obj", PRIMITIVE_CUBE);
     addModel("assets/cmx/cylinder.obj", PRIMITIVE_CYLINDER);
@@ -96,8 +96,13 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
         tinyxml2::XMLElement *materialElement = assetsElement->FirstChildElement("material");
         while (materialElement)
         {
-            addMaterial(Register::getInstance().getMaterial(materialElement->Attribute("type")),
-                        materialElement->Attribute("name"));
+            Material *material = Register::getInstance().getMaterial(materialElement->Attribute("type"));
+            material->load(materialElement);
+            if (!addMaterial(Register::getInstance().getMaterial(materialElement->Attribute("type")),
+                             materialElement->Attribute("name")))
+            {
+                delete material;
+            }
 
             materialElement = materialElement->NextSiblingElement("material");
         }
@@ -139,6 +144,7 @@ void AssetsManager::unload()
         while (it != _materials.end())
         {
             (*it).second->free();
+            delete (*it).second;
             spdlog::info("AssetsManager: Unloaded material [{0}]", (*it).first);
             it++;
         }
@@ -153,33 +159,34 @@ void AssetsManager::editor()
     ImGui::Button("testing");
 }
 
-void AssetsManager::addMaterial(Material *material, const std::string &name)
+bool AssetsManager::addMaterial(Material *material, const char *name)
 {
-    if (_materials.find(name) != _materials.end())
+    if (_materials.find(std::string(name)) != _materials.end())
     {
         spdlog::warn("AssetsManager: material of same name '{0}' already exists", name);
+        return false;
     }
-    else
+
+    if (material == nullptr)
+        return false;
+
+    material->name = name;
+    material->initialize();
+
+    if (_materials.find(std::string(name)) != _materials.end())
     {
-        if (material == nullptr)
-            return;
-
-        material->name = name;
-        material->initialize();
-
-        if (_materials.find(name) != _materials.end())
-        {
-            _materials[name]->free();
-            delete _materials[name];
-        }
-
-        _materials[name] = material;
+        _materials[name]->free();
+        delete _materials[name];
     }
+
+    _materials[name] = material;
+
+    return true;
 }
 
-Material *AssetsManager::getMaterial(const std::string &name)
+Material *AssetsManager::getMaterial(const char *name)
 {
-    if (_materials.find(name) == _materials.end())
+    if (_materials.find(std::string(name)) == _materials.end())
     {
         spdlog::warn("AssetsManager: No such material named '{0}'", name);
         return nullptr;
@@ -188,9 +195,9 @@ Material *AssetsManager::getMaterial(const std::string &name)
     return _materials[name];
 }
 
-void AssetsManager::addModel(const std::string &filepath, const std::string &name)
+void AssetsManager::addModel(const char *filepath, const char *name)
 {
-    if (_models.find(name) != _models.end())
+    if (_models.find(std::string(name)) != _models.end())
     {
         spdlog::warn("AssetsManager: model of same name '{0}' already exists", name);
     }
@@ -204,14 +211,14 @@ void AssetsManager::addModel(const std::string &filepath, const std::string &nam
     }
 }
 
-void AssetsManager::removeModel(const std::string &name)
+void AssetsManager::removeModel(const char *name)
 {
     // TODO: implement
 }
 
-Model *AssetsManager::getModel(const std::string &name)
+Model *AssetsManager::getModel(const char *name)
 {
-    if (_models.find(name) == _models.end())
+    if (_models.find(std::string(name)) == _models.end())
     {
         spdlog::warn("AssetsManager: No such model named '{0}'", name);
         return nullptr;
@@ -220,9 +227,9 @@ Model *AssetsManager::getModel(const std::string &name)
     return _models[name].get();
 }
 
-void AssetsManager::addTexture(const std::string &filepath, const std::string &name)
+void AssetsManager::addTexture(const char *filepath, const char *name)
 {
-    if (_textures.find(name) != _textures.end())
+    if (_textures.find(std::string(name)) != _textures.end())
     {
         spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
     }
@@ -236,14 +243,14 @@ void AssetsManager::addTexture(const std::string &filepath, const std::string &n
     }
 }
 
-void AssetsManager::removeTexture(const std::string &name)
+void AssetsManager::removeTexture(const char *name)
 {
     // TODO: implement
 }
 
-Texture *AssetsManager::getTexture(const std::string &name)
+Texture *AssetsManager::getTexture(const char *name)
 {
-    if (_textures.find(name) == _textures.end())
+    if (_textures.find(std::string(name)) == _textures.end())
     {
         spdlog::warn("AssetsManager: No such texture named '{0}'", name);
         return nullptr;

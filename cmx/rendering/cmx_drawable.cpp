@@ -56,9 +56,9 @@ void Drawable::setDrawOption(const DrawOption &drawOption, size_t index)
     getParentActor()->getScene()->getGraphicsManager()->add(this, &_drawOptions[index]);
 }
 
-void Drawable::setMaterial(const std::string &name, size_t index)
+void Drawable::setMaterial(const char *name, size_t index)
 {
-    unsigned int oldID = _drawOptions[index].getMaterialID();
+    size_t oldID = _drawOptions[index].getMaterialID();
 
     AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
     _drawOptions[index].material = assetsManager->getMaterial(name);
@@ -66,25 +66,25 @@ void Drawable::setMaterial(const std::string &name, size_t index)
     getParentActor()->getScene()->getGraphicsManager()->update(this, &_drawOptions[index], oldID);
 }
 
-void Drawable::setTextures(const std::vector<std::string> textures, size_t index)
+void Drawable::setTextures(const std::vector<const char *> textures, size_t index)
 {
     AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
 
     _drawOptions[index].textures.clear();
 
-    for (const std::string &name : textures)
+    for (const char *name : textures)
     {
         _drawOptions[index].textures.push_back(assetsManager->getTexture(name));
     }
 }
 
-void Drawable::setModel(const std::string &name, size_t index)
+void Drawable::setModel(const char *name, size_t index)
 {
     AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
     _drawOptions[index].model = assetsManager->getModel(name);
 }
 
-unsigned int DrawOption::getMaterialID() const
+size_t DrawOption::getMaterialID() const
 {
     if (material == nullptr)
     {
@@ -113,8 +113,9 @@ void Drawable::editor(int i)
                     if (ImGui::Button(ICON_MS_CONTENT_COPY))
                     {
                         Material *duplicate = drawOption.material->clone();
-                        assetsManager->addMaterial(duplicate, incrementNumberInParentheses(drawOption.material->name));
-                        setMaterial(duplicate->name);
+                        assetsManager->addMaterial(duplicate,
+                                                   incrementNumberInParentheses(drawOption.material->name).c_str());
+                        setMaterial(duplicate->name.c_str());
 
                         ImGui::SetNextItemWidth(170);
                         ImGui::SameLine();
@@ -125,11 +126,11 @@ void Drawable::editor(int i)
                     for (const auto &pair : assetsManager->getMaterials())
                     {
                         bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
-                        if (ImGui::Selectable(pair.first.c_str(), isSelected) &&
-                            strcmp(selected, pair.first.c_str()) != 0)
+                        if (ImGui::Selectable(pair.first.c_str(), isSelected) && !isSelected)
                         {
                             selected = pair.first.c_str();
-                            setMaterial(pair.first, id);
+                            setMaterial(selected, id);
+                            isSelected = true;
                         }
 
                         if (isSelected)
@@ -160,7 +161,7 @@ void Drawable::editor(int i)
                                 if (ImGui::Selectable(pair.first.c_str(), isSelected))
                                 {
                                     selected = pair.first.c_str();
-                                    setModel(pair.first, id);
+                                    setModel(selected, id);
                                 }
 
                                 if (isSelected)
@@ -174,7 +175,7 @@ void Drawable::editor(int i)
                     }
 
                     ImGui::Text("Textures:");
-                    const std::vector<BindingInfo> &bindings = drawOption.material->getBindings();
+                    const std::set<BindingInfo> &bindings = drawOption.material->getBindings();
                     int textureIndex = 0;
 
                     for (const BindingInfo &binding : bindings)
@@ -193,7 +194,7 @@ void Drawable::editor(int i)
                             }
 
                             ImGui::PushID(i);
-                            if (ImGui::BeginCombo(std::to_string(bindings[i].binding).c_str(), selected))
+                            if (ImGui::BeginCombo(std::to_string(binding.binding).c_str(), selected))
                             {
                                 for (const auto &pair : assetsManager->getTextures())
                                 {
@@ -202,7 +203,7 @@ void Drawable::editor(int i)
                                     if (ImGui::Selectable(pair.first.c_str(), isSelected))
                                     {
                                         selected = pair.first.c_str();
-                                        drawOption.textures[textureIndex] = assetsManager->getTexture(pair.first);
+                                        drawOption.textures[textureIndex] = assetsManager->getTexture(selected);
                                     }
 
                                     if (isSelected)
@@ -270,20 +271,23 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
             size_t index = optionElement->IntAttribute("index");
 
             setDrawOption(DrawOption{}, index);
-            setMaterial(optionElement->Attribute("material", nullptr), index);
+            setMaterial(optionElement->Attribute("material"), index);
 
             if (_drawOptions[index].material->needsModel())
             {
-                setModel(optionElement->Attribute("model", nullptr), index);
+                setModel(optionElement->Attribute("model"), index);
             }
 
             size_t totalSamplerCount = _drawOptions[i].material->getTotalSamplers();
-            std::vector<std::string> textureNames{};
+            std::vector<const char *> textureNames{};
             for (int i = 0; i < totalSamplerCount; i++)
             {
                 std::string attributeName = "t" + std::to_string(i);
-                std::string name = optionElement->Attribute(attributeName.c_str());
-                textureNames.push_back(name);
+                const char *name = optionElement->Attribute(attributeName.c_str());
+                if (name != 0)
+                {
+                    textureNames.push_back(name);
+                }
             }
             setTextures(textureNames);
 

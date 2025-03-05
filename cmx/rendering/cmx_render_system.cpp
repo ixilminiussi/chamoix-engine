@@ -14,6 +14,7 @@
 
 // lib
 #include <imgui.h>
+#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
 // std
@@ -159,8 +160,7 @@ vk::DescriptorSet &RenderSystem::getSamplerDescriptorSet(size_t index)
 {
     if (index >= _samplerDescriptorSets.size())
     {
-        spdlog::error("RenderSystem: invalid sampler descriptor set index");
-        std::exit(EXIT_FAILURE);
+        throw std::out_of_range("RenderSystem: invalid sampler descriptor set index");
     }
 
     return _samplerDescriptorSets[index];

@@ -8,6 +8,7 @@
 // lib
 #include <cstddef>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
@@ -173,9 +174,8 @@ void Model::Builder::loadModel(const std::string &filepath)
 
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str()))
     {
-        spdlog::warn("tinyobj: {0}", warn);
-        spdlog::error("tinyobj: {1}", err);
-        std::exit(EXIT_FAILURE);
+        spdlog::warn("Model: tinyobj -> {0}", warn);
+        throw std::runtime_error("Model: tinyobj ->" + err);
     }
 
     vertices.clear();

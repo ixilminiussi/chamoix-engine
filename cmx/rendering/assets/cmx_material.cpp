@@ -87,110 +87,36 @@ void Material::free()
     _pipeline->free();
 
     RenderSystem::getInstance()->getDevice()->device().destroyPipelineLayout(_pipelineLayout);
+
+    _bindings.clear();
 }
 
 void Material::loadBindings()
 {
-    auto vertBindings = loadBindings(_vertFilepath);
-    auto fragBindings = loadBindings(_fragFilepath);
-
-    std::sort(vertBindings.begin(), vertBindings.end(),
-              [](SpvReflectDescriptorBinding *a, SpvReflectDescriptorBinding *b) {
-                  return std::tie(a->set, a->binding) < std::tie(b->set, b->binding);
-              });
-    std::sort(fragBindings.begin(), fragBindings.end(),
-              [](SpvReflectDescriptorBinding *a, SpvReflectDescriptorBinding *b) {
-                  return std::tie(a->set, a->binding) < std::tie(b->set, b->binding);
-              });
-
     _bindings.clear();
-    _bindings = std::vector<BindingInfo>{};
-    _bindings.reserve(vertBindings.size() + fragBindings.size());
 
-    auto vertIt = vertBindings.begin();
-    auto fragIt = fragBindings.begin();
+    auto vertBindings = loadBindings(_vertFilepath);
+    spdlog::info("Material: {0} loaded with {1} bindings", _vertFilepath, vertBindings.size());
 
-    while (vertIt != vertBindings.end() && fragIt != fragBindings.end())
+    for (const SpvReflectDescriptorBinding *binding : vertBindings)
     {
-        SpvReflectDescriptorBinding *vertDescriptorBinding = (*vertIt);
-        SpvReflectDescriptorBinding *fragDescriptorBinding = (*fragIt);
-
-        BindingInfo info{};
-
-        if (vertDescriptorBinding->set < fragDescriptorBinding->set || vertIt == vertBindings.end())
-        {
-            info.set = vertDescriptorBinding->set;
-            info.binding = vertDescriptorBinding->binding;
-            info.type = vertDescriptorBinding->descriptor_type;
-            info.shaderStage = vk::ShaderStageFlagBits::eVertex;
-            vertIt++;
-            _bindings.push_back(info);
-            continue;
-        }
-        if (vertDescriptorBinding->set > fragDescriptorBinding->set || fragIt == fragBindings.end())
-        {
-            info.set = fragDescriptorBinding->set;
-            info.binding = fragDescriptorBinding->binding;
-            info.type = fragDescriptorBinding->descriptor_type;
-            info.shaderStage = vk::ShaderStageFlagBits::eVertex;
-            fragIt++;
-            _bindings.push_back(info);
-            continue;
-        }
-        if (vertDescriptorBinding->set == fragDescriptorBinding->set)
-        {
-            if (vertDescriptorBinding->binding < fragDescriptorBinding->binding)
-            {
-                info.set = vertDescriptorBinding->set;
-                info.binding = vertDescriptorBinding->binding;
-                info.type = vertDescriptorBinding->descriptor_type;
-                info.shaderStage = vk::ShaderStageFlagBits::eVertex;
-                vertIt++;
-                _bindings.push_back(info);
-                continue;
-            }
-            if (vertDescriptorBinding->binding > fragDescriptorBinding->binding)
-            {
-                info.set = fragDescriptorBinding->set;
-                info.binding = fragDescriptorBinding->binding;
-                info.type = fragDescriptorBinding->descriptor_type;
-                info.shaderStage = vk::ShaderStageFlagBits::eVertex;
-                fragIt++;
-                _bindings.push_back(info);
-                continue;
-            }
-            if (vertDescriptorBinding->binding == fragDescriptorBinding->binding)
-            {
-                if (vertDescriptorBinding->descriptor_type == fragDescriptorBinding->descriptor_type)
-                {
-                    info.set = vertDescriptorBinding->set;
-                    info.binding = vertDescriptorBinding->binding;
-                    info.type = vertDescriptorBinding->descriptor_type;
-                    info.shaderStage = vk::ShaderStageFlagBits::eAllGraphics;
-                }
-                else
-                {
-                    info.set = fragDescriptorBinding->set;
-                    info.binding = fragDescriptorBinding->binding;
-                    info.type = fragDescriptorBinding->descriptor_type;
-                    info.shaderStage = vk::ShaderStageFlagBits::eFragment;
-
-                    BindingInfo info2{};
-                    info2.set = vertDescriptorBinding->set;
-                    info2.binding = vertDescriptorBinding->binding;
-                    info2.type = vertDescriptorBinding->descriptor_type;
-                    info2.shaderStage = vk::ShaderStageFlagBits::eVertex;
-                    _bindings.push_back(info2);
-                }
-                fragIt++;
-                vertIt++;
-                _bindings.push_back(info);
-                continue;
-            }
-        }
+        spdlog::info("Adding vert binding: set = {0}, binding = {1}, type = {2}", binding->set, binding->binding,
+                     (int)binding->descriptor_type);
+        _bindings.emplace(binding->set, binding->binding, binding->descriptor_type);
     }
 
-    spdlog::info("Material: {0}, {1} loaded with {2} bindings", _vertFilepath.c_str(), _fragFilepath, _bindings.size());
+    auto fragBindings = loadBindings(_fragFilepath);
+    spdlog::info("Material: {0} loaded with {1} bindings", _fragFilepath, fragBindings.size());
+
+    for (const SpvReflectDescriptorBinding *binding : fragBindings)
+    {
+        spdlog::info("Adding frag binding: set = {0}, binding = {1}, type = {2}", binding->set, binding->binding,
+                     (int)binding->descriptor_type);
+        _bindings.emplace(binding->set, binding->binding, binding->descriptor_type);
+    }
+
+    spdlog::info("Material: {0}, {1} loaded with {2} bindings", _vertFilepath.c_str(), _fragFilepath.c_str(),
+                 _bindings.size());
 }
 
 size_t Material::getTotalSamplers() const
@@ -213,8 +139,7 @@ std::vector<SpvReflectDescriptorBinding *> Material::loadBindings(const std::str
         spvReflectCreateShaderModule(spirvCode.size() * sizeof(uint32_t), spirvCode.data(), &module);
     if (result != SPV_REFLECT_RESULT_SUCCESS)
     {
-        spdlog::error("Material: failed to load bindings for {}", filename.c_str());
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error(std::string("Material: failed to load bindings for ") + filename);
     }
 
     uint32_t bindingCount = 0;
@@ -225,7 +150,6 @@ std::vector<SpvReflectDescriptorBinding *> Material::loadBindings(const std::str
 
     // Clean up
     spvReflectDestroyShaderModule(&module);
-
     return bindings;
 }
 
