@@ -50,7 +50,7 @@ std::shared_ptr<Component> Actor::attachComponent(std::shared_ptr<Component> com
                                                   bool force)
 {
     componentName = (componentName.compare("") == 0) ? component->getType() : componentName;
-#ifndef DEBUG
+#ifndef NDEBUG
     // expensive operation so we only use it in debug mode
     auto it = _components.find(componentName);
     if (it != _components.end())
@@ -239,10 +239,13 @@ void Actor::load(tinyxml2::XMLElement *actorElement)
     tinyxml2::XMLElement *componentElement = actorElement->FirstChildElement("component");
     while (componentElement)
     {
-        cmxRegister.attachComponent(componentElement->Attribute("type"), this, componentElement->Attribute("name"))
-            ->load(componentElement);
+        const auto &componentRegister = cmxRegister.getComponentRegister();
 
-        // TODO: Implement this shit
+        const char *typeName = componentElement->Attribute("type");
+        const char *componentName = componentElement->Attribute("name");
+
+        cmxRegister.attachComponent(typeName, this, componentName)->load(componentElement);
+
         componentElement = componentElement->NextSiblingElement("component");
     }
 }

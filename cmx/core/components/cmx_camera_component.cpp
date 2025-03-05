@@ -30,11 +30,6 @@ void CameraComponent::onAttach()
     if (!parent)
         return;
 
-    if (_mainCamera)
-    {
-        parent->getScene()->setCamera(_camera);
-    }
-
 #ifndef NDEBUG
     AssetsManager *assetsManager = getScene()->getAssetsManager();
     _material = (MeshMaterial *)assetsManager->makeUnique("mesh_material");
@@ -43,15 +38,6 @@ void CameraComponent::onAttach()
         assetsManager->getModel("cmx_camera"),
         {},
     });
-
-    if (_mainCamera)
-    {
-        _material->setColor({1, 1, 0});
-    }
-    else
-    {
-        _material->setColor({0, 1, 1});
-    }
 #endif
 }
 
@@ -123,6 +109,20 @@ void CameraComponent::load(tinyxml2::XMLElement *componentElement)
     _camera->setNearPlane(componentElement->FloatAttribute("nearPlane"));
     _camera->setFarPlane(componentElement->FloatAttribute("farPlane"));
     _mainCamera = componentElement->BoolAttribute("isMain");
+
+    if (_mainCamera)
+    {
+        _material->setColor({1, 1, 0});
+    }
+    else
+    {
+        _material->setColor({0, 1, 1});
+    }
+
+    if (_mainCamera)
+    {
+        _parent->getScene()->setCamera(_camera);
+    }
 }
 
 tinyxml2::XMLElement &CameraComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const

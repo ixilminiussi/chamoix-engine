@@ -149,7 +149,7 @@ void Scene::setCamera(std::shared_ptr<Camera> camera)
 
 void Scene::addActor(class Actor *actor)
 {
-#ifndef DEBUG
+#ifndef NDEBUG
     // expensive operation so we only use it in debug mode
     if (getActorByName(actor->name) != nullptr)
     {

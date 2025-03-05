@@ -44,6 +44,28 @@ ViewportUI::~ViewportUI()
     ImGui_ImplVulkan_Shutdown();
 }
 
+std::string inspectedName;
+
+void ViewportUI::saveState()
+{
+    if (_inspectedActor != nullptr)
+    {
+        inspectedName = _inspectedActor->name;
+    }
+    else
+    {
+        inspectedName = "";
+    }
+}
+
+void ViewportUI::reloadState()
+{
+    if (inspectedName.compare("") != 0)
+    {
+        _inspectedActor = _attachedScene->getActorByName(inspectedName);
+    }
+}
+
 void ViewportUI::initImGUI()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();

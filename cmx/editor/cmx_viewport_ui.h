@@ -28,6 +28,9 @@ class ViewportUI
     void load();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parent);
 
+    void saveState();
+    void reloadState();
+
     void guizmoToRotate(float, int);
     void guizmoToScale(float, int);
     void guizmoToTranslate(float, int);

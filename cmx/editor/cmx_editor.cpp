@@ -74,6 +74,7 @@ void Editor::toggle(float dt, int)
     spdlog::info("toggled");
     if (_active)
     {
+        _viewportUI->saveState();
         _scene->saveAs("editor/temp.xml");
         _scene->unload();
         _scene->getGame()->getInputManager()->unbindAll();
@@ -90,6 +91,7 @@ void Editor::toggle(float dt, int)
 
         _scene->loadFrom("editor/temp.xml");
         _scene->setCamera(_viewportActor->getCamera());
+        _viewportUI->reloadState();
 
         _active = true;
         _viewportActor->unlock();
