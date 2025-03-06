@@ -42,12 +42,24 @@ void PhysicsComponent::onAttach()
 #endif
 }
 
+void PhysicsComponent::setPhysicsMode(PhysicsMode mode)
+{
+    PhysicsBody::setPhysicsMode(mode);
+}
+
+void PhysicsComponent::setShape(const std::string &type)
+{
+    PhysicsBody::setShape(type);
+
+    setModel(type.c_str());
+}
+
 tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentElement);
     PhysicsBody::save(componentElement);
 #ifndef NDEBUG
-    Drawable::save(doc, &componentElement);
+    // Drawable::save(doc, &componentElement);
 #endif
 
     return componentElement;
@@ -58,7 +70,7 @@ void PhysicsComponent::load(tinyxml2::XMLElement *componentElement)
     Component::load(componentElement);
     PhysicsBody::load(componentElement);
 #ifndef NDEBUG
-    Drawable::load(componentElement);
+    // Drawable::load(componentElement);
 #endif
 }
 
@@ -66,7 +78,7 @@ void PhysicsComponent::editor(int i)
 {
     PhysicsBody::editor(i);
 #ifndef NDEBUG
-    Drawable::editor(i);
+    // Drawable::editor(i);
 #endif
     Component::editor(i);
 }

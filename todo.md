@@ -10,9 +10,9 @@
 - [x] load
 - [ ] adapt existing scenes
 - [x] material instances
-- [ ] dithering
+- [x] dithering
 - [x] fix component deletion
-- [ ] editor-only materials
+- [x] editor-only materials
 
 ### editor
 - [x] rename elements

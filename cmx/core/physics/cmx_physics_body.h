@@ -28,7 +28,7 @@ class PhysicsBody : public virtual Transformable
     void load(tinyxml2::XMLElement *);
     void editor(int i);
 
-    void setPhysicsMode(PhysicsMode);
+    virtual void setPhysicsMode(PhysicsMode);
 
     PhysicsMode getPhysicsMode()
     {
@@ -40,7 +40,7 @@ class PhysicsBody : public virtual Transformable
         return _shape;
     }
 
-    void setShape(const std::string &);
+    virtual void setShape(const std::string &);
     void setMask(uint8_t mask);
 
     glm::mat3 getInverseInertiaTensorLocalSpace() const;

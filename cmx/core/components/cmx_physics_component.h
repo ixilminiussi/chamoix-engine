@@ -29,6 +29,9 @@ class PhysicsComponent : public Component,
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const override;
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
+
+    void setPhysicsMode(PhysicsMode) override;
+    void setShape(const std::string &) override;
 };
 
 REGISTER_COMPONENT(cmx::PhysicsComponent)
