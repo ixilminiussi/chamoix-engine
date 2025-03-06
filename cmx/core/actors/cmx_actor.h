@@ -72,7 +72,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
         return _scene;
     }
 
-    bool getVisible() const
+    bool isVisible() const
     {
         return _isVisible;
     }

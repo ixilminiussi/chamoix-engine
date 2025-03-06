@@ -1,12 +1,13 @@
 #include "cmx_material.h"
 
 // cmx
-#include ".external/spirv-reflect/spirv_reflect.h"
+#include "cmx_editor.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
 
 // lib
+#include "imgui.h"
 #include <SPIRV-Reflect/spirv_reflect.h>
 #include <cstdlib>
 #include <vulkan/vulkan_enums.hpp>
@@ -26,7 +27,8 @@ size_t Material::_idProvider{0};
 size_t Material::_boundID{1};
 
 Material::Material(const std::string &vertPath, const std::string &fragPath, bool modelBased)
-    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{_idProvider}, _doNotSave{false}
+    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{_idProvider}, _doNotSave{false},
+      _editorOnly{false}, _isVisible{true}
 {
     _renderSystem = RenderSystem::getInstance();
 
@@ -34,14 +36,20 @@ Material::Material(const std::string &vertPath, const std::string &fragPath, boo
     _boundID = _idProvider + 1;
 }
 
-Material::Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased)
-    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{id}, _doNotSave{true}
+Material::Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased,
+                   bool editorOnly)
+    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{id}, _doNotSave{true},
+      _editorOnly{editorOnly}, _isVisible{true}
 {
     _renderSystem = RenderSystem::getInstance();
 }
 
 void Material::editor()
 {
+    ImGui::Text("Misc:");
+    ImGui::Checkbox("visible", &_isVisible);
+    ImGui::SameLine();
+    ImGui::Checkbox("editor only", &_editorOnly);
 }
 
 tinyxml2::XMLElement *Material::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
@@ -54,6 +62,7 @@ tinyxml2::XMLElement *Material::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEl
     materialElement->SetAttribute("type", getType().c_str());
     materialElement->SetAttribute("vertex", _vertFilepath.c_str());
     materialElement->SetAttribute("fragment", _fragFilepath.c_str());
+    materialElement->SetAttribute("editorOnly", _editorOnly);
 
     parentElement->InsertEndChild(materialElement);
 
@@ -64,6 +73,23 @@ void Material::load(tinyxml2::XMLElement *materialElement)
 {
     _vertFilepath = materialElement->Attribute("vertex");
     _fragFilepath = materialElement->Attribute("fragment");
+
+    _editorOnly = materialElement->BoolAttribute("editorOnly");
+}
+
+bool Material::isVisible() const
+{
+#ifndef NDEBUG
+    if (!Editor::isActive())
+    {
+        return !_editorOnly;
+    }
+    else
+    {
+        return _isVisible;
+    }
+#endif
+    return _isVisible && !_editorOnly;
 }
 
 void Material::resetBoundID()
@@ -102,8 +128,8 @@ void Material::loadBindings()
     loadBindings(_vertFilepath);
     loadBindings(_fragFilepath);
 
-    spdlog::info("Material: {0}, {1} loaded with {2} bindings", _vertFilepath.c_str(), _fragFilepath.c_str(),
-                 _bindings.size());
+    spdlog::info("Material: <{}>, '{}', {}' loaded with {} bindings", name.c_str(), _vertFilepath.c_str(),
+                 _fragFilepath.c_str(), _bindings.size());
 }
 
 void Material::loadBindings(const std::string &filename)

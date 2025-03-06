@@ -50,13 +50,13 @@ struct BindingInfo
 };
 
 #define CLONEABLE_MATERIAL(Type)                                                                                       \
-    Type(std::string vertFilepath, std::string fragFilepath, size_t id, bool modelBased)                               \
-        : Material{vertFilepath, fragFilepath, id, modelBased}                                                         \
+    Type(std::string vertFilepath, std::string fragFilepath, size_t id, bool modelBased, bool editorOnly)              \
+        : Material{vertFilepath, fragFilepath, id, modelBased, editorOnly}                                             \
     {                                                                                                                  \
     }                                                                                                                  \
     Material *clone() const override                                                                                   \
     {                                                                                                                  \
-        return new Type(_vertFilepath, _fragFilepath, _id, _modelBased);                                               \
+        return new Type(_vertFilepath, _fragFilepath, _id, _modelBased, _editorOnly);                                  \
     }
 
 class Material
@@ -93,6 +93,11 @@ class Material
     {
         return _modelBased;
     }
+    bool isVisible() const;
+    bool editorOnly() const
+    {
+        return _editorOnly;
+    }
 
     static void resetBoundID();
 
@@ -113,7 +118,8 @@ class Material
 
   protected:
     Material(size_t ID);
-    Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased = true);
+    Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased = true,
+             bool editorOnly = false);
 
     virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) = 0;
     virtual void createPipeline(vk::RenderPass) = 0;
@@ -126,6 +132,8 @@ class Material
 
     bool _modelBased;
     bool _doNotSave;
+    bool _editorOnly;
+    bool _isVisible;
 
     const size_t _id;
     static size_t _idProvider;

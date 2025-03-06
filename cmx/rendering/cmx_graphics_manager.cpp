@@ -59,6 +59,19 @@ void GraphicsManager::add(Drawable *drawable, DrawOption *drawOption)
     {
         return;
     }
+    if (drawOption->material == nullptr)
+    {
+        return;
+    }
+    if (drawOption->material->editorOnly())
+    {
+#ifndef NDEBUG
+        if (!Editor::isActive())
+        {
+            return;
+        }
+#endif
+    }
 
     _drawableRenderQueue[id].push_back({drawable, drawOption});
 }

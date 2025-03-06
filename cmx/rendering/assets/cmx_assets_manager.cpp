@@ -36,11 +36,10 @@ AssetsManager::AssetsManager(class Scene *parent)
     addTexture("assets/cmx/missing-texture.png", "cmx_missing");
     addTexture("assets/cmx/point-light.png", "cmx_point_light");
 
-    addMaterial(new HudMaterial(), "hud_material");
     addMaterial(new ShadedMaterial(), "shaded_material");
     addMaterial(new MeshMaterial(), "mesh_material");
-    addMaterial(new BillboardMaterial(), "billboard_material");
     addMaterial(new DitheredMaterial(), "dithered_material");
+    addMaterial(new HudMaterial(), "hud_material");
 };
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
@@ -124,11 +123,14 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
         while (materialElement)
         {
             Material *material = Register::getInstance().getMaterial(materialElement->Attribute("type"));
-            material->load(materialElement);
-            if (!addMaterial(Register::getInstance().getMaterial(materialElement->Attribute("type")),
-                             materialElement->Attribute("name")))
+            if (!addMaterial(material, materialElement->Attribute("name")))
             {
+                getMaterial(materialElement->Attribute("name"))->load(materialElement);
                 delete material;
+            }
+            else
+            {
+                material->load(materialElement);
             }
 
             materialElement = materialElement->NextSiblingElement("material");

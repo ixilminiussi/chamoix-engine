@@ -89,7 +89,9 @@ void Editor::toggle(float dt, int)
         _scene->unload();
         _scene->getGame()->getInputManager()->unbindAll();
 
+        _active = true;
         _scene->loadFrom("editor/temp.xml");
+        _active = false;
         _scene->setCamera(_viewportActor->getCamera());
         _viewportUI->reloadState();
 

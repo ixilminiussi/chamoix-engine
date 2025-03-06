@@ -3,6 +3,7 @@
 // cmx
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
+#include "cmx_editor.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_material.h"
@@ -311,6 +312,13 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
 
 void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
 {
+    if (drawOption->material == nullptr)
+        return;
+    if (!drawOption->material->isVisible())
+        return;
+    if (!(*_parentP)->isVisible())
+        return;
+
     size_t textureCount = drawOption->material->getRequestedSamplerCount();
 
     drawOption->textures.resize(std::min(textureCount, drawOption->textures.size()));
