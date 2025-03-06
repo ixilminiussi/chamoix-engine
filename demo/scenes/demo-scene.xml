@@ -8,10 +8,15 @@
         <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
         <model filepath="assets/cmx/sphere.obj" name="cmx_sphere"/>
         <model filepath="assets/cmx/camera.obj" name="cmx_camera"/>
-        <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
-        <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
-        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
+        <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
+        <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
+        <model filepath="assets/cmx/sphere.obj" name="cmx_sphere"/>
+        <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
+        <model filepath="assets/cmx/uv-sphere.obj" name="cmx_uv_sphere"/>
+        <model filepath="assets/models/penguin.obj" name="penguin"/>
+        <texture filepath="assets/textures/acacia_planks.png" name="acacia_planks"/>
+        <texture filepath="assets/textures/chiseled_bookshelf_occupied.png" name="chiseled_bookshelf_occupied"/>
         <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
     </assets>
     <lightEnvironment timeOfDay="11">

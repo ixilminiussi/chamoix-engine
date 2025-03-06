@@ -25,7 +25,7 @@ void PointLightComponent::onAttach()
 {
     if (_texture == nullptr)
     {
-        _texture = getScene()->getAssetsManager()->getTexture("cmx_point_light");
+        _texture = getScene()->getAssetsManager()->get2DTexture("cmx_point_light");
     }
 
     _key = _keyChain++;

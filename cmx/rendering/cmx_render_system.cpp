@@ -20,6 +20,7 @@
 // std
 #include <cstdlib>
 #include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_handles.hpp>
 
 namespace cmx
 {

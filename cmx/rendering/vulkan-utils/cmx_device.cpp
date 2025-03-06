@@ -552,7 +552,8 @@ void Device::copyBuffer(vk::Buffer srcBuffer, vk::Buffer dstBuffer, vk::DeviceSi
     endSingleTimeCommands(commandBuffer);
 }
 
-void Device::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height, uint32_t layerCount)
+void Device::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height, uint32_t depth,
+                               uint32_t layerCount)
 {
     vk::CommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -567,7 +568,7 @@ void Device::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t widt
     region.imageSubresource.layerCount = layerCount;
 
     region.imageOffset = vk::Offset3D{0, 0, 0};
-    region.imageExtent = vk::Extent3D{width, height, 1};
+    region.imageExtent = vk::Extent3D{width, height, depth};
 
     commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
 

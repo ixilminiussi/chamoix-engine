@@ -7,7 +7,6 @@ add_subdirectory(tinyxml2)
 
 set(SPIRV_REFLECT_STATIC_LIB ON CACHE BOOL "" FORCE)
 add_subdirectory(spirv-reflect)
-
 add_subdirectory(imgui-gradient-hotfix)
 
 target_include_directories(imgui_gradient SYSTEM PRIVATE imgui)

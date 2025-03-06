@@ -31,7 +31,7 @@ void MeshComponent::onAttach()
     setDrawOption({
         assetsManager->getMaterial("shaded_material"),
         assetsManager->getModel(PRIMITIVE_CUBE),
-        {assetsManager->getTexture("cmx_missing")},
+        {assetsManager->get2DTexture("cmx_missing")},
     });
 }
 

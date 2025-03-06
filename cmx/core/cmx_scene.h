@@ -91,7 +91,6 @@ class Scene
     }
 
     bool renameActor(Actor *, std::string name);
-
     std::string name;
 
   private:

@@ -2,12 +2,13 @@
 #define CMX_ASSET_MANAGER
 
 // lib
+#include <map>
 #include <tinyxml2.h>
 
 // std
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 namespace cmx
 {
@@ -44,19 +45,30 @@ class AssetsManager final
     }
 
     void addTexture(const char *filepath, const char *name);
+    void addTexture(const std::vector<std::string> &filepaths, const char *name);
     void removeTexture(const char *name);
-    class Texture *getTexture(const char *name);
-    const auto &getTextures()
+
+    class Texture *get2DTexture(const char *name);
+    class Texture *get3DTexture(const char *name);
+
+    const auto &get3DTextures()
     {
-        return _textures;
+        return _textures3D;
+    }
+
+    const auto &get2DTextures()
+    {
+        return _textures2D;
     }
 
   private:
     class Scene *_parentScene;
 
-    std::unordered_map<std::string, std::unique_ptr<class Model>> _models;
-    std::unordered_map<std::string, std::unique_ptr<class Texture>> _textures;
-    std::unordered_map<std::string, class Material *> _materials;
+    std::map<std::string, std::unique_ptr<class Model>> _models;
+    std::map<std::string, std::unique_ptr<class Texture>> _textures2D;
+    std::map<std::string, std::unique_ptr<class Texture>> _textures3D;
+    std::map<std::string, class Material *> _materials;
+
     // TODO:
     // fonts
     // sprites

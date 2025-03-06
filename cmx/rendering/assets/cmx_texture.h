@@ -8,6 +8,7 @@
 
 // std
 #include <string>
+#include <vulkan/vulkan_enums.hpp>
 
 namespace cmx
 {
@@ -19,16 +20,18 @@ class Texture
     {
         int width;
         int height;
+        int depth{1};
         uint32_t mipLevels;
-        vk::Format format;
+        vk::Format format{vk::Format::eR8G8B8A8Unorm};
         vk::DeviceSize imageSize;
-        stbi_uc *image;
-        std::string filepath;
+        std::vector<stbi_uc *> images;
+        std::vector<std::string> filepaths;
 
-        void loadTexture(const std::string &filepath);
+        void loadTexture(const char *filepath);
+        void loadTexture3D(const std::vector<std::string> &filepaths);
     };
 
-    Texture(class Device *, const Texture::Builder &, const std::string &name);
+    Texture(class Device *, const Texture::Builder &, const char *name);
     ~Texture();
 
     Texture(const Texture &) = delete;
@@ -39,11 +42,18 @@ class Texture
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
     void bind(vk::CommandBuffer, vk::PipelineLayout);
+    static void bind(vk::CommandBuffer, vk::PipelineLayout, std::vector<Texture *> textures);
 
-    static Texture *createTextureFromFile(class Device *, const std::string &filepath, const std::string &name);
+    static Texture *createTextureFromFile(class Device *, const char *filepath, const char *name);
+    static Texture *createTextureFromFile(class Device *, const std::vector<std::string> &filepaths, const char *name);
     static void resetBoundID();
 
     const std::string name;
+
+    vk::ImageType getType()
+    {
+        return _imageType;
+    }
 
   protected:
     void createImage(class Device *, const Builder &);
@@ -58,7 +68,8 @@ class Texture
     vk::Sampler _sampler;
     size_t _descriptorSetID;
 
-    std::string _filepath;
+    std::vector<std::string> _filepaths;
+    vk::ImageType _imageType;
 
     bool _freed{false};
 

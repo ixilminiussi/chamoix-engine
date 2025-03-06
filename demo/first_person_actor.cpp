@@ -8,10 +8,14 @@
 #include <cmx_primitives.h>
 #include <cmx_shapes.h>
 
+// lib
+#include <glm/geometric.hpp>
+
 void FirstPersonActor::onBegin()
 {
-    DynamicBodyActor::onBegin();
+    cmx::PhysicsActor::onBegin();
     _physicsComponent->setShape(PRIMITIVE_SPHERE);
+    _physicsComponent->setPhysicsMode(cmx::PhysicsMode::DYNAMIC);
 
     _cameraComponent = std::make_shared<cmx::CameraComponent>();
     attachComponent(_cameraComponent);
@@ -58,6 +62,8 @@ void FirstPersonActor::onMovementInput(float dt, glm::vec2 movement)
 
     glm::vec3 forward = _cameraComponent->getWorldSpaceForward() * movement.y * dt;
     forward.y = 0;
+    forward = glm::normalize(forward);
+    forward *= movement.y * dt;
     _transform.position += forward;
     _transform.position += _cameraComponent->getWorldSpaceRight() * -movement.x * dt;
 }

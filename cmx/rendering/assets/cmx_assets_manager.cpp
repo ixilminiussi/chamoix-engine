@@ -22,7 +22,8 @@
 namespace cmx
 {
 
-AssetsManager::AssetsManager(class Scene *parent) : _parentScene{parent}, _models{}, _textures{}, _materials{}
+AssetsManager::AssetsManager(class Scene *parent)
+    : _parentScene{parent}, _models{}, _textures2D{}, _textures3D{}, _materials{}
 {
     addModel("assets/cmx/cube.obj", PRIMITIVE_CUBE);
     addModel("assets/cmx/cylinder.obj", PRIMITIVE_CYLINDER);
@@ -59,7 +60,13 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
         modelElement.SetAttribute("name", pair.first.c_str());
     }
 
-    for (const auto &pair : _textures)
+    for (const auto &pair : _textures2D)
+    {
+        tinyxml2::XMLElement &textureElement = pair.second->save(doc, assetsElement);
+        textureElement.SetAttribute("name", pair.first.c_str());
+    }
+
+    for (const auto &pair : _textures3D)
     {
         tinyxml2::XMLElement &textureElement = pair.second->save(doc, assetsElement);
         textureElement.SetAttribute("name", pair.first.c_str());
@@ -91,7 +98,22 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
         tinyxml2::XMLElement *textureElement = assetsElement->FirstChildElement("texture");
         while (textureElement)
         {
-            addTexture(textureElement->Attribute("filepath"), textureElement->Attribute("name"));
+            if (tinyxml2::XMLElement *filepathElement = textureElement->FirstChildElement("layer"))
+            {
+                std::vector<std::string> filepaths{};
+                while (filepathElement)
+                {
+                    filepaths.push_back(filepathElement->Attribute("filepath"));
+
+                    filepathElement = filepathElement->NextSiblingElement("layer");
+                }
+
+                addTexture(filepaths, textureElement->Attribute("name"));
+            }
+            else
+            {
+                addTexture(textureElement->Attribute("filepath"), textureElement->Attribute("name"));
+            }
 
             textureElement = textureElement->NextSiblingElement("texture");
         }
@@ -129,16 +151,29 @@ void AssetsManager::unload()
     }
 
     {
-        auto it = _textures.begin();
+        auto it = _textures2D.begin();
 
-        while (it != _textures.end())
+        while (it != _textures2D.end())
         {
             (*it).second->free();
-            spdlog::info("AssetsManager: Unloaded texture [{0}]", (*it).first);
+            spdlog::info("AssetsManager: Unloaded 2D texture [{0}]", (*it).first);
             it++;
         }
 
-        _textures.clear();
+        _textures2D.clear();
+    }
+
+    {
+        auto it = _textures3D.begin();
+
+        while (it != _textures3D.end())
+        {
+            (*it).second->free();
+            spdlog::info("AssetsManager: Unloaded 3D texture [{0}]", (*it).first);
+            it++;
+        }
+
+        _textures3D.clear();
     }
 
     {
@@ -251,7 +286,7 @@ Model *AssetsManager::getModel(const char *name)
 
 void AssetsManager::addTexture(const char *filepath, const char *name)
 {
-    if (_textures.find(std::string(name)) != _textures.end())
+    if (_textures2D.find(std::string(name)) != _textures2D.end())
     {
         spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
     }
@@ -260,7 +295,26 @@ void AssetsManager::addTexture(const char *filepath, const char *name)
         Device *device = RenderSystem::getInstance()->getDevice();
         if (device)
         {
-            _textures[name] = std::unique_ptr<Texture>(Texture::createTextureFromFile(device, filepath, name));
+            _textures2D[name] = std::unique_ptr<Texture>(Texture::createTextureFromFile(device, filepath, name));
+        }
+    }
+}
+
+void AssetsManager::addTexture(const std::vector<std::string> &filepaths, const char *name)
+{
+    std::map<std::string, std::unique_ptr<class Texture>> &textureList =
+        filepaths.size() > 1 ? _textures3D : _textures2D;
+
+    if (textureList.find(name) != textureList.end())
+    {
+        spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
+    }
+    else
+    {
+        Device *device = RenderSystem::getInstance()->getDevice();
+        if (device)
+        {
+            textureList[name] = std::unique_ptr<Texture>(Texture::createTextureFromFile(device, filepaths, name));
         }
     }
 }
@@ -270,15 +324,26 @@ void AssetsManager::removeTexture(const char *name)
     // TODO: implement
 }
 
-Texture *AssetsManager::getTexture(const char *name)
+Texture *AssetsManager::get2DTexture(const char *name)
 {
-    if (_textures.find(std::string(name)) == _textures.end())
+    if (_textures2D.find(std::string(name)) == _textures2D.end())
     {
         spdlog::warn("AssetsManager: No such texture named '{0}'", name);
         return nullptr;
     }
 
-    return _textures[name].get();
+    return _textures2D[name].get();
+}
+
+Texture *AssetsManager::get3DTexture(const char *name)
+{
+    if (_textures3D.find(std::string(name)) == _textures3D.end())
+    {
+        spdlog::warn("AssetsManager: No such texture named '{0}'", name);
+        return nullptr;
+    }
+
+    return _textures3D[name].get();
 }
 
 } // namespace cmx

@@ -75,7 +75,7 @@ void Drawable::setTextures(const std::vector<const char *> textures, size_t inde
 
     for (const char *name : textures)
     {
-        _drawOptions[index].textures.push_back(assetsManager->getTexture(name));
+        _drawOptions[index].textures.push_back(assetsManager->get2DTexture(name));
     }
 }
 
@@ -195,14 +195,14 @@ void Drawable::editor(int i)
                             ImGui::PushID(i);
                             if (ImGui::BeginCombo(std::to_string(binding.binding).c_str(), selected))
                             {
-                                for (const auto &pair : assetsManager->getTextures())
+                                for (const auto &pair : assetsManager->get2DTextures())
                                 {
                                     bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 
                                     if (ImGui::Selectable(pair.first.c_str(), isSelected))
                                     {
                                         selected = pair.first.c_str();
-                                        drawOption.textures[textureIndex] = assetsManager->getTexture(selected);
+                                        drawOption.textures[textureIndex] = assetsManager->get2DTexture(selected);
                                     }
 
                                     if (isSelected)
