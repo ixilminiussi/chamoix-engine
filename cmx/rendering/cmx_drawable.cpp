@@ -179,7 +179,7 @@ void Drawable::editor(int i)
 
                     for (const BindingInfo &binding : bindings)
                     {
-                        if (binding.type == SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER)
+                        if (binding.type == SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
                         {
                             if (textureIndex < drawOption.textures.size())
                             {

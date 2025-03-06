@@ -3,7 +3,7 @@
 ## Chamoix
 
 ### Textures
-- [ ] 3d textures
+- [x] 3d textures
 
 ### Materials
 - [x] save
@@ -12,12 +12,13 @@
 - [x] material instances
 - [ ] dithering
 - [x] fix component deletion
+- [ ] editor-only materials
 
 ### editor
 - [x] rename elements
-- [ ] camera renderer
-- [ ] order options by alphabet
+- [x] camera renderer
+- [x] order options by alphabet
 
 ### misc
-- [ ] test physics
+- [x] test physics
 

@@ -1,15 +1,15 @@
 #ifndef FIRST_PERSON_ACTOR
 #define FIRST_PERSON_ACTOR
 
+#include "dynamic_body_actor.h"
+
 // cmx
 #include <cmx_camera_component.h>
-#include <cmx_physics_actor.h>
-#include <cmx_register.h>
 
-class FirstPersonActor : public cmx::PhysicsActor
+class FirstPersonActor : public DynamicBodyActor
 {
   public:
-    using cmx::PhysicsActor::PhysicsActor;
+    using DynamicBodyActor::DynamicBodyActor;
 
     virtual void onBegin() override;
     virtual void update(float dt) override;

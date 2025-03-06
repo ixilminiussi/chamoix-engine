@@ -18,6 +18,20 @@
         <texture filepath="assets/textures/acacia_planks.png" name="acacia_planks"/>
         <texture filepath="assets/textures/chiseled_bookshelf_occupied.png" name="chiseled_bookshelf_occupied"/>
         <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
+	<texture name="cmx_radial_dithering">
+            <layer filepath="assets/cmx/dithering/radial5.png"/>
+            <layer filepath="assets/cmx/dithering/radial6.png"/>
+            <layer filepath="assets/cmx/dithering/radial7.png"/>
+            <layer filepath="assets/cmx/dithering/radial8.png"/>
+            <layer filepath="assets/cmx/dithering/radial9.png"/>
+            <layer filepath="assets/cmx/dithering/radial10.png"/>
+            <layer filepath="assets/cmx/dithering/radial11.png"/>
+            <layer filepath="assets/cmx/dithering/radial12.png"/>
+            <layer filepath="assets/cmx/dithering/radial13.png"/>
+            <layer filepath="assets/cmx/dithering/radial14.png"/>
+            <layer filepath="assets/cmx/dithering/radial15.png"/>
+            <layer filepath="assets/cmx/dithering/radial16.png"/>
+        </texture>
     </assets>
     <lightEnvironment timeOfDay="11">
         <ambientLight r="1" g="1" b="1" a="0.2"/>
