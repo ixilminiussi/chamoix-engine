@@ -24,9 +24,10 @@ struct BindingInfo
     uint32_t set;
     uint32_t binding;
     SpvReflectDescriptorType type;
+    SpvDim dim;
 
-    BindingInfo(uint32_t set_, uint32_t binding_, SpvReflectDescriptorType type_)
-        : set{set_}, binding{binding_}, type{type_}
+    BindingInfo(uint32_t set_, uint32_t binding_, SpvReflectDescriptorType type_, SpvDim dim_)
+        : set{set_}, binding{binding_}, type{type_}, dim{dim_}
     {
     }
 
@@ -40,7 +41,11 @@ struct BindingInfo
             return true;
         if (binding > b.binding)
             return false;
-        return type < b.type;
+        if (type < b.type)
+            return true;
+        if (type > b.type)
+            return false;
+        return dim < b.dim;
     }
 };
 

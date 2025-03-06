@@ -2,6 +2,7 @@
 
 // cmx
 #include "cmx_billboard_material.h"
+#include "cmx_dithered_material.h"
 #include "cmx_hud_material.h"
 #include "cmx_mesh_material.h"
 #include "cmx_model.h"
@@ -39,6 +40,7 @@ AssetsManager::AssetsManager(class Scene *parent)
     addMaterial(new ShadedMaterial(), "shaded_material");
     addMaterial(new MeshMaterial(), "mesh_material");
     addMaterial(new BillboardMaterial(), "billboard_material");
+    addMaterial(new DitheredMaterial(), "dithered_material");
 };
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
@@ -344,6 +346,22 @@ Texture *AssetsManager::get3DTexture(const char *name)
     }
 
     return _textures3D[name].get();
+}
+
+Texture *AssetsManager::getAnyTexture(const char *name)
+{
+    if (_textures2D.find(std::string(name)) == _textures2D.end())
+    {
+        if (_textures3D.find(std::string(name)) == _textures3D.end())
+        {
+            spdlog::warn("AssetsManager: No such texture named '{0}'", name);
+            return nullptr;
+        }
+
+        return _textures3D[name].get();
+    }
+
+    return _textures2D[name].get();
 }
 
 } // namespace cmx

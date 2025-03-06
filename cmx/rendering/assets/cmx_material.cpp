@@ -126,7 +126,7 @@ void Material::loadBindings(const std::string &filename)
 
     for (const SpvReflectDescriptorBinding *binding : bindings)
     {
-        if (_bindings.emplace(binding->set, binding->binding, binding->descriptor_type).second)
+        if (_bindings.emplace(binding->set, binding->binding, binding->descriptor_type, binding->image.dim).second)
         {
             if (binding->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
             {

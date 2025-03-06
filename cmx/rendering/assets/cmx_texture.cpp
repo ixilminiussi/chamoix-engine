@@ -344,6 +344,7 @@ void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineL
 
     for (Texture *texture : textures)
     {
+        _boundID = texture->_descriptorSetID;
         descriptorSets.push_back(RenderSystem::getInstance()->getSamplerDescriptorSet(texture->_descriptorSetID));
     }
 

@@ -1,5 +1,5 @@
-#ifndef CMX_SHADED_MATERIAL
-#define CMX_SHADED_MATERIAL
+#ifndef CMX_DITHERED_MATERIAL
+#define CMX_DITHERED_MATERIAL
 
 // cmx
 #include "cmx_material.h"
@@ -22,12 +22,12 @@ struct SimplePushConstantData
 };
 #endif
 
-class ShadedMaterial : public Material
+class DitheredMaterial : public Material
 {
   public:
-    ShadedMaterial() : Material{"shaders/shaded.vert.spv", "shaders/shaded.frag.spv"} {};
+    DitheredMaterial() : Material{"shaders/dithered.vert.spv", "shaders/dithered.frag.spv"} {};
 
-    CLONEABLE_MATERIAL(ShadedMaterial)
+    CLONEABLE_MATERIAL(DitheredMaterial)
 
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
@@ -50,6 +50,6 @@ class ShadedMaterial : public Material
 
 } // namespace cmx
 
-REGISTER_MATERIAL(cmx::ShadedMaterial)
+REGISTER_MATERIAL(cmx::DitheredMaterial)
 
 #endif

@@ -50,6 +50,7 @@ class AssetsManager final
 
     class Texture *get2DTexture(const char *name);
     class Texture *get3DTexture(const char *name);
+    class Texture *getAnyTexture(const char *name);
 
     const auto &get3DTextures()
     {

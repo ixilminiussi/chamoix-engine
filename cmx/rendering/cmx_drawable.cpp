@@ -13,7 +13,9 @@
 
 // lib
 #include <IconsMaterialSymbols.h>
+#include <SPIRV-Reflect/include/spirv/unified1/spirv.h>
 #include <SPIRV-Reflect/spirv_reflect.h>
+#include <algorithm>
 #include <cstring>
 #include <imgui.h>
 
@@ -75,7 +77,7 @@ void Drawable::setTextures(const std::vector<const char *> textures, size_t inde
 
     for (const char *name : textures)
     {
-        _drawOptions[index].textures.push_back(assetsManager->get2DTexture(name));
+        _drawOptions[index].textures.push_back(assetsManager->getAnyTexture(name));
     }
 }
 
@@ -192,17 +194,29 @@ void Drawable::editor(int i)
                                 selected = "";
                             }
 
-                            ImGui::PushID(i);
+                            ImGui::PushID(textureIndex);
                             if (ImGui::BeginCombo(std::to_string(binding.binding).c_str(), selected))
                             {
-                                for (const auto &pair : assetsManager->get2DTextures())
+                                const std::map<std::string, std::unique_ptr<Texture>> &textureRegister =
+                                    binding.dim == SpvDim2D ? assetsManager->get2DTextures()
+                                    : binding.dim == SpvDim3D
+                                        ? assetsManager->get3DTextures()
+                                        : []() -> const std::map<std::string, std::unique_ptr<Texture>> & {
+                                    static const std::map<std::string, std::unique_ptr<Texture>> emptyMap;
+                                    return emptyMap;
+                                }();
+                                for (const auto &pair : textureRegister)
                                 {
                                     bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
 
                                     if (ImGui::Selectable(pair.first.c_str(), isSelected))
                                     {
                                         selected = pair.first.c_str();
-                                        drawOption.textures[textureIndex] = assetsManager->get2DTexture(selected);
+                                        drawOption.textures.resize(
+                                            std::max((size_t)textureIndex + 1, drawOption.textures.size()));
+                                        drawOption.textures[textureIndex] = binding.dim == SpvDim2D
+                                                                                ? assetsManager->get2DTexture(selected)
+                                                                                : assetsManager->get3DTexture(selected);
                                     }
 
                                     if (isSelected)
@@ -298,15 +312,22 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
 void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
 {
     size_t textureCount = drawOption->material->getRequestedSamplerCount();
+
+    drawOption->textures.resize(std::min(textureCount, drawOption->textures.size()));
+
     if (drawOption->textures.size() < textureCount)
         return;
     if (drawOption->material->needsModel() && drawOption->model == nullptr)
         return;
 
     drawOption->material->bind(&frameInfo, this);
-    for (int i = 0; i < textureCount; i++)
+    if (textureCount > 1)
     {
-        drawOption->textures[i]->bind(frameInfo.commandBuffer, drawOption->material->getPipelineLayout());
+        Texture::bind(frameInfo.commandBuffer, drawOption->material->getPipelineLayout(), drawOption->textures);
+    }
+    if (textureCount == 1)
+    {
+        drawOption->textures[0]->bind(frameInfo.commandBuffer, drawOption->material->getPipelineLayout());
     }
 
     if (drawOption->material->needsModel())
