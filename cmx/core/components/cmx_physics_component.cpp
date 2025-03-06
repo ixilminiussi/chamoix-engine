@@ -58,9 +58,6 @@ tinyxml2::XMLElement &PhysicsComponent::save(tinyxml2::XMLDocument &doc, tinyxml
 {
     tinyxml2::XMLElement &componentElement = Component::save(doc, parentElement);
     PhysicsBody::save(componentElement);
-#ifndef NDEBUG
-    // Drawable::save(doc, &componentElement);
-#endif
 
     return componentElement;
 }
@@ -69,17 +66,11 @@ void PhysicsComponent::load(tinyxml2::XMLElement *componentElement)
 {
     Component::load(componentElement);
     PhysicsBody::load(componentElement);
-#ifndef NDEBUG
-    // Drawable::load(componentElement);
-#endif
 }
 
 void PhysicsComponent::editor(int i)
 {
     PhysicsBody::editor(i);
-#ifndef NDEBUG
-    // Drawable::editor(i);
-#endif
     Component::editor(i);
 }
 

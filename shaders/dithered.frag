@@ -62,9 +62,9 @@ vec2 getUVFrequency()
 
 vec2 propperDitheringScale(float brightness)
 {
-    const float scale = 5.f;
+    const float scale = 5.5f;
     const int dotsPerSide = 8;
-    const float invZRes = 1.f / 12.f;
+    const float invZRes = 1.f / (64.f - 16.f);
 
     vec2 uvFrequency = getUVFrequency();
     float spacing = uvFrequency.y; // smaller of the two
