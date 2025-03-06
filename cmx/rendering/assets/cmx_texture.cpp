@@ -67,7 +67,7 @@ void Texture::free()
     _freed = true;
 }
 
-Texture *Texture::createTextureFromFile(class Device *device, const char *filepath, const char *name)
+Texture *Texture::create2DTextureFromFile(class Device *device, const char *filepath, const char *name)
 {
     Builder builder{};
     builder.loadTexture(filepath);
@@ -76,9 +76,14 @@ Texture *Texture::createTextureFromFile(class Device *device, const char *filepa
     return new Texture(device, builder, name);
 }
 
-Texture *Texture::createTextureFromFile(class Device *device, const std::vector<std::string> &filepaths,
-                                        const char *name)
+Texture *Texture::create3DTextureFromFile(class Device *device, const std::vector<std::string> &filepaths,
+                                          const char *name)
 {
+    if (filepaths.size() <= 1)
+    {
+        throw std::runtime_error("AssetsManager: 3d textures MUST have more than one texture");
+    }
+
     Builder builder{};
     builder.loadTexture3D(filepaths);
 
@@ -338,7 +343,8 @@ void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineL
     }
 }
 
-void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout, std::vector<Texture *> textures)
+void Texture::bindMany(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout,
+                       std::vector<Texture *> textures)
 {
     std::vector<vk::DescriptorSet> descriptorSets{};
 

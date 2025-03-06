@@ -19,6 +19,7 @@
 
 // std
 #include <cstdlib>
+#include <stdexcept>
 
 namespace cmx
 {
@@ -33,8 +34,8 @@ AssetsManager::AssetsManager(class Scene *parent)
     addModel("assets/cmx/torus.obj", PRIMITIVE_TORUS);
     addModel("assets/cmx/camera.obj", "cmx_camera");
 
-    addTexture("assets/cmx/missing-texture.png", "cmx_missing");
-    addTexture("assets/cmx/point-light.png", "cmx_point_light");
+    add2DTexture("assets/cmx/missing-texture.png", "cmx_missing");
+    add2DTexture("assets/cmx/point-light.png", "cmx_point_light");
 
     addMaterial(new ShadedMaterial(), "shaded_material");
     addMaterial(new MeshMaterial(), "mesh_material");
@@ -109,11 +110,11 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
                     filepathElement = filepathElement->NextSiblingElement("layer");
                 }
 
-                addTexture(filepaths, textureElement->Attribute("name"));
+                add3DTexture(filepaths, textureElement->Attribute("name"));
             }
             else
             {
-                addTexture(textureElement->Attribute("filepath"), textureElement->Attribute("name"));
+                add2DTexture(textureElement->Attribute("filepath"), textureElement->Attribute("name"));
             }
 
             textureElement = textureElement->NextSiblingElement("texture");
@@ -123,6 +124,8 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
         while (materialElement)
         {
             Material *material = Register::getInstance().getMaterial(materialElement->Attribute("type"));
+            const char *name = materialElement->Attribute("name");
+
             if (!addMaterial(material, materialElement->Attribute("name")))
             {
                 getMaterial(materialElement->Attribute("name"))->load(materialElement);
@@ -288,7 +291,7 @@ Model *AssetsManager::getModel(const char *name)
     return _models[name].get();
 }
 
-void AssetsManager::addTexture(const char *filepath, const char *name)
+void AssetsManager::add2DTexture(const char *filepath, const char *name)
 {
     if (_textures2D.find(std::string(name)) != _textures2D.end())
     {
@@ -299,17 +302,19 @@ void AssetsManager::addTexture(const char *filepath, const char *name)
         Device *device = RenderSystem::getInstance()->getDevice();
         if (device)
         {
-            _textures2D[name] = std::unique_ptr<Texture>(Texture::createTextureFromFile(device, filepath, name));
+            _textures2D[name] = std::unique_ptr<Texture>(Texture::create2DTextureFromFile(device, filepath, name));
         }
     }
 }
 
-void AssetsManager::addTexture(const std::vector<std::string> &filepaths, const char *name)
+void AssetsManager::add3DTexture(const std::vector<std::string> &filepaths, const char *name)
 {
-    std::map<std::string, std::unique_ptr<class Texture>> &textureList =
-        filepaths.size() > 1 ? _textures3D : _textures2D;
+    if (filepaths.size() <= 1)
+    {
+        throw std::runtime_error("AssetsManager: 3d textures MUST have more than one texture");
+    }
 
-    if (textureList.find(name) != textureList.end())
+    if (_textures3D.find(name) != _textures3D.end())
     {
         spdlog::warn("AssetsManager: texture of same name '{0}' already exists", name);
     }
@@ -318,7 +323,7 @@ void AssetsManager::addTexture(const std::vector<std::string> &filepaths, const 
         Device *device = RenderSystem::getInstance()->getDevice();
         if (device)
         {
-            textureList[name] = std::unique_ptr<Texture>(Texture::createTextureFromFile(device, filepaths, name));
+            _textures3D[name] = std::unique_ptr<Texture>(Texture::create3DTextureFromFile(device, filepaths, name));
         }
     }
 }

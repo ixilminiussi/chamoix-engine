@@ -6,6 +6,7 @@
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
+#include "imgui.h"
 
 // lib
 #include <vulkan/vulkan_enums.hpp>
@@ -25,41 +26,29 @@ void DitheredMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
         _boundID = _id;
     }
 
-    SimplePushConstantData push{};
+    DitheringPushConstantData push{};
     Transform transform = drawable->getWorldSpaceTransform();
 
     push.modelMatrix = transform.mat4();
     push.normalMatrix = transform.normalMatrix();
-    push.normalMatrix[3] = glm::vec4(_color, 1.0f);
-
-    push.normalMatrix[0][3] = _UVoffset.x;
-    push.normalMatrix[1][3] = _UVoffset.y;
-    push.normalMatrix[2][3] = _worldSpaceUV ? _UVScale : 0.f;
-    push.normalMatrix[3][3] = _textured ? glm::radians(_UVRotate) : 100.f;
+    push.normalMatrix[0][3] = _spacing;
+    push.normalMatrix[1][3] = _dotsPerSide;
+    push.normalMatrix[2][3] = _scale;
+    push.normalMatrix[3][3] = _threshold;
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-                                           sizeof(SimplePushConstantData), &push);
+                                           sizeof(DitheringPushConstantData), &push);
 }
 
 void DitheredMaterial::editor()
 {
     Material::editor();
 
-    ImGui::Checkbox("use texture", &_textured);
-
-    if (_textured)
-    {
-        ImGui::Checkbox("World space UV", &_worldSpaceUV);
-        if (_worldSpaceUV)
-        {
-            ImGui::SliderFloat2("UV offset", (float *)&_UVoffset, -1.f, 1.f);
-            ImGui::DragFloat("Scale", &_UVScale);
-            ImGui::DragFloat("Rotate", &_UVRotate, 1.f, -180.f, 180.f);
-        }
-    }
-
-    ImGui::ColorEdit3("##", (float *)&_color);
+    ImGui::DragFloat("scale", &_scale, 0.1f, 1.f, 8.f);
+    ImGui::InputInt("dots per side", &_dotsPerSide);
+    ImGui::SliderFloat("spacing", &_spacing, 0.f, 1.f);
+    ImGui::SliderFloat("threshold", &_threshold, 0.5f, 2.f);
 }
 
 tinyxml2::XMLElement *DitheredMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
@@ -68,44 +57,12 @@ tinyxml2::XMLElement *DitheredMaterial::save(tinyxml2::XMLDocument &doc, tinyxml
     if (materialElement == nullptr)
         return nullptr;
 
-    materialElement->SetAttribute("textured", _textured);
-    if (_textured)
-    {
-        materialElement->SetAttribute("worldSpaceUV", _worldSpaceUV);
-        if (_worldSpaceUV)
-        {
-            materialElement->SetAttribute("UVoffsetX", _UVoffset.x);
-            materialElement->SetAttribute("UVoffsetY", _UVoffset.y);
-            materialElement->SetAttribute("UVscale", _UVScale);
-            materialElement->SetAttribute("UVrotate", _UVRotate);
-        }
-    }
-    materialElement->SetAttribute("r", _color.r);
-    materialElement->SetAttribute("g", _color.g);
-    materialElement->SetAttribute("b", _color.b);
-
     return materialElement;
 }
 
 void DitheredMaterial::load(tinyxml2::XMLElement *materialElement)
 {
     Material::load(materialElement);
-
-    _color.r = materialElement->FloatAttribute("r");
-    _color.g = materialElement->FloatAttribute("g");
-    _color.b = materialElement->FloatAttribute("b");
-    _textured = materialElement->BoolAttribute("textured");
-    if (_textured)
-    {
-        _worldSpaceUV = materialElement->BoolAttribute("worldSpaceUV");
-        if (_worldSpaceUV)
-        {
-            _UVoffset =
-                glm::vec2{materialElement->FloatAttribute("UVoffsetX"), materialElement->FloatAttribute("UVoffsetY")};
-            _UVScale = materialElement->FloatAttribute("UVscale");
-            _UVRotate = materialElement->FloatAttribute("UVrotate");
-        }
-    }
 }
 
 void DitheredMaterial::initialize()
@@ -114,8 +71,7 @@ void DitheredMaterial::initialize()
 
     loadBindings();
 
-    createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
-                          _renderSystem->getSamplerDescriptorSetLayout()});
+    createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }
 
@@ -124,7 +80,7 @@ void DitheredMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout>
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+    pushConstantRange.size = sizeof(DitheringPushConstantData);
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;

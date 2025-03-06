@@ -106,7 +106,7 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="dithered_material" model="cmx_plane" t0="cmx_missing" t1="cmx_radial_dithering_hd"/>
+                <option index="0" material="shaded_material" model="cmx_plane" t0="chiseled_bookshelf_occupied"/>
             </rendering>
         </component>
         <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_plane" physicsMode="Static" bounciness="0.5" friction="0.5">
@@ -130,7 +130,7 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="dithered_material" model="cmx_sphere" t0="cmx_missing" t1="cmx_radial_dithering_hd"/>
+                <option index="0" material="dithered_material" model="cmx_sphere" t0="cmx_radial_dithering_hd"/>
             </rendering>
         </component>
         <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Rigid" gravityX="0" gravityY="10" gravityZ="0" inverseMass="1" bounciness="0.5" friction="0.5">

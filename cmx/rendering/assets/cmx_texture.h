@@ -42,10 +42,11 @@ class Texture
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
     void bind(vk::CommandBuffer, vk::PipelineLayout);
-    static void bind(vk::CommandBuffer, vk::PipelineLayout, std::vector<Texture *> textures);
+    static void bindMany(vk::CommandBuffer, vk::PipelineLayout, std::vector<Texture *> textures);
 
-    static Texture *createTextureFromFile(class Device *, const char *filepath, const char *name);
-    static Texture *createTextureFromFile(class Device *, const std::vector<std::string> &filepaths, const char *name);
+    static Texture *create2DTextureFromFile(class Device *, const char *filepath, const char *name);
+    static Texture *create3DTextureFromFile(class Device *, const std::vector<std::string> &filepaths,
+                                            const char *name);
     static void resetBoundID();
 
     const std::string name;

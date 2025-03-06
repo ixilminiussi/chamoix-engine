@@ -331,7 +331,7 @@ void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
     drawOption->material->bind(&frameInfo, this);
     if (textureCount > 1)
     {
-        Texture::bind(frameInfo.commandBuffer, drawOption->material->getPipelineLayout(), drawOption->textures);
+        Texture::bindMany(frameInfo.commandBuffer, drawOption->material->getPipelineLayout(), drawOption->textures);
     }
     if (textureCount == 1)
     {

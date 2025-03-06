@@ -13,14 +13,11 @@
 namespace cmx
 {
 
-#ifndef SIMPLE_PUSH_CONSTANT_DATA
-#define SIMPLE_PUSH_CONSTANT_DATA
-struct SimplePushConstantData
+struct DitheringPushConstantData
 {
     glm::mat4 modelMatrix{1.f};
     glm::mat4 normalMatrix{1.f};
 };
-#endif
 
 class DitheredMaterial : public Material
 {
@@ -40,12 +37,10 @@ class DitheredMaterial : public Material
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
-    glm::vec3 _color{1.f, 1.f, 1.f};
-    glm::vec2 _UVoffset{};
-    bool _worldSpaceUV{false};
-    float _UVScale{1.f};
-    float _UVRotate{0.f};
-    bool _textured{true};
+    float _scale{5.f};
+    int _dotsPerSide{8};
+    float _spacing{0.125f};
+    float _threshold{1.f};
 };
 
 } // namespace cmx

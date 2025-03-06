@@ -44,8 +44,8 @@ class AssetsManager final
         return _models;
     }
 
-    void addTexture(const char *filepath, const char *name);
-    void addTexture(const std::vector<std::string> &filepaths, const char *name);
+    void add2DTexture(const char *filepath, const char *name);
+    void add3DTexture(const std::vector<std::string> &filepaths, const char *name);
     void removeTexture(const char *name);
 
     class Texture *get2DTexture(const char *name);

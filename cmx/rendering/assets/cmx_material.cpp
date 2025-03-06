@@ -23,7 +23,7 @@
 namespace cmx
 {
 
-size_t Material::_idProvider{0};
+size_t Material::_idProvider{1};
 size_t Material::_boundID{1};
 
 Material::Material(const std::string &vertPath, const std::string &fragPath, bool modelBased)

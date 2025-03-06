@@ -13,14 +13,11 @@
 namespace cmx
 {
 
-#ifndef SIMPLE_PUSH_CONSTANT_DATA
-#define SIMPLE_PUSH_CONSTANT_DATA
 struct SimplePushConstantData
 {
     glm::mat4 modelMatrix{1.f};
     glm::mat4 normalMatrix{1.f};
 };
-#endif
 
 class ShadedMaterial : public Material
 {
