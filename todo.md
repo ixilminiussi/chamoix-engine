@@ -18,6 +18,7 @@
 - [x] rename elements
 - [x] camera renderer
 - [x] order options by alphabet
+- [x] dithering editor
 
 ### misc
 - [x] test physics
