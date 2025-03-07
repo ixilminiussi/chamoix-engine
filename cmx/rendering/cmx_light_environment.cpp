@@ -174,17 +174,17 @@ void LightEnvironment::loadDefaults()
     atmosphereWidget.gradient().clear();
 
     ImGG::Mark mark_1{};
-    mark_1.position.set(0.f);
+    mark_1.position.set(.352f);
     mark_1.color = {.55f, .50f, 1.f, 1.f};
     ImGG::Mark mark_2{};
-    mark_2.position.set(0.4f);
-    mark_2.color = {1.f, .48f, 40.f, 1.f};
+    mark_2.position.set(.53f);
+    mark_2.color = {1.f, .55f, 35.f, 1.f};
     ImGG::Mark mark_3{};
-    mark_3.position.set(0.58f);
-    mark_3.color = {1.f, .60f, .24f, 1.f};
+    mark_3.position.set(.61f);
+    mark_3.color = {1.f, .86f, .53f, 1.f};
     ImGG::Mark mark_4{};
-    mark_4.position.set(1.f);
-    mark_4.color = {.9f, .97f, 1.f, 1.f};
+    mark_4.position.set(.78f);
+    mark_4.color = {.78f, .85f, .95f, 1.f};
     atmosphereWidget.gradient().add_mark(mark_1);
     atmosphereWidget.gradient().add_mark(mark_2);
     atmosphereWidget.gradient().add_mark(mark_3);

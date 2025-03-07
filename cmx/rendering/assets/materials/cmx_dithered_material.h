@@ -15,8 +15,9 @@ namespace cmx
 
 struct DitheringPushConstantData
 {
-    glm::mat4 modelMatrix{1.f};
-    glm::mat4 normalMatrix{1.f};
+    glm::mat4 modelMatrix{1.f};  // bottom row is light color
+    glm::mat4 normalMatrix{1.f}; // bottom row is dark color
+    // right column is scale, threshold, and usWorldUV_lightDots
 };
 
 class DitheredMaterial : public Material
@@ -37,10 +38,12 @@ class DitheredMaterial : public Material
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
+    glm::vec3 _lightColor{0.596, 0.624, 0.808};
+    glm::vec3 _darkColor{0.153, 0.157, 0.22};
     float _scale{5.f};
-    int _dotsPerSide{8};
-    float _spacing{0.125f};
     float _threshold{1.f};
+    bool _useWorldUV{false};
+    bool _lightDots{true};
 };
 
 } // namespace cmx
