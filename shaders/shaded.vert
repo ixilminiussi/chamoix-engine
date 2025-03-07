@@ -54,12 +54,12 @@ void main()
     // if we have push.normalMatrix[2][3] != 0, then we should be using tiling uv mapping. otherwise it's regular uv
     if (push.normalMatrix[2][3] == 0)
     {
+        vec2 adaptedUV = vec2(uv.x, 1.0 - uv.y);
+
         fragUV = vec2(uv.x, 1.0 - uv.y) + uvOffset;
     }
     else
     {
-        vec2 adaptedUV = vec2(uv.x, 1.0 - uv.y);
-
         float scale = push.normalMatrix[2][3];
         float theta = push.normalMatrix[3][3];
 

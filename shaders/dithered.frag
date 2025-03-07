@@ -5,6 +5,9 @@ layout(location = 1) in vec3 fragColor;
 layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUV;
 
+layout(location = 4) in vec3 fragDarkColor;
+layout(location = 5) in vec3 fragLightColor;
+
 layout(set = 1, binding = 0) uniform sampler3D ditheringSampler;
 
 layout(location = 0) out vec4 outColor;
@@ -61,13 +64,12 @@ vec2 getUVFrequency()
 
 vec2 propperDitheringScale(float brightness)
 {
-    const float scale = push.normalMatrix[2][3];
+    const float scale = push.normalMatrix[3][0];
 
     vec2 uvFrequency = getUVFrequency();
     float spacing = uvFrequency.y; // smaller of the two
     spacing *= exp2(scale);
     spacing /= brightness;
-    spacing *= push.normalMatrix[1][3] * 0.125;
 
     float logCurve = log2(spacing);
     float roundedLogCurve = floor(logCurve);
@@ -105,12 +107,22 @@ void main()
         diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * cosAngIncidence;
     }
 
-    float brightness = getLuminance(diffuseLight);
+    bool dotToggle = ((uint(push.normalMatrix[3][2]) & 1u) == 0u);
+
+    float brightness = dotToggle ? 1 - getLuminance(diffuseLight) : getLuminance(diffuseLight);
     brightness /= 2;
 
     vec2 ditheringLevel = propperDitheringScale(brightness);
     vec4 ditheringSample = texture(ditheringSampler, vec3(fragUV / ditheringLevel.x, ditheringLevel.y));
 
-    outColor = brightness * push.normalMatrix[3][3] < 1 - ditheringSample.x ? vec4(0.004f, 0.125f, 0.306f, 1)
-                                                                            : vec4(0.965f, 0.863f, 0.675f, 1.f);
+    if (dotToggle)
+    {
+        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(fragLightColor, 1.f)
+                                                                                : vec4(fragDarkColor, 1.f);
+    }
+    else
+    {
+        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(fragDarkColor, 1.f)
+                                                                                : vec4(fragLightColor, 1.f);
+    }
 }

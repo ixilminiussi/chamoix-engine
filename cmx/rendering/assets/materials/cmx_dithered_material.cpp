@@ -31,10 +31,18 @@ void DitheredMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 
     push.modelMatrix = transform.mat4();
     push.normalMatrix = transform.normalMatrix();
-    push.normalMatrix[0][3] = _spacing;
-    push.normalMatrix[1][3] = _dotsPerSide;
-    push.normalMatrix[2][3] = _scale;
-    push.normalMatrix[3][3] = _threshold;
+
+    push.normalMatrix[3][0] = _scale;
+    push.normalMatrix[3][1] = _threshold;
+    push.normalMatrix[3][2] = ((int)_useWorldUV << 1) | (int)_lightDots;
+
+    push.normalMatrix[0][3] = _lightColor.x;
+    push.normalMatrix[1][3] = _lightColor.y;
+    push.normalMatrix[2][3] = _lightColor.z;
+
+    push.modelMatrix[0][3] = _darkColor.x;
+    push.modelMatrix[1][3] = _darkColor.y;
+    push.modelMatrix[2][3] = _darkColor.z;
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
@@ -46,9 +54,26 @@ void DitheredMaterial::editor()
     Material::editor();
 
     ImGui::DragFloat("scale", &_scale, 0.1f, 1.f, 8.f);
-    ImGui::InputInt("dots per side", &_dotsPerSide);
-    ImGui::SliderFloat("spacing", &_spacing, 0.f, 1.f);
     ImGui::SliderFloat("threshold", &_threshold, 0.5f, 2.f);
+    ImGui::Checkbox("use world UV", &_useWorldUV);
+    ImGui::ColorEdit3("light color", (float *)&_lightColor);
+    ImGui::ColorEdit3("dark color", (float *)&_darkColor);
+
+    static const char *selected = _lightDots ? "light dots" : "dark dots";
+    if (ImGui::BeginCombo("toggle", selected))
+    {
+        if (ImGui::Selectable("light dots", _lightDots))
+        {
+            selected = "light dots";
+            _lightDots = true;
+        }
+        if (ImGui::Selectable("dark dots", !_lightDots))
+        {
+            selected = "dark dots";
+            _lightDots = false;
+        }
+        ImGui::EndCombo();
+    }
 }
 
 tinyxml2::XMLElement *DitheredMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
@@ -57,12 +82,48 @@ tinyxml2::XMLElement *DitheredMaterial::save(tinyxml2::XMLDocument &doc, tinyxml
     if (materialElement == nullptr)
         return nullptr;
 
+    materialElement->SetAttribute("scale", _scale);
+    materialElement->SetAttribute("threshold", _threshold);
+    materialElement->SetAttribute("useWorldUV", _useWorldUV);
+    materialElement->SetAttribute("dotsToggle", _lightDots);
+
+    tinyxml2::XMLElement *lightColorElement = doc.NewElement("lightColor");
+    lightColorElement->SetAttribute("r", _lightColor.r);
+    lightColorElement->SetAttribute("g", _lightColor.g);
+    lightColorElement->SetAttribute("b", _lightColor.b);
+    materialElement->InsertEndChild(lightColorElement);
+
+    tinyxml2::XMLElement *darkColorElement = doc.NewElement("darkColor");
+    darkColorElement->SetAttribute("r", _darkColor.r);
+    darkColorElement->SetAttribute("g", _darkColor.g);
+    darkColorElement->SetAttribute("b", _darkColor.b);
+    materialElement->InsertEndChild(darkColorElement);
+
     return materialElement;
 }
 
 void DitheredMaterial::load(tinyxml2::XMLElement *materialElement)
 {
     Material::load(materialElement);
+
+    _scale = materialElement->FloatAttribute("scale", 5.f);
+    _threshold = materialElement->FloatAttribute("threshold", 1.f);
+    _useWorldUV = materialElement->BoolAttribute("useWorldUV", false);
+    _lightDots = materialElement->BoolAttribute("dotsToggle", true);
+
+    if (tinyxml2::XMLElement *lightColorElement = materialElement->FirstChildElement("lightColor"))
+    {
+        _lightColor.r = lightColorElement->FloatAttribute("r", 1.f);
+        _lightColor.g = lightColorElement->FloatAttribute("g", 1.f);
+        _lightColor.b = lightColorElement->FloatAttribute("b", 1.f);
+    }
+
+    if (tinyxml2::XMLElement *darkColorElement = materialElement->FirstChildElement("darkColor"))
+    {
+        _darkColor.r = darkColorElement->FloatAttribute("r", 0.f);
+        _darkColor.g = darkColorElement->FloatAttribute("g", 0.f);
+        _darkColor.b = darkColorElement->FloatAttribute("b", 0.f);
+    }
 }
 
 void DitheredMaterial::initialize()
@@ -88,6 +149,7 @@ void DitheredMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout>
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+
     if (_renderSystem->getDevice()->device().createPipelineLayout(&pipelineLayoutInfo, nullptr, &_pipelineLayout) !=
         vk::Result::eSuccess)
     {
