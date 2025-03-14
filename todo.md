@@ -22,3 +22,5 @@
 ### misc
 - [x] test physics
 
+### fix
+- [ ] duplication not working correctly when passing over shapes, models and materials

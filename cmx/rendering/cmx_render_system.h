@@ -16,13 +16,13 @@
 namespace cmx
 {
 
-struct DirectionalLight
+struct DirectionalLightCompact
 {
     glm::vec4 direction{1.f};
     glm::vec4 color{0.f};
 };
 
-struct PointLight
+struct PointLightCompact
 {
     glm::vec4 position{}; // ignore w
     glm::vec4 color{};    // a is intensity
@@ -33,8 +33,8 @@ struct GlobalUbo
     glm::mat4 projection{1.f};
     glm::mat4 view{1.f};
     glm::vec4 ambientLight{1.f};
-    DirectionalLight sun{};
-    PointLight pointLights[MAX_POINT_LIGHTS];
+    DirectionalLightCompact sun{};
+    PointLightCompact pointLights[MAX_POINT_LIGHTS];
     int numLights;
 };
 

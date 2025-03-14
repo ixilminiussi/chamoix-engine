@@ -29,14 +29,16 @@ void LightEnvironment::populateUbo(GlobalUbo *ubo) const
     for (auto &pair : _pointLightsMap)
     {
         ubo->pointLights[i].position = glm::vec4(*pair.second.position, 1.0f);
-        ubo->pointLights[i].color = glm::vec4(*pair.second.lightColor, *pair.second.lightIntensity);
+        ubo->pointLights[i].color = glm::vec4(*pair.second.color, *pair.second.intensity);
         i++;
     }
     ubo->numLights = i;
 
     if (_hasSun)
     {
-        calculateSun(ubo);
+        ubo->sun.direction = _sun.direction;
+        ubo->sun.color = _sun.color;
+        ubo->ambientLight = glm::vec4(_sun.color.x, _sun.color.y, _sun.color.z, _sun.intensity * .1f + .05f);
     }
     else
     {
@@ -45,20 +47,21 @@ void LightEnvironment::populateUbo(GlobalUbo *ubo) const
     }
 }
 
-void LightEnvironment::calculateSun(GlobalUbo *ubo) const
+void LightEnvironment::calculateSun()
 {
     float theta = (_timeOfDay / 24.f) * glm::two_pi<float>() - glm::half_pi<float>();
-    ubo->sun.direction = glm::vec4(glm::cos(theta), std::max(0.f, glm::sin(theta)), 0.f, 1.f);
+    _sun.direction = glm::vec4(glm::cos(theta), std::max(0.f, glm::sin(theta)), 0.f, 1.f);
 
     float sunIntensity = 1.f - std::abs(_timeOfDay / 12.f - 1.f);
     sunIntensity *= sunIntensity;
     ImGG::ColorRGBA sunColor = atmosphereWidget.gradient().at(ImGG::RelativePosition{sunIntensity});
     sunIntensity *= 2.f;
-    ubo->sun.color = glm::vec4(sunColor.x, sunColor.y, sunColor.z, sunIntensity);
-    ubo->ambientLight = glm::vec4(sunColor.x, sunColor.y, sunColor.z, sunIntensity * .1f + .05f);
+
+    _sun.color = glm::vec4(sunColor.x, sunColor.y, sunColor.z, sunIntensity);
+    _sun.intensity = sunIntensity;
 }
 
-void LightEnvironment::addPointLight(uint32_t id, PointLightStruct pointLight)
+void LightEnvironment::addPointLight(uint32_t id, const PointLight &pointLight)
 {
     if (_pointLightsMap.size() < MAX_POINT_LIGHTS)
     {
@@ -146,6 +149,8 @@ void LightEnvironment::load(tinyxml2::XMLElement *parentElement)
                     markElement = markElement->NextSiblingElement("mark");
                 }
             }
+
+            calculateSun();
         }
         else
         {
@@ -197,6 +202,8 @@ void LightEnvironment::editor()
         ImGui::DragFloat("Time of day", &_timeOfDay, 0.25f, 0.0f, 23.99f, "%.2f");
         ImGui::DragFloat("Sun axis", &_sunAxis, 5.f, 0.f, 180.f, "%.0f");
         atmosphereWidget.widget("Atmosphere color");
+
+        calculateSun();
     }
     else
     {
