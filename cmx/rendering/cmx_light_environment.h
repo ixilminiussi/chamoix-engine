@@ -5,11 +5,14 @@
 #include "tinyxml2.h"
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
+#include <glm/fwd.hpp>
+#include <map>
 #include <vulkan/vulkan.hpp>
 
 // std
 #include <cstdint>
 #include <unordered_map>
+#include <vulkan/vulkan_handles.hpp>
 
 namespace cmx
 {
@@ -19,19 +22,15 @@ struct PointLight
     PointLight() = default;
     PointLight(glm::vec3 *position_, glm::vec3 *color_, float *intensity_)
         : position(position_), color(color_), intensity(intensity_) {};
+
     glm::vec3 *position;
     glm::vec3 *color;
     float *intensity;
-
-    void createImage();
-
-  protected:
-    vk::Image _image;
-    vk::ImageView _imageView;
 };
 
-struct DirectionalLight
+class DirectionalLight
 {
+  public:
     DirectionalLight() = default;
     DirectionalLight(const glm::vec4 &direction_, const glm::vec4 &color_, const float &intensity_)
         : direction(direction_), color(color_), intensity(intensity_) {};
@@ -40,25 +39,39 @@ struct DirectionalLight
     glm::vec4 color{0.f};
     float intensity{0.f};
 
-    void createImage();
+    friend class LightEnvironment;
 
-  protected:
+  private:
+    void initializeShadowMap(class Device *, uint32_t width, uint32_t height);
+    void freeShadowMap(class Device *);
+    void beginRender(class FrameInfo *) const;
+    void endRender(class FrameInfo *) const;
+    void transitionShadowMap(class FrameInfo *) const;
+
     vk::Image _image;
     vk::ImageView _imageView;
+    vk::DeviceMemory _imageMemory;
+    vk::RenderPass _renderPass;
+    vk::Framebuffer _framebuffer;
 };
 
 class LightEnvironment
 {
   public:
     LightEnvironment();
+    ~LightEnvironment();
 
     void addPointLight(uint32_t, const PointLight &);
     void removePointLight(uint32_t);
 
     void populateUbo(struct GlobalUbo *) const;
 
+    void drawShadowMaps(class FrameInfo *,
+                        const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &) const;
+
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
     void load(tinyxml2::XMLElement *);
+    void unload();
     void loadDefaults();
     void editor();
 

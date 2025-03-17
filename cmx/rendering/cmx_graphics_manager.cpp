@@ -1,6 +1,7 @@
 #include "cmx_graphics_manager.h"
 
 // cmx
+#include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
@@ -10,6 +11,7 @@
 #include "cmx_texture.h"
 
 // lib
+#include <immintrin.h>
 #include <spdlog/spdlog.h>
 
 namespace cmx
@@ -108,15 +110,29 @@ void GraphicsManager::drawShadowMap(const class LightEnvironment *)
 
 void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const LightEnvironment *lightEnvironment)
 {
-    Material::resetBoundID();
+    FrameInfo *frameInfo = _renderSystem->beginCommandBuffer();
+    if (!frameInfo)
+        return;
 
-    if (auto camera = cameraWk.lock().get())
+    if (Camera *camera = cameraWk.lock().get())
     {
         _noCameraFlag = false;
 
         _renderSystem->checkAspectRatio(camera);
-        FrameInfo *frameInfo = _renderSystem->beginRender(camera, lightEnvironment);
 
+        GlobalUbo ubo{};
+        ubo.projection = camera->getProjection();
+        ubo.view = camera->getView();
+
+        if (lightEnvironment)
+        {
+            lightEnvironment->populateUbo(&ubo);
+        }
+        _renderSystem->writeUbo(frameInfo, &ubo);
+
+        _renderSystem->beginRender(frameInfo, lightEnvironment);
+
+        Material::resetBoundID();
         for (auto &[materialID, drawableQueue] : _drawableRenderQueue)
         {
             Texture::resetBoundID();
@@ -133,8 +149,6 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
             editor->render(*frameInfo);
         }
 #endif
-
-        _renderSystem->endRender();
     }
     else
     {
@@ -144,6 +158,8 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
             _noCameraFlag = true;
         }
     }
+
+    _renderSystem->endRender();
 }
 
 void GraphicsManager::editor()

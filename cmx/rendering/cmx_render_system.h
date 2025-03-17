@@ -48,8 +48,10 @@ class RenderSystem
     RenderSystem &operator=(const RenderSystem &) = delete;
 
     void checkAspectRatio(class Camera *);
-    struct FrameInfo *beginRender(class Camera *, const class LightEnvironment *);
+    struct FrameInfo *beginCommandBuffer();
+    void beginRender(class FrameInfo *, const class LightEnvironment *);
     void endRender();
+    void writeUbo(class FrameInfo *, class GlobalUbo *);
 
     void closeWindow();
 

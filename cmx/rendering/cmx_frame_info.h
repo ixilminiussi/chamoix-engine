@@ -11,7 +11,6 @@ struct FrameInfo
 {
     int frameIndex;
     vk::CommandBuffer &commandBuffer;
-    class Camera &camera;
     vk::DescriptorSet globalDescriptorSet;
 };
 

@@ -173,32 +173,28 @@ void RenderSystem::checkAspectRatio(class Camera *camera)
     camera->updateAspectRatio(aspect);
 }
 
-FrameInfo *RenderSystem::beginRender(Camera *camera, const LightEnvironment *lightEnvironment)
+FrameInfo *RenderSystem::beginCommandBuffer()
 {
-    FrameInfo *frameInfo;
+    FrameInfo *frameInfo{nullptr};
 
     if ((_commandBuffer = _renderer->beginFrame()))
     {
         int frameIndex = _renderer->getFrameIndex();
-        frameInfo = new FrameInfo{frameIndex, _commandBuffer, *camera, _globalDescriptorSets[frameIndex]};
-        // update
-        GlobalUbo ubo{};
-        ubo.projection = camera->getProjection();
-        ubo.view = camera->getView();
-
-        if (lightEnvironment != nullptr)
-        {
-            lightEnvironment->populateUbo(&ubo);
-        }
-
-        _uboBuffers[frameIndex]->writeToBuffer(&ubo);
-        _uboBuffers[frameIndex]->flush();
-
-        // render
-        _renderer->beginSwapChainRenderPass(_commandBuffer);
+        frameInfo = new FrameInfo{frameIndex, _commandBuffer, _globalDescriptorSets[frameIndex]};
     }
 
     return frameInfo;
+}
+
+void RenderSystem::beginRender(FrameInfo *frameInfo, const LightEnvironment *lightEnvironment)
+{
+    _renderer->beginSwapChainRenderPass(_commandBuffer);
+}
+
+void RenderSystem::writeUbo(class FrameInfo *frameInfo, class GlobalUbo *ubo)
+{
+    _uboBuffers[frameInfo->frameIndex]->writeToBuffer(ubo);
+    _uboBuffers[frameInfo->frameIndex]->flush();
 }
 
 void RenderSystem::endRender()
@@ -206,7 +202,7 @@ void RenderSystem::endRender()
     _renderer->endSwapChainRenderPass(_commandBuffer);
     _renderer->endFrame();
 
-    vkDeviceWaitIdle(_device->device());
+    _device->device().waitIdle();
 }
 
 Device *RenderSystem::getDevice()
