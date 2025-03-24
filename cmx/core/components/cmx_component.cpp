@@ -102,13 +102,19 @@ const Transform &Component::getLocalSpaceTransform() const
     return _transform;
 }
 
-Transform Component::getWorldSpaceTransform() const
+Transform Component::getWorldSpaceTransform(int depth) const
 {
-    if (_parent != nullptr)
+    if (_parent == nullptr || depth == 0)
     {
-        return _parent->getWorldSpaceTransform() + _transform;
+        return getLocalSpaceTransform();
     }
-    return _transform;
+
+    if (depth == -1)
+    {
+        return getLocalSpaceTransform() + _parent->getWorldSpaceTransform();
+    }
+
+    return getLocalSpaceTransform() + _parent->getWorldSpaceTransform(depth - 1);
 }
 
 } // namespace cmx

@@ -11,7 +11,7 @@
 namespace cmx
 {
 
-void BillboardMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
+void BillboardMaterial::bind(const FrameInfo *frameInfo, const Drawable *drawable)
 {
     if (_boundID != _id)
     {
@@ -63,14 +63,14 @@ void BillboardMaterial::load(tinyxml2::XMLElement *materialElement)
     _hue.a = materialElement->FloatAttribute("a");
 }
 
-void BillboardMaterial::initialize()
+void BillboardMaterial::initialize(vk::RenderPass renderPass)
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
     loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderPass);
 }
 
 void BillboardMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

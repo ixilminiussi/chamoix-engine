@@ -30,7 +30,7 @@ class Component : public virtual Transformable
     virtual void onDetach() {};
     virtual void onAttach() {};
 
-    virtual std::shared_ptr<Component> clone() const
+    [[nodiscard]] virtual std::shared_ptr<Component> clone() const
     {
         return std::make_shared<Component>(*this);
     }
@@ -46,7 +46,7 @@ class Component : public virtual Transformable
 
     void despawn();
 
-    std::string getType() const;
+    [[nodiscard]] std::string getType() const;
 
     // getters and setters :: begin
     void setParent(class Actor *actor);
@@ -56,8 +56,8 @@ class Component : public virtual Transformable
         return _parent;
     }
 
-    const Transform &getLocalSpaceTransform() const override;
-    Transform getWorldSpaceTransform() const override;
+    [[nodiscard]] const Transform &getLocalSpaceTransform() const override;
+    [[nodiscard]] Transform getWorldSpaceTransform(int depth = -1) const override;
 
     class Scene *getScene()
     {

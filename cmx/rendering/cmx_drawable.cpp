@@ -3,14 +3,11 @@
 // cmx
 #include "cmx_actor.h"
 #include "cmx_assets_manager.h"
-#include "cmx_editor.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
 #include "cmx_material.h"
 #include "cmx_model.h"
-#include "cmx_render_system.h"
 #include "cmx_texture.h"
-#include "cmx_utils.h"
 
 // lib
 #include <IconsMaterialSymbols.h>
@@ -86,6 +83,11 @@ void Drawable::setModel(const char *name, size_t index)
 {
     AssetsManager *assetsManager = getParentActor()->getScene()->getAssetsManager();
     _drawOptions[index].model = assetsManager->getModel(name);
+}
+
+void Drawable::setModel(class Model *model, size_t index)
+{
+    _drawOptions[index].model = model;
 }
 
 size_t DrawOption::getMaterialID() const
@@ -310,7 +312,7 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
     }
 }
 
-void Drawable::render(FrameInfo &frameInfo, DrawOption *drawOption) const
+void Drawable::render(const FrameInfo &frameInfo, DrawOption *drawOption) const
 {
     if (drawOption->material == nullptr)
         return;

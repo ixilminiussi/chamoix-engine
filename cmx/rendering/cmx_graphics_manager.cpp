@@ -104,16 +104,35 @@ void GraphicsManager::remove(const Drawable *drawable)
     }
 }
 
-void GraphicsManager::drawShadowMap(const class LightEnvironment *)
-{
-}
-
-void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const LightEnvironment *lightEnvironment)
+void GraphicsManager::render(std::weak_ptr<class Camera> camera, const class LightEnvironment *lightEnvironment)
 {
     FrameInfo *frameInfo = _renderSystem->beginCommandBuffer();
     if (!frameInfo)
         return;
 
+    drawShadowMap(frameInfo, lightEnvironment);
+    drawRenderQueue(frameInfo, camera, lightEnvironment);
+
+#ifndef NDEBUG
+    if (Editor::isActive())
+    {
+        Editor *editor = Editor::getInstance();
+        editor->render(*frameInfo);
+    }
+#endif
+
+    _renderSystem->endRender();
+    delete frameInfo;
+}
+
+void GraphicsManager::drawShadowMap(const FrameInfo *frameInfo, const class LightEnvironment *lightEnvironment)
+{
+    lightEnvironment->drawShadowMaps(frameInfo, _drawableRenderQueue);
+}
+
+void GraphicsManager::drawRenderQueue(const FrameInfo *frameInfo, std::weak_ptr<Camera> cameraWk,
+                                      const LightEnvironment *lightEnvironment)
+{
     if (Camera *camera = cameraWk.lock().get())
     {
         _noCameraFlag = false;
@@ -141,14 +160,6 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
                 drawable->render(*frameInfo, drawOption);
             }
         }
-
-#ifndef NDEBUG
-        if (Editor::isActive())
-        {
-            Editor *editor = Editor::getInstance();
-            editor->render(*frameInfo);
-        }
-#endif
     }
     else
     {
@@ -158,8 +169,6 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
             _noCameraFlag = true;
         }
     }
-
-    _renderSystem->endRender();
 }
 
 void GraphicsManager::editor()

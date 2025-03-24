@@ -14,7 +14,7 @@
 namespace cmx
 {
 
-void ShadedMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
+void ShadedMaterial::bind(const FrameInfo *frameInfo, const Drawable *drawable)
 {
     if (_boundID != _id)
     {
@@ -108,14 +108,14 @@ void ShadedMaterial::load(tinyxml2::XMLElement *materialElement)
     }
 }
 
-void ShadedMaterial::initialize()
+void ShadedMaterial::initialize(vk::RenderPass renderPass)
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
     loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderPass);
 }
 
 void ShadedMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

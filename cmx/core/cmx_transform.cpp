@@ -219,12 +219,12 @@ void Transformable::editor(class Camera *camera)
     glm::mat4 projection = camera->getProjection();
     projection[1][1] *= -1;
 
-    static float defaultSnap[3] = {0.01f, 0.01f, 0.01f};
+    static std::array<float, 3> defaultSnap = {0.01f, 0.01f, 0.01f};
 
-    float snap[3] = {guizmoSnapTo, guizmoSnapTo, guizmoSnapTo};
+    std::array<float, 3> snap = {guizmoSnapTo, guizmoSnapTo, guizmoSnapTo};
 
     ImGuizmo::Manipulate((float *)&camera->getView(), (float *)&projection, currentGuizmoOperation, currentGuizmoMode,
-                         (float *)&localMat, NULL, (guizmoSnap) ? snap : defaultSnap);
+                         (float *)&localMat, nullptr, (guizmoSnap) ? snap.data() : defaultSnap.data());
 
     _transform.fromMat4(localMat);
 }

@@ -181,7 +181,7 @@ void Scene::update(float dt)
 
 void Scene::render()
 {
-    _graphicsManager->drawRenderQueue(getCamera(), _lightEnvironment.get());
+    _graphicsManager->render(getCamera(), _lightEnvironment.get());
 }
 
 void Scene::removeActor(Actor *actor)

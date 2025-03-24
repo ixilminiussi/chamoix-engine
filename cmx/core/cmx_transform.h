@@ -23,13 +23,13 @@ struct Transform
     glm::vec3 scale{1.f, 1.f, 1.f};
     glm::quat rotation{glm::vec3{0.f}};
 
-    glm::mat4 mat4() const;
+    [[nodiscard]] glm::mat4 mat4() const;
     void fromMat4(const glm::mat4 &);
-    glm::mat4 mat4_noScale() const;
-    glm::mat3 normalMatrix() const;
-    glm::vec3 forward() const;
-    glm::vec3 right() const;
-    glm::vec3 up() const;
+    [[nodiscard]] glm::mat4 mat4_noScale() const;
+    [[nodiscard]] glm::mat3 normalMatrix() const;
+    [[nodiscard]] glm::vec3 forward() const;
+    [[nodiscard]] glm::vec3 right() const;
+    [[nodiscard]] glm::vec3 up() const;
 
     void editor();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
@@ -53,8 +53,8 @@ class Transformable
     Transformable(const Transform &transform) : _transform{transform} {};
     virtual ~Transformable() = default;
 
-    virtual const Transform &getLocalSpaceTransform() const = 0;
-    virtual Transform getWorldSpaceTransform() const = 0;
+    [[nodiscard]] virtual const Transform &getLocalSpaceTransform() const = 0;
+    [[nodiscard]] virtual Transform getWorldSpaceTransform(int depth = -1) const = 0;
 
     void editor(class Camera *camera);
 

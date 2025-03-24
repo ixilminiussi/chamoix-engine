@@ -1,5 +1,5 @@
-#ifndef CMX_SHADED_MATERIAL
-#define CMX_SHADED_MATERIAL
+#ifndef CMX_VOID_MATERIAL
+#define CMX_VOID_MATERIAL
 
 // cmx
 #include "cmx_material.h"
@@ -13,18 +13,17 @@
 namespace cmx
 {
 
-struct SimplePushConstantData
+struct VoidPushConstantData
 {
     glm::mat4 modelMatrix{1.f};
-    glm::mat4 normalMatrix{1.f};
 };
 
-class ShadedMaterial : public Material
+class VoidMaterial : public Material
 {
   public:
-    ShadedMaterial() : Material{"shaders/shaded.vert.spv", "shaders/shaded.frag.spv"} {};
+    VoidMaterial() : Material{"shaders/void.vert.spv", "shaders/void.frag.spv"} {};
 
-    CLONEABLE_MATERIAL(ShadedMaterial)
+    CLONEABLE_MATERIAL(VoidMaterial)
 
     void bind(const struct FrameInfo *, const class Drawable *) override;
     void editor() override;
@@ -36,17 +35,10 @@ class ShadedMaterial : public Material
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
-
-    glm::vec3 _color{1.f, 1.f, 1.f};
-    glm::vec2 _UVoffset{};
-    bool _worldSpaceUV{false};
-    float _UVScale{1.f};
-    float _UVRotate{0.f};
-    bool _textured{true};
 };
 
 } // namespace cmx
 
-REGISTER_MATERIAL(cmx::ShadedMaterial)
+REGISTER_MATERIAL(cmx::VoidMaterial)
 
 #endif

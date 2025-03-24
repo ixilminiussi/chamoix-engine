@@ -2,7 +2,6 @@
 
 // cmx
 #include "cmx_buffer.h"
-#include "cmx_physics.h"
 #include "cmx_utils.h"
 
 // lib
@@ -66,6 +65,15 @@ Model *Model::createModelFromFile(Device *device, const std::string &filepath, c
 
     spdlog::info("Model: '{0}' loaded with {1} vertices", filepath, builder.vertices.size());
     return new Model(device, builder, name);
+}
+
+Model *Model::createModelFromVerticesAndIndices(class Device *device, const std::vector<glm::vec3> &vertices,
+                                                const std::vector<int> &indices)
+{
+    Builder builder{};
+    builder.loadModel(vertices, indices);
+
+    return new Model(device, builder, "");
 }
 
 void Model::bind(vk::CommandBuffer commandBuffer)
@@ -158,10 +166,10 @@ std::vector<vk::VertexInputAttributeDescription> Model::Vertex::getAttributeDesc
 {
     std::vector<vk::VertexInputAttributeDescription> attributeDescriptions{};
 
-    attributeDescriptions.push_back({0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position)});
-    attributeDescriptions.push_back({1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)});
-    attributeDescriptions.push_back({2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal)});
-    attributeDescriptions.push_back({3, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv)});
+    attributeDescriptions.emplace_back(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position));
+    attributeDescriptions.emplace_back(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color));
+    attributeDescriptions.emplace_back(2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal));
+    attributeDescriptions.emplace_back(3, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv));
     return attributeDescriptions;
 }
 
@@ -229,6 +237,35 @@ void Model::Builder::loadModel(const std::string &filepath)
         }
     }
     this->filepath = filepath;
+}
+
+void Model::Builder::loadModel(const std::vector<glm::vec3> &vertices_, const std::vector<int> &indices_)
+{
+    vertices.clear();
+    indices.clear();
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+    for (const auto &index : indices_)
+    {
+        Vertex vertex{};
+
+        if (index >= 0)
+        {
+            vertex.position = vertices_[index];
+
+            vertex.color = glm::vec3{1.f};
+        }
+
+        if (uniqueVertices.count(vertex) == 0)
+        {
+            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+            vertices.push_back(vertex);
+        }
+
+        indices.push_back(index);
+    }
+
+    this->filepath = "";
 }
 
 tinyxml2::XMLElement &Model::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)

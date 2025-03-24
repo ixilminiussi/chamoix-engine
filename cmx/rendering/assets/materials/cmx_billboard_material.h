@@ -27,12 +27,12 @@ class BillboardMaterial : public Material
 
     CLONEABLE_MATERIAL(BillboardMaterial)
 
-    void bind(struct FrameInfo *, const class Drawable *) override;
+    void bind(const struct FrameInfo *, const class Drawable *) override;
     void editor() override;
     tinyxml2::XMLElement *save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const override;
     void load(tinyxml2::XMLElement *materialElement) override;
 
-    void initialize() override;
+    void initialize(vk::RenderPass) override;
 
     void setHue(const glm::vec4 hue)
     {

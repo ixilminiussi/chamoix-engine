@@ -101,14 +101,12 @@ Material::Material(size_t ID) : _id(ID)
 {
 }
 
-void Material::initialize()
+void Material::initialize(vk::RenderPass renderPass)
 {
-    RenderSystem *renderSystem = RenderSystem::getInstance();
-
     loadBindings();
 
     createPipelineLayout({});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderPass);
 }
 
 void Material::free()

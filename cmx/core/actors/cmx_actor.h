@@ -92,11 +92,11 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
         return _id;
     }
 
-    Transform getWorldSpaceTransform() const override;
     const Transform &getLocalSpaceTransform() const override
     {
         return _transform;
     }
+    Transform getWorldSpaceTransform(int depth = -1) const override;
 
     bool markedForDeletion()
     {

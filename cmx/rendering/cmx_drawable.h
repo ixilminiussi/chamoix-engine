@@ -20,16 +20,15 @@ struct DrawOption
     class Model *model{nullptr};
     std::vector<class Texture *> textures{};
 
-    size_t getMaterialID() const;
+    [[nodiscard]] size_t getMaterialID() const;
 };
 
 class Drawable : public virtual Transformable
 {
   public:
     Drawable(class Actor **parentP);
-    virtual ~Drawable() = default;
 
-    Actor *getParentActor() const
+    [[nodiscard]] Actor *getParentActor() const
     {
         return *_parentP;
     };
@@ -38,14 +37,15 @@ class Drawable : public virtual Transformable
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
     void load(tinyxml2::XMLElement *parentElement);
 
-    void render(struct FrameInfo &, DrawOption *drawOption) const;
+    void render(const struct FrameInfo &, DrawOption *drawOption) const;
 
     void setDrawOption(const DrawOption &, size_t index = 0);
     void setMaterial(const char *, size_t index = 0);
     void setTextures(const std::vector<const char *>, size_t index = 0);
     void setModel(const char *, size_t index = 0);
+    void setModel(class Model *, size_t index = 0);
 
-    const std::vector<DrawOption const *> getDrawOptions() const;
+    [[nodiscard]] const std::vector<DrawOption const *> getDrawOptions() const;
 
   private:
     std::map<size_t, DrawOption> _drawOptions;

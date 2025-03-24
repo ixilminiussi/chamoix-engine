@@ -15,7 +15,7 @@
 namespace cmx
 {
 
-void DitheredMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
+void DitheredMaterial::bind(const FrameInfo *frameInfo, const Drawable *drawable)
 {
     if (_boundID != _id)
     {
@@ -126,7 +126,7 @@ void DitheredMaterial::load(tinyxml2::XMLElement *materialElement)
     }
 }
 
-void DitheredMaterial::initialize()
+void DitheredMaterial::initialize(vk::RenderPass renderPass)
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 

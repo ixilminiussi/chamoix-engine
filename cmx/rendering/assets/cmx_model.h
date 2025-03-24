@@ -42,6 +42,7 @@ class Model
         std::string filepath;
 
         void loadModel(const std::string &filepath);
+        void loadModel(const std::vector<glm::vec3> &, const std::vector<int> &);
     };
 
     Model(class Device *, const Model::Builder &, const std::string &name);
@@ -55,6 +56,8 @@ class Model
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
     static Model *createModelFromFile(class Device *, const std::string &filepath, const std::string &name);
+    static Model *createModelFromVerticesAndIndices(class Device *, const std::vector<glm::vec3> &,
+                                                    const std::vector<int> &);
 
     void bind(vk::CommandBuffer);
     void draw(vk::CommandBuffer);

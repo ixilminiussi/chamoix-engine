@@ -27,12 +27,12 @@ class DitheredMaterial : public Material
 
     CLONEABLE_MATERIAL(DitheredMaterial)
 
-    void bind(struct FrameInfo *, const class Drawable *) override;
+    void bind(const struct FrameInfo *, const class Drawable *) override;
     void editor() override;
     tinyxml2::XMLElement *save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const override;
     void load(tinyxml2::XMLElement *materialElement) override;
 
-    void initialize() override;
+    void initialize(vk::RenderPass) override;
 
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;

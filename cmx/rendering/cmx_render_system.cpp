@@ -186,12 +186,12 @@ FrameInfo *RenderSystem::beginCommandBuffer()
     return frameInfo;
 }
 
-void RenderSystem::beginRender(FrameInfo *frameInfo, const LightEnvironment *lightEnvironment)
+void RenderSystem::beginRender(const FrameInfo *frameInfo, const LightEnvironment *lightEnvironment)
 {
     _renderer->beginSwapChainRenderPass(_commandBuffer);
 }
 
-void RenderSystem::writeUbo(class FrameInfo *frameInfo, class GlobalUbo *ubo)
+void RenderSystem::writeUbo(const FrameInfo *frameInfo, class GlobalUbo *ubo)
 {
     _uboBuffers[frameInfo->frameIndex]->writeToBuffer(ubo);
     _uboBuffers[frameInfo->frameIndex]->flush();

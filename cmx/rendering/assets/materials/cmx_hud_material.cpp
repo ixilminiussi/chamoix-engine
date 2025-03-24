@@ -10,7 +10,7 @@
 namespace cmx
 {
 
-void HudMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
+void HudMaterial::bind(const FrameInfo *frameInfo, const Drawable *drawable)
 {
     if (_boundID != _id)
     {
@@ -24,14 +24,12 @@ void HudMaterial::editor()
 {
 }
 
-void HudMaterial::initialize()
+void HudMaterial::initialize(vk::RenderPass renderPass)
 {
-    RenderSystem *renderSystem = RenderSystem::getInstance();
-
     loadBindings();
 
     createPipelineLayout({});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderPass);
 }
 
 void HudMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

@@ -116,17 +116,23 @@ std::weak_ptr<Component> Actor::getComponentByName(const std::string &name)
     return it->second;
 }
 
-Transform Actor::getWorldSpaceTransform() const
+Transform Actor::getWorldSpaceTransform(int depth) const
 {
-    if (positioning == Positioning::Pos_RELATIVE)
+    if (positioning == Positioning::Pos_ABSOLUTE || depth == 0)
     {
-        if (auto parentActor = _parent.lock())
-        {
-            return _transform + parentActor->getWorldSpaceTransform();
-        }
+        return getLocalSpaceTransform();
     }
 
-    return _transform;
+    if (auto parentActor = _parent.lock())
+    {
+        if (depth == -1)
+        {
+            return getLocalSpaceTransform() + parentActor->getWorldSpaceTransform();
+        }
+
+        return getLocalSpaceTransform() + parentActor->getWorldSpaceTransform(depth - 1);
+    }
+    return getLocalSpaceTransform();
 }
 
 void Actor::editor()

@@ -49,9 +49,9 @@ class RenderSystem
 
     void checkAspectRatio(class Camera *);
     struct FrameInfo *beginCommandBuffer();
-    void beginRender(class FrameInfo *, const class LightEnvironment *);
+    void beginRender(const class FrameInfo *, const class LightEnvironment *);
     void endRender();
-    void writeUbo(class FrameInfo *, class GlobalUbo *);
+    void writeUbo(const class FrameInfo *, class GlobalUbo *);
 
     void closeWindow();
 

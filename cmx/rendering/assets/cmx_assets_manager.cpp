@@ -9,12 +9,14 @@
 #include "cmx_primitives.h"
 #include "cmx_register.h"
 #include "cmx_render_system.h"
+#include "cmx_renderer.h"
 #include "cmx_scene.h"
 #include "cmx_shaded_material.h"
 #include "cmx_texture.h"
 
 // lib
 #include "cmx_utils.h"
+#include "cmx_void_material.h"
 #include "imgui.h"
 
 // std
@@ -37,6 +39,7 @@ AssetsManager::AssetsManager(class Scene *parent)
     add2DTexture("assets/cmx/missing-texture.png", "cmx_missing");
     add2DTexture("assets/cmx/point-light.png", "cmx_point_light");
 
+    addMaterial(new VoidMaterial(), "void_material");
     addMaterial(new ShadedMaterial(), "shaded_material");
     addMaterial(new MeshMaterial(), "mesh_material");
     addMaterial(new DitheredMaterial(), "dithered_material");
@@ -216,7 +219,7 @@ bool AssetsManager::addMaterial(Material *material, const char *name)
         return false;
 
     material->name = name;
-    material->initialize();
+    material->initialize(RenderSystem::getInstance()->getRenderer()->getSwapChainRenderPass());
 
     if (_materials.find(std::string(name)) != _materials.end())
     {

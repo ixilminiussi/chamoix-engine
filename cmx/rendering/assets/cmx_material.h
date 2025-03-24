@@ -67,14 +67,14 @@ class Material
 
     virtual Material *clone() const = 0;
 
-    virtual void bind(struct FrameInfo *, const class Drawable *) = 0;
+    virtual void bind(const struct FrameInfo *, const class Drawable *) = 0;
     virtual void editor();
     virtual tinyxml2::XMLElement *save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const;
     virtual void load(tinyxml2::XMLElement *materialElement);
 
     std::string getType() const;
 
-    virtual void initialize();
+    virtual void initialize(vk::RenderPass);
     virtual void free();
 
     bool isTransparent() const

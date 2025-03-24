@@ -19,10 +19,10 @@ class HudMaterial : public Material
 
     CLONEABLE_MATERIAL(HudMaterial)
 
-    void bind(struct FrameInfo *, const class Drawable *) override;
+    void bind(const struct FrameInfo *, const class Drawable *) override;
     void editor() override;
 
-    void initialize() override;
+    void initialize(vk::RenderPass) override;
 
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;

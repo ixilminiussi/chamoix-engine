@@ -7,6 +7,7 @@
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
 #include "cmx_texture.h"
+#include "cmx_void_material.h"
 #include "imgui.h"
 
 // lib
@@ -23,13 +24,13 @@ namespace cmx
 
 ImGG::GradientWidget atmosphereWidget;
 
-void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width, uint32_t height)
+void DirectionalLight::initializeShadowMap(class Device *device)
 {
     vk::ImageCreateInfo imageInfo{};
 
     imageInfo.sType = vk::StructureType::eImageCreateInfo;
     imageInfo.imageType = vk::ImageType::e2D;
-    imageInfo.extent = vk::Extent3D{width, height, 1u};
+    imageInfo.extent = vk::Extent3D{_textureSize.width, _textureSize.height, 1u};
     imageInfo.mipLevels = 1;
     imageInfo.arrayLayers = 1;
     imageInfo.samples = vk::SampleCountFlagBits::e1;
@@ -88,17 +89,20 @@ void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width,
     framebufferInfo.renderPass = _renderPass;
     framebufferInfo.attachmentCount = 1;
     framebufferInfo.pAttachments = &_imageView;
-    framebufferInfo.width = width;
-    framebufferInfo.height = height;
+    framebufferInfo.width = _textureSize.width;
+    framebufferInfo.height = _textureSize.height;
     framebufferInfo.layers = 1;
 
     if (device->device().createFramebuffer(&framebufferInfo, nullptr, &_framebuffer) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create frame buffer");
     }
+
+    _material = new VoidMaterial();
+    _material->initialize(_renderPass);
 }
 
-void DirectionalLight::transitionShadowMap(class FrameInfo *frameInfo) const
+void DirectionalLight::transitionShadowMap(const class FrameInfo *frameInfo) const
 {
     vk::ImageMemoryBarrier barrier{};
     barrier.image = _image;
@@ -117,7 +121,7 @@ void DirectionalLight::transitionShadowMap(class FrameInfo *frameInfo) const
                                              &barrier);
 }
 
-void DirectionalLight::freeShadowMap(class Device *device)
+void DirectionalLight::freeShadowMap(Device *device)
 {
     device->device().destroyFramebuffer(_framebuffer);
     device->device().destroyRenderPass(_renderPass);
@@ -126,7 +130,7 @@ void DirectionalLight::freeShadowMap(class Device *device)
     device->device().freeMemory(_imageMemory);
 }
 
-void DirectionalLight::beginRender(FrameInfo *frameInfo) const
+void DirectionalLight::beginRender(const FrameInfo *frameInfo) const
 {
     Camera *lightCamera = new Camera();
     glm::vec3 position = glm::vec3{0.f} - glm::vec3{direction} * 100.f;
@@ -143,31 +147,38 @@ void DirectionalLight::beginRender(FrameInfo *frameInfo) const
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = _renderPass;
     renderPassBeginInfo.framebuffer = _framebuffer;
-    renderPassBeginInfo.renderArea.extent.width = 1024;
-    renderPassBeginInfo.renderArea.extent.height = 1024;
+    renderPassBeginInfo.renderArea.extent.width = _textureSize.width;
+    renderPassBeginInfo.renderArea.extent.height = _textureSize.height;
     renderPassBeginInfo.clearValueCount = 1;
     renderPassBeginInfo.pClearValues = &clearDepth;
 
     frameInfo->commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
 
-    // GlobalUbo ubo{};
-    // ubo.projection = frameInfo->camera->getProjection();
-    // ubo.view = frameInfo->camera->getView();
+    GlobalUbo ubo{};
+    ubo.projection = lightCamera->getProjection();
+    ubo.view = lightCamera->getView();
 
-    // RenderSystem::getInstance()->writeUboBuffers(&ubo);
+    const vk::Viewport viewport{0u, 1u, static_cast<float>(_textureSize.width),
+                                static_cast<float>(_textureSize.height)};
+
+    RenderSystem::getInstance()->writeUbo(frameInfo, &ubo);
+    frameInfo->commandBuffer.setViewport(0, 1, &viewport);
+
+    const vk::Rect2D scissor{{0u, 0u}, _textureSize};
+    frameInfo->commandBuffer.setScissor(0, 1, &scissor);
 }
 
-void DirectionalLight::endRender(class FrameInfo *frameInfo) const
+void DirectionalLight::endRender(const FrameInfo *frameInfo) const
 {
     frameInfo->commandBuffer.endRenderPass();
     transitionShadowMap(frameInfo);
 }
 
-LightEnvironment::LightEnvironment()
+LightEnvironment::LightEnvironment() : _sun{{1024u, 1024u}}
 {
     _pointLightsMap.reserve(MAX_POINT_LIGHTS);
 
-    _sun.initializeShadowMap(RenderSystem::getInstance()->getDevice(), 1024u, 1024u);
+    _sun.initializeShadowMap(RenderSystem::getInstance()->getDevice());
 }
 
 LightEnvironment::~LightEnvironment()
@@ -176,7 +187,7 @@ LightEnvironment::~LightEnvironment()
 }
 
 void LightEnvironment::drawShadowMaps(
-    class FrameInfo *frameInfo,
+    const class FrameInfo *frameInfo,
     const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &drawableRenderQueue) const
 {
     _sun.beginRender(frameInfo);
@@ -186,7 +197,12 @@ void LightEnvironment::drawShadowMaps(
         Texture::resetBoundID();
         for (auto &[drawable, drawOption] : drawableQueue)
         {
-            drawable->render(*frameInfo, drawOption);
+            DrawOption copy{};
+            copy.model = drawOption->model;
+            copy.textures = drawOption->textures;
+            copy.material = _sun._material;
+
+            drawable->render(*frameInfo, &copy);
         }
     }
 

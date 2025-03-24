@@ -1,0 +1,2 @@
+Checks: 'modernize-*,cppcoreguidelines-pro-type-const-correctness,-modernize-use-trailing-return-type'
+WarningsAsErrors: ''

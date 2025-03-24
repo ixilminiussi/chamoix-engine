@@ -31,9 +31,10 @@ struct PointLight
 class DirectionalLight
 {
   public:
-    DirectionalLight() = default;
-    DirectionalLight(const glm::vec4 &direction_, const glm::vec4 &color_, const float &intensity_)
-        : direction(direction_), color(color_), intensity(intensity_) {};
+    DirectionalLight(const vk::Extent2D &textureSize) : _textureSize{textureSize} {};
+    DirectionalLight(const glm::vec4 &direction_, const glm::vec4 &color_, const float &intensity_,
+                     const vk::Extent2D &textureSize)
+        : direction(direction_), color(color_), intensity(intensity_), _textureSize(textureSize) {};
 
     glm::vec4 direction{1.f};
     glm::vec4 color{0.f};
@@ -42,17 +43,20 @@ class DirectionalLight
     friend class LightEnvironment;
 
   private:
-    void initializeShadowMap(class Device *, uint32_t width, uint32_t height);
+    void initializeShadowMap(class Device *);
     void freeShadowMap(class Device *);
-    void beginRender(class FrameInfo *) const;
-    void endRender(class FrameInfo *) const;
-    void transitionShadowMap(class FrameInfo *) const;
+    void beginRender(const class FrameInfo *) const;
+    void endRender(const class FrameInfo *) const;
+    void transitionShadowMap(const class FrameInfo *) const;
 
     vk::Image _image;
     vk::ImageView _imageView;
     vk::DeviceMemory _imageMemory;
     vk::RenderPass _renderPass;
     vk::Framebuffer _framebuffer;
+    const vk::Extent2D _textureSize;
+
+    class VoidMaterial *_material;
 };
 
 class LightEnvironment
@@ -66,7 +70,7 @@ class LightEnvironment
 
     void populateUbo(struct GlobalUbo *) const;
 
-    void drawShadowMaps(class FrameInfo *,
+    void drawShadowMaps(const class FrameInfo *,
                         const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &) const;
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
@@ -85,7 +89,6 @@ class LightEnvironment
     float _sunAxis{0.f};
 
     bool _hasSun;
-
     glm::vec4 _ambientLighting{1.f, 1.f, 1.f, 0.2f};
 };
 
