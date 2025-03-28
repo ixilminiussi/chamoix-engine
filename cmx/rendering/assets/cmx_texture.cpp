@@ -5,7 +5,6 @@
 // cmx
 #include "cmx_buffer.h"
 #include "cmx_device.h"
-#include "cmx_model.h"
 #include "cmx_render_system.h"
 
 // lib

@@ -17,6 +17,8 @@
 namespace cmx
 {
 
+std::vector<size_t> GraphicsManager::_shadowMapDescriptorSetIDs{};
+
 GraphicsManager::GraphicsManager() : _drawableRenderQueue{}
 {
     _renderSystem = RenderSystem::getInstance();
@@ -110,7 +112,7 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
     if (!frameInfo)
         return;
 
-    lightEnvironment->drawShadowMaps(frameInfo, _drawableRenderQueue);
+    lightEnvironment->drawShadowMaps(frameInfo, _drawableRenderQueue, _shadowMapDescriptorSetIDs);
 
     if (Camera *camera = cameraWk.lock().get())
     {
@@ -165,4 +167,8 @@ void GraphicsManager::editor()
     int i = 0;
 }
 
+const std::vector<size_t> &GraphicsManager::getDescriptorSetIDs()
+{
+    return _shadowMapDescriptorSetIDs;
+}
 } // namespace cmx

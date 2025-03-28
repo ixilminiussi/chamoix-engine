@@ -23,6 +23,7 @@ class GraphicsManager
     void update(class Drawable *, class DrawOption *, size_t oldID);
 
     void drawRenderQueue(std::weak_ptr<class Camera>, const class LightEnvironment *);
+    static const std::vector<size_t> &getDescriptorSetIDs();
 
     void editor();
 
@@ -32,6 +33,8 @@ class GraphicsManager
     // warning flags
     bool _noCameraFlag{false};
     class RenderSystem *_renderSystem;
+
+    static std::vector<size_t> _shadowMapDescriptorSetIDs;
 };
 
 } // namespace cmx

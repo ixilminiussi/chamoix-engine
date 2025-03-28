@@ -3,6 +3,7 @@
 // cmx
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
+#include "cmx_graphics_manager.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
@@ -19,8 +20,14 @@ void ShadedMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
     if (_boundID != _id)
     {
         _pipeline->bind(frameInfo->commandBuffer);
+
         frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, 1,
                                                     &frameInfo->globalDescriptorSet, 0, nullptr);
+
+        const std::vector<size_t> &descriptorSetIDs = GraphicsManager::getDescriptorSetIDs();
+        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 2, 1,
+                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[0])), 0,
+                                                    nullptr);
 
         _boundID = _id;
     }
@@ -114,7 +121,8 @@ void ShadedMaterial::initialize()
 
     loadBindings();
 
-    createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
+    createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
+                          renderSystem->getSamplerDescriptorSetLayout()});
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }
 
@@ -136,6 +144,9 @@ void ShadedMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> d
     {
         throw std::runtime_error("failed to create pipeline layout!");
     }
+
+    _requestedSamplerCount -=
+        1; // we are manually binding the shadow map, so we don't want this to show up for the user
 }
 
 void ShadedMaterial::createPipeline(vk::RenderPass renderPass)

@@ -27,6 +27,9 @@ ImGG::GradientWidget atmosphereWidget;
 
 void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width, uint32_t height)
 {
+    _imageResolution.width = width;
+    _imageResolution.height = height;
+
     vk::ImageCreateInfo imageInfo{};
 
     imageInfo.sType = vk::StructureType::eImageCreateInfo;
@@ -99,6 +102,25 @@ void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width,
         throw std::runtime_error("failed to create frame buffer");
     }
 
+    vk::SamplerCreateInfo samplerCreateInfo{};
+    samplerCreateInfo.magFilter = vk::Filter::eLinear;
+    samplerCreateInfo.minFilter = vk::Filter::eLinear;
+    samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
+    samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
+    samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+    samplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    samplerCreateInfo.unnormalizedCoordinates = false;
+    samplerCreateInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
+    samplerCreateInfo.mipLodBias = 0.0f;
+    samplerCreateInfo.minLod = 0.0f;
+    samplerCreateInfo.maxLod = 10.0f;
+    samplerCreateInfo.anisotropyEnable = true;
+    samplerCreateInfo.maxAnisotropy = 16;
+
+    _sampler = device->device().createSampler(samplerCreateInfo);
+
+    _samplerDescriptorSetID = RenderSystem::getInstance()->createSamplerDescriptor(_imageView, _sampler);
+
     _voidMaterial = new VoidMaterial();
     _voidMaterial->initialize(_renderPass);
 }
@@ -150,15 +172,14 @@ Material *DirectionalLight::beginRender(FrameInfo *frameInfo) const
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = _renderPass;
     renderPassBeginInfo.framebuffer = _framebuffer;
-    renderPassBeginInfo.renderArea.extent.width = 1024;
-    renderPassBeginInfo.renderArea.extent.height = 1024;
+    renderPassBeginInfo.renderArea.extent = _imageResolution;
     renderPassBeginInfo.clearValueCount = 1;
     renderPassBeginInfo.pClearValues = &clearDepth;
 
-    vk::Rect2D scissor{vk::Offset2D{0, 0}, vk::Extent2D{1024, 1024}};
+    vk::Rect2D scissor{vk::Offset2D{0, 0}, _imageResolution};
     frameInfo->commandBuffer.setScissor(0, 1, &scissor);
 
-    static vk::Viewport viewport{0, 0, 1024, 1024};
+    static vk::Viewport viewport{0, 0, (float)_imageResolution.width, (float)_imageResolution.height};
     frameInfo->commandBuffer.setViewport(0, 1, &viewport);
 
     frameInfo->commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
@@ -171,10 +192,12 @@ Material *DirectionalLight::beginRender(FrameInfo *frameInfo) const
     return _voidMaterial;
 }
 
-void DirectionalLight::endRender(class FrameInfo *frameInfo) const
+size_t DirectionalLight::endRender(class FrameInfo *frameInfo) const
 {
     frameInfo->commandBuffer.endRenderPass();
     transitionShadowMap(frameInfo);
+
+    return _samplerDescriptorSetID;
 }
 
 LightEnvironment::LightEnvironment()
@@ -191,24 +214,27 @@ LightEnvironment::~LightEnvironment()
 
 void LightEnvironment::drawShadowMaps(
     class FrameInfo *frameInfo,
-    const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &drawableRenderQueue) const
+    const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &drawableRenderQueue,
+    std::vector<size_t> &descriptorSetIDs) const
 {
+    descriptorSetIDs.clear();
+    descriptorSetIDs.reserve(MAX_POINT_LIGHTS + 1);
+
     Material *sunMaterial = _sun.beginRender(frameInfo);
-
-    DrawOption customDrawOption{};
-
     for (auto &[materialID, drawableQueue] : drawableRenderQueue)
     {
         Texture::resetBoundID();
         for (auto &[drawable, drawOption] : drawableQueue)
         {
+            static DrawOption customDrawOption{};
+
             customDrawOption.model = drawOption->model;
             customDrawOption.material = sunMaterial;
             drawable->render(*frameInfo, &customDrawOption);
         }
     }
 
-    _sun.endRender(frameInfo);
+    descriptorSetIDs.emplace_back(_sun.endRender(frameInfo));
 }
 
 void LightEnvironment::populateUbo(GlobalUbo *ubo) const
