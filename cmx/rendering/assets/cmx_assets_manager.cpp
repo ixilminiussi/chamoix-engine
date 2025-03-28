@@ -41,6 +41,7 @@ AssetsManager::AssetsManager(class Scene *parent)
     addMaterial(new MeshMaterial(), "mesh_material");
     addMaterial(new DitheredMaterial(), "dithered_material");
     addMaterial(new HudMaterial(), "hud_material");
+    addMaterial(new BillboardMaterial(), "billboard_material");
 };
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)

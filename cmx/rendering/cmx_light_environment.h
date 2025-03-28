@@ -28,6 +28,8 @@ struct PointLight
     float *intensity;
 };
 
+class Material;
+
 class DirectionalLight
 {
   public:
@@ -44,7 +46,7 @@ class DirectionalLight
   private:
     void initializeShadowMap(class Device *, uint32_t width, uint32_t height);
     void freeShadowMap(class Device *);
-    void beginRender(class FrameInfo *) const;
+    [[nodiscard]] Material *beginRender(class FrameInfo *) const;
     void endRender(class FrameInfo *) const;
     void transitionShadowMap(class FrameInfo *) const;
 
@@ -53,6 +55,8 @@ class DirectionalLight
     vk::DeviceMemory _imageMemory;
     vk::RenderPass _renderPass;
     vk::Framebuffer _framebuffer;
+
+    class VoidMaterial *_voidMaterial;
 };
 
 class LightEnvironment
@@ -68,7 +72,6 @@ class LightEnvironment
 
     void drawShadowMaps(class FrameInfo *,
                         const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &) const;
-
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
     void load(tinyxml2::XMLElement *);
     void unload();

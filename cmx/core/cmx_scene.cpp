@@ -97,6 +97,7 @@ void Scene::unload()
     delete _assetsManager.release();
     delete _graphicsManager.release();
     delete _physicsManager.release();
+    delete _lightEnvironment.release();
 
     for (auto &pair : _actors)
     {

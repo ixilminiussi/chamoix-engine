@@ -22,7 +22,6 @@ class GraphicsManager
     void remove(const class DrawOption *);
     void update(class Drawable *, class DrawOption *, size_t oldID);
 
-    void drawShadowMap(const class LightEnvironment *);
     void drawRenderQueue(std::weak_ptr<class Camera>, const class LightEnvironment *);
 
     void editor();

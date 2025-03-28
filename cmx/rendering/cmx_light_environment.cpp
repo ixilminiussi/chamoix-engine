@@ -7,13 +7,15 @@
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
 #include "cmx_texture.h"
-#include "imgui.h"
+#include "cmx_void_material.h"
 
 // lib
 #include <glm/gtc/constants.hpp>
 #include <glm/trigonometric.hpp>
+#include <imgui.h>
 #include <imgui_gradient/imgui_gradient.hpp>
 #include <spdlog/spdlog.h>
+#include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
@@ -96,6 +98,9 @@ void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width,
     {
         throw std::runtime_error("failed to create frame buffer");
     }
+
+    _voidMaterial = new VoidMaterial();
+    _voidMaterial->initialize(_renderPass);
 }
 
 void DirectionalLight::transitionShadowMap(class FrameInfo *frameInfo) const
@@ -124,9 +129,11 @@ void DirectionalLight::freeShadowMap(class Device *device)
     device->device().destroyImageView(_imageView);
     device->device().destroyImage(_image);
     device->device().freeMemory(_imageMemory);
+    _voidMaterial->free();
+    delete _voidMaterial;
 }
 
-void DirectionalLight::beginRender(FrameInfo *frameInfo) const
+Material *DirectionalLight::beginRender(FrameInfo *frameInfo) const
 {
     Camera *lightCamera = new Camera();
     glm::vec3 position = glm::vec3{0.f} - glm::vec3{direction} * 100.f;
@@ -148,13 +155,20 @@ void DirectionalLight::beginRender(FrameInfo *frameInfo) const
     renderPassBeginInfo.clearValueCount = 1;
     renderPassBeginInfo.pClearValues = &clearDepth;
 
+    vk::Rect2D scissor{vk::Offset2D{0, 0}, vk::Extent2D{1024, 1024}};
+    frameInfo->commandBuffer.setScissor(0, 1, &scissor);
+
+    static vk::Viewport viewport{0, 0, 1024, 1024};
+    frameInfo->commandBuffer.setViewport(0, 1, &viewport);
+
     frameInfo->commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+    GlobalUbo ubo{};
+    ubo.projection = lightCamera->getProjection();
+    ubo.view = lightCamera->getView();
 
-    // GlobalUbo ubo{};
-    // ubo.projection = frameInfo->camera->getProjection();
-    // ubo.view = frameInfo->camera->getView();
+    RenderSystem::getInstance()->writeUbo(frameInfo, &ubo);
 
-    // RenderSystem::getInstance()->writeUboBuffers(&ubo);
+    return _voidMaterial;
 }
 
 void DirectionalLight::endRender(class FrameInfo *frameInfo) const
@@ -179,14 +193,18 @@ void LightEnvironment::drawShadowMaps(
     class FrameInfo *frameInfo,
     const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &drawableRenderQueue) const
 {
-    _sun.beginRender(frameInfo);
+    Material *sunMaterial = _sun.beginRender(frameInfo);
+
+    DrawOption customDrawOption{};
 
     for (auto &[materialID, drawableQueue] : drawableRenderQueue)
     {
         Texture::resetBoundID();
         for (auto &[drawable, drawOption] : drawableQueue)
         {
-            drawable->render(*frameInfo, drawOption);
+            customDrawOption.model = drawOption->model;
+            customDrawOption.material = sunMaterial;
+            drawable->render(*frameInfo, &customDrawOption);
         }
     }
 

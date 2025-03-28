@@ -104,15 +104,13 @@ void GraphicsManager::remove(const Drawable *drawable)
     }
 }
 
-void GraphicsManager::drawShadowMap(const class LightEnvironment *)
-{
-}
-
 void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const LightEnvironment *lightEnvironment)
 {
     FrameInfo *frameInfo = _renderSystem->beginCommandBuffer();
     if (!frameInfo)
         return;
+
+    lightEnvironment->drawShadowMaps(frameInfo, _drawableRenderQueue);
 
     if (Camera *camera = cameraWk.lock().get())
     {
