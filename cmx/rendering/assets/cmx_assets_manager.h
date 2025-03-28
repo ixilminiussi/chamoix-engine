@@ -29,7 +29,7 @@ class AssetsManager final
     void editor();
 
     bool addMaterial(class Material *material, const char *name);
-    class Material *makeUnique(const char *name);
+    class Material *makeUnique(const char *name, bool doNotSave = true);
     class Material *getMaterial(const char *name);
     const auto &getMaterials()
     {

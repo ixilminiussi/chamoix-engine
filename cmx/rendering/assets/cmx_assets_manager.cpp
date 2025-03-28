@@ -229,7 +229,7 @@ bool AssetsManager::addMaterial(Material *material, const char *name)
     return true;
 }
 
-Material *AssetsManager::makeUnique(const char *name)
+Material *AssetsManager::makeUnique(const char *name, bool doNotSave)
 {
     if (_materials.find(std::string(name)) == _materials.end())
     {
@@ -237,7 +237,7 @@ Material *AssetsManager::makeUnique(const char *name)
         return nullptr;
     }
 
-    Material *duplicate = _materials[name]->clone();
+    Material *duplicate = _materials[name]->clone(doNotSave);
     std::string newName = incrementNumberInParentheses(name);
     while (_materials.find(newName) != _materials.end())
     {

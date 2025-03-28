@@ -50,13 +50,15 @@ struct BindingInfo
 };
 
 #define CLONEABLE_MATERIAL(Type)                                                                                       \
-    Type(std::string vertFilepath, std::string fragFilepath, size_t id, bool modelBased, bool editorOnly)              \
+    Type(std::string vertFilepath, std::string fragFilepath, size_t id, bool modelBased, bool editorOnly,              \
+         bool doNotSave)                                                                                               \
         : Material{vertFilepath, fragFilepath, id, modelBased, editorOnly}                                             \
     {                                                                                                                  \
+        _doNotSave = doNotSave;                                                                                        \
     }                                                                                                                  \
-    Material *clone() const override                                                                                   \
+    Material *clone(bool doNotSave) const override                                                                     \
     {                                                                                                                  \
-        return new Type(_vertFilepath, _fragFilepath, _id, _modelBased, _editorOnly);                                  \
+        return new Type(_vertFilepath, _fragFilepath, _id, _modelBased, _editorOnly, doNotSave);                       \
     }
 
 class Material
@@ -65,7 +67,7 @@ class Material
     Material(const std::string &vertPath, const std::string &fragPath, bool modelBased = true);
     virtual ~Material() = default;
 
-    virtual Material *clone() const = 0;
+    virtual Material *clone(bool doNotSave = true) const = 0;
 
     virtual void bind(struct FrameInfo *, const class Drawable *) = 0;
     virtual void editor();

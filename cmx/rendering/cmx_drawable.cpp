@@ -116,7 +116,7 @@ void Drawable::editor(int i)
                 {
                     if (ImGui::Button(ICON_MS_CONTENT_COPY))
                     {
-                        Material *duplicate = assetsManager->makeUnique(drawOption.material->name.c_str());
+                        Material *duplicate = assetsManager->makeUnique(drawOption.material->name.c_str(), false);
                         setMaterial(duplicate->name.c_str(), id);
 
                         ImGui::SetNextItemWidth(170);
