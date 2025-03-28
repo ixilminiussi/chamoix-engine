@@ -6,6 +6,7 @@
 #include "cmx_transform.h"
 
 // lib
+#include <glm/ext/scalar_constants.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <set>
 #include <vulkan/vulkan.hpp>
@@ -121,18 +122,45 @@ class Convex : public Shape
     struct Edge
     {
         int a, b;
+
+        bool operator==(const Edge &other) const
+        {
+            return a == other.a && b == other.b;
+        }
+    };
+    struct SupportPoint
+    {
+        glm::vec3 xyz;
+        glm::vec3 a;
+        glm::vec3 b;
+
+        bool operator==(const SupportPoint &other) const;
     };
 
-    std::array<Edge, 3> getEdges(const Face &);
-    bool isEdgeUnique(const std::vector<const Face *> &face, const Edge &, int ignoreIdx = -1);
+    [[nodiscard]] std::array<Edge, 3> getEdges(const Face &) const;
+    [[nodiscard]] bool isEdgeUnique(const std::vector<const Face *> &face, const Edge &, int ignoreIdx = -1) const;
 
     void expandConvex(const glm::vec3 &vertex);
-    bool isInternalVertex(const glm::vec3 &vertex);
+    float expandEPA(const Shape &other, const float bias, const std::array<SupportPoint, 4> simplexPoints,
+                    glm::vec3 &pointOnA, glm::vec3 &pointOnB) const;
+    [[nodiscard]] bool isInternalVertex(const glm::vec3 &vertex) const;
     void cleanInternalVertices();
+    [[nodiscard]] int removeFacesFacingPoint(const glm::vec3 &p, std::vector<Face> &,
+                                             std::vector<SupportPoint> &) const;
+    void findDanglingEdges(std::vector<Edge> &, const std::vector<Face> &) const;
 
     void calculateCenterOfMass();
     void calculateInertiaTensor();
     void makeModel();
+
+    [[nodiscard]] int getClosestFace(const glm::vec3 &p, const std::vector<Face> &,
+                                     const std::vector<SupportPoint> &) const;
+
+    [[nodiscard]] bool simplexHasPoint(const std::array<SupportPoint, 4> &simplex, const int numPoints,
+                                       const SupportPoint &point) const;
+    void sortValids(std::array<SupportPoint, 4> &, glm::vec4 &lambdas) const;
+    [[nodiscard]] bool simplexSignedVolumes(const std::array<SupportPoint, 4> &simplex, const int numPoints,
+                                            glm::vec3 &d, glm::vec4 &lambdasOut) const;
 
     std::vector<glm::vec3> _vertices;
     std::vector<Face> _faceIndices;

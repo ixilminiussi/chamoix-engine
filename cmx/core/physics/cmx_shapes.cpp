@@ -6,6 +6,7 @@
 #include "cmx_math.h"
 #include "cmx_model.h"
 #include "cmx_physics_actor.h"
+#include "cmx_physics_util.h"
 #include "cmx_primitives.h"
 #include "cmx_render_system.h"
 
@@ -17,12 +18,13 @@
 #include <glm/geometric.hpp>
 #include <glm/matrix.hpp>
 #include <spdlog/spdlog.h>
+#include <vulkan/vulkan_structs.hpp>
 
 // std
 #include <algorithm>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
-#include <vulkan/vulkan_structs.hpp>
 
 namespace cmx
 {
@@ -236,31 +238,257 @@ glm::vec3 Sphere::support(const glm::vec3 &dir, const float bias) const
     return getCenter() + dir * (getRadius() + bias);
 }
 
+bool Convex::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
+{
+    return overlapsWith(static_cast<const Shape &>(other), hitInfo);
+}
+
+bool Convex::overlapsWith(const Convex &other, HitInfo &hitInfo) const
+{
+    return overlapsWith(static_cast<const Shape &>(other), hitInfo);
+}
+
 bool Convex::overlapsWith(const Shape &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))
         return false;
 
-    bool b = other.overlapsWith(*this, hitInfo);
+    const Transform otherTransform = other.getWorldSpaceTransform();
+    const Transform selfTransform = getWorldSpaceTransform();
+    static auto supportGJK = [](const Shape &a, const Shape &b, const glm::vec3 &d) {
+        SupportPoint point;
+        point.a = a.support(d, 0.f);
+        point.b = b.support(-d, 0.f);
+        point.xyz = point.a - point.b;
 
-    if (b)
+        return point;
+    };
+
+    glm::vec3 d = otherTransform.position - selfTransform.position;
+
+    std::array<SupportPoint, 4> simplex;
+    simplex[0] = supportGJK(*this, other, d);
+    int numPoints = 1;
+
+    d = -simplex[0].xyz;
+
+    bool isColliding = false;
+    float closestDist = std::numeric_limits<float>::infinity();
+    while (!isColliding)
     {
-        hitInfo.flip();
-        return true;
+        SupportPoint A = supportGJK(*this, other, d);
+
+        if (simplexHasPoint(simplex, numPoints, A))
+        {
+            break;
+        }
+
+        simplex[numPoints] = A;
+        numPoints++;
+
+        float dotdot = glm::dot(d, A.xyz);
+        if (dotdot < 0.0f)
+        {
+            break;
+        }
+
+        glm::vec4 lambdas;
+        if (simplexSignedVolumes(simplex, numPoints, d, lambdas))
+        {
+            isColliding = true;
+            break;
+        }
+
+        float dist = glm::length2(d);
+        if (dist >= closestDist)
+        {
+            break;
+        }
+        closestDist = dist;
+
+        sortValids(simplex, lambdas);
+
+        int numPoints = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (0.0f != lambdas[i])
+            {
+                numPoints++;
+            }
+        }
+
+        isColliding = (numPoints == 4);
     }
 
-    return false;
+    if (!isColliding)
+        return false;
+
+    spdlog::critical("hihihi");
+
+    if (numPoints == 1)
+    {
+        glm::vec3 searchDir = simplex[0].xyz * -1.0f;
+        SupportPoint newPoint = supportGJK(*this, other, searchDir);
+        simplex[numPoints] = newPoint;
+        numPoints++;
+    }
+    if (numPoints == 2)
+    {
+        glm::vec3 ab = simplex[1].xyz - simplex[0].xyz;
+        glm::vec3 u, v;
+        getOrtho(ab, u, v);
+
+        glm::vec3 newDir = u;
+        SupportPoint newPoint = supportGJK(*this, other, newDir);
+        simplex[numPoints] = newPoint;
+        numPoints++;
+    }
+    if (numPoints == 3)
+    {
+        glm::vec3 ab = simplex[1].xyz - simplex[0].xyz;
+        glm::vec3 ac = simplex[2].xyz - simplex[0].xyz;
+        glm::vec3 norm = glm::cross(ab, ac);
+
+        glm::vec3 newDir = norm;
+        SupportPoint newPoint = supportGJK(*this, other, newDir);
+        simplex[numPoints] = newPoint;
+        numPoints++;
+    }
+
+    //
+    // Expand the simplex by the bias amount
+    //
+
+    // Get the center point of the simplex
+    glm::vec3 avg = glm::vec3(0, 0, 0);
+    for (int i = 0; i < 4; i++)
+    {
+        avg += simplex[i].xyz;
+    }
+    avg *= 0.25f;
+
+    // Now expand the simplex by the bias amount
+    for (int i = 0; i < numPoints; i++)
+    {
+        SupportPoint &pt = simplex[i];
+
+        glm::vec3 dir = pt.xyz - avg; // ray from "center" to witness point
+        dir = glm::normalize(dir);
+        pt.a += dir * 0.1f;
+        pt.b -= dir * 0.1f;
+        pt.xyz = pt.a - pt.b;
+    }
+
+    glm::vec3 pointOnA;
+    glm::vec3 pointOnB;
+    expandEPA(other, 0.001f, simplex, pointOnA, pointOnB);
+
+    hitInfo.point = pointOnA;
+    hitInfo.depth = glm::length(pointOnB - pointOnA);
+    hitInfo.normal = glm::normalize(pointOnB - pointOnA);
+
+    return true;
 }
 
-bool Convex::overlapsWith(const Sphere &other, HitInfo &hitInfo) const
+bool Convex::simplexSignedVolumes(const std::array<SupportPoint, 4> &simplex, const int numPoints, glm::vec3 &d,
+                                  glm::vec4 &lambdasOut) const
 {
-    return false;
+    lambdasOut = glm::vec4{0.f};
+
+    bool doesIntersect = false;
+
+    switch (numPoints)
+    {
+    default:
+    case 2: {
+        glm::vec2 lambdas = signedVolume1D(simplex[0].xyz, simplex[1].xyz);
+        glm::vec3 v(0.0f);
+        for (int i = 0; i < 2; i++)
+        {
+            v += simplex[i].xyz * lambdas[i];
+        }
+        d = v * -1.0f;
+        doesIntersect = (glm::length2(v) < glm::epsilon<float>());
+        lambdasOut[0] = lambdas[0];
+        lambdasOut[1] = lambdas[1];
+    }
+    break;
+    case 3: {
+        glm::vec3 lambdas = signedVolume2D(simplex[0].xyz, simplex[1].xyz, simplex[2].xyz);
+        glm::vec3 v(0.0f);
+        for (int i = 0; i < 3; i++)
+        {
+            v += simplex[i].xyz * lambdas[i];
+        }
+        d = v * -1.0f;
+        doesIntersect = (glm::length2(v) < glm::epsilon<float>());
+        lambdasOut[0] = lambdas[0];
+        lambdasOut[1] = lambdas[1];
+        lambdasOut[2] = lambdas[2];
+    }
+    break;
+    case 4: {
+        glm::vec4 lambdas = signedVolume3D(simplex[0].xyz, simplex[1].xyz, simplex[2].xyz, simplex[3].xyz);
+        glm::vec3 v(0.0f);
+        for (int i = 0; i < 4; i++)
+        {
+            v += simplex[i].xyz * lambdas[i];
+        }
+        d = v * -1.0f;
+        doesIntersect = (glm::length2(v) < glm::epsilon<float>());
+        lambdasOut[0] = lambdas[0];
+        lambdasOut[1] = lambdas[1];
+        lambdasOut[2] = lambdas[2];
+        lambdasOut[3] = lambdas[3];
+    }
+    break;
+    };
+
+    return doesIntersect;
 }
 
-bool Convex::overlapsWith(const Convex &other, HitInfo &hitInfo) const
+void Convex::sortValids(std::array<SupportPoint, 4> &simplexPoints, glm::vec4 &lambdas) const
 {
-    return false;
+    std::array<bool, 4> valids;
+    for (int i = 0; i < 4; i++)
+    {
+        valids[i] = lambdas[i] != 0.0f;
+    }
+
+    glm::vec4 validLambdas(0.0f);
+    int validCount = 0;
+    std::array<SupportPoint, 4> validPts;
+
+    memset(&validPts, 0, sizeof(std::array<SupportPoint, 4>));
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (valids[i])
+        {
+            validPts[validCount] = simplexPoints[i];
+            validLambdas[validCount] = lambdas[i];
+            validCount++;
+        }
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        simplexPoints[i] = validPts[i];
+        lambdas[i] = validLambdas[i];
+    }
 }
+
+bool Convex::simplexHasPoint(const std::array<SupportPoint, 4> &simplex, int numPoints, const SupportPoint &point) const
+{
+    for (int i = 0; i < numPoints; i++)
+    {
+        if (point == simplex[i])
+        {
+            return true;
+        }
+    }
+    return false;
+};
 
 Convex::Convex(cmx::Transformable *parent) : Shape{parent}
 {
@@ -400,7 +628,7 @@ glm::vec3 Convex::support(const glm::vec3 &dir, const float bias) const
     return minPt + (glm::normalize(dir) * bias);
 }
 
-std::array<Convex::Edge, 3> Convex::getEdges(const Face &face)
+std::array<Convex::Edge, 3> Convex::getEdges(const Face &face) const
 {
     std::array<Edge, 3> edges;
     edges[0].a = face.a;
@@ -415,7 +643,7 @@ std::array<Convex::Edge, 3> Convex::getEdges(const Face &face)
     return edges;
 }
 
-bool Convex::isEdgeUnique(const std::vector<const Face *> &faces, const Edge &edge, int ignoreIdx)
+bool Convex::isEdgeUnique(const std::vector<const Face *> &faces, const Edge &edge, int ignoreIdx) const
 {
     for (int i = 0; i < faces.size(); i++)
     {
@@ -504,7 +732,255 @@ void Convex::expandConvex(const glm::vec3 &vertex)
     cleanInternalVertices();
 }
 
-bool Convex::isInternalVertex(const glm::vec3 &vertex)
+int Convex::getClosestFace(const glm::vec3 &p, const std::vector<Face> &faceIndices,
+                           const std::vector<SupportPoint> &points) const
+{
+    float minDistance = std::numeric_limits<float>::infinity();
+    int idx = 0;
+
+    int i = 0;
+    for (const Face &face : faceIndices)
+    {
+        float signedDistance =
+            glm::dot(points[face.a].xyz, getFaceNormal(points[face.a].xyz, points[face.b].xyz, points[face.c].xyz));
+
+        if (signedDistance < minDistance)
+        {
+            idx = i;
+            minDistance = signedDistance;
+        }
+        i++;
+    }
+
+    return idx;
+}
+
+int Convex::removeFacesFacingPoint(const glm::vec3 &p, std::vector<Face> &faces,
+                                   std::vector<SupportPoint> &points) const
+{
+    int numRemoved = 0;
+    for (int i = 0; i < faces.size(); i++)
+    {
+        const Face &face = faces[i];
+
+        float dist = signedDistanceToFace(p, points[face.a].xyz, points[face.b].xyz, points[face.c].xyz);
+        if (dist > 0.0f)
+        {
+            // This face faces the point.  Remove it.
+            faces.erase(faces.begin() + i);
+            i--;
+            numRemoved++;
+        }
+    }
+    return numRemoved;
+}
+
+void Convex::findDanglingEdges(std::vector<Edge> &danglingEdges, const std::vector<Face> &faces) const
+{
+    danglingEdges.clear();
+
+    for (int i = 0; i < faces.size(); i++)
+    {
+        const Face &face = faces[i];
+
+        std::array<Edge, 3> edges;
+        edges[0].a = face.a;
+        edges[0].b = face.b;
+
+        edges[1].a = face.b;
+        edges[1].b = face.c;
+
+        edges[2].a = face.c;
+        edges[2].b = face.a;
+
+        std::array<int, 3> counts;
+        counts[0] = 0;
+        counts[1] = 0;
+        counts[2] = 0;
+
+        for (int j = 0; j < faces.size(); j++)
+        {
+            if (j == i)
+            {
+                continue;
+            }
+
+            const Face &face2 = faces[j];
+
+            std::array<Edge, 3> edges2;
+            edges2[0].a = face2.a;
+            edges2[0].b = face2.b;
+
+            edges2[1].a = face2.b;
+            edges2[1].b = face2.c;
+
+            edges2[2].a = face2.c;
+            edges2[2].b = face2.a;
+
+            for (int k = 0; k < 3; k++)
+            {
+                if (edges[k] == edges2[0])
+                {
+                    counts[k]++;
+                }
+                if (edges[k] == edges2[1])
+                {
+                    counts[k]++;
+                }
+                if (edges[k] == edges2[2])
+                {
+                    counts[k]++;
+                }
+            }
+        }
+
+        // An edge that isn't shared, is dangling
+        for (int k = 0; k < 3; k++)
+        {
+            if (0 == counts[k])
+            {
+                danglingEdges.push_back(edges[k]);
+            }
+        }
+    }
+}
+
+float Convex::expandEPA(const Shape &other, const float bias, const std::array<SupportPoint, 4> simplexPoints,
+                        glm::vec3 &ptOnA, glm::vec3 &ptOnB) const
+{
+    std::vector<SupportPoint> points;
+    std::vector<Face> faces;
+    std::vector<Edge> danglingEdges;
+
+    glm::vec3 center(0.0f);
+    for (int i = 0; i < 4; i++)
+    {
+        points.push_back(simplexPoints[i]);
+        center += simplexPoints[i].xyz;
+    }
+    center *= 0.25f;
+
+    // Build the faces
+    for (int i = 0; i < 4; i++)
+    {
+        int j = (i + 1) % 4;
+        int k = (i + 2) % 4;
+        Face face;
+        face.a = i;
+        face.b = j;
+        face.c = k;
+
+        int unusedPt = (i + 3) % 4;
+        float dist =
+            signedDistanceToFace(points[unusedPt].xyz, points[face.a].xyz, points[face.b].xyz, points[face.c].xyz);
+
+        if (dist > 0.0f)
+        {
+            std::swap(face.a, face.b);
+        }
+
+        faces.push_back(face);
+    }
+
+    static auto supportGJK = [](const Shape &a, const Shape &b, const glm::vec3 &d, const float bias) {
+        SupportPoint point;
+        point.a = a.support(d, bias);
+        point.b = b.support(-d, bias);
+        point.xyz = point.a - point.b;
+
+        return point;
+    };
+
+    while (true)
+    {
+        const int idx = getClosestFace(glm::vec3{0.f}, faces, points);
+        glm::vec3 normal = getFaceNormal(points[faces[idx].a].xyz, points[faces[idx].b].xyz, points[faces[idx].c].xyz);
+
+        const SupportPoint newPoint = supportGJK(*this, other, normal, bias);
+
+        // if w already exists, then just stop
+        // because it means we can't expand any further
+        for (const Face &face : faces)
+        {
+            if (points[face.a] == newPoint || points[face.b] == newPoint || points[face.c] == newPoint)
+            {
+                goto skip; // break out of while loop
+            }
+        }
+
+        float dist = signedDistanceToFace(newPoint.xyz, points[faces[idx].a].xyz, points[faces[idx].b].xyz,
+                                          points[faces[idx].c].xyz);
+        if (dist <= 0.0f)
+        {
+            break; // can't expand
+        }
+
+        const int newIdx = (int)points.size();
+        points.push_back(newPoint);
+
+        // Remove Faces that face this point
+        int numRemoved = removeFacesFacingPoint(newPoint.xyz, faces, points);
+        if (0 == numRemoved)
+        {
+            break;
+        }
+
+        // Find Dangling Edges
+        danglingEdges.clear();
+        findDanglingEdges(danglingEdges, faces);
+        if (0 == danglingEdges.size())
+        {
+            break;
+        }
+
+        // In theory the edges should be a proper CCW order
+        // So we only need to add the new point as 'a' in order
+        // to create new faces that face away from origin
+        for (auto edge : danglingEdges)
+        {
+            Face face;
+            face.a = newIdx;
+            face.b = edge.b;
+            face.c = edge.a;
+
+            // Make sure it's oriented properly
+            float dist = signedDistanceToFace(center, points[face.a].xyz, points[face.b].xyz, points[face.c].xyz);
+            if (dist > 0.0f)
+            {
+                std::swap(face.b, face.c);
+            }
+
+            faces.push_back(face);
+        }
+    }
+skip:
+
+    // Get the projection of the origin on the closest face
+    const int idx = getClosestFace(glm::vec3{0.f}, faces, points);
+    const Face &face = faces[idx];
+    glm::vec3 ptA_w = points[face.a].xyz;
+    glm::vec3 ptB_w = points[face.b].xyz;
+    glm::vec3 ptC_w = points[face.c].xyz;
+    glm::vec3 lambdas = BarycentricCoordinates(ptA_w, ptB_w, ptC_w, glm::vec3(0.0f));
+
+    // Get the point on shape A
+    glm::vec3 ptA_a = points[face.a].a;
+    glm::vec3 ptB_a = points[face.b].a;
+    glm::vec3 ptC_a = points[face.c].a;
+    ptOnA = ptA_a * lambdas[0] + ptB_a * lambdas[1] + ptC_a * lambdas[2];
+
+    // Get the point on shape B
+    glm::vec3 ptA_b = points[face.a].b;
+    glm::vec3 ptB_b = points[face.b].b;
+    glm::vec3 ptC_b = points[face.c].b;
+    ptOnB = ptA_b * lambdas[0] + ptB_b * lambdas[1] + ptC_b * lambdas[2];
+
+    // Return the penetration distance
+    glm::vec3 delta = ptOnB - ptOnA;
+    return glm::length(delta);
+}
+
+bool Convex::isInternalVertex(const glm::vec3 &vertex) const
 {
     for (auto face : _faceIndices)
     {
@@ -625,4 +1101,8 @@ std::string Plane::getName() const
     return PRIMITIVE_PLANE;
 }
 
+bool Convex::SupportPoint::operator==(const SupportPoint &other) const
+{
+    return glm::length2(xyz - other.xyz) < glm::epsilon<float>();
+}
 } // namespace cmx
