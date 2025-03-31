@@ -202,7 +202,6 @@ void AssetsManager::unload()
 
 void AssetsManager::editor()
 {
-    ImGui::Button("testing");
 }
 
 bool AssetsManager::addMaterial(Material *material, const char *name)

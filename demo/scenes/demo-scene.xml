@@ -2,7 +2,7 @@
 <scene name="first scene">
     <assets>
         <material type="cmx::BillboardMaterial" vertex="shaders/billboard.vert.spv" fragment="shaders/billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
-        <material type="cmx::DitheredMaterial" vertex="shaders/dithered.vert.spv" fragment="shaders/dithered.frag.spv" editorOnly="false" scale="5" threshold="1" useWorldUV="false" dotsToggle="true" name="dithered_material">
+        <material type="cmx::DitheredMaterial" vertex="shaders/dithered.vert.spv" fragment="shaders/dithered.frag.spv" editorOnly="false" scale="4.8000002" threshold="0.85600001" useWorldUV="false" dotsToggle="false" name="dithered_material">
             <lightColor r="0.59600002" g="0.62400001" b="0.80800003"/>
             <darkColor r="0.153" g="0.15700001" b="0.22"/>
         </material>
@@ -87,7 +87,7 @@
             <layer filepath="assets/cmx/dithering/radial64.png"/>
         </texture>
     </assets>
-    <lightEnvironment timeOfDay="12">
+    <lightEnvironment timeOfDay="14.75">
         <sun axis="0">
             <gradient>
                 <mark position="0.352" r="0.55000001" g="0.5" b="1"/>
@@ -110,7 +110,7 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="shaded_material" model="cmx_plane" t0="acacia_planks"/>
+                <option index="0" material="dithered_material" model="cmx_plane" t0="cmx_radial_dithering_hd"/>
             </rendering>
         </component>
         <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_plane" physicsMode="Static" bounciness="0.5" friction="0.5">
@@ -134,7 +134,7 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="shaded_material(1)" model="cmx_uv_sphere" t0="acacia_planks"/>
+                <option index="0" material="dithered_material" model="cmx_sphere" t0="cmx_radial_dithering_hd"/>
             </rendering>
         </component>
         <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Rigid" gravityX="0" gravityY="10" gravityZ="0" inverseMass="1" bounciness="0.5" friction="0.5">

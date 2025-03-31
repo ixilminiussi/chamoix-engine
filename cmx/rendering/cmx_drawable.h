@@ -44,14 +44,20 @@ class Drawable : public virtual Transformable
     void setMaterial(const char *, size_t index = 0);
     void setTextures(const std::vector<const char *>, size_t index = 0);
     void setModel(const char *, size_t index = 0);
+    bool isVisible() const
+    {
+        return _isVisible;
+    }
 
     const std::vector<DrawOption const *> getDrawOptions() const;
 
   private:
     std::map<size_t, DrawOption> _drawOptions;
-    bool _isVisible{true};
 
     class Actor **_parentP{nullptr};
+
+  protected:
+    bool _isVisible{true};
 };
 
 } // namespace cmx

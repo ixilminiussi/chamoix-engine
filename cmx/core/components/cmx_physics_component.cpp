@@ -1,9 +1,11 @@
 #include "cmx_physics_component.h"
 
 // cmx
+#include "IconsMaterialSymbols.h"
 #include "cmx_physics_body.h"
 #include "cmx_physics_manager.h"
 #include "cmx_primitives.h"
+#include "imgui.h"
 
 // lib
 #include <glm/ext/quaternion_common.hpp>
@@ -72,6 +74,8 @@ void PhysicsComponent::editor(int i)
 {
     PhysicsBody::editor(i);
     Component::editor(i);
+
+    ImGui::Checkbox(ICON_MS_EYE_TRACKING, &_isVisible);
 }
 
 } // namespace cmx

@@ -4,18 +4,22 @@ layout(location = 0) in vec3 fragPositionWorld;
 layout(location = 1) in vec3 fragColor;
 layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUV;
+layout(location = 4) in vec4 fragPositionLightSpace;
 
-layout(location = 4) in vec3 fragDarkColor;
-layout(location = 5) in vec3 fragLightColor;
+layout(location = 5) in vec3 fragDarkColor;
+layout(location = 6) in vec3 fragLightColor;
 
 layout(set = 1, binding = 0) uniform sampler3D ditheringSampler;
+layout(set = 2, binding = 0) uniform sampler2D shadowMapSampler;
 
 layout(location = 0) out vec4 outColor;
 
 struct DirectionalLight
 {
-    vec4 direction;
+    mat4 projectionMatrix;
+    mat4 viewMatrix;
     vec4 color;
+    vec4 direction;
 };
 
 struct PointLight
@@ -80,34 +84,43 @@ vec2 propperDitheringScale(float brightness)
     return vec2(exp2(roundedLogCurve), subLayer);
 }
 
-void main()
+float getShadowFactor()
+{
+    vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
+    vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
+
+    float depth = texture(shadowMapSampler, lightUVCoords).r;
+
+    if (projCoords.z - depth < 0.025)
+    {
+        return 1.0f;
+    }
+    return 0.2f;
+}
+
+vec3 getDiffuseLight()
 {
     // ambient light
     vec3 diffuseLight = ubo.ambientLight.xyz * ubo.ambientLight.w;
     vec3 surfaceNormal = normalize(fragNormalWorld);
 
-    // point lights
-    for (int i = 0; i < ubo.numPointLights; i++)
-    {
-        PointLight light = ubo.pointLights[i];
-        vec3 directionToLight = light.position.xyz - fragPositionWorld;
-
-        float attenuation = 1.0f / dot(directionToLight, directionToLight);
-        vec3 intensity = light.color.xyz * light.color.w * attenuation;
-
-        float cosAngIncidence = max(dot(surfaceNormal, normalize(directionToLight)), 0.0f);
-
-        diffuseLight += intensity * cosAngIncidence;
-    }
+    diffuseLight = vec3(0.f);
 
     // directional light
     if (ubo.sun.color.w > 0)
     {
         float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
-        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * cosAngIncidence;
+        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getShadowFactor(), cosAngIncidence);
     }
 
+    return diffuseLight;
+}
+
+void main()
+{
     bool dotToggle = ((uint(push.normalMatrix[3][2]) & 1u) == 0u);
+
+    vec3 diffuseLight = getDiffuseLight();
 
     float brightness = dotToggle ? 1 - getLuminance(diffuseLight) : getLuminance(diffuseLight);
     brightness /= 2;
@@ -125,4 +138,6 @@ void main()
         outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(fragDarkColor, 1.f)
                                                                                 : vec4(fragLightColor, 1.f);
     }
+
+    outColor.a = 1.0f;
 }

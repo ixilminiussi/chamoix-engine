@@ -138,7 +138,10 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
             Texture::resetBoundID();
             for (auto &[drawable, drawOption] : drawableQueue)
             {
-                drawable->render(*frameInfo, drawOption);
+                if (drawable->isVisible())
+                {
+                    drawable->render(*frameInfo, drawOption);
+                }
             }
         }
 

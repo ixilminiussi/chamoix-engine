@@ -43,7 +43,7 @@ layout(push_constant) uniform Push
 }
 push;
 
-float calcShadowFactor()
+float getShadowFactor()
 {
     vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
     vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
@@ -57,7 +57,7 @@ float calcShadowFactor()
     return 0.5f;
 }
 
-void main()
+vec3 getDiffuseLight()
 {
     // ambient light
     vec3 diffuseLight = ubo.ambientLight.xyz * ubo.ambientLight.w;
@@ -80,12 +80,16 @@ void main()
     // directional light
     if (ubo.sun.color.w > 0)
     {
-        float depthOnShadowSampler = texture(shadowMapSampler, fragPositionLightSpace.xy).r;
-        float depthOnLightSpace = fragPositionLightSpace.z;
-
         float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
-        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(calcShadowFactor(), cosAngIncidence);
+        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getShadowFactor(), cosAngIncidence);
     }
+
+    return diffuseLight;
+}
+
+void main()
+{
+    vec3 diffuseLight = getDiffuseLight();
 
     // if we have push.normalMatrix[3][3] != 100, then we should be using vertex color
     if (push.normalMatrix[3][3] == 100)
