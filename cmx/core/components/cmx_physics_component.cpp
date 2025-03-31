@@ -75,7 +75,7 @@ void PhysicsComponent::editor(int i)
     PhysicsBody::editor(i);
     Component::editor(i);
 
-    ImGui::Checkbox(ICON_MS_EYE_TRACKING, &_isVisible);
+    ImGui::Checkbox(ICON_MS_VISIBILITY, &_isVisible);
 }
 
 } // namespace cmx

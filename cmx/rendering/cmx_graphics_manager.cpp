@@ -1,6 +1,7 @@
 #include "cmx_graphics_manager.h"
 
 // cmx
+#include "IconsMaterialSymbols.h"
 #include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_editor.h"
@@ -168,6 +169,10 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
 void GraphicsManager::editor()
 {
     int i = 0;
+
+    for (auto &[materialID, drawableQueue] : _drawableRenderQueue)
+    {
+    }
 }
 
 const std::vector<size_t> &GraphicsManager::getDescriptorSetIDs()
