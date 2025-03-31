@@ -6,13 +6,7 @@ namespace cmx
 
 void Camera::setOrthographicProjection(float left, float right, float top, float bottom, float near, float far)
 {
-    _projectionMatrix = glm::mat4{1.0f};
-    _projectionMatrix[0][0] = 2.f / (right - left);
-    _projectionMatrix[1][1] = 2.f / (bottom - top);
-    _projectionMatrix[2][2] = 1.f / (far - near);
-    _projectionMatrix[3][0] = -(right + left) / (right - left);
-    _projectionMatrix[3][1] = -(bottom + top) / (bottom - top);
-    _projectionMatrix[3][2] = -near / (far - near);
+    _projectionMatrix = glm::ortho(left, right, bottom, top, near, far);
 }
 
 void Camera::setPerspectiveProjection(float fov, float aspect, float near, float far)
@@ -86,7 +80,8 @@ void Camera::updateAspectRatio(float aspectRatio)
         _screenAspectRatio = aspectRatio;
     }
 
-    // camera->setOrthographicProjection(-aspect, aspect, -1.f, 1.f, -1.f, 1.f);
+    float boxSize = 20.f;
+    // setOrthographicProjection(-aspectRatio * boxSize, aspectRatio * boxSize, boxSize, -boxSize, -boxSize, boxSize);
     setPerspectiveProjection(_FOV, _screenAspectRatio, _nearPlane, _farPlane);
 }
 

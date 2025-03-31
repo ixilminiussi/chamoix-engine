@@ -9,11 +9,14 @@ layout(location = 0) out vec3 fragPositionWorld;
 layout(location = 1) out vec3 fragColor;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUV;
+layout(location = 4) out vec4 fragPositionLightSpace;
 
 struct DirectionalLight
 {
-    vec4 direction;
+    mat4 projectionMatrix;
+    mat4 viewMatrix;
     vec4 color;
+    vec4 direction;
 };
 
 struct PointLight
@@ -47,6 +50,7 @@ void main()
 
     fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
     fragPositionWorld = worldPosition.xyz;
+    fragPositionLightSpace = ubo.sun.projectionMatrix * ubo.sun.viewMatrix * worldPosition;
     fragColor = color;
 
     vec2 uvOffset = vec2(push.normalMatrix[0][3], push.normalMatrix[1][3]);
@@ -56,7 +60,7 @@ void main()
     {
         vec2 adaptedUV = vec2(uv.x, 1.0 - uv.y);
 
-        fragUV = vec2(uv.x, 1.0 - uv.y) + uvOffset;
+        fragUV = adaptedUV + uvOffset;
     }
     else
     {

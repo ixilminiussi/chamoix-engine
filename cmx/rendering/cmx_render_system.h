@@ -18,8 +18,10 @@ namespace cmx
 
 struct DirectionalLightCompact
 {
-    glm::vec4 direction{1.f};
-    glm::vec4 color{0.f};
+    glm::mat4 projection{1.f};
+    glm::mat4 view{1.f};
+    glm::vec4 color{};
+    glm::vec4 direction{};
 };
 
 struct PointLightCompact

@@ -1,6 +1,7 @@
 #include "cmx_light_environment.h"
 
 // cmx
+#include "cmx_buffer.h"
 #include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
@@ -10,10 +11,12 @@
 #include "cmx_void_material.h"
 
 // lib
+#include <cstddef>
 #include <glm/gtc/constants.hpp>
 #include <glm/trigonometric.hpp>
 #include <imgui.h>
 #include <imgui_gradient/imgui_gradient.hpp>
+#include <memory>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -25,16 +28,47 @@ namespace cmx
 
 ImGG::GradientWidget atmosphereWidget;
 
+DirectionalLight::DirectionalLight()
+{
+    _cameraView = std::make_unique<Camera>();
+    _imageResolution = vk::Extent2D{4096, 4096};
+}
+
+DirectionalLight::DirectionalLight(const glm::vec4 &direction_, const glm::vec4 &color_, const float &intensity_)
+    : direction(direction_), color(color_), intensity(intensity_)
+{
+    _cameraView = std::make_unique<Camera>();
+};
+
+const class Camera *DirectionalLight::getCameraView() const
+{
+    return _cameraView.get();
+}
+
 void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width, uint32_t height)
 {
     _imageResolution.width = width;
     _imageResolution.height = height;
 
+    createImage(device);
+    createImageView(device);
+    createRenderPass(device);
+    createFrameBuffer(device);
+    createSampler(device);
+    createShadowUbo(device);
+    createDescriptorSet(device);
+
+    _voidMaterial = new VoidMaterial();
+    _voidMaterial->initialize(_renderPass, _shadowDescriptorSetLayout->getDescriptorSetLayout());
+}
+
+void DirectionalLight::createImage(class Device *device)
+{
     vk::ImageCreateInfo imageInfo{};
 
     imageInfo.sType = vk::StructureType::eImageCreateInfo;
     imageInfo.imageType = vk::ImageType::e2D;
-    imageInfo.extent = vk::Extent3D{width, height, 1u};
+    imageInfo.extent = vk::Extent3D{_imageResolution.width, _imageResolution.height, 1u};
     imageInfo.mipLevels = 1;
     imageInfo.arrayLayers = 1;
     imageInfo.samples = vk::SampleCountFlagBits::e1;
@@ -44,7 +78,10 @@ void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width,
     imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
 
     device->createImageWithInfo(imageInfo, {vk::MemoryPropertyFlagBits::eDeviceLocal}, _image, _imageMemory);
+}
 
+void DirectionalLight::createImageView(class Device *device)
+{
     vk::ImageViewCreateInfo viewInfo{};
     viewInfo.image = _image; // The depth texture image
     viewInfo.viewType = vk::ImageViewType::e2D;
@@ -59,7 +96,10 @@ void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width,
     {
         throw std::runtime_error("failed to create texture image view!");
     }
+}
 
+void DirectionalLight::createRenderPass(class Device *device)
+{
     vk::AttachmentDescription depthAttachment{};
     depthAttachment.format = vk::Format::eD32Sfloat;
     depthAttachment.samples = vk::SampleCountFlagBits::e1;
@@ -88,41 +128,66 @@ void DirectionalLight::initializeShadowMap(class Device *device, uint32_t width,
     {
         throw std::runtime_error("failed to create depth render pass");
     }
+}
 
+void DirectionalLight::createFrameBuffer(class Device *device)
+{
     vk::FramebufferCreateInfo framebufferInfo{};
     framebufferInfo.renderPass = _renderPass;
     framebufferInfo.attachmentCount = 1;
     framebufferInfo.pAttachments = &_imageView;
-    framebufferInfo.width = width;
-    framebufferInfo.height = height;
+    framebufferInfo.width = _imageResolution.width;
+    framebufferInfo.height = _imageResolution.height;
     framebufferInfo.layers = 1;
 
     if (device->device().createFramebuffer(&framebufferInfo, nullptr, &_framebuffer) != vk::Result::eSuccess)
     {
         throw std::runtime_error("failed to create frame buffer");
     }
+}
 
+void DirectionalLight::createSampler(class Device *device)
+{
     vk::SamplerCreateInfo samplerCreateInfo{};
     samplerCreateInfo.magFilter = vk::Filter::eLinear;
     samplerCreateInfo.minFilter = vk::Filter::eLinear;
-    samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
-    samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
+    samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+    samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
     samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
     samplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
     samplerCreateInfo.unnormalizedCoordinates = false;
-    samplerCreateInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
-    samplerCreateInfo.mipLodBias = 0.0f;
-    samplerCreateInfo.minLod = 0.0f;
-    samplerCreateInfo.maxLod = 10.0f;
-    samplerCreateInfo.anisotropyEnable = true;
-    samplerCreateInfo.maxAnisotropy = 16;
+    samplerCreateInfo.compareEnable = true;
 
     _sampler = device->device().createSampler(samplerCreateInfo);
 
     _samplerDescriptorSetID = RenderSystem::getInstance()->createSamplerDescriptor(_imageView, _sampler);
+}
 
-    _voidMaterial = new VoidMaterial();
-    _voidMaterial->initialize(_renderPass);
+void DirectionalLight::createShadowUbo(class Device *device)
+{
+    _shadowUboBuffer = new Buffer(*device, sizeof(ShadowUbo), 1, vk::BufferUsageFlagBits::eUniformBuffer,
+                                  vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+
+    _shadowUboBuffer->map();
+}
+
+void DirectionalLight::createDescriptorSet(class Device *device)
+{
+    _shadowDescriptorPool =
+        DescriptorPool::Builder(*device).setMaxSets(1).addPoolSize(vk::DescriptorType::eUniformBuffer, 1).build();
+
+    _shadowDescriptorSetLayout =
+        DescriptorSetLayout::Builder(*device)
+            .addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAllGraphics)
+            .build();
+
+    auto bufferInfo = _shadowUboBuffer->descriptorInfo();
+    if (!DescriptorWriter(*_shadowDescriptorSetLayout.get(), *_shadowDescriptorPool.get())
+             .writeBuffer(0, &bufferInfo)
+             .build(_shadowDescriptorSet))
+    {
+        throw std::runtime_error("DirectionalLight: Failed to create _shadowDescriptorSet!");
+    }
 }
 
 void DirectionalLight::transitionShadowMap(class FrameInfo *frameInfo) const
@@ -130,7 +195,7 @@ void DirectionalLight::transitionShadowMap(class FrameInfo *frameInfo) const
     vk::ImageMemoryBarrier barrier{};
     barrier.image = _image;
     barrier.oldLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-    barrier.newLayout = vk::ImageLayout::eDepthAttachmentStencilReadOnlyOptimal;
+    barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
     barrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
     barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
     barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
@@ -148,26 +213,39 @@ void DirectionalLight::freeShadowMap(class Device *device)
 {
     device->device().destroyFramebuffer(_framebuffer);
     device->device().destroyRenderPass(_renderPass);
+    device->device().destroySampler(_sampler);
     device->device().destroyImageView(_imageView);
     device->device().destroyImage(_image);
     device->device().freeMemory(_imageMemory);
+
+    _shadowUboBuffer->free();
+    delete _shadowUboBuffer;
+
     _voidMaterial->free();
     delete _voidMaterial;
+
+    _shadowDescriptorPool->free();
 }
 
 Material *DirectionalLight::beginRender(FrameInfo *frameInfo) const
 {
-    Camera *lightCamera = new Camera();
-    glm::vec3 position = glm::vec3{0.f} - glm::vec3{direction} * 100.f;
-    glm::vec3 upVector = glm::vec3(0.f, -1.f, 0.f);
+    const float boundingDimension = 20.f;
+    _cameraView->setOrthographicProjection(-boundingDimension, boundingDimension, boundingDimension, -boundingDimension,
+                                           boundingDimension, -boundingDimension);
+    // _cameraView->setPerspectiveProjection(90.f, 1.f, 0.1f, 100.f);
+    _cameraView->setViewDirection(glm::vec3{0.f}, direction);
 
-    const float boundingDimension = 500.f;
-    lightCamera->setOrthographicProjection(-boundingDimension, boundingDimension, boundingDimension, -boundingDimension,
-                                           0, 100);
-    lightCamera->setViewDirection(position, direction, glm::vec3{0.f, -1.f, 0.f});
+    frameInfo->globalDescriptorSet = _shadowDescriptorSet;
+
+    ShadowUbo ubo{};
+    ubo.projection = _cameraView->getProjection();
+    ubo.view = _cameraView->getView();
+
+    _shadowUboBuffer->writeToBuffer(&ubo);
+    _shadowUboBuffer->flush();
 
     vk::ClearValue clearDepth{};
-    clearDepth.depthStencil = 1.0f;
+    clearDepth.depthStencil = 1.f;
 
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = _renderPass;
@@ -176,18 +254,18 @@ Material *DirectionalLight::beginRender(FrameInfo *frameInfo) const
     renderPassBeginInfo.clearValueCount = 1;
     renderPassBeginInfo.pClearValues = &clearDepth;
 
-    vk::Rect2D scissor{vk::Offset2D{0, 0}, _imageResolution};
-    frameInfo->commandBuffer.setScissor(0, 1, &scissor);
-
-    static vk::Viewport viewport{0, 0, (float)_imageResolution.width, (float)_imageResolution.height};
-    frameInfo->commandBuffer.setViewport(0, 1, &viewport);
-
     frameInfo->commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
-    GlobalUbo ubo{};
-    ubo.projection = lightCamera->getProjection();
-    ubo.view = lightCamera->getView();
 
-    RenderSystem::getInstance()->writeUbo(frameInfo, &ubo);
+    static vk::Viewport viewport;
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)_imageResolution.width;
+    viewport.height = (float)_imageResolution.height;
+    viewport.minDepth = 0.f;
+    viewport.maxDepth = 1.f;
+    vk::Rect2D scissor{vk::Offset2D{0, 0}, _imageResolution};
+    frameInfo->commandBuffer.setViewport(0, 1, &viewport);
+    frameInfo->commandBuffer.setScissor(0, 1, &scissor);
 
     return _voidMaterial;
 }
@@ -217,6 +295,8 @@ void LightEnvironment::drawShadowMaps(
     const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &drawableRenderQueue,
     std::vector<size_t> &descriptorSetIDs) const
 {
+    vk::DescriptorSet descriptorSetHolder = frameInfo->globalDescriptorSet;
+
     descriptorSetIDs.clear();
     descriptorSetIDs.reserve(MAX_POINT_LIGHTS + 1);
 
@@ -226,6 +306,11 @@ void LightEnvironment::drawShadowMaps(
         Texture::resetBoundID();
         for (auto &[drawable, drawOption] : drawableQueue)
         {
+            if (drawOption->material->isTransparent())
+            {
+                continue;
+            }
+
             static DrawOption customDrawOption{};
 
             customDrawOption.model = drawOption->model;
@@ -235,6 +320,8 @@ void LightEnvironment::drawShadowMaps(
     }
 
     descriptorSetIDs.emplace_back(_sun.endRender(frameInfo));
+
+    frameInfo->globalDescriptorSet = descriptorSetHolder;
 }
 
 void LightEnvironment::populateUbo(GlobalUbo *ubo) const
@@ -252,8 +339,10 @@ void LightEnvironment::populateUbo(GlobalUbo *ubo) const
 
     if (_hasSun)
     {
-        ubo->sun.direction = _sun.direction;
+        ubo->sun.projection = _sun.getCameraView()->getProjection();
+        ubo->sun.view = _sun.getCameraView()->getView();
         ubo->sun.color = _sun.color;
+        ubo->sun.direction = _sun.direction;
         ubo->ambientLight = glm::vec4(_sun.color.x, _sun.color.y, _sun.color.z, _sun.intensity * .1f + .05f);
     }
     else

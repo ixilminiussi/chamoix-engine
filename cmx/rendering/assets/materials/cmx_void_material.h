@@ -33,7 +33,7 @@ class VoidMaterial : public Material
     void load(tinyxml2::XMLElement *materialElement) override;
 
     void initialize() override;
-    void initialize(vk::RenderPass);
+    void initialize(vk::RenderPass, vk::DescriptorSetLayout);
 
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;

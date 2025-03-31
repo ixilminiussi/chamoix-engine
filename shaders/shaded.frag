@@ -4,6 +4,7 @@ layout(location = 0) in vec3 fragPositionWorld;
 layout(location = 1) in vec3 fragColor;
 layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUV;
+layout(location = 4) in vec4 fragPositionLightSpace;
 
 layout(set = 1, binding = 0) uniform sampler2D textureSampler;
 layout(set = 2, binding = 0) uniform sampler2D shadowMapSampler;
@@ -12,8 +13,10 @@ layout(location = 0) out vec4 outColor;
 
 struct DirectionalLight
 {
-    vec4 direction;
+    mat4 projectionMatrix;
+    mat4 viewMatrix;
     vec4 color;
+    vec4 direction;
 };
 
 struct PointLight
@@ -40,6 +43,20 @@ layout(push_constant) uniform Push
 }
 push;
 
+float calcShadowFactor()
+{
+    vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
+    vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
+
+    float depth = texture(shadowMapSampler, lightUVCoords).r;
+
+    if (projCoords.z - depth < 0.025)
+    {
+        return 1.0f;
+    }
+    return 0.5f;
+}
+
 void main()
 {
     // ambient light
@@ -55,7 +72,7 @@ void main()
         float attenuation = 1.0f / dot(directionToLight, directionToLight);
         vec3 intensity = light.color.xyz * light.color.w * attenuation;
 
-        float cosAngIncidence = max(dot(surfaceNormal, normalize(directionToLight)), 0.0f);
+        float cosAngIncidence = max(dot(surfaceNormal, -normalize(directionToLight)), 0.0f);
 
         diffuseLight += intensity * cosAngIncidence;
     }
@@ -63,8 +80,11 @@ void main()
     // directional light
     if (ubo.sun.color.w > 0)
     {
+        float depthOnShadowSampler = texture(shadowMapSampler, fragPositionLightSpace.xy).r;
+        float depthOnLightSpace = fragPositionLightSpace.z;
+
         float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
-        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * cosAngIncidence;
+        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(calcShadowFactor(), cosAngIncidence);
     }
 
     // if we have push.normalMatrix[3][3] != 100, then we should be using vertex color

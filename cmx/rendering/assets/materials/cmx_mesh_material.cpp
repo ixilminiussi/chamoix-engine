@@ -1,14 +1,15 @@
 #include "cmx_mesh_material.h"
 
 // cmx
+#include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
-#include "imgui.h"
 
 // lib
+#include <imgui.h>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
@@ -67,6 +68,8 @@ void MeshMaterial::load(tinyxml2::XMLElement *materialElement)
 void MeshMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
+
+    _transparent = true;
 
     loadBindings();
 

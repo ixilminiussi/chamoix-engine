@@ -8,7 +8,7 @@
         </material>
         <material type="cmx::HudMaterial" vertex="shaders/hud.vert.spv" fragment="shaders/hud.frag.spv" editorOnly="false" name="hud_material"/>
         <material type="cmx::MeshMaterial" vertex="shaders/mesh.vert.spv" fragment="shaders/mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
-        <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="true" UVoffsetX="0" UVoffsetY="0" UVscale="4" UVrotate="0" r="1" g="1" b="1" name="shaded_material"/>
+        <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(1)"/>
         <model filepath="assets/cmx/camera.obj" name="cmx_camera"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
@@ -87,7 +87,7 @@
             <layer filepath="assets/cmx/dithering/radial64.png"/>
         </texture>
     </assets>
-    <lightEnvironment timeOfDay="9.25">
+    <lightEnvironment timeOfDay="12">
         <sun axis="0">
             <gradient>
                 <mark position="0.352" r="0.55000001" g="0.5" b="1"/>

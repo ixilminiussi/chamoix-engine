@@ -63,13 +63,13 @@ void VoidMaterial::initialize()
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }
 
-void VoidMaterial::initialize(vk::RenderPass renderPass)
+void VoidMaterial::initialize(vk::RenderPass renderPass, vk::DescriptorSetLayout shadowUboLayout)
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
     loadBindings();
 
-    createPipelineLayout({renderSystem->getGlobalSetLayout()});
+    createPipelineLayout({shadowUboLayout});
     createPipeline(renderPass);
 }
 

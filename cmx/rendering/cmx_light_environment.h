@@ -2,20 +2,29 @@
 #define CMX_LIGHT_ENVIRONMENT
 
 // lib
+#include "cmx_descriptors.h"
 #include "tinyxml2.h"
+#include <glm/ext/matrix_common.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <glm/fwd.hpp>
-#include <map>
+#include <memory>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_handles.hpp>
 
 // std
 #include <cstdint>
+#include <map>
 #include <unordered_map>
-#include <vulkan/vulkan_handles.hpp>
 
 namespace cmx
 {
+
+struct ShadowUbo
+{
+    glm::mat4 projection;
+    glm::mat4 view;
+};
 
 struct PointLight
 {
@@ -33,18 +42,26 @@ class Material;
 class DirectionalLight
 {
   public:
-    DirectionalLight() = default;
-    DirectionalLight(const glm::vec4 &direction_, const glm::vec4 &color_, const float &intensity_)
-        : direction(direction_), color(color_), intensity(intensity_) {};
+    DirectionalLight();
+    DirectionalLight(const glm::vec4 &direction_, const glm::vec4 &color_, const float &intensity_);
 
     glm::vec4 direction{1.f};
     glm::vec4 color{0.f};
     float intensity{0.f};
 
     friend class LightEnvironment;
+    const class Camera *getCameraView() const;
 
   private:
     void initializeShadowMap(class Device *, uint32_t width, uint32_t height);
+    void createImage(class Device *);
+    void createImageView(class Device *);
+    void createRenderPass(class Device *);
+    void createFrameBuffer(class Device *);
+    void createSampler(class Device *);
+    void createShadowUbo(class Device *);
+    void createDescriptorSet(class Device *);
+
     void freeShadowMap(class Device *);
     [[nodiscard]] Material *beginRender(class FrameInfo *) const;
     [[nodiscard]] size_t endRender(class FrameInfo *) const;
@@ -59,8 +76,14 @@ class DirectionalLight
     vk::Framebuffer _framebuffer;
 
     class VoidMaterial *_voidMaterial;
+    std::unique_ptr<class DescriptorPool> _shadowDescriptorPool;
+    std::unique_ptr<class DescriptorSetLayout> _shadowDescriptorSetLayout;
+    vk::DescriptorSet _shadowDescriptorSet;
+    class Buffer *_shadowUboBuffer;
 
-    vk::Extent2D _imageResolution{1024, 1024};
+    std::unique_ptr<class Camera> _cameraView;
+
+    vk::Extent2D _imageResolution;
 };
 
 class LightEnvironment
