@@ -249,26 +249,6 @@ std::string Cuboid::getName() const
     return PRIMITIVE_CUBE;
 }
 
-// void Cuboid::render(const FrameInfo &frameInfo, vk::PipelineLayout pipelineLayout, AssetsManager *assetsManager)
-// {
-//     EdgePushConstantData push{};
-//
-//     Transform transform = getWorldSpaceTransform();
-//
-//     push.modelMatrix = transform.mat4();
-//     push.color = isOverlapping() ? glm::vec3{1.f, 0.f, 0.f} : glm::vec3{0.f, 1.f, 1.f};
-//
-//     frameInfo.commandBuffer.pushConstants(pipelineLayout,
-//                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-//                                           sizeof(EdgePushConstantData), &push);
-//
-//     if (Model *model = assetsManager->getModel(PRIMITIVE_CUBE))
-//     {
-//         model->bind(frameInfo.commandBuffer);
-//         model->draw(frameInfo.commandBuffer);
-//     }
-// }
-
 bool Cuboid::overlapsWith(const Shape &other, HitInfo &hitInfo) const
 {
     if (!(mask & other.mask))

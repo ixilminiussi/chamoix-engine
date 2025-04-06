@@ -27,13 +27,13 @@ void MeshMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
         _boundID = _id;
     }
 
-    EdgePushConstantData push{};
+    m::PushConstantData push{};
     push.modelMatrix = drawable->getWorldSpaceTransform().mat4();
     push.color = _color;
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-                                           sizeof(EdgePushConstantData), &push);
+                                           sizeof(m::PushConstantData), &push);
 }
 
 void MeshMaterial::editor()
@@ -82,7 +82,7 @@ void MeshMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> des
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(EdgePushConstantData);
+    pushConstantRange.size = sizeof(m::PushConstantData);
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;

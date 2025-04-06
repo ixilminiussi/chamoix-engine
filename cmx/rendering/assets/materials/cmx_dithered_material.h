@@ -13,13 +13,6 @@
 namespace cmx
 {
 
-struct DitheringPushConstantData
-{
-    glm::mat4 modelMatrix{1.f};  // bottom row is light color
-    glm::mat4 normalMatrix{1.f}; // bottom row is dark color
-    // right column is scale, threshold, and usWorldUV_lightDots
-};
-
 class DitheredMaterial : public Material
 {
   public:
@@ -42,7 +35,6 @@ class DitheredMaterial : public Material
     glm::vec3 _darkColor{0.153, 0.157, 0.22};
     float _scale{5.f};
     float _threshold{1.f};
-    bool _useWorldUV{false};
     bool _lightDots{true};
 };
 

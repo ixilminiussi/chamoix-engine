@@ -13,12 +13,15 @@
 namespace cmx
 {
 
-struct BillboardPushConstant
+namespace b
+{
+struct PushConstantData
 {
     glm::vec4 position;
     glm::vec4 color;
     glm::vec2 scale;
 };
+} // namespace b
 
 class BillboardMaterial : public Material
 {

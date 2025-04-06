@@ -62,16 +62,17 @@ vec2 getWorldSpaceUV()
 
 void main()
 {
-    vec4 worldPosition = push.modelMatrix * vec4(position, 1.0f);
+    mat4 modelMatrix = push.modelMatrix;
+
+    vec4 worldPosition = modelMatrix * vec4(position, 1.0f);
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
     fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
     fragPositionWorld = worldPosition.xyz;
-    fragPositionLightSpace = ubo.sun.projectionMatrix * ubo.sun.viewMatrix * worldPosition;
     fragColor = color;
+    fragPositionLightSpace = ubo.sun.projectionMatrix * ubo.sun.viewMatrix * worldPosition;
 
-    // if we have push.normalMatrix[2][3] != 0, then we should be using tiling uv mapping. otherwise it's regular uv
-    if (push.normalMatrix[2][3] == 0)
+    if (push.normalMatrix[2][3] == 0.f)
     {
         vec2 uvOffset = vec2(push.normalMatrix[0][3], push.normalMatrix[1][3]);
 

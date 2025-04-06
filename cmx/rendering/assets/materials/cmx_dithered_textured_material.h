@@ -1,5 +1,5 @@
-#ifndef CMX_MESH_MATERIAL
-#define CMX_MESH_MATERIAL
+#ifndef CMX_DITHERED_TEXTURED_MATERIAL
+#define CMX_DITHERED_TEXTURED_MATERIAL
 
 // cmx
 #include "cmx_material.h"
@@ -13,21 +13,12 @@
 namespace cmx
 {
 
-namespace m
-{
-struct PushConstantData
-{
-    glm::mat4 modelMatrix{1.f};
-    glm::vec3 color;
-};
-} // namespace m
-
-class MeshMaterial : public Material
+class DitheredTexturedMaterial : public Material
 {
   public:
-    MeshMaterial() : Material{"shaders/mesh.vert.spv", "shaders/mesh.frag.spv"} {};
+    DitheredTexturedMaterial() : Material{"shaders/dithered_t.vert.spv", "shaders/dithered_t.frag.spv"} {};
 
-    CLONEABLE_MATERIAL(MeshMaterial)
+    CLONEABLE_MATERIAL(DitheredTexturedMaterial)
 
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
@@ -36,20 +27,21 @@ class MeshMaterial : public Material
 
     void initialize() override;
 
-    void setColor(const glm::vec3 color)
-    {
-        _color = color;
-    }
-
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
-    glm::vec3 _color{0.f, 0.f, 1.f};
+    glm::vec2 _UVoffset{};
+    bool _worldSpaceUV{false};
+    float _UVScale{1.f};
+    float _UVRotate{0.f};
+    float _scale{5.f};
+    float _threshold{1.f};
+    float _mSpacing{.2f};
 };
 
 } // namespace cmx
 
-REGISTER_MATERIAL(cmx::MeshMaterial)
+REGISTER_MATERIAL(cmx::DitheredTexturedMaterial)
 
 #endif

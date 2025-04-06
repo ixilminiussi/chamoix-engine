@@ -24,14 +24,14 @@ void BillboardMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
 
     Transform transform = drawable->getWorldSpaceTransform();
 
-    BillboardPushConstant push{};
+    b::PushConstantData push{};
     push.position = glm::vec4(transform.position, 1.f);
     push.color = _hue;
     push.scale = glm::vec2(transform.scale.x, transform.scale.y);
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
-                                           sizeof(BillboardPushConstant), &push);
+                                           sizeof(b::PushConstantData), &push);
 }
 
 void BillboardMaterial::editor()
@@ -78,7 +78,7 @@ void BillboardMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(BillboardPushConstant);
+    pushConstantRange.size = sizeof(b::PushConstantData);
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;

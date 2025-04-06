@@ -6,11 +6,9 @@ layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUV;
 layout(location = 4) in vec4 fragPositionLightSpace;
 
-layout(location = 5) in vec3 fragDarkColor;
-layout(location = 6) in vec3 fragLightColor;
-
 layout(set = 1, binding = 0) uniform sampler3D ditheringSampler;
-layout(set = 2, binding = 0) uniform sampler2D shadowMapSampler;
+layout(set = 2, binding = 0) uniform sampler2D textureSampler;
+layout(set = 3, binding = 0) uniform sampler2D shadowMapSampler;
 
 layout(location = 0) out vec4 outColor;
 
@@ -46,10 +44,7 @@ layout(push_constant) uniform Push
 }
 push;
 
-float getLuminance(vec3 color)
-{
-    return 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
-}
+const float PI = 1.1314f;
 
 vec2 getUVFrequency()
 {
@@ -114,28 +109,31 @@ vec3 getDiffuseLight()
     return diffuseLight;
 }
 
-void main()
+vec4 getColor(vec3 alignedColor, vec3 maskColor, vec2 UVOffset)
 {
-    bool dotToggle = ((uint(push.normalMatrix[3][2]) & 1u) == 0u);
+    vec3 masked = alignedColor * maskColor;
 
-    vec3 diffuseLight = getDiffuseLight();
-
-    float brightness = dotToggle ? 1 - getLuminance(diffuseLight) : getLuminance(diffuseLight);
-    brightness /= 2;
+    float brightness = dot(masked, maskColor);
 
     vec2 ditheringLevel = propperDitheringScale(brightness);
-    vec4 ditheringSample = texture(ditheringSampler, vec3(fragUV / ditheringLevel.x, ditheringLevel.y));
+    vec4 ditheringSample = texture(ditheringSampler, vec3((fragUV + UVOffset) / ditheringLevel.x, ditheringLevel.y));
 
-    if (dotToggle)
-    {
-        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(fragLightColor, 1.f)
-                                                                                : vec4(fragDarkColor, 1.f);
-    }
-    else
-    {
-        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(fragDarkColor, 1.f)
-                                                                                : vec4(fragLightColor, 1.f);
-    }
+    return brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(0.f, 0.f, 0.f, 1.f)
+                                                                        : vec4(maskColor, 1.f);
+}
+
+void main()
+{
+    vec3 diffuseLight = getDiffuseLight();
+    vec3 textureColor = texture(textureSampler, fragUV).xyz;
+    vec3 combinedColor = diffuseLight * textureColor;
+
+    const float m = push.normalMatrix[3][2];
+    const float thirdPi = 2.0f * PI / 3.f;
+
+    outColor = getColor(combinedColor, vec3(1.f, 0.f, 0.f), m * vec2(cos(thirdPi), sin(thirdPi)));
+    outColor += getColor(combinedColor, vec3(0.f, 1.f, 0.f), m * vec2(cos(2 * thirdPi), sin(2 * thirdPi)));
+    outColor += getColor(combinedColor, vec3(0.f, 0.f, 1.f), m * vec2(1.0f, 0.f));
 
     outColor.a = 1.0f;
 }

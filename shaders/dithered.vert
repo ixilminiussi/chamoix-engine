@@ -46,15 +46,6 @@ layout(push_constant) uniform Push
 }
 push;
 
-vec2 getWorldView()
-{
-    vec3 up = abs(fragNormalWorld.z) > 0.999 ? vec3(1, 0, 0) : vec3(0, 0, 1);
-    vec3 tangent = normalize(cross(fragNormalWorld, up));
-    vec3 bitangent = cross(fragNormalWorld, tangent);
-
-    return vec2(dot(fragPositionWorld, tangent), dot(fragPositionWorld, bitangent));
-}
-
 void main()
 {
     fragDarkColor.x = push.modelMatrix[0][3];
@@ -78,12 +69,5 @@ void main()
     fragColor = color;
     fragPositionLightSpace = ubo.sun.projectionMatrix * ubo.sun.viewMatrix * worldPosition;
 
-    if ((uint(push.normalMatrix[3][2]) & 2u) == 0u)
-    {
-        fragUV = uv;
-    }
-    else
-    {
-        fragUV = getWorldView();
-    }
+    fragUV = uv;
 }

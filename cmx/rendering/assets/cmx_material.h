@@ -7,6 +7,7 @@
 
 // lib
 #include <SPIRV-Reflect/spirv_reflect.h>
+#include <glm/ext/matrix_float4x4.hpp>
 #include <set>
 #include <tinyxml2.h>
 #include <vulkan/vulkan.hpp>
@@ -18,6 +19,12 @@
 
 namespace cmx
 {
+
+struct PushConstantData
+{
+    glm::mat4 modelMatrix{1.f};
+    glm::mat4 normalMatrix{1.f};
+};
 
 struct BindingInfo
 {
