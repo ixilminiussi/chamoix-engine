@@ -2,11 +2,11 @@
 <scene name="first scene">
     <assets>
         <material type="cmx::BillboardMaterial" vertex="shaders/billboard.vert.spv" fragment="shaders/billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
-        <material type="cmx::DitheredMaterial" vertex="shaders/dithered.vert.spv" fragment="shaders/dithered.frag.spv" editorOnly="false" scale="4.8000002" threshold="0.85600001" dotsToggle="true" name="dithered_material">
+        <material type="cmx::DitheredMaterial" vertex="shaders/dithered.vert.spv" fragment="shaders/dithered.frag.spv" editorOnly="false" scale="5" threshold="0.85600001" dotsToggle="true" name="dithered_material">
             <lightColor r="1" g="1" b="1"/>
             <darkColor r="0" g="0" b="0"/>
         </material>
-        <material type="cmx::DitheredTexturedMaterial" vertex="shaders/dithered_t.vert.spv" fragment="shaders/dithered_t.frag.spv" editorOnly="false" scale="3.9000001" threshold="0.72500002" m="0.2" saturation="0" name="dithered_textured_material"/>
+        <material type="cmx::DitheredTexturedMaterial" vertex="shaders/dithered_t.vert.spv" fragment="shaders/dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="5" threshold="0.80000001" m="0.2" name="dithered_textured_material"/>
         <material type="cmx::HudMaterial" vertex="shaders/hud.vert.spv" fragment="shaders/hud.frag.spv" editorOnly="false" name="hud_material"/>
         <material type="cmx::MeshMaterial" vertex="shaders/mesh.vert.spv" fragment="shaders/mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
@@ -99,7 +99,7 @@
             </gradient>
         </sun>
     </lightEnvironment>
-    <actor type="cmx::Actor" name="Penguin(2)" id="9" visible="true">
+    <actor type="cmx::Actor" name="Penguin(2)" id="11" visible="true">
         <transform>
             <position x="3" y="0" z="7"/>
             <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
@@ -116,7 +116,7 @@
             </rendering>
         </component>
     </actor>
-    <actor type="cmx::Actor" name="Penguin(1)" id="8" visible="true">
+    <actor type="cmx::Actor" name="Penguin(1)" id="9" visible="true">
         <transform>
             <position x="-3" y="0" z="7"/>
             <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
