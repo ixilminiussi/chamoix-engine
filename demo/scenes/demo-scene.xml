@@ -24,6 +24,7 @@
         <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
         <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
         <texture filepath="assets/textures/penguin.png" name="penguin"/>
+        <texture filepath="assets/textures/stone_bricks.png" name="stone_bricks"/>
         <texture name="cmx_radial_dithering">
             <layer filepath="assets/cmx/dithering/radial5.png"/>
             <layer filepath="assets/cmx/dithering/radial6.png"/>

@@ -44,7 +44,7 @@ layout(push_constant) uniform Push
 }
 push;
 
-const float PI = 1.1314f;
+const float PI = 3.1314f;
 
 vec2 getUVFrequency()
 {
@@ -111,28 +111,67 @@ vec3 getDiffuseLight()
 
 vec4 getColor(vec3 alignedColor, vec3 maskColor, vec2 UVOffset)
 {
-    vec3 masked = alignedColor * maskColor;
+    const vec3 masked = alignedColor * maskColor;
 
-    float brightness = dot(masked, maskColor);
+    const float brightness = dot(masked, maskColor);
 
-    vec2 ditheringLevel = propperDitheringScale(brightness);
-    vec4 ditheringSample = texture(ditheringSampler, vec3((fragUV + UVOffset) / ditheringLevel.x, ditheringLevel.y));
+    const vec2 ditheringLevel = propperDitheringScale(brightness);
+    const vec4 ditheringSample =
+        texture(ditheringSampler, vec3((fragUV + UVOffset) / ditheringLevel.x, ditheringLevel.y));
 
     return brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(0.f, 0.f, 0.f, 1.f)
                                                                         : vec4(maskColor, 1.f);
 }
 
+vec2 safeUV(vec2 uv)
+{
+    return clamp(uv, vec2(0.0), vec2(1.0));
+}
+
+float gaussian(float x, float sigma)
+{
+    return exp(-(x * x) / (2.0 * sigma * sigma));
+}
+
+vec4 blurSample()
+{
+    vec4 color = texture(textureSampler, safeUV(fragUV));
+    float weights = 1.f;
+    float sigma = 200.f;
+
+    float totalDistance = 0.015;
+    float totalSteps = 80.f;
+
+    float distanceStep = totalDistance / totalSteps;
+    float angleStep = 1.618;
+
+    float distance = distanceStep;
+
+    for (int i = 0; i < 80; i++)
+    {
+        vec2 offset = distance * vec2(cos(angleStep * i), sin(angleStep * i));
+        vec2 uv = safeUV(fragUV + offset);
+        color += texture(textureSampler, uv);
+        weights += gaussian(distance, sigma);
+
+        distance += distanceStep;
+    }
+
+    color /= weights;
+    return color;
+}
 void main()
 {
-    vec3 diffuseLight = getDiffuseLight();
-    vec3 textureColor = texture(textureSampler, fragUV).xyz;
-    vec3 combinedColor = diffuseLight * textureColor;
+    const vec3 diffuseLight = getDiffuseLight();
+    const vec3 textureColor = texture(textureSampler, fragUV).xyz;
+
+    const vec3 combinedColor = diffuseLight * textureColor;
 
     const float m = push.normalMatrix[3][2];
-    const float thirdPi = 2.0f * PI / 3.f;
+    const float PI_third = 2.0f * PI / 3.f;
 
-    outColor = getColor(combinedColor, vec3(1.f, 0.f, 0.f), m * vec2(cos(thirdPi), sin(thirdPi)));
-    outColor += getColor(combinedColor, vec3(0.f, 1.f, 0.f), m * vec2(cos(2 * thirdPi), sin(2 * thirdPi)));
+    outColor = getColor(combinedColor, vec3(1.f, 0.f, 0.f), m * vec2(cos(PI_third), sin(PI_third)));
+    outColor += getColor(combinedColor, vec3(0.f, 1.f, 0.f), m * vec2(cos(2 * PI_third), sin(2 * PI_third)));
     outColor += getColor(combinedColor, vec3(0.f, 0.f, 1.f), m * vec2(1.0f, 0.f));
 
     outColor.a = 1.0f;
