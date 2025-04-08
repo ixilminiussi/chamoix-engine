@@ -46,6 +46,8 @@ layout(push_constant) uniform Push
 }
 push;
 
+const float two_PI = 6.2831;
+
 float getLuminance(vec3 color)
 {
     return 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
@@ -71,7 +73,7 @@ vec2 propperDitheringScale(float brightness)
     const float scale = push.normalMatrix[3][0];
 
     vec2 uvFrequency = getUVFrequency();
-    float spacing = uvFrequency.y; // smaller of the two
+    float spacing = (uvFrequency.x * .25f + uvFrequency.y * .75f);
     spacing *= exp2(scale);
     spacing /= brightness;
 
@@ -84,18 +86,33 @@ vec2 propperDitheringScale(float brightness)
     return vec2(exp2(roundedLogCurve), subLayer);
 }
 
-float getShadowFactor()
+float getShadowFactor(vec2 inUV, vec3 projCoords)
 {
-    vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
-    vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
-
-    float depth = texture(shadowMapSampler, lightUVCoords).r;
+    float depth = texture(shadowMapSampler, inUV).r;
 
     if (projCoords.z - depth < 0.025)
     {
         return 1.0f;
     }
     return 0.2f;
+}
+
+float getPCFShadow(vec3 projCoords)
+{
+    const float angle = two_PI / 8.f;
+    const vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
+    const vec2 texelSize = 1.0f / textureSize(shadowMapSampler, 0) * 1.5f;
+    ;
+
+    float combined = getShadowFactor(lightUVCoords, projCoords);
+
+    for (int i = 0; i < 8; i++)
+    {
+        const vec2 uvOffset = vec2(cos(angle * i), sin(angle * i)) * texelSize.x;
+        combined += getShadowFactor(lightUVCoords + uvOffset, projCoords);
+    }
+
+    return combined / 9.f;
 }
 
 vec3 getDiffuseLight()
@@ -108,7 +125,8 @@ vec3 getDiffuseLight()
     if (ubo.sun.color.w > 0)
     {
         float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
-        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getShadowFactor(), cosAngIncidence);
+        const vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
+        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getPCFShadow(projCoords), cosAngIncidence);
     }
 
     return diffuseLight;

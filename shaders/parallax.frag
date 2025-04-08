@@ -6,8 +6,9 @@ layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUV;
 layout(location = 4) in vec4 fragPositionLightSpace;
 
-layout(set = 1, binding = 0) uniform sampler2D textureSampler;
-layout(set = 2, binding = 0) uniform sampler2D shadowMapSampler;
+layout(set = 1, binding = 0) uniform sampler2D colorSampler;
+layout(set = 2, binding = 0) uniform sampler2D normalHeightSampler;
+layout(set = 3, binding = 0) uniform sampler2D shadowMapSampler;
 
 layout(location = 0) out vec4 outColor;
 
@@ -43,36 +44,18 @@ layout(push_constant) uniform Push
 }
 push;
 
-const float PI = 3.1415;
-const float two_PI = 6.2831;
-
-float getShadowFactor(vec2 inUV, vec3 projCoords)
+float getShadowFactor()
 {
-    float depth = texture(shadowMapSampler, inUV).r;
+    vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
+    vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
+
+    float depth = texture(shadowMapSampler, lightUVCoords).r;
 
     if (projCoords.z - depth < 0.025)
     {
         return 1.0f;
     }
-    return 0.2f;
-}
-
-float getPCFShadow(vec3 projCoords)
-{
-    const float angle = two_PI / 8.f;
-    const vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
-    const vec2 texelSize = 1.0f / textureSize(shadowMapSampler, 0) * 1.5f;
-    ;
-
-    float combined = getShadowFactor(lightUVCoords, projCoords);
-
-    for (int i = 0; i < 8; i++)
-    {
-        const vec2 uvOffset = vec2(cos(angle * i), sin(angle * i)) * texelSize.x;
-        combined += getShadowFactor(lightUVCoords + uvOffset, projCoords);
-    }
-
-    return combined / 9.f;
+    return 0.5f;
 }
 
 vec3 getDiffuseLight()
@@ -98,9 +81,8 @@ vec3 getDiffuseLight()
     // directional light
     if (ubo.sun.color.w > 0)
     {
-        const float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
-        const vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
-        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getPCFShadow(projCoords), cosAngIncidence);
+        float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
+        diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getShadowFactor(), cosAngIncidence);
     }
 
     return diffuseLight;
@@ -117,7 +99,7 @@ void main()
     }
     else
     {
-        outColor = vec4(diffuseLight * push.normalMatrix[3].xyz, 1.0f) * texture(textureSampler, fragUV);
+        outColor = vec4(diffuseLight * push.normalMatrix[3].xyz, 1.0f) * texture(colorSampler, fragUV);
     }
 
     outColor.a = 1.0f;

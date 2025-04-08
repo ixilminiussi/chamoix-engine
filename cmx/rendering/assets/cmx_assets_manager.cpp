@@ -7,6 +7,7 @@
 #include "cmx_hud_material.h"
 #include "cmx_mesh_material.h"
 #include "cmx_model.h"
+#include "cmx_parallax_material.h"
 #include "cmx_primitives.h"
 #include "cmx_register.h"
 #include "cmx_render_system.h"
@@ -44,6 +45,7 @@ AssetsManager::AssetsManager(class Scene *parent)
     addMaterial(new DitheredTexturedMaterial(), "dithered_textured_material");
     addMaterial(new HudMaterial(), "hud_material");
     addMaterial(new BillboardMaterial(), "billboard_material");
+    addMaterial(new ParallaxMaterial(), "parallax_material");
 };
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)

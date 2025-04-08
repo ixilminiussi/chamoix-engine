@@ -149,8 +149,8 @@ void DirectionalLight::createFrameBuffer(class Device *device)
 void DirectionalLight::createSampler(class Device *device)
 {
     vk::SamplerCreateInfo samplerCreateInfo{};
-    samplerCreateInfo.magFilter = vk::Filter::eLinear;
-    samplerCreateInfo.minFilter = vk::Filter::eLinear;
+    samplerCreateInfo.magFilter = vk::Filter::eCubicEXT;
+    samplerCreateInfo.minFilter = vk::Filter::eCubicEXT;
     samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
     samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
     samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
@@ -282,7 +282,7 @@ LightEnvironment::LightEnvironment()
 {
     _pointLightsMap.reserve(MAX_POINT_LIGHTS);
 
-    _sun.initializeShadowMap(RenderSystem::getInstance()->getDevice(), 1024u, 1024u);
+    _sun.initializeShadowMap(RenderSystem::getInstance()->getDevice(), 4096u, 4096u);
 }
 
 LightEnvironment::~LightEnvironment()
