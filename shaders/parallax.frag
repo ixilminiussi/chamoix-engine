@@ -8,6 +8,7 @@ layout(location = 4) in vec4 inPositionLightSpace;
 
 layout(location = 5) in vec3 inSunDirectionTangent;
 layout(location = 6) in vec3 inCameraPositionTangent;
+layout(location = 7) in vec3 inPositionTangent;
 
 layout(set = 1, binding = 0) uniform sampler2D sColor;
 layout(set = 2, binding = 0) uniform sampler2D sNormalHeight;
@@ -97,16 +98,31 @@ vec3 getDiffuseLight(vec3 surfaceNormal)
     return diffuseLight;
 }
 
+vec2 parallaxMapping(vec2 uv, vec3 viewDir)
+{
+    float height = 1.f - texture(sNormalHeight, uv).a;
+    vec2 offset = viewDir.xy * (height * .01 + 0.0025) / viewDir.z;
+
+    return uv - offset;
+}
+
 void main()
 {
-    vec3 normalTangent = texture(sNormalHeight, inUV).xyz;
+    vec2 uv = parallaxMapping(inUV, normalize(inCameraPositionTangent - inPositionTangent));
+
+    if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)
+    {
+        discard;
+    }
+
+    vec3 normalTangent = texture(sNormalHeight, uv).xyz;
     normalTangent = vec3(normalTangent.x, normalTangent.y, normalTangent.z);
     normalTangent = normalTangent * 2.0f - 1.0f;
     normalTangent = normalize(normalTangent);
 
     vec3 diffuseLight = getDiffuseLight(normalTangent);
 
-    outColor = vec4(diffuseLight, 1.0f) * texture(sColor, inUV);
+    outColor = vec4(diffuseLight, 1.0f) * texture(sColor, uv);
 
     outColor.a = 1.0f;
 }

@@ -14,6 +14,7 @@ layout(location = 4) out vec4 outPositionLightSpace;
 
 layout(location = 5) out vec3 outSunDirectionTangent;
 layout(location = 6) out vec3 outCameraPositionTangent;
+layout(location = 7) out vec3 outPositionTangent;
 
 struct DirectionalLight
 {
@@ -76,6 +77,7 @@ void main()
 
     outSunDirectionTangent = TBN * ubo.sun.direction.xyz;
     outCameraPositionTangent = TBN * ubo.cameraPosition.xyz;
+    outPositionTangent = TBN * worldPosition.xyz;
 
     outNormalWorld = normalize(mat3(push.normalMatrix) * inNormal);
     outPositionWorld = worldPosition.xyz;
