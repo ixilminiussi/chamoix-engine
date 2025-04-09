@@ -7,6 +7,7 @@
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
+#include "imgui.h"
 
 // lib
 #include <vulkan/vulkan_enums.hpp>
@@ -42,6 +43,8 @@ void ParallaxMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
     push.normalMatrix[1][3] = _UVoffset.y;
     push.normalMatrix[2][3] = _worldSpaceUV ? _UVScale : 0.f;
     push.normalMatrix[3][3] = glm::radians(_UVRotate);
+    push.normalMatrix[3][2] = _parallaxDepth;
+    push.normalMatrix[3][1] = _occlusionMapping ? _parallaxLevels : 1;
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
@@ -58,6 +61,14 @@ void ParallaxMaterial::editor()
         ImGui::SliderFloat2("UV offset", (float *)&_UVoffset, -1.f, 1.f);
         ImGui::DragFloat("Scale", &_UVScale);
         ImGui::DragFloat("Rotate", &_UVRotate, 1.f, -180.f, 180.f);
+    }
+
+    ImGui::SeparatorText("Parallax");
+    ImGui::DragFloat("Depth", &_parallaxDepth, .01f, 0.f, .1f);
+    ImGui::Checkbox("Occlusion Mapping", &_occlusionMapping);
+    if (_occlusionMapping)
+    {
+        ImGui::DragInt("Layer Resolution", &_parallaxLevels, 1, 1, 64);
     }
 }
 
@@ -76,6 +87,13 @@ tinyxml2::XMLElement *ParallaxMaterial::save(tinyxml2::XMLDocument &doc, tinyxml
         materialElement->SetAttribute("UVrotate", _UVRotate);
     }
 
+    materialElement->SetAttribute("parallaxDepth", _parallaxDepth);
+    materialElement->SetAttribute("occlusionMapping", _occlusionMapping);
+    if (_occlusionMapping)
+    {
+        materialElement->SetAttribute("layerCount", _parallaxLevels);
+    }
+
     return materialElement;
 }
 
@@ -90,6 +108,13 @@ void ParallaxMaterial::load(tinyxml2::XMLElement *materialElement)
             glm::vec2{materialElement->FloatAttribute("UVoffsetX"), materialElement->FloatAttribute("UVoffsetY")};
         _UVScale = materialElement->FloatAttribute("UVscale");
         _UVRotate = materialElement->FloatAttribute("UVrotate");
+    }
+
+    _parallaxDepth = materialElement->FloatAttribute("parallaxDepth");
+    _occlusionMapping = materialElement->BoolAttribute("occlusionMapping");
+    if (_occlusionMapping)
+    {
+        _parallaxLevels = materialElement->IntAttribute("layerCount");
     }
 }
 

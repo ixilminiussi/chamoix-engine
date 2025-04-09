@@ -101,14 +101,42 @@ vec3 getDiffuseLight(vec3 surfaceNormal)
 vec2 parallaxMapping(vec2 uv, vec3 viewDir)
 {
     float height = 1.f - texture(sNormalHeight, uv).a;
-    vec2 offset = viewDir.xy * (height * .01 + 0.0025) / viewDir.z;
+    vec2 offset = viewDir.xy * (height * push.normalMatrix[3][2] * .5f) / viewDir.z;
 
     return uv - offset;
 }
 
+vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDir, int parallaxLayerDepth)
+{
+    float layerDepth = 1.0 / float(parallaxLayerDepth);
+    float currLayerDepth = 0.0;
+    vec2 deltaUV = viewDir.xy * push.normalMatrix[3][2] / (viewDir.z * parallaxLayerDepth);
+    vec2 currUV = uv;
+    float height = 1.f - texture(sNormalHeight, currUV).a;
+    for (int i = 0; i < parallaxLayerDepth; i++)
+    {
+        currLayerDepth += layerDepth;
+        currUV -= deltaUV;
+        height = 1.f - texture(sNormalHeight, currUV).a;
+        if (height < currLayerDepth)
+        {
+            break;
+        }
+    }
+    vec2 prevUV = currUV + deltaUV;
+    float nextDepth = height - currLayerDepth;
+    float prevDepth = 1.0 - texture(sNormalHeight, prevUV).a - currLayerDepth + layerDepth;
+    return mix(currUV, prevUV, nextDepth / (nextDepth - prevDepth));
+}
+
 void main()
 {
-    vec2 uv = parallaxMapping(inUV, normalize(inCameraPositionTangent - inPositionTangent));
+    vec3 viewDirTangent = normalize(inCameraPositionTangent - inPositionTangent);
+    vec2 adaptedUV = vec2(inUV.x, 1.f - inUV.y);
+
+    vec2 uv = push.normalMatrix[3][1] == 1
+                  ? parallaxMapping(adaptedUV, viewDirTangent)
+                  : parallaxOcclusionMapping(adaptedUV, viewDirTangent, int(push.normalMatrix[3][1]));
 
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)
     {

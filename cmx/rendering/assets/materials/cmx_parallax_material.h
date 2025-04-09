@@ -36,6 +36,8 @@ class ParallaxMaterial : public Material
     float _UVScale{1.f};
     float _UVRotate{0.f};
     float _parallaxDepth{0.2f};
+    int _parallaxLevels{12};
+    bool _occlusionMapping{false};
 };
 
 } // namespace cmx
