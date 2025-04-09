@@ -70,7 +70,7 @@ void main()
     vec4 worldPosition = push.modelMatrix * vec4(inPosition, 1.0f);
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
-    vec3 N = normalize(mat3(push.modelMatrix) * inNormal);
+    vec3 N = normalize(mat3(push.normalMatrix) * inNormal);
     vec3 T = normalize(mat3(push.modelMatrix) * inTangent.xyz);
     vec3 B = normalize(cross(N, T));
     mat3 TBN = transpose(mat3(T, B, N));

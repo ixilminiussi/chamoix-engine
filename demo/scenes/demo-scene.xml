@@ -9,7 +9,7 @@
         <material type="cmx::DitheredTexturedMaterial" vertex="shaders/dithered_t.vert.spv" fragment="shaders/dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="4.1999998" threshold="0.80000001" m="0.2" name="dithered_textured_material"/>
         <material type="cmx::HudMaterial" vertex="shaders/hud.vert.spv" fragment="shaders/hud.frag.spv" editorOnly="false" name="hud_material"/>
         <material type="cmx::MeshMaterial" vertex="shaders/mesh.vert.spv" fragment="shaders/mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
-        <material type="cmx::ParallaxMaterial" vertex="shaders/parallax.vert.spv" fragment="shaders/parallax.frag.spv" editorOnly="false" worldSpaceUV="false" name="parallax_material"/>
+        <material type="cmx::ParallaxMaterial" vertex="shaders/parallax.vert.spv" fragment="shaders/parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.02" occlusionMapping="true" layerCount="12" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(1)"/>
         <model filepath="assets/cmx/camera.obj" name="cmx_camera"/>
@@ -103,9 +103,9 @@
             </gradient>
         </sun>
     </lightEnvironment>
-    <actor type="cmx::Actor" name="Penguin(2)" id="11" visible="true">
+    <actor type="cmx::MeshActor" name="Penguin" id="11" visible="true">
         <transform>
-            <position x="3" y="0" z="7"/>
+            <position x="0" y="0" z="7"/>
             <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
             <scale x="3" y="3" z="3"/>
         </transform>
@@ -116,76 +116,11 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="dithered_textured_material" model="penguin" t0="cmx_radial_dithering_hd" t1="penguin"/>
+                <option index="0" material="dithered_material" model="penguin" t0="cmx_radial_dithering_hd"/>
             </rendering>
         </component>
     </actor>
-    <actor type="cmx::Actor" name="Penguin(1)" id="9" visible="true">
-        <transform>
-            <position x="-3" y="0" z="7"/>
-            <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
-            <scale x="3" y="3" z="3"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="penguin" t0="penguin"/>
-            </rendering>
-        </component>
-    </actor>
-    <actor type="StaticBodyActor" name="FloorActor" id="7" visible="true">
-        <transform>
-            <position x="0" y="0" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="10" y="1" z="10"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="parallax_material" model="cmx_plane" t0="rocks_color" t1="rocks_normal_height"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_plane" physicsMode="Static" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="RigidBodyActor" name="BallActor" id="5" visible="true">
-        <transform>
-            <position x="0" y="-3" z="-3"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="dithered_textured_material" model="cmx_sphere" t0="cmx_radial_dithering_hd" t1="acacia_planks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Rigid" gravityX="0" gravityY="10" gravityZ="0" inverseMass="1" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="FirstPersonActor" name="FirstPersonActor" id="3" visible="true">
+    <actor type="FirstPersonActor" name="FirstPersonActor" id="9" visible="true">
         <transform>
             <position x="0" y="-1" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -209,9 +144,57 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::MeshActor" name="Penguin" id="1" visible="true">
+    <actor type="RigidBodyActor" name="BallActor" id="7" visible="true">
         <transform>
-            <position x="0" y="0" z="7"/>
+            <position x="0" y="-3" z="-3"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="dithered_textured_material" model="cmx_sphere" t0="cmx_radial_dithering_hd" t1="acacia_planks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Rigid" gravityX="0" gravityY="10" gravityZ="0" inverseMass="1" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="StaticBodyActor" name="FloorActor" id="5" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="10" y="1" z="10"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="parallax_material" model="cmx_plane" t0="rocks_color" t1="rocks_normal_height"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_plane" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="Penguin(1)" id="3" visible="true">
+        <transform>
+            <position x="-3" y="0" z="7"/>
             <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
             <scale x="3" y="3" z="3"/>
         </transform>
@@ -222,7 +205,24 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="dithered_material" model="penguin" t0="cmx_radial_dithering_hd"/>
+                <option index="0" material="shaded_material" model="penguin" t0="penguin"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="Penguin(2)" id="1" visible="true">
+        <transform>
+            <position x="3" y="0" z="7"/>
+            <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
+            <scale x="3" y="3" z="3"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="dithered_textured_material" model="penguin" t0="cmx_radial_dithering_hd" t1="penguin"/>
             </rendering>
         </component>
     </actor>
