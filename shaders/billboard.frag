@@ -7,6 +7,14 @@ layout(set = 1, binding = 0) uniform sampler2D textureSampler;
 
 layout(location = 0) out vec4 outColor;
 
+struct DirectionalLight
+{
+    mat4 projectionMatrix;
+    mat4 viewMatrix;
+    vec4 color;
+    vec4 direction;
+};
+
 struct PointLight
 {
     vec4 position;
@@ -18,6 +26,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo
     mat4 projectionMatrix;
     mat4 viewMatrix;
     vec4 ambientLight;
+    vec4 cameraPosition;
+    DirectionalLight sun;
     PointLight pointLights[10];
     int numPointLights;
 }

@@ -28,7 +28,7 @@ template <> struct std::hash<cmx::Model::Vertex>
     size_t operator()(cmx::Model::Vertex const &vertex) const
     {
         size_t seed = 0;
-        cmx::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+        cmx::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv, vertex.tangent);
         return seed;
     }
 };
@@ -162,6 +162,7 @@ std::vector<vk::VertexInputAttributeDescription> Model::Vertex::getAttributeDesc
     attributeDescriptions.push_back({1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)});
     attributeDescriptions.push_back({2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal)});
     attributeDescriptions.push_back({3, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv)});
+    attributeDescriptions.push_back({4, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, tangent)});
     return attributeDescriptions;
 }
 
@@ -184,51 +185,84 @@ void Model::Builder::loadModel(const std::string &filepath)
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
     for (const auto &shape : shapes)
     {
-        for (const auto &index : shape.mesh.indices)
+        for (int i = 0; i < shape.mesh.indices.size(); i += 3)
         {
-            Vertex vertex{};
+            std::array<Vertex, 3> triVerts;
 
-            if (index.vertex_index >= 0)
+            for (int j = 0; j < 3; ++j)
             {
-                vertex.position = {
-                    attrib.vertices[3 * index.vertex_index + 0],
-                    attrib.vertices[3 * index.vertex_index + 1],
-                    attrib.vertices[3 * index.vertex_index + 2],
-                };
+                const auto &index = shape.mesh.indices[i + j];
+                Vertex vertex{};
 
-                vertex.color = {
-                    attrib.colors[3 * index.vertex_index - 2],
-                    attrib.colors[3 * index.vertex_index - 1],
-                    attrib.colors[3 * index.vertex_index - 0],
-                };
+                if (index.vertex_index >= 0)
+                {
+                    vertex.position = {
+                        attrib.vertices[3 * index.vertex_index + 0],
+                        attrib.vertices[3 * index.vertex_index + 1],
+                        attrib.vertices[3 * index.vertex_index + 2],
+                    };
+
+                    if (!attrib.colors.empty())
+                    {
+                        vertex.color = {
+                            attrib.colors[3 * index.vertex_index + 0],
+                            attrib.colors[3 * index.vertex_index + 1],
+                            attrib.colors[3 * index.vertex_index + 2],
+                        };
+                    }
+                }
+
+                if (index.normal_index >= 0)
+                {
+                    vertex.normal = {
+                        attrib.normals[3 * index.normal_index + 0],
+                        attrib.normals[3 * index.normal_index + 1],
+                        attrib.normals[3 * index.normal_index + 2],
+                    };
+                }
+
+                if (index.texcoord_index >= 0)
+                {
+                    vertex.uv = {
+                        attrib.texcoords[2 * index.texcoord_index + 0],
+                        attrib.texcoords[2 * index.texcoord_index + 1],
+                    };
+                }
+
+                triVerts[j] = vertex;
             }
 
-            if (index.normal_index >= 0)
-            {
-                vertex.normal = {
-                    attrib.normals[3 * index.normal_index + 0],
-                    attrib.normals[3 * index.normal_index + 1],
-                    attrib.normals[3 * index.normal_index + 2],
-                };
-            }
+            // Compute tangent for the triangle
+            glm::vec3 edge1 = triVerts[1].position - triVerts[0].position;
+            glm::vec3 edge2 = triVerts[2].position - triVerts[0].position;
 
-            if (index.texcoord_index >= 0)
-            {
-                vertex.uv = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    attrib.texcoords[2 * index.texcoord_index + 1],
-                };
-            }
+            glm::vec2 deltaUV1 = triVerts[1].uv - triVerts[0].uv;
+            glm::vec2 deltaUV2 = triVerts[2].uv - triVerts[0].uv;
 
-            if (uniqueVertices.count(vertex) == 0)
+            float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+            glm::vec3 tangent = f * (edge1 * deltaUV2.y - edge2 * deltaUV1.y);
+
+            for (int j = 0; j < 3; ++j)
             {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
+                Vertex &v = triVerts[j];
+                if (uniqueVertices.count(v) == 0)
+                {
+                    v.tangent = tangent; // start with this triangle's tangent
+                    uniqueVertices[v] = static_cast<uint32_t>(vertices.size());
+                    vertices.push_back(v);
+                }
+                else
+                {
+                    uint32_t idx = uniqueVertices[v];
+                    vertices[idx].tangent += tangent;
+                }
+
+                indices.push_back(uniqueVertices[v]);
             }
-            indices.push_back(uniqueVertices[vertex]);
         }
+        this->filepath = filepath;
     }
-    this->filepath = filepath;
 }
 
 tinyxml2::XMLElement &Model::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)

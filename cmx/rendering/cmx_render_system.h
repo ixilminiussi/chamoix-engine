@@ -35,6 +35,7 @@ struct GlobalUbo
     glm::mat4 projection{1.f};
     glm::mat4 view{1.f};
     glm::vec4 ambientLight{1.f};
+    glm::vec4 cameraPos{0.f};
     DirectionalLightCompact sun{};
     PointLightCompact pointLights[MAX_POINT_LIGHTS];
     int numLights;

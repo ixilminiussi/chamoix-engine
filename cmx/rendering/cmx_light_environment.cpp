@@ -149,8 +149,8 @@ void DirectionalLight::createFrameBuffer(class Device *device)
 void DirectionalLight::createSampler(class Device *device)
 {
     vk::SamplerCreateInfo samplerCreateInfo{};
-    samplerCreateInfo.magFilter = vk::Filter::eCubicEXT;
-    samplerCreateInfo.minFilter = vk::Filter::eCubicEXT;
+    samplerCreateInfo.magFilter = vk::Filter::eLinear;
+    samplerCreateInfo.minFilter = vk::Filter::eLinear;
     samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
     samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
     samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;

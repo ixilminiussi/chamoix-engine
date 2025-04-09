@@ -6,6 +6,14 @@ const vec2 OFFSETS[6] =
 layout(location = 0) out vec2 fragOffset;
 layout(location = 1) out vec2 fragUV;
 
+struct DirectionalLight
+{
+    mat4 projectionMatrix;
+    mat4 viewMatrix;
+    vec4 color;
+    vec4 direction;
+};
+
 struct PointLight
 {
     vec4 position;
@@ -17,6 +25,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo
     mat4 projectionMatrix;
     mat4 viewMatrix;
     vec4 ambientLight;
+    vec4 cameraPosition;
+    DirectionalLight sun;
     PointLight pointLights[10];
     int numPointLights;
 }

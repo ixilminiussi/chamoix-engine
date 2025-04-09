@@ -124,6 +124,7 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const Ligh
         GlobalUbo ubo{};
         ubo.projection = camera->getProjection();
         ubo.view = camera->getView();
+        ubo.cameraPos = glm::vec4(camera->getPosition(), 1.0f);
 
         if (lightEnvironment)
         {

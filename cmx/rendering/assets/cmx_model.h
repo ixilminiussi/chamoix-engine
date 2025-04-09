@@ -26,13 +26,15 @@ class Model
         glm::vec3 color;
         glm::vec3 normal;
         glm::vec2 uv;
+        glm::vec3 tangent;
 
         static std::vector<vk::VertexInputBindingDescription> getBindingDescriptions();
         static std::vector<vk::VertexInputAttributeDescription> getAttributeDescriptions();
 
         bool operator==(const Vertex &other) const
         {
-            return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+            return position == other.position && color == other.color && normal == other.normal && uv == other.uv &&
+                   tangent == other.tangent;
         }
     };
     struct Builder

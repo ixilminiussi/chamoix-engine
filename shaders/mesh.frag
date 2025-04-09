@@ -1,8 +1,8 @@
 #version 450
 
-layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec3 fragPositionWorld;
-layout(location = 2) in vec3 fragNormalWorld;
+layout(location = 0) in vec3 inColor;
+layout(location = 1) in vec3 inPositionWorld;
+layout(location = 2) in vec3 inNormalWorld;
 
 layout(location = 0) out vec4 outColor;
 
@@ -31,7 +31,7 @@ push;
 
 void main()
 {
-    vec3 surfaceNormal = normalize(fragNormalWorld);
+    vec3 surfaceNormal = normalize(inNormalWorld);
 
     outColor = vec4(push.color, 1.0f);
 }
