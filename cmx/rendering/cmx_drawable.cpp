@@ -244,6 +244,7 @@ void Drawable::editor(int i)
         }
         if (ImGui::Button(ICON_MS_ADD))
         {
+            setDrawOption({}, _drawOptions.size());
         }
         ImGui::TreePop();
     }
@@ -282,12 +283,11 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
 {
     if (tinyxml2::XMLElement *drawableElement = parentElement->FirstChildElement("rendering"))
     {
-        tinyxml2::XMLElement *optionElement = drawableElement->FirstChildElement();
+        tinyxml2::XMLElement *optionElement = drawableElement->FirstChildElement("option");
 
         while (optionElement)
         {
-            int i = 0;
-            size_t index = optionElement->IntAttribute("index");
+            size_t index = (size_t)optionElement->IntAttribute("index");
 
             setDrawOption(DrawOption{}, index);
             setMaterial(optionElement->Attribute("material"), index);
@@ -297,7 +297,8 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
                 setModel(optionElement->Attribute("model"), index);
             }
 
-            size_t totalSamplerCount = _drawOptions[i].material->getRequestedSamplerCount();
+            size_t totalSamplerCount = _drawOptions[index].material->getRequestedSamplerCount();
+
             std::vector<const char *> textureNames{};
             for (int i = 0; i < totalSamplerCount; i++)
             {
@@ -308,9 +309,9 @@ void Drawable::load(tinyxml2::XMLElement *parentElement)
                     textureNames.push_back(name);
                 }
             }
-            setTextures(textureNames);
+            setTextures(textureNames, index);
 
-            optionElement = drawableElement->NextSiblingElement();
+            optionElement = optionElement->NextSiblingElement("option");
         }
     }
 }

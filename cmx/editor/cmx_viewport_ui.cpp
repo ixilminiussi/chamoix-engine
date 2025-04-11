@@ -3,6 +3,7 @@
 // cmx
 #include "ImGuizmo.h"
 #include "cmx_actor.h"
+#include "cmx_assets_manager.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
 #include "cmx_editor.h"
@@ -548,14 +549,14 @@ void ViewportUI::renderGuizmoManager()
 
 void ViewportUI::renderAssetsManager()
 {
-    // ImGuiIO &io = ImGui::GetIO();
+    _showAssetsManager = true;
 
-    // ImVec2 topRightPos = ImVec2(30.0f, io.DisplaySize.y - 400.f);
-
-    // ImGui::SetNextWindowPos(topRightPos, ImGuiCond_Always);
-
-    // _showInspector = true;
-    // ImGui::Begin("Inspector", &_showInspector, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("AssetsManager", &_showInspector);
+    if (AssetsManager *assetsManager = _attachedScene->getAssetsManager())
+    {
+        assetsManager->editor();
+    }
+    ImGui::End();
 }
 
 void ViewportUI::renderPlayButton()

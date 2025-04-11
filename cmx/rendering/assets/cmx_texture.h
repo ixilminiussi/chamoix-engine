@@ -41,6 +41,8 @@ class Texture
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement);
 
+    void editor();
+
     void bind(vk::CommandBuffer, vk::PipelineLayout);
     static void bindMany(vk::CommandBuffer, vk::PipelineLayout, std::vector<Texture *> textures);
 

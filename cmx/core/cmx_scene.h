@@ -36,9 +36,9 @@ class Scene
 
     tinyxml2::XMLElement &save();
     tinyxml2::XMLElement &saveAs(const char *filepath);
-    void load();
-    void loadFrom(const std::string &filepath);
-    void unload();
+    void load(bool skipAssets = false);
+    void loadFrom(const std::string &filepath, bool skipAssets = false);
+    void unload(bool keepAssets = false);
 
     void update(float dt);
     void render();

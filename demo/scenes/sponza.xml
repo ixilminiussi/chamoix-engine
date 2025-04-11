@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene name="sponza">
+    <assets>
+        <material type="cmx::DitheredMaterial" vertex="shaders/dithered.vert.spv" fragment="shaders/dithered.frag.spv" editorOnly="false" scale="5" threshold="0.85600001" dotsToggle="true" name="dithered_material">
+            <lightColor r="1" g="1" b="1"/>
+            <darkColor r="0" g="0" b="0"/>
+        </material>
+        <material type="cmx::DitheredTexturedMaterial" vertex="shaders/dithered_t.vert.spv" fragment="shaders/dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="4.1999998" threshold="0.80000001" m="0.2" name="dithered_textured_material"/>
+        <material type="cmx::MeshMaterial" vertex="shaders/mesh.vert.spv" fragment="shaders/mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
+        <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
+	<model filepath="assets/models_sponza/arch_stones_01.obj" name="arch_stones_01"/>
+	<model filepath="assets/models_sponza/arch_wall_2ndfloor.obj" name="arch_wall_2ndfloor"/>
+	<model filepath="assets/models_sponza/ceiling_2ndfloor.obj" name="ceiling_2ndfloor"/>
+	<model filepath="assets/models_sponza/column_2ndfloor_19.obj" name="column_2ndfloor_19"/>
+	<model filepath="assets/models_sponza/exterior.obj" name="exterior"/>
+	<model filepath="assets/models_sponza/lamps_2ndfloor_01.obj" name="lamps_2ndfloor_01"/>
+	<model filepath="assets/models_sponza/lionhead.obj" name="lionhead"/>
+	<model filepath="assets/models_sponza/ornament_door_2ndfloor_15.obj" name="ornament_door_2ndfloor_15"/>
+	<model filepath="assets/models_sponza/ornament_doors_09.obj" name="ornament_doors_09"/>
+	<model filepath="assets/models_sponza/ornament_roof.obj" name="ornament_roof"/>
+	<model filepath="assets/models_sponza/ornament_stones_01.obj" name="ornament_stones_01"/>
+	<model filepath="assets/models_sponza/ornament_stones_2ndfloor.obj" name="ornament_stones_2ndfloor"/>
+	<model filepath="assets/models_sponza/ornament_windows.obj" name="ornament_windows"/>
+	<model filepath="assets/models_sponza/roof_floor_03_01.obj" name="roof_floor_03_01"/>
+	<model filepath="assets/models_sponza/sponza_ornament.obj" name="sponza_ornament"/>
+	<model filepath="assets/models_sponza/stone_walls_2ndfloor.obj" name="stone_walls_2ndfloor"/>
+	<model filepath="assets/models_sponza/walls_1stfloor_01.obj" name="walls_1stfloor_01"/>
+	<model filepath="assets/models_sponza/walls_floor_03.obj" name="walls_floor_03"/>
+	<model filepath="assets/models_sponza/wood_door.obj" name="wood_door"/>
+	<model filepath="assets/models_sponza/wooden_parts.obj" name="wooden_parts"/>
+        <texture filepath="assets/textures_sponza/arch_stone_wall_01_BaseColor.png" name="arch_stone_wall_01"/>
+        <texture filepath="assets/textures_sponza/brickwall_01_BaseColor.png" name="brickwall_01"/>
+        <texture name="cmx_radial_dithering_hd">
+            <layer filepath="assets/cmx/dithering/radial17.png"/>
+            <layer filepath="assets/cmx/dithering/radial18.png"/>
+            <layer filepath="assets/cmx/dithering/radial19.png"/>
+            <layer filepath="assets/cmx/dithering/radial20.png"/>
+            <layer filepath="assets/cmx/dithering/radial21.png"/>
+            <layer filepath="assets/cmx/dithering/radial22.png"/>
+            <layer filepath="assets/cmx/dithering/radial23.png"/>
+            <layer filepath="assets/cmx/dithering/radial24.png"/>
+            <layer filepath="assets/cmx/dithering/radial25.png"/>
+            <layer filepath="assets/cmx/dithering/radial26.png"/>
+            <layer filepath="assets/cmx/dithering/radial27.png"/>
+            <layer filepath="assets/cmx/dithering/radial28.png"/>
+            <layer filepath="assets/cmx/dithering/radial29.png"/>
+            <layer filepath="assets/cmx/dithering/radial30.png"/>
+            <layer filepath="assets/cmx/dithering/radial31.png"/>
+            <layer filepath="assets/cmx/dithering/radial32.png"/>
+            <layer filepath="assets/cmx/dithering/radial33.png"/>
+            <layer filepath="assets/cmx/dithering/radial34.png"/>
+            <layer filepath="assets/cmx/dithering/radial35.png"/>
+            <layer filepath="assets/cmx/dithering/radial36.png"/>
+            <layer filepath="assets/cmx/dithering/radial37.png"/>
+            <layer filepath="assets/cmx/dithering/radial38.png"/>
+            <layer filepath="assets/cmx/dithering/radial39.png"/>
+            <layer filepath="assets/cmx/dithering/radial40.png"/>
+            <layer filepath="assets/cmx/dithering/radial41.png"/>
+            <layer filepath="assets/cmx/dithering/radial42.png"/>
+            <layer filepath="assets/cmx/dithering/radial43.png"/>
+            <layer filepath="assets/cmx/dithering/radial44.png"/>
+            <layer filepath="assets/cmx/dithering/radial45.png"/>
+            <layer filepath="assets/cmx/dithering/radial46.png"/>
+            <layer filepath="assets/cmx/dithering/radial47.png"/>
+            <layer filepath="assets/cmx/dithering/radial48.png"/>
+            <layer filepath="assets/cmx/dithering/radial49.png"/>
+            <layer filepath="assets/cmx/dithering/radial50.png"/>
+            <layer filepath="assets/cmx/dithering/radial51.png"/>
+            <layer filepath="assets/cmx/dithering/radial52.png"/>
+            <layer filepath="assets/cmx/dithering/radial53.png"/>
+            <layer filepath="assets/cmx/dithering/radial54.png"/>
+            <layer filepath="assets/cmx/dithering/radial55.png"/>
+            <layer filepath="assets/cmx/dithering/radial56.png"/>
+            <layer filepath="assets/cmx/dithering/radial57.png"/>
+            <layer filepath="assets/cmx/dithering/radial58.png"/>
+            <layer filepath="assets/cmx/dithering/radial59.png"/>
+            <layer filepath="assets/cmx/dithering/radial60.png"/>
+            <layer filepath="assets/cmx/dithering/radial61.png"/>
+            <layer filepath="assets/cmx/dithering/radial62.png"/>
+            <layer filepath="assets/cmx/dithering/radial63.png"/>
+            <layer filepath="assets/cmx/dithering/radial64.png"/>
+        </texture>
+    </assets>
+    <lightEnvironment timeOfDay="14.75">
+        <sun axis="0">
+            <gradient>
+                <mark position="0.352" r="0.55000001" g="0.5" b="1"/>
+                <mark position="0.53399998" r="1" g="0.55055285" b="0.35443038"/>
+                <mark position="0.60600001" r="1" g="0.86118674" b="0.52320671"/>
+                <mark position="0.78399998" r="0.84810126" g="0.95443052" b="1"/>
+            </gradient>
+        </sun>
+    </lightEnvironment>
+    <actor type="cmx::MeshActor" name="Sponza" id="11" visible="true">
+        <transform>
+            <position x="0" y="0" z="7"/>
+            <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
+            <scale x="3" y="3" z="3"/>
+        </transform>
+	<component type="cmx::MeshComponent" name="cmx::MeshComponent">
+	    <transform>
+		<position x="0" y="0" z="0"/>
+		<rotation pitch="0" yaw="0" roll="0" w="1"/>
+		<scale x="1" y="1" z="1"/>
+	    </transform>
+	    <rendering>
+		<option index="0" material="dithered_material" model="arch_stones_01" t0="cmx_radial_dithering_hd"/>
+		<option index="1" material="dithered_material" model="arch_wall_2ndfloor" t0="cmx_radial_dithering_hd"/>
+		<option index="2" material="dithered_material" model="ceiling_2ndfloor" t0="cmx_radial_dithering_hd"/>
+		<option index="3" material="dithered_material" model="column_2ndfloor_19" t0="cmx_radial_dithering_hd"/>
+		<option index="4" material="dithered_material" model="exterior" t0="cmx_radial_dithering_hd"/>
+		<option index="5" material="dithered_material" model="lamps_2ndfloor_01" t0="cmx_radial_dithering_hd"/>
+		<option index="6" material="dithered_material" model="lionhead" t0="cmx_radial_dithering_hd"/>
+		<option index="7" material="dithered_material" model="ornament_door_2ndfloor_15" t0="cmx_radial_dithering_hd"/>
+		<option index="8" material="dithered_material" model="ornament_doors_09" t0="cmx_radial_dithering_hd"/>
+		<option index="9" material="dithered_material" model="ornament_roof" t0="cmx_radial_dithering_hd"/>
+		<option index="10" material="dithered_material" model="ornament_stones_01" t0="cmx_radial_dithering_hd"/>
+		<option index="11" material="dithered_material" model="ornament_stones_2ndfloor" t0="cmx_radial_dithering_hd"/>
+		<option index="12" material="dithered_material" model="ornament_windows" t0="cmx_radial_dithering_hd"/>
+		<option index="13" material="dithered_material" model="roof_floor_03_01" t0="cmx_radial_dithering_hd"/>
+		<option index="14" material="dithered_material" model="sponza_ornament" t0="cmx_radial_dithering_hd"/>
+		<option index="15" material="dithered_material" model="stone_walls_2ndfloor.obj" t0="cmx_radial_dithering_hd"/>
+		<option index="16" material="dithered_material" model="walls_1stfloor_01" t0="cmx_radial_dithering_hd"/>
+		<option index="17" material="dithered_material" model="walls_floor_03" t0="cmx_radial_dithering_hd"/>
+		<option index="18" material="dithered_material" model="wood_door" t0="cmx_radial_dithering_hd"/>
+		<option index="19" material="dithered_material" model="wooden_parts" t0="cmx_radial_dithering_hd"/>
+	    </rendering>
+	</component>
+    </actor>
+</scene>

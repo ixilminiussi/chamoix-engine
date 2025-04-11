@@ -53,6 +53,8 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
     if (!_selected || !Editor::isActive())
         return;
 
+    dt = std::min(.05f, dt);
+
     // Calculate pitch
     float yawAngle = mousePosition.x * _mouseSensitivity * dt;
     float pitchAngle = -mousePosition.y * _mouseSensitivity * dt;

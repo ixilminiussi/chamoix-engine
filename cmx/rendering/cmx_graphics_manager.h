@@ -22,7 +22,7 @@ class GraphicsManager
     void remove(const class DrawOption *);
     void update(class Drawable *, class DrawOption *, size_t oldID);
 
-    void drawRenderQueue(std::weak_ptr<class Camera>, const class LightEnvironment *);
+    void drawRenderQueue(std::weak_ptr<class Camera>, class LightEnvironment *);
     static const std::vector<size_t> &getDescriptorSetIDs();
 
     void editor();

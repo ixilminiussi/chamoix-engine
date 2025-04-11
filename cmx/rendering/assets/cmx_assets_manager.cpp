@@ -1,6 +1,7 @@
 #include "cmx_assets_manager.h"
 
 // cmx
+#include "IconsMaterialSymbols.h"
 #include "cmx_billboard_material.h"
 #include "cmx_dithered_material.h"
 #include "cmx_dithered_textured_material.h"
@@ -206,6 +207,58 @@ void AssetsManager::unload()
 
 void AssetsManager::editor()
 {
+    int i = 0;
+    if (ImGui::BeginTabBar(""))
+    {
+        if (ImGui::BeginTabItem("loaded assets"))
+        {
+            ImGui::Columns(3, 0, false);
+
+            for (auto &[name, model] : _models)
+            {
+                i++;
+                ImGui::PushID(i);
+                ImGui::Text("%s", name.c_str());
+                ImGui::SameLine();
+                ImGui::Button(ICON_MS_EDIT);
+                ImGui::SameLine();
+                ImGui::Button(ICON_MS_REFRESH);
+                ImGui::SameLine();
+                ImGui::Button(ICON_MS_DELETE);
+                ImGui::PopID();
+            }
+
+            ImGui::NextColumn();
+
+            for (auto &[name, texture] : _textures2D)
+            {
+                i++;
+                ImGui::PushID(i);
+                ImGui::Text("%s", name.c_str());
+                ImGui::SameLine();
+                ImGui::Button(ICON_MS_EDIT);
+                ImGui::SameLine();
+                ImGui::Button(ICON_MS_REFRESH);
+                ImGui::SameLine();
+                ImGui::Button(ICON_MS_DELETE);
+                ImGui::PopID();
+            }
+
+            ImGui::NextColumn();
+
+            ImGui::Columns(1);
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("content browser"))
+        {
+            ImGui::Columns(3, 0, false);
+
+            ImGui::Columns(1);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
 }
 
 bool AssetsManager::addMaterial(Material *material, const char *name)

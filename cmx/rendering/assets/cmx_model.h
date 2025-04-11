@@ -61,6 +61,8 @@ class Model
     void bind(vk::CommandBuffer);
     void draw(vk::CommandBuffer);
 
+    void editor();
+
     const std::string name;
 
   private:

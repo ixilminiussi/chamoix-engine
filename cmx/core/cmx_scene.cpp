@@ -37,14 +37,17 @@ Scene::~Scene()
     }
 }
 
-void Scene::load()
+void Scene::load(bool skipAssets)
 {
-    loadFrom(_xmlPath);
+    loadFrom(_xmlPath, skipAssets);
 }
 
-void Scene::loadFrom(const std::string &filepath)
+void Scene::loadFrom(const std::string &filepath, bool skipAssets)
 {
-    _assetsManager = std::make_unique<AssetsManager>(this);
+    if (!skipAssets)
+    {
+        _assetsManager = std::make_unique<AssetsManager>(this);
+    }
     _graphicsManager = std::make_unique<GraphicsManager>();
     _physicsManager = std::make_unique<PhysicsManager>();
     _lightEnvironment = std::make_unique<LightEnvironment>();
@@ -62,7 +65,10 @@ void Scene::loadFrom(const std::string &filepath)
         tinyxml2::XMLElement *rootElement = doc.RootElement();
         name = std::string(rootElement->Attribute("name"));
 
-        _assetsManager->load(rootElement);
+        if (!skipAssets)
+        {
+            _assetsManager->load(rootElement);
+        }
         _lightEnvironment->load(rootElement);
 
         tinyxml2::XMLElement *actorElement = rootElement->FirstChildElement("actor");
@@ -90,11 +96,14 @@ void Scene::loadFrom(const std::string &filepath)
     }
 }
 
-void Scene::unload()
+void Scene::unload(bool keepAssets)
 {
     spdlog::info("Scene {0}: Unloading scene...", name);
-    _assetsManager->unload();
-    delete _assetsManager.release();
+    if (!keepAssets)
+    {
+        _assetsManager->unload();
+        delete _assetsManager.release();
+    }
     delete _graphicsManager.release();
     delete _physicsManager.release();
     delete _lightEnvironment.release();

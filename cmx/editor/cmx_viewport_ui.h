@@ -66,15 +66,11 @@ class ViewportUI
     std::unique_ptr<class DescriptorPool> _imguiPool;
 
     bool _showViewportSettings{false};
-    ImGuiID _projectDockID;
     bool _showProjectSettings{false};
     bool _showSceneManager{false};
-    ImGuiID _sceneTreeDockID;
     bool _showSceneTree{true};
-    ImGuiID _inspectorDockID;
     bool _showInspector{false};
-    ImGuiID _assetsManagerDockID;
-    bool _showAssetsManager{true};
+    bool _showAssetsManager{false};
     Actor *_inspectedActor{nullptr};
 
     class Scene *_attachedScene;

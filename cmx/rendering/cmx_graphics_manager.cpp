@@ -107,7 +107,7 @@ void GraphicsManager::remove(const Drawable *drawable)
     }
 }
 
-void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, const LightEnvironment *lightEnvironment)
+void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvironment *lightEnvironment)
 {
     FrameInfo *frameInfo = _renderSystem->beginCommandBuffer();
     if (!frameInfo)

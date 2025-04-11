@@ -8,9 +8,7 @@
 #include "cmx_frame_info.h"
 #include "cmx_game.h"
 #include "cmx_light_environment.h"
-#include "cmx_pipeline.h"
 #include "cmx_renderer.h"
-#include "cmx_window.h"
 
 // lib
 #include <imgui.h>

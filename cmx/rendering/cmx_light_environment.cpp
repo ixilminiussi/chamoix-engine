@@ -229,7 +229,7 @@ void DirectionalLight::freeShadowMap(class Device *device)
 
 Material *DirectionalLight::beginRender(FrameInfo *frameInfo) const
 {
-    const float boundingDimension = 20.f;
+    const float boundingDimension = 150.f;
     _cameraView->setOrthographicProjection(-boundingDimension, boundingDimension, boundingDimension, -boundingDimension,
                                            boundingDimension, -boundingDimension);
     // _cameraView->setPerspectiveProjection(90.f, 1.f, 0.1f, 100.f);
@@ -293,35 +293,40 @@ LightEnvironment::~LightEnvironment()
 void LightEnvironment::drawShadowMaps(
     class FrameInfo *frameInfo,
     const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &drawableRenderQueue,
-    std::vector<size_t> &descriptorSetIDs) const
+    std::vector<size_t> &descriptorSetIDs)
 {
-    vk::DescriptorSet descriptorSetHolder = frameInfo->globalDescriptorSet;
-
-    descriptorSetIDs.clear();
-    descriptorSetIDs.reserve(MAX_POINT_LIGHTS + 1);
-
-    Material *sunMaterial = _sun.beginRender(frameInfo);
-    for (auto &[materialID, drawableQueue] : drawableRenderQueue)
+    if (_updateShadowMap)
     {
-        Texture::resetBoundID();
-        for (auto &[drawable, drawOption] : drawableQueue)
+        vk::DescriptorSet descriptorSetHolder = frameInfo->globalDescriptorSet;
+
+        descriptorSetIDs.clear();
+        descriptorSetIDs.reserve(MAX_POINT_LIGHTS + 1);
+
+        Material *sunMaterial = _sun.beginRender(frameInfo);
+        for (auto &[materialID, drawableQueue] : drawableRenderQueue)
         {
-            if (drawOption->material->isTransparent())
+            Texture::resetBoundID();
+            for (auto &[drawable, drawOption] : drawableQueue)
             {
-                continue;
+                if (drawOption->material->isTransparent())
+                {
+                    continue;
+                }
+
+                static DrawOption customDrawOption{};
+
+                customDrawOption.model = drawOption->model;
+                customDrawOption.material = sunMaterial;
+                drawable->render(*frameInfo, &customDrawOption);
             }
-
-            static DrawOption customDrawOption{};
-
-            customDrawOption.model = drawOption->model;
-            customDrawOption.material = sunMaterial;
-            drawable->render(*frameInfo, &customDrawOption);
         }
+
+        descriptorSetIDs.emplace_back(_sun.endRender(frameInfo));
+
+        frameInfo->globalDescriptorSet = descriptorSetHolder;
+
+        _updateShadowMap = false;
     }
-
-    descriptorSetIDs.emplace_back(_sun.endRender(frameInfo));
-
-    frameInfo->globalDescriptorSet = descriptorSetHolder;
 }
 
 void LightEnvironment::populateUbo(GlobalUbo *ubo) const
@@ -502,6 +507,8 @@ void LightEnvironment::editor()
 {
     ImGui::Checkbox("has sun", &_hasSun);
 
+    const float pre = _timeOfDay + _sunAxis + _ambientLighting.x + _ambientLighting.y + _ambientLighting.z;
+
     if (_hasSun)
     {
         ImGui::DragFloat("Time of day", &_timeOfDay, 0.25f, 0.0f, 23.99f, "%.2f");
@@ -514,6 +521,13 @@ void LightEnvironment::editor()
     {
         ImGui::ColorPicker4("Ambient light", (float *)&_ambientLighting,
                             ImGuiColorEditFlags_Float && ImGuiColorEditFlags_InputRGB);
+    }
+
+    const float post = _timeOfDay + _sunAxis + _ambientLighting.x + _ambientLighting.y + _ambientLighting.z;
+
+    if (pre != post)
+    {
+        _updateShadowMap = true;
     }
 }
 

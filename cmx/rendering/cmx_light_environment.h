@@ -99,7 +99,7 @@ class LightEnvironment
 
     void drawShadowMaps(class FrameInfo *,
                         const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &,
-                        std::vector<size_t> &descriptorSetIDs) const;
+                        std::vector<size_t> &descriptorSetIDs);
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
     void load(tinyxml2::XMLElement *);
     void unload();
@@ -118,6 +118,8 @@ class LightEnvironment
     bool _hasSun;
 
     glm::vec4 _ambientLighting{1.f, 1.f, 1.f, 0.2f};
+
+    bool _updateShadowMap{true};
 };
 
 } // namespace cmx
