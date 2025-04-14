@@ -1,4 +1,5 @@
 #include "cmx_device.h"
+#include "cmx_debug_util.h"
 
 // lib
 #include <cmath>
@@ -76,6 +77,8 @@ Device::Device(Window &window) : _window{window}
     pickPhysicalDevice();
     createLogicalDevice();
     createCommandPool();
+
+    DebugUtil::initialize(_device, _instance);
 }
 
 Device::~Device()

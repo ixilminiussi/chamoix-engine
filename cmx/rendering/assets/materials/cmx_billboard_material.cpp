@@ -5,6 +5,7 @@
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
@@ -70,7 +71,7 @@ void BillboardMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderSystem->getRenderPass());
 }
 
 void BillboardMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
@@ -104,12 +105,16 @@ void BillboardMaterial::createPipeline(vk::RenderPass renderPass)
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
 
-    pipelineConfig.depthStencilInfo.depthWriteEnable = VK_FALSE;
-    pipelineConfig.colorBlendAttachment.blendEnable = VK_TRUE;
-    pipelineConfig.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    pipelineConfig.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    pipelineConfig.depthStencilInfo.depthWriteEnable = vk::False;
+    pipelineConfig.colorBlendAttachments[0].blendEnable = vk::True;
+    pipelineConfig.colorBlendAttachments[0].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    pipelineConfig.colorBlendAttachments[0].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    pipelineConfig.colorBlendAttachments[1].blendEnable = vk::True;
+    pipelineConfig.colorBlendAttachments[1].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    pipelineConfig.colorBlendAttachments[1].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
 
-    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig);
+    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig,
+                                           "billboard material pipeline");
 }
 
 } // namespace cmx

@@ -108,7 +108,7 @@ void Material::initialize()
     loadBindings();
 
     createPipelineLayout({});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderSystem->getRenderPass());
 }
 
 void Material::free()

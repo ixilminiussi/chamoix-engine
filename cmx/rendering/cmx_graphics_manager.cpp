@@ -8,6 +8,7 @@
 #include "cmx_frame_info.h"
 #include "cmx_light_environment.h"
 #include "cmx_material.h"
+#include "cmx_post_outline_material.h"
 #include "cmx_render_system.h"
 #include "cmx_texture.h"
 
@@ -23,6 +24,8 @@ std::vector<size_t> GraphicsManager::_shadowMapDescriptorSetIDs{};
 GraphicsManager::GraphicsManager() : _drawableRenderQueue{}
 {
     _renderSystem = RenderSystem::getInstance();
+    _postProcessMaterial = new PostOutlineMaterial();
+    _postProcessMaterial->initialize();
 }
 
 void GraphicsManager::update(Drawable *drawable, DrawOption *drawOption, size_t oldID)
@@ -146,14 +149,6 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
                 }
             }
         }
-
-#ifndef NDEBUG
-        if (Editor::isActive())
-        {
-            Editor *editor = Editor::getInstance();
-            editor->render(*frameInfo);
-        }
-#endif
     }
     else
     {
@@ -164,7 +159,22 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
         }
     }
 
-    _renderSystem->endRender();
+    _renderSystem->endRender(frameInfo);
+
+    _renderSystem->beginPostProcess(frameInfo);
+
+    _postProcessMaterial->bind(frameInfo, nullptr);
+    frameInfo->commandBuffer.draw(6, 1, 0, 0);
+
+#ifndef NDEBUG
+    if (Editor::isActive())
+    {
+        Editor *editor = Editor::getInstance();
+        editor->render(*frameInfo);
+    }
+#endif
+
+    _renderSystem->endPostProcess(frameInfo);
 }
 
 void GraphicsManager::editor()

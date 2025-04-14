@@ -108,7 +108,7 @@ void DirectionalLight::createRenderPass(class Device *device)
     depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    depthAttachment.finalLayout = vk::ImageLayout::eDepthAttachmentStencilReadOnlyOptimal;
+    depthAttachment.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
     vk::AttachmentReference depthAttachmentRef{};
     depthAttachmentRef.attachment = 0;
@@ -190,25 +190,6 @@ void DirectionalLight::createDescriptorSet(class Device *device)
     }
 }
 
-void DirectionalLight::transitionShadowMap(class FrameInfo *frameInfo) const
-{
-    vk::ImageMemoryBarrier barrier{};
-    barrier.image = _image;
-    barrier.oldLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-    barrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    barrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-    barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-    barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
-    barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = 1;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
-
-    frameInfo->commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eLateFragmentTests,
-                                             vk::PipelineStageFlagBits::eFragmentShader, {}, 0, nullptr, 0, nullptr, 1,
-                                             &barrier);
-}
-
 void DirectionalLight::freeShadowMap(class Device *device)
 {
     device->device().destroyFramebuffer(_framebuffer);
@@ -229,10 +210,8 @@ void DirectionalLight::freeShadowMap(class Device *device)
 
 Material *DirectionalLight::beginRender(FrameInfo *frameInfo) const
 {
-    const float boundingDimension = 150.f;
-    _cameraView->setOrthographicProjection(-boundingDimension, boundingDimension, boundingDimension, -boundingDimension,
-                                           boundingDimension, -boundingDimension);
-    // _cameraView->setPerspectiveProjection(90.f, 1.f, 0.1f, 100.f);
+    _cameraView->setOrthographicProjection(-_boundingDimension, _boundingDimension, _boundingDimension,
+                                           -_boundingDimension, _boundingDimension, -_boundingDimension);
     _cameraView->setViewDirection(glm::vec3{0.f}, direction);
 
     frameInfo->globalDescriptorSet = _shadowDescriptorSet;
@@ -270,10 +249,9 @@ Material *DirectionalLight::beginRender(FrameInfo *frameInfo) const
     return _voidMaterial;
 }
 
-size_t DirectionalLight::endRender(class FrameInfo *frameInfo) const
+size_t DirectionalLight::endRender(FrameInfo *frameInfo) const
 {
     frameInfo->commandBuffer.endRenderPass();
-    transitionShadowMap(frameInfo);
 
     return _samplerDescriptorSetID;
 }
@@ -292,11 +270,12 @@ LightEnvironment::~LightEnvironment()
 
 void LightEnvironment::drawShadowMaps(
     class FrameInfo *frameInfo,
-    const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &drawableRenderQueue,
+    const std::map<uint8_t, std::vector<std::pair<Drawable *, DrawOption *>>> &drawableRenderQueue,
     std::vector<size_t> &descriptorSetIDs)
 {
     if (_updateShadowMap)
     {
+        spdlog::info("LightEnvironment: Shadow Map updated");
         vk::DescriptorSet descriptorSetHolder = frameInfo->globalDescriptorSet;
 
         descriptorSetIDs.clear();
@@ -507,13 +486,15 @@ void LightEnvironment::editor()
 {
     ImGui::Checkbox("has sun", &_hasSun);
 
-    const float pre = _timeOfDay + _sunAxis + _ambientLighting.x + _ambientLighting.y + _ambientLighting.z;
+    const float pre =
+        _timeOfDay + _sunAxis + _ambientLighting.x + _ambientLighting.y + _ambientLighting.z + _sun._boundingDimension;
 
     if (_hasSun)
     {
         ImGui::DragFloat("Time of day", &_timeOfDay, 0.25f, 0.0f, 23.99f, "%.2f");
         ImGui::DragFloat("Sun axis", &_sunAxis, 5.f, 0.f, 180.f, "%.0f");
         atmosphereWidget.widget("Atmosphere color");
+        ImGui::DragFloat("ShadowMap bounds radius", &_sun._boundingDimension, 10.f, 10.f, 200.f);
 
         calculateSun();
     }
@@ -523,7 +504,8 @@ void LightEnvironment::editor()
                             ImGuiColorEditFlags_Float && ImGuiColorEditFlags_InputRGB);
     }
 
-    const float post = _timeOfDay + _sunAxis + _ambientLighting.x + _ambientLighting.y + _ambientLighting.z;
+    const float post =
+        _timeOfDay + _sunAxis + _ambientLighting.x + _ambientLighting.y + _ambientLighting.z + _sun._boundingDimension;
 
     if (pre != post)
     {

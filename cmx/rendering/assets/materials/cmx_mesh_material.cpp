@@ -74,7 +74,7 @@ void MeshMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout()});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderSystem->getRenderPass());
 }
 
 void MeshMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
@@ -110,7 +110,8 @@ void MeshMaterial::createPipeline(vk::RenderPass renderPass)
     pipelineConfig.rasterizationInfo.lineWidth = 1.0f;
     pipelineConfig.rasterizationInfo.cullMode = vk::CullModeFlagBits::eNone;
 
-    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig);
+    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig,
+                                           "mesh material pipeline");
 }
 
 } // namespace cmx

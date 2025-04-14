@@ -43,7 +43,7 @@ push;
 void main()
 {
     fragOffset = OFFSETS[gl_VertexIndex];
-    fragUV = (fragOffset + 1.0f) / 2.0f;
+    fragUV = (fragOffset + 1.0) / 2.0;
 
     vec3 centerInWorldSpace = push.position.xyz;
 
@@ -53,5 +53,5 @@ void main()
     vec3 offsetInWorldSpace = fragOffset.x * right * push.scale.x + fragOffset.y * up * push.scale.y;
     vec3 vertexPosInWorldSpace = centerInWorldSpace + offsetInWorldSpace;
 
-    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * vec4(vertexPosInWorldSpace, 1.0f);
+    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * vec4(vertexPosInWorldSpace, 1.0);
 }

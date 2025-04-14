@@ -15,6 +15,7 @@ layout(set = 2, binding = 0) uniform sampler2D sNormalHeight;
 layout(set = 3, binding = 0) uniform sampler2D sShadowMap;
 
 layout(location = 0) out vec4 outColor;
+layout(location = 1) out vec4 outNormal;
 
 struct DirectionalLight
 {
@@ -58,7 +59,7 @@ float getShadowFactor(vec2 inUV, vec3 projCoords)
 
     if (projCoords.z - depth < 0.025)
     {
-        return 1.0f;
+        return 1.0;
     }
     return 0.f;
 }
@@ -67,7 +68,7 @@ float getPCFShadow(vec3 projCoords)
 {
     const float angle = two_PI / 8.f;
     const vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
-    const vec2 texelSize = 1.0f / textureSize(sShadowMap, 0) * 1.5f;
+    const vec2 texelSize = 1.0 / textureSize(sShadowMap, 0) * 1.5;
     ;
 
     float combined = getShadowFactor(lightUVCoords, projCoords);
@@ -90,7 +91,7 @@ vec3 getDiffuseLight(vec3 surfaceNormal)
     // directional light
     if (ubo.sun.color.w > 0)
     {
-        const float cosAngIncidence = max(dot(surfaceNormal, -inSunDirectionTangent), 0.0f);
+        const float cosAngIncidence = max(dot(surfaceNormal, -inSunDirectionTangent), 0.0);
         const vec3 projCoords = inPositionLightSpace.xyz / inPositionLightSpace.w;
         diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getPCFShadow(projCoords), cosAngIncidence);
     }
@@ -101,7 +102,7 @@ vec3 getDiffuseLight(vec3 surfaceNormal)
 vec2 parallaxMapping(vec2 uv, vec3 viewDir)
 {
     float height = 1.f - texture(sNormalHeight, uv).a;
-    vec2 offset = viewDir.xy * (height * push.normalMatrix[3][2] * .5f) / viewDir.z;
+    vec2 offset = viewDir.xy * (height * push.normalMatrix[3][2] * .5) / viewDir.z;
 
     return uv - offset;
 }
@@ -143,14 +144,15 @@ void main()
         discard;
     }
 
-    vec3 normalTangent = texture(sNormalHeight, uv).xyz;
-    normalTangent = vec3(normalTangent.x, normalTangent.y, normalTangent.z);
-    normalTangent = normalTangent * 2.0f - 1.0f;
+    vec4 normalSample = texture(sNormalHeight, uv);
+    vec3 normalTangent = normalSample.xyz;
+    normalTangent = normalTangent * 2.0 - 1.0;
     normalTangent = normalize(normalTangent);
 
     vec3 diffuseLight = getDiffuseLight(normalTangent);
 
-    outColor = vec4(diffuseLight, 1.0f) * texture(sColor, uv);
+    outColor = vec4(diffuseLight, 1.0) * texture(sColor, uv);
 
-    outColor.a = 1.0f;
+    outColor.a = 1.0;
+    outNormal = vec4(normalize(mix(inNormalWorld, mat3(push.normalMatrix) * normalSample.xyz, 0.5)), 1.0);
 }

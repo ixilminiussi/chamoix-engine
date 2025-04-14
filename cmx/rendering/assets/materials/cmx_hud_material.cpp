@@ -2,12 +2,14 @@
 
 // cmx
 #include "cmx_camera.h"
+#include "cmx_debug_util.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
 
 // lib
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
@@ -35,7 +37,7 @@ void HudMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderSystem->getRenderPass());
 }
 
 void HudMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
@@ -64,12 +66,16 @@ void HudMaterial::createPipeline(vk::RenderPass renderPass)
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
 
-    pipelineConfig.depthStencilInfo.depthWriteEnable = VK_FALSE;
-    pipelineConfig.colorBlendAttachment.blendEnable = VK_TRUE;
-    pipelineConfig.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
-    pipelineConfig.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    pipelineConfig.depthStencilInfo.depthWriteEnable = vk::False;
+    pipelineConfig.colorBlendAttachments[0].blendEnable = vk::True;
+    pipelineConfig.colorBlendAttachments[0].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    pipelineConfig.colorBlendAttachments[0].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    pipelineConfig.colorBlendAttachments[1].blendEnable = vk::True;
+    pipelineConfig.colorBlendAttachments[1].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    pipelineConfig.colorBlendAttachments[1].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
 
-    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig);
+    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig,
+                                           "HUD material pipeline");
 }
 
 } // namespace cmx

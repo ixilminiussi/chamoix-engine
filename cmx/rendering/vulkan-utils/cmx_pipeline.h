@@ -24,7 +24,7 @@ struct PipelineConfigInfo
     vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     vk::PipelineRasterizationStateCreateInfo rasterizationInfo;
     vk::PipelineMultisampleStateCreateInfo multisampleInfo;
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment;
+    std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments;
     vk::PipelineColorBlendStateCreateInfo colorBlendInfo;
     vk::PipelineDepthStencilStateCreateInfo depthStencilInfo;
     std::vector<vk::DynamicState> dynamicStateEnables;
@@ -37,7 +37,8 @@ struct PipelineConfigInfo
 class Pipeline
 {
   public:
-    Pipeline(Device &, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &);
+    Pipeline(Device &, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &,
+             const std::string &debugName);
     ~Pipeline();
 
     Pipeline(const Pipeline &) = delete;

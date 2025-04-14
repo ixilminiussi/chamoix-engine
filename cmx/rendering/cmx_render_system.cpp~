@@ -175,11 +175,9 @@ void RenderSystem::checkAspectRatio(Camera *camera)
     float aspect = _renderer->getAspectRatio();
     camera->updateAspectRatio(aspect);
 
-    if (_imageResolution != _window->getExtent())
-    {
-        freeImages();
-        initializeScreenTextures();
-    }
+    freeImages();
+
+    initializeScreenTextures();
 }
 
 FrameInfo *RenderSystem::beginCommandBuffer()
@@ -227,7 +225,7 @@ void RenderSystem::beginRender(FrameInfo *frameInfo, const LightEnvironment *lig
 void RenderSystem::endRender(FrameInfo *frameInfo) const
 {
     frameInfo->commandBuffer.endRenderPass();
-    // transitionImages(frameInfo);
+    transitionImages(frameInfo);
 }
 
 void RenderSystem::beginPostProcess(FrameInfo *frameInfo) const
@@ -385,7 +383,7 @@ void RenderSystem::createRenderPass()
     attachments[2].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
     attachments[2].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     attachments[2].initialLayout = vk::ImageLayout::eUndefined;
-    attachments[2].finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    attachments[2].finalLayout = vk::ImageLayout::eDepthAttachmentStencilReadOnlyOptimal;
 
     vk::AttachmentReference depthAttachmentRef{};
     depthAttachmentRef.attachment = 2;
@@ -447,48 +445,19 @@ void RenderSystem::createFrameBuffer()
 
 void RenderSystem::createSamplers()
 {
-    vk::SamplerCreateInfo colorSamplerCreateInfo{};
-    colorSamplerCreateInfo.magFilter = vk::Filter::eLinear;
-    colorSamplerCreateInfo.minFilter = vk::Filter::eLinear;
-    colorSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-    colorSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-    colorSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-    colorSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
-    colorSamplerCreateInfo.unnormalizedCoordinates = false;
-    colorSamplerCreateInfo.compareEnable = true;
+    vk::SamplerCreateInfo samplerCreateInfo{};
+    samplerCreateInfo.magFilter = vk::Filter::eLinear;
+    samplerCreateInfo.minFilter = vk::Filter::eLinear;
+    samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+    samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+    samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+    samplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+    samplerCreateInfo.unnormalizedCoordinates = false;
+    samplerCreateInfo.compareEnable = true;
 
-    _colorSampler = _device->device().createSampler(colorSamplerCreateInfo);
+    _depthSampler = _device->device().createSampler(samplerCreateInfo);
 
-    _samplerDescriptorSetIDs[0] = RenderSystem::getInstance()->createSamplerDescriptor(_colorImageView, _colorSampler);
-
-    vk::SamplerCreateInfo normalSamplerCreateInfo{};
-    normalSamplerCreateInfo.magFilter = vk::Filter::eLinear;
-    normalSamplerCreateInfo.minFilter = vk::Filter::eLinear;
-    normalSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-    normalSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-    normalSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-    normalSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
-    normalSamplerCreateInfo.unnormalizedCoordinates = false;
-    normalSamplerCreateInfo.compareEnable = true;
-
-    _normalSampler = _device->device().createSampler(normalSamplerCreateInfo);
-
-    _samplerDescriptorSetIDs[1] =
-        RenderSystem::getInstance()->createSamplerDescriptor(_normalImageView, _normalSampler);
-
-    vk::SamplerCreateInfo depthSamplerCreateInfo{};
-    depthSamplerCreateInfo.magFilter = vk::Filter::eLinear;
-    depthSamplerCreateInfo.minFilter = vk::Filter::eLinear;
-    depthSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-    depthSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-    depthSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-    depthSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
-    depthSamplerCreateInfo.unnormalizedCoordinates = false;
-    depthSamplerCreateInfo.compareEnable = true;
-
-    _depthSampler = _device->device().createSampler(depthSamplerCreateInfo);
-
-    _samplerDescriptorSetIDs[2] = RenderSystem::getInstance()->createSamplerDescriptor(_depthImageView, _depthSampler);
+    _samplerDescriptorSetIDs[0] = RenderSystem::getInstance()->createSamplerDescriptor(_depthImageView, _depthSampler);
 }
 
 void RenderSystem::freeImages()

@@ -1,18 +1,19 @@
 #version 450
 
-layout(location = 0) in vec3 fragPositionWorld;
-layout(location = 1) in vec3 fragColor;
-layout(location = 2) in vec3 fragNormalWorld;
-layout(location = 3) in vec2 fragUV;
-layout(location = 4) in vec4 fragPositionLightSpace;
+layout(location = 0) in vec3 inPositionWorld;
+layout(location = 1) in vec3 inColor;
+layout(location = 2) in vec3 inNormalWorld;
+layout(location = 3) in vec2 inUV;
+layout(location = 4) in vec4 inPositionLightSpace;
 
-layout(location = 5) in vec3 fragDarkColor;
-layout(location = 6) in vec3 fragLightColor;
+layout(location = 5) in vec3 inDarkColor;
+layout(location = 6) in vec3 inLightColor;
 
-layout(set = 1, binding = 0) uniform sampler3D ditheringSampler;
-layout(set = 2, binding = 0) uniform sampler2D shadowMapSampler;
+layout(set = 1, binding = 0) uniform sampler3D sDitheringPattern;
+layout(set = 2, binding = 0) uniform sampler2D sShadowMap;
 
 layout(location = 0) out vec4 outColor;
+layout(location = 1) out vec4 outNormal;
 
 struct DirectionalLight
 {
@@ -51,13 +52,13 @@ const float two_PI = 6.2831;
 
 float getLuminance(vec3 color)
 {
-    return 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
+    return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
 }
 
 vec2 getUVFrequency()
 {
-    vec2 dx = dFdx(fragUV);
-    vec2 dy = dFdy(fragUV);
+    vec2 dx = dFdx(inUV);
+    vec2 dy = dFdy(inUV);
 
     mat2 matr = {dx, dy};
     vec4 vectorized = vec4(dx, dy);
@@ -74,7 +75,7 @@ vec2 propperDitheringScale(float brightness)
     const float scale = push.normalMatrix[3][0];
 
     vec2 uvFrequency = getUVFrequency();
-    float spacing = (uvFrequency.x * .25f + uvFrequency.y * .75f);
+    float spacing = (uvFrequency.x * .25 + uvFrequency.y * .75);
     spacing *= exp2(scale);
     spacing /= brightness;
 
@@ -82,27 +83,27 @@ vec2 propperDitheringScale(float brightness)
     float roundedLogCurve = floor(logCurve);
 
     float subLayer = logCurve - roundedLogCurve;
-    subLayer = 1.f - subLayer;
+    subLayer = 1.0 - subLayer;
 
     return vec2(exp2(roundedLogCurve), subLayer);
 }
 
 float getShadowFactor(vec2 inUV, vec3 projCoords)
 {
-    float depth = texture(shadowMapSampler, inUV).r;
+    float depth = texture(sShadowMap, inUV).r;
 
     if (projCoords.z - depth < 0.025)
     {
-        return 1.0f;
+        return 1.0;
     }
-    return 0.2f;
+    return 0.2;
 }
 
 float getPCFShadow(vec3 projCoords)
 {
-    const float angle = two_PI / 8.f;
+    const float angle = two_PI / 8.0;
     const vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
-    const vec2 texelSize = 1.0f / textureSize(shadowMapSampler, 0) * 1.5f;
+    const vec2 texelSize = 1.0 / textureSize(sShadowMap, 0) * 1.5;
     ;
 
     float combined = getShadowFactor(lightUVCoords, projCoords);
@@ -113,20 +114,20 @@ float getPCFShadow(vec3 projCoords)
         combined += getShadowFactor(lightUVCoords + uvOffset, projCoords);
     }
 
-    return combined / 9.f;
+    return combined / 9.0;
 }
 
 vec3 getDiffuseLight()
 {
     // ambient light
     vec3 diffuseLight = ubo.ambientLight.xyz * ubo.ambientLight.w;
-    vec3 surfaceNormal = normalize(fragNormalWorld);
+    vec3 surfaceNormal = normalize(inNormalWorld);
 
     // directional light
     if (ubo.sun.color.w > 0)
     {
-        float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
-        const vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
+        float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0);
+        const vec3 projCoords = inPositionLightSpace.xyz / inPositionLightSpace.w;
         diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getPCFShadow(projCoords), cosAngIncidence);
     }
 
@@ -143,18 +144,19 @@ void main()
     brightness /= 2;
 
     vec2 ditheringLevel = propperDitheringScale(brightness);
-    vec4 ditheringSample = texture(ditheringSampler, vec3(fragUV / ditheringLevel.x, ditheringLevel.y));
+    vec4 ditheringSample = texture(sDitheringPattern, vec3(inUV / ditheringLevel.x, ditheringLevel.y));
 
     if (dotToggle)
     {
-        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(fragLightColor, 1.f)
-                                                                                : vec4(fragDarkColor, 1.f);
+        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(inLightColor, 1.0)
+                                                                                : vec4(inDarkColor, 1.0);
     }
     else
     {
-        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(fragDarkColor, 1.f)
-                                                                                : vec4(fragLightColor, 1.f);
+        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(inDarkColor, 1.0)
+                                                                                : vec4(inLightColor, 1.0);
     }
 
-    outColor.a = 1.0f;
+    outColor.a = 1.0;
+    outNormal = vec4(inNormalWorld, 1.0);
 }

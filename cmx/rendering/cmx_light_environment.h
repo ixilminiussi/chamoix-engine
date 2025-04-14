@@ -65,7 +65,6 @@ class DirectionalLight
     void freeShadowMap(class Device *);
     [[nodiscard]] Material *beginRender(class FrameInfo *) const;
     [[nodiscard]] size_t endRender(class FrameInfo *) const;
-    void transitionShadowMap(class FrameInfo *) const;
 
     vk::Image _image;
     vk::ImageView _imageView;
@@ -74,6 +73,8 @@ class DirectionalLight
     vk::DeviceMemory _imageMemory;
     vk::RenderPass _renderPass;
     vk::Framebuffer _framebuffer;
+
+    float _boundingDimension = 10.f;
 
     class VoidMaterial *_voidMaterial;
     std::unique_ptr<class DescriptorPool> _shadowDescriptorPool;

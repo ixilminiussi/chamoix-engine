@@ -20,25 +20,6 @@
         <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
         <model filepath="assets/cmx/uv-sphere.obj" name="cmx_uv_sphere"/>
         <model filepath="assets/models/penguin.obj" name="penguin"/>
-	<model filepath="assets/models_sponza/arch_stones_01.obj" name="arch_stones_01"/>
-	<model filepath="assets/models_sponza/arch_wall_2ndfloor.obj" name="arch_wall_2ndfloor"/>
-	<model filepath="assets/models_sponza/ceiling_2ndfloor.obj" name="ceiling_2ndfloor"/>
-	<model filepath="assets/models_sponza/column_2ndfloor_19.obj" name="column_2ndfloor_19"/>
-	<model filepath="assets/models_sponza/exterior.obj" name="exterior"/>
-	<model filepath="assets/models_sponza/lamps_2ndfloor_01.obj" name="lamps_2ndfloor_01"/>
-	<model filepath="assets/models_sponza/lionhead.obj" name="lionhead"/>
-	<model filepath="assets/models_sponza/ornament_door_2ndfloor_15.obj" name="ornament_door_2ndfloor_15"/>
-	<model filepath="assets/models_sponza/ornament_doors_09.obj" name="ornament_doors_09"/>
-	<model filepath="assets/models_sponza/ornament_roof.obj" name="ornament_roof"/>
-	<model filepath="assets/models_sponza/ornament_stones_01.obj" name="ornament_stones_01"/>
-	<model filepath="assets/models_sponza/ornament_stones_2ndfloor.obj" name="ornament_stones_2ndfloor"/>
-	<model filepath="assets/models_sponza/ornament_windows.obj" name="ornament_windows"/>
-	<model filepath="assets/models_sponza/roof_floor_03_01.obj" name="roof_floor_03_01"/>
-	<model filepath="assets/models_sponza/sponza_ornament.obj" name="sponza_ornament"/>
-	<model filepath="assets/models_sponza/walls_1stfloor_01.obj" name="walls_1stfloor_01"/>
-	<model filepath="assets/models_sponza/walls_floor_03.obj" name="walls_floor_03"/>
-	<model filepath="assets/models_sponza/wood_door.obj" name="wood_door"/>
-	<model filepath="assets/models_sponza/wooden_parts.obj" name="wooden_parts"/>
         <texture filepath="assets/textures/acacia_planks.png" name="acacia_planks"/>
         <texture filepath="assets/textures/chiseled_bookshelf_occupied.png" name="chiseled_bookshelf_occupied"/>
         <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>

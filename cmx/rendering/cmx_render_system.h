@@ -52,8 +52,10 @@ class RenderSystem
 
     void checkAspectRatio(class Camera *);
     struct FrameInfo *beginCommandBuffer();
-    void beginRender(class FrameInfo *, const class LightEnvironment *);
-    void endRender();
+    void beginRender(class FrameInfo *, const class LightEnvironment *) const;
+    void endRender(class FrameInfo *) const;
+    void beginPostProcess(class FrameInfo *) const;
+    void endPostProcess(class FrameInfo *) const;
     void writeUbo(class FrameInfo *, class GlobalUbo *);
 
     void closeWindow();
@@ -78,10 +80,47 @@ class RenderSystem
     {
         return _renderer.get();
     };
+    vk::RenderPass getRenderPass()
+    {
+        return _renderPass;
+    };
+    size_t *getSamplerDescriptorSetIDs()
+    {
+        return _samplerDescriptorSetIDs;
+    }
 
   private:
     RenderSystem();
     void initializeUbo();
+
+    void initializeScreenTextures();
+    void createImages();
+    void createImageViews();
+    void createRenderPass();
+    void createFrameBuffer();
+    void createSamplers();
+
+    void transitionImages(class FrameInfo *) const;
+
+    void freeImages();
+
+    vk::Format _colorFormat;
+    vk::Image _colorImage;
+    vk::ImageView _colorImageView;
+    vk::Sampler _colorSampler;
+    size_t _samplerDescriptorSetIDs[3];
+    vk::DeviceMemory _colorImageMemory;
+    vk::Image _normalImage;
+    vk::ImageView _normalImageView;
+    vk::Sampler _normalSampler;
+    vk::DeviceMemory _normalImageMemory;
+    vk::Image _depthImage;
+    vk::ImageView _depthImageView;
+    vk::Sampler _depthSampler;
+    vk::DeviceMemory _depthImageMemory;
+    vk::Extent2D _imageResolution;
+    vk::RenderPass _renderPass;
+    vk::Framebuffer _framebuffer;
 
     std::unique_ptr<class DescriptorPool> _globalPool{};
 

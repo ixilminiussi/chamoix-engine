@@ -1,16 +1,17 @@
 #version 450
 
-layout(location = 0) in vec3 fragPositionWorld;
-layout(location = 1) in vec3 fragColor;
-layout(location = 2) in vec3 fragNormalWorld;
-layout(location = 3) in vec2 fragUV;
-layout(location = 4) in vec4 fragPositionLightSpace;
+layout(location = 0) in vec3 inPositionWorld;
+layout(location = 1) in vec3 inColor;
+layout(location = 2) in vec3 inNormalWorld;
+layout(location = 3) in vec2 inUV;
+layout(location = 4) in vec4 inPositionLightSpace;
 
 layout(set = 1, binding = 0) uniform sampler3D ditheringSampler;
 layout(set = 2, binding = 0) uniform sampler2D textureSampler;
 layout(set = 3, binding = 0) uniform sampler2D shadowMapSampler;
 
 layout(location = 0) out vec4 outColor;
+layout(location = 1) out vec4 outNormal;
 
 struct DirectionalLight
 {
@@ -45,13 +46,13 @@ layout(push_constant) uniform Push
 }
 push;
 
-const float PI = 3.1314f;
+const float PI = 3.1314;
 const float two_PI = 6.2831;
 
 vec2 getUVFrequency()
 {
-    vec2 dx = dFdx(fragUV);
-    vec2 dy = dFdy(fragUV);
+    vec2 dx = dFdx(inUV);
+    vec2 dy = dFdy(inUV);
 
     mat2 matr = {dx, dy};
     vec4 vectorized = vec4(dx, dy);
@@ -68,7 +69,7 @@ vec2 propperDitheringScale(float brightness)
     const float scale = push.normalMatrix[3][0];
 
     vec2 uvFrequency = getUVFrequency();
-    float spacing = (uvFrequency.x * .25f + uvFrequency.y * .75f);
+    float spacing = (uvFrequency.x * .25 + uvFrequency.y * .75);
     spacing *= exp2(scale);
     spacing /= brightness;
 
@@ -76,7 +77,7 @@ vec2 propperDitheringScale(float brightness)
     float roundedLogCurve = floor(logCurve);
 
     float subLayer = logCurve - roundedLogCurve;
-    subLayer = 1.f - subLayer;
+    subLayer = 1.0 - subLayer;
 
     return vec2(exp2(roundedLogCurve), subLayer);
 }
@@ -87,16 +88,16 @@ float getShadowFactor(vec2 inUV, vec3 projCoords)
 
     if (projCoords.z - depth < 0.025)
     {
-        return 1.0f;
+        return 1.0;
     }
-    return 0.2f;
+    return 0.2;
 }
 
 float getPCFShadow(vec3 projCoords)
 {
-    const float angle = two_PI / 8.f;
+    const float angle = two_PI / 8.0;
     const vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
-    const vec2 texelSize = 1.0f / textureSize(shadowMapSampler, 0) * 1.5f;
+    const vec2 texelSize = 1.0 / textureSize(shadowMapSampler, 0) * 1.5;
     ;
 
     float combined = getShadowFactor(lightUVCoords, projCoords);
@@ -107,20 +108,20 @@ float getPCFShadow(vec3 projCoords)
         combined += getShadowFactor(lightUVCoords + uvOffset, projCoords);
     }
 
-    return combined / 9.f;
+    return combined / 9.0;
 }
 
 vec3 getDiffuseLight()
 {
     // ambient light
     vec3 diffuseLight = ubo.ambientLight.xyz * ubo.ambientLight.w;
-    vec3 surfaceNormal = normalize(fragNormalWorld);
+    vec3 surfaceNormal = normalize(inNormalWorld);
 
     // directional light
     if (ubo.sun.color.w > 0)
     {
-        float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0f);
-        const vec3 projCoords = fragPositionLightSpace.xyz / fragPositionLightSpace.w;
+        float cosAngIncidence = max(dot(surfaceNormal, -ubo.sun.direction.xyz), 0.0);
+        const vec3 projCoords = inPositionLightSpace.xyz / inPositionLightSpace.w;
         diffuseLight += ubo.sun.color.xyz * ubo.sun.color.w * min(getPCFShadow(projCoords), cosAngIncidence);
     }
 
@@ -135,10 +136,10 @@ vec4 getColor(vec3 alignedColor, vec3 maskColor, vec2 UVOffset)
 
     const vec2 ditheringLevel = propperDitheringScale(brightness);
     const vec4 ditheringSample =
-        texture(ditheringSampler, vec3((fragUV + UVOffset) / ditheringLevel.x, ditheringLevel.y));
+        texture(ditheringSampler, vec3((inUV + UVOffset) / ditheringLevel.x, ditheringLevel.y));
 
-    return brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(0.f, 0.f, 0.f, 1.f)
-                                                                        : vec4(maskColor, 1.f);
+    return brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(0.0, 0.0, 0.0, 1.0)
+                                                                        : vec4(maskColor, 1.0);
 }
 
 vec2 safeUV(vec2 uv)
@@ -153,12 +154,12 @@ float gaussian(float x, float sigma)
 
 vec4 blurSample()
 {
-    vec4 color = texture(textureSampler, safeUV(fragUV));
-    float weights = 1.f;
-    float sigma = 200.f;
+    vec4 color = texture(textureSampler, safeUV(inUV));
+    float weights = 1.0;
+    float sigma = 200.0;
 
     float totalDistance = 0.015;
-    float totalSteps = 80.f;
+    float totalSteps = 80.0;
 
     float distanceStep = totalDistance / totalSteps;
     float angleStep = 1.618;
@@ -168,7 +169,7 @@ vec4 blurSample()
     for (int i = 0; i < 80; i++)
     {
         vec2 offset = distance * vec2(cos(angleStep * i), sin(angleStep * i));
-        vec2 uv = safeUV(fragUV + offset);
+        vec2 uv = safeUV(inUV + offset);
         color += texture(textureSampler, uv);
         weights += gaussian(distance, sigma);
 
@@ -181,16 +182,17 @@ vec4 blurSample()
 void main()
 {
     const vec3 diffuseLight = getDiffuseLight();
-    const vec3 textureColor = texture(textureSampler, fragUV).xyz;
+    const vec3 textureColor = texture(textureSampler, inUV).xyz;
 
     const vec3 combinedColor = diffuseLight * textureColor;
 
     const float m = push.normalMatrix[3][2];
-    const float PI_third = 2.0f * PI / 3.f;
+    const float PI_third = 2.0 * PI / 3.0;
 
-    outColor = getColor(combinedColor, vec3(1.f, 0.f, 0.f), m * vec2(cos(PI_third), sin(PI_third)));
-    outColor += getColor(combinedColor, vec3(0.f, 1.f, 0.f), m * vec2(cos(2 * PI_third), sin(2 * PI_third)));
-    outColor += getColor(combinedColor, vec3(0.f, 0.f, 1.f), m * vec2(1.0f, 0.f));
+    outColor = getColor(combinedColor, vec3(1.0, 0.0, 0.0), m * vec2(cos(PI_third), sin(PI_third)));
+    outColor += getColor(combinedColor, vec3(0.0, 1.0, 0.0), m * vec2(cos(2 * PI_third), sin(2 * PI_third)));
+    outColor += getColor(combinedColor, vec3(0.0, 0.0, 1.0), m * vec2(1.0, 0.0));
 
-    outColor.a = 1.0f;
+    outColor.a = 1.0;
+    outNormal = vec4(inNormalWorld, 1.0);
 }

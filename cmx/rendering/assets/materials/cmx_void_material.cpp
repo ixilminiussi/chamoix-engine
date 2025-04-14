@@ -60,7 +60,7 @@ void VoidMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout()});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderSystem->getRenderPass());
 }
 
 void VoidMaterial::initialize(vk::RenderPass renderPass, vk::DescriptorSetLayout shadowUboLayout)
@@ -101,7 +101,8 @@ void VoidMaterial::createPipeline(vk::RenderPass renderPass)
     Pipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
-    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig);
+    _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig,
+                                           "void material pipeline");
 }
 
 } // namespace cmx

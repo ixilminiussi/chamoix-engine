@@ -67,7 +67,7 @@ vec2 getWorldSpaceUV()
 
 void main()
 {
-    vec4 worldPosition = push.modelMatrix * vec4(inPosition, 1.0f);
+    vec4 worldPosition = push.modelMatrix * vec4(inPosition, 1.0);
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
     vec3 N = normalize(mat3(push.normalMatrix) * inNormal);

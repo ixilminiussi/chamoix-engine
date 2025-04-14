@@ -75,6 +75,8 @@ class SwapChain
                 _swapChainImageFormat == swapChain._swapChainImageFormat);
     }
 
+    static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats);
+
   private:
     void init();
     void createSwapChain();
@@ -85,7 +87,6 @@ class SwapChain
     void createSyncObjects();
 
     // Helper functions
-    vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats);
     vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR> &availablePresentModes);
     vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilities);
 

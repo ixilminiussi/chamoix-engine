@@ -33,6 +33,7 @@ class GraphicsManager
     // warning flags
     bool _noCameraFlag{false};
     class RenderSystem *_renderSystem;
+    Material *_postProcessMaterial;
 
     static std::vector<size_t> _shadowMapDescriptorSetIDs;
 };

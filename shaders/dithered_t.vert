@@ -6,11 +6,11 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 uv;
 layout(location = 4) in vec3 tangent;
 
-layout(location = 0) out vec3 fragPositionWorld;
-layout(location = 1) out vec3 fragColor;
-layout(location = 2) out vec3 fragNormalWorld;
-layout(location = 3) out vec2 fragUV;
-layout(location = 4) out vec4 fragPositionLightSpace;
+layout(location = 0) out vec3 outPositionWorld;
+layout(location = 1) out vec3 outColor;
+layout(location = 2) out vec3 outNormalWorld;
+layout(location = 3) out vec2 outUV;
+layout(location = 4) out vec4 outPositionLightSpace;
 
 struct DirectionalLight
 {
@@ -54,12 +54,11 @@ vec2 getWorldSpaceUV()
 
     mat2 rotationMatrix = mat2(cos(theta), -sin(theta), sin(theta), cos(theta));
 
-    vec3 up = abs(fragNormalWorld.z) > 0.999 ? vec3(1, 0, 0) : vec3(0, 0, 1);
-    vec3 tangent = normalize(cross(fragNormalWorld, up));
-    vec3 bitangent = cross(fragNormalWorld, tangent);
+    vec3 up = abs(outNormalWorld.z) > 0.999 ? vec3(1, 0, 0) : vec3(0, 0, 1);
+    vec3 tangent = normalize(cross(outNormalWorld, up));
+    vec3 bitangent = cross(outNormalWorld, tangent);
 
-    return rotationMatrix *
-           (vec2(dot(fragPositionWorld, tangent), dot(fragPositionWorld, bitangent)) / scale + uvOffset);
+    return rotationMatrix * (vec2(dot(outPositionWorld, tangent), dot(outPositionWorld, bitangent)) / scale + uvOffset);
 }
 
 void main()
@@ -69,10 +68,10 @@ void main()
     vec4 worldPosition = modelMatrix * vec4(position, 1.0f);
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
-    fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
-    fragPositionWorld = worldPosition.xyz;
-    fragColor = color;
-    fragPositionLightSpace = ubo.sun.projectionMatrix * ubo.sun.viewMatrix * worldPosition;
+    outNormalWorld = normalize(mat3(push.normalMatrix) * normal);
+    outPositionWorld = worldPosition.xyz;
+    outColor = color;
+    outPositionLightSpace = ubo.sun.projectionMatrix * ubo.sun.viewMatrix * worldPosition;
 
     if (push.normalMatrix[2][3] == 0.f)
     {
@@ -80,10 +79,10 @@ void main()
 
         vec2 adaptedUV = vec2(uv.x, 1.0 - uv.y);
 
-        fragUV = adaptedUV + uvOffset;
+        outUV = adaptedUV + uvOffset;
     }
     else
     {
-        fragUV = getWorldSpaceUV();
+        outUV = getWorldSpaceUV();
     }
 }

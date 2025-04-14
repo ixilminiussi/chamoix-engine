@@ -14,6 +14,7 @@
 namespace cmx
 {
 
+// TODO: static, dynamic for shadowmap rendering
 struct DrawOption
 {
     class Material *material{nullptr};

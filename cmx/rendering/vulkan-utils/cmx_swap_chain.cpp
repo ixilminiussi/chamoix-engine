@@ -1,10 +1,12 @@
 #include "cmx_swap_chain.h"
 
 // cmx
+#include "cmx_debug_util.h"
 #include "cmx_render_system.h"
 
 // lib
 #include <spdlog/spdlog.h>
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_core.h>
 
 // std
@@ -304,7 +306,7 @@ void SwapChain::createRenderPass()
         vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
     dependency.dstStageMask =
         vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.srcSubpass = vk::SubpassExternal;
     dependency.srcAccessMask = vk::AccessFlagBits::eNone;
     dependency.srcStageMask =
         vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
@@ -323,6 +325,8 @@ void SwapChain::createRenderPass()
     {
         throw std::runtime_error("failed to create render pass!");
     }
+
+    DebugUtil::nameObject(_renderPass, vk::ObjectType::eRenderPass, "SwapChain RenderPass");
 }
 
 void SwapChain::createFramebuffers()
@@ -430,7 +434,7 @@ vk::SurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<vk::Su
 {
     for (const vk::SurfaceFormatKHR &availableFormat : availableFormats)
     {
-        if (availableFormat.format == vk::Format::eB8G8R8A8Srgb &&
+        if (availableFormat.format == vk::Format::eR8G8B8A8Srgb &&
             availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
         {
             return availableFormat;

@@ -1,10 +1,10 @@
 #include "cmx_pipeline.h"
 
 // cmx
+#include "cmx_debug_util.h"
 #include "cmx_model.h"
 
 // lib
-#include <exception>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 
@@ -19,10 +19,11 @@ namespace cmx
 {
 
 Pipeline::Pipeline(Device &device, const std::string &vertFilepath, const std::string &fragFilepath,
-                   const PipelineConfigInfo &configInfo)
+                   const PipelineConfigInfo &configInfo, const std::string &debugName)
     : _device{device}
 {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
+    DebugUtil::nameObject(_graphicsPipeline, vk::ObjectType::ePipeline, debugName);
 }
 
 Pipeline::~Pipeline()
@@ -178,21 +179,35 @@ void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo)
     configInfo.multisampleInfo.alphaToCoverageEnable = vk::False; // Optional
     configInfo.multisampleInfo.alphaToOneEnable = vk::False;      // Optional
 
-    configInfo.colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                                                     vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-    configInfo.colorBlendAttachment.blendEnable = vk::False;
-    configInfo.colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eOne;  // Optional
-    configInfo.colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eZero; // Optional
-    configInfo.colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;             // Optional
-    configInfo.colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;  // Optional
-    configInfo.colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero; // Optional
-    configInfo.colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;             // Optional
+    vk::PipelineColorBlendAttachmentState colorColorBlendAttachment;
+    colorColorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                                               vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    colorColorBlendAttachment.blendEnable = vk::False;
+    colorColorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eOne;  // Optional
+    colorColorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eZero; // Optional
+    colorColorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;             // Optional
+    colorColorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;  // Optional
+    colorColorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero; // Optional
+    colorColorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;             // Optional
+
+    vk::PipelineColorBlendAttachmentState normalColorBlendAttachment;
+    normalColorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                                                vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    normalColorBlendAttachment.blendEnable = vk::False;
+    normalColorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eOne;  // Optional
+    normalColorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eZero; // Optional
+    normalColorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;             // Optional
+    normalColorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;  // Optional
+    normalColorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero; // Optional
+    normalColorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;             // Optional
+
+    configInfo.colorBlendAttachments = {colorColorBlendAttachment, normalColorBlendAttachment};
 
     configInfo.colorBlendInfo.sType = vk::StructureType::ePipelineColorBlendStateCreateInfo;
     configInfo.colorBlendInfo.logicOpEnable = vk::False;
     configInfo.colorBlendInfo.logicOp = vk::LogicOp::eCopy; // Optional
-    configInfo.colorBlendInfo.attachmentCount = 1;
-    configInfo.colorBlendInfo.pAttachments = &configInfo.colorBlendAttachment;
+    configInfo.colorBlendInfo.attachmentCount = static_cast<uint32_t>(configInfo.colorBlendAttachments.size());
+    configInfo.colorBlendInfo.pAttachments = configInfo.colorBlendAttachments.data();
     configInfo.colorBlendInfo.blendConstants[0] = 0.0f; // Optional
     configInfo.colorBlendInfo.blendConstants[1] = 0.0f; // Optional
     configInfo.colorBlendInfo.blendConstants[2] = 0.0f; // Optional
