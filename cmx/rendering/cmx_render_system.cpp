@@ -104,6 +104,7 @@ void RenderSystem::closeWindow()
 {
     spdlog::info("global release");
 
+    freeImages();
     _globalPool->free();
     _samplerDescriptorPool->free();
     _device->device().destroyDescriptorSetLayout(_samplerDescriptorSetLayout->getDescriptorSetLayout());

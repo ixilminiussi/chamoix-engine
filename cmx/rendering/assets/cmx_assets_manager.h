@@ -36,6 +36,13 @@ class AssetsManager final
         return _materials;
     }
 
+    bool addPostProcess(class Material *material, const char *name);
+    class Material *getPostProcess(const char *name);
+    const auto &getPostProcesses()
+    {
+        return _postProcesses;
+    }
+
     void addModel(const char *filepath, const char *name);
     void removeModel(const char *name);
     class Model *getModel(const char *name);
@@ -69,6 +76,7 @@ class AssetsManager final
     std::map<std::string, std::unique_ptr<class Texture>> _textures2D;
     std::map<std::string, std::unique_ptr<class Texture>> _textures3D;
     std::map<std::string, class Material *> _materials;
+    std::map<std::string, class Material *> _postProcesses;
 
     // TODO:
     // fonts

@@ -141,9 +141,11 @@ void ViewportUI::render(const struct FrameInfo &frameInfo)
     renderDockSpace();
 
     renderTopBar();
-    renderGraphicsManager();
     renderGuizmoManager();
     renderCurrentSceneMetaData();
+
+    if (_showGraphicsManager)
+        renderGraphicsManager();
 
     if (_showProjectSettings)
         renderProjectSettings();
@@ -273,6 +275,10 @@ void ViewportUI::renderTopBar()
         if (ImGui::MenuItem(ICON_MS_ALBUM " Assets", "Ctrl+A"))
         {
             renderAssetsManager();
+        }
+        if (ImGui::MenuItem(ICON_MS_EYE_TRACKING " Graphics Manager"))
+        {
+            renderGraphicsManager();
         }
         if (ImGui::MenuItem(ICON_MS_SETTINGS " Scene Manager"))
         {
@@ -493,19 +499,10 @@ void ViewportUI::renderInspector()
 
 void ViewportUI::renderGraphicsManager()
 {
-    if (_centralNode != nullptr)
-    {
-        ImVec2 pos = _centralNode->Pos;
-        pos.x += 20.f;
-        pos.y += 20.f;
-        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
-    }
+    _showGraphicsManager = true;
+    ImGui::Begin("Graphics Manager", &_showGraphicsManager, ImGuiWindowFlags_AlwaysAutoResize);
 
-    ImGui::Begin("##1", nullptr,
-                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-
-    _attachedScene->getGraphicsManager()->editor();
+    _attachedScene->getGraphicsManager()->editor(_attachedScene->getAssetsManager());
 
     ImGui::End();
 }

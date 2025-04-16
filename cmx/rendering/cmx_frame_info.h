@@ -12,6 +12,7 @@ struct FrameInfo
     int frameIndex;
     vk::CommandBuffer &commandBuffer;
     vk::DescriptorSet globalDescriptorSet;
+    class Camera *camera;
 };
 
 } // namespace cmx

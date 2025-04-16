@@ -71,6 +71,7 @@ class ViewportUI
     bool _showSceneTree{true};
     bool _showInspector{false};
     bool _showAssetsManager{false};
+    bool _showGraphicsManager{true};
     Actor *_inspectedActor{nullptr};
 
     class Scene *_attachedScene;

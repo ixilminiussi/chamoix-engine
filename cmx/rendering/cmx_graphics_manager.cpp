@@ -2,6 +2,7 @@
 
 // cmx
 #include "IconsMaterialSymbols.h"
+#include "cmx_assets_manager.h"
 #include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_editor.h"
@@ -9,8 +10,10 @@
 #include "cmx_light_environment.h"
 #include "cmx_material.h"
 #include "cmx_post_outline_material.h"
+#include "cmx_post_passthrough_material.h"
 #include "cmx_render_system.h"
 #include "cmx_texture.h"
+#include "imgui.h"
 
 // lib
 #include <immintrin.h>
@@ -24,8 +27,12 @@ std::vector<size_t> GraphicsManager::_shadowMapDescriptorSetIDs{};
 GraphicsManager::GraphicsManager() : _drawableRenderQueue{}
 {
     _renderSystem = RenderSystem::getInstance();
-    _postProcessMaterial = new PostOutlineMaterial();
-    _postProcessMaterial->initialize();
+    _postProcessMaterials = {new PostPassthroughMaterial(), new PostOutlineMaterial()};
+
+    for (Material *material : _postProcessMaterials)
+    {
+        material->initialize();
+    }
 }
 
 void GraphicsManager::update(Drawable *drawable, DrawOption *drawOption, size_t oldID)
@@ -122,6 +129,7 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
     {
         _noCameraFlag = false;
 
+        frameInfo->camera = camera;
         _renderSystem->checkAspectRatio(camera);
 
         GlobalUbo ubo{};
@@ -163,8 +171,11 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
 
     _renderSystem->beginPostProcess(frameInfo);
 
-    _postProcessMaterial->bind(frameInfo, nullptr);
-    frameInfo->commandBuffer.draw(6, 1, 0, 0);
+    for (Material *material : _postProcessMaterials)
+    {
+        material->bind(frameInfo, nullptr);
+        frameInfo->commandBuffer.draw(6, 1, 0, 0);
+    }
 
 #ifndef NDEBUG
     if (Editor::isActive())
@@ -177,12 +188,15 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
     _renderSystem->endPostProcess(frameInfo);
 }
 
-void GraphicsManager::editor()
+void GraphicsManager::editor(AssetsManager *assetsManager)
 {
     int i = 0;
-
-    for (auto &[materialID, drawableQueue] : _drawableRenderQueue)
+    for (Material *material : _postProcessMaterials)
     {
+        ImGui::PushID(i);
+        material->editor();
+        ImGui::PopID();
+        i++;
     }
 }
 

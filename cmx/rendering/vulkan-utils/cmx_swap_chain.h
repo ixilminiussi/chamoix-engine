@@ -81,7 +81,6 @@ class SwapChain
     void init();
     void createSwapChain();
     void createImageViews();
-    void createDepthResources();
     void createRenderPass();
     void createFramebuffers();
     void createSyncObjects();
@@ -97,9 +96,6 @@ class SwapChain
     std::vector<vk::Framebuffer> _swapChainFramebuffers;
     vk::RenderPass _renderPass;
 
-    std::vector<vk::Image> _depthImages;
-    std::vector<vk::DeviceMemory> _depthImageMemories;
-    std::vector<vk::ImageView> _depthImageViews;
     std::vector<vk::Image> _swapChainImages;
     std::vector<vk::ImageView> _swapChainImageViews;
 

@@ -22,7 +22,7 @@ class Demo : public cmx::Game
     void closeWindow(float dt, int val);
 
   protected:
-    cmx::Scene mainScene{"scenes/demo-scene.xml", this, "demo-scene"};
+    cmx::Scene mainScene;
 };
 
 #endif

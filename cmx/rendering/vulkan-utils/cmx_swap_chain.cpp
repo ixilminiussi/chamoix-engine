@@ -40,7 +40,6 @@ void SwapChain::init()
     createSwapChain();
     createImageViews();
     createRenderPass();
-    createDepthResources();
     createFramebuffers();
     createSyncObjects();
 }
@@ -62,16 +61,6 @@ void SwapChain::free()
     _swapChainFramebuffers.clear();
 
     vkDestroyRenderPass(_device.device(), _renderPass, nullptr);
-
-    for (int i = 0; i < _depthImages.size(); i++)
-    {
-        vkDestroyImageView(_device.device(), _depthImageViews[i], nullptr);
-        vkDestroyImage(_device.device(), _depthImages[i], nullptr);
-        vkFreeMemory(_device.device(), _depthImageMemories[i], nullptr);
-    }
-    _depthImageViews.clear();
-    _depthImages.clear();
-    _depthImageMemories.clear();
 
     for (int i = 0; i < _swapChainImageViews.size(); i++)
     {
@@ -266,20 +255,6 @@ void SwapChain::createImageViews()
 
 void SwapChain::createRenderPass()
 {
-    vk::AttachmentDescription depthAttachment{};
-    depthAttachment.format = findDepthFormat();
-    depthAttachment.samples = vk::SampleCountFlagBits::e1;
-    depthAttachment.loadOp = vk::AttachmentLoadOp::eClear;
-    depthAttachment.storeOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    depthAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
-    depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
-    depthAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-
-    vk::AttachmentReference depthAttachmentRef{};
-    depthAttachmentRef.attachment = 1;
-    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-
     vk::AttachmentDescription colorAttachment = {};
     colorAttachment.format = getSwapChainImageFormat();
     colorAttachment.samples = vk::SampleCountFlagBits::e1;
@@ -298,7 +273,7 @@ void SwapChain::createRenderPass()
     subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    subpass.pDepthStencilAttachment = nullptr;
 
     vk::SubpassDependency dependency = {};
     dependency.dstSubpass = 0;
@@ -311,7 +286,7 @@ void SwapChain::createRenderPass()
     dependency.srcStageMask =
         vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
 
-    std::array<vk::AttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
+    std::array<vk::AttachmentDescription, 1> attachments = {colorAttachment};
     vk::RenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = vk::StructureType::eRenderPassCreateInfo;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -334,7 +309,7 @@ void SwapChain::createFramebuffers()
     _swapChainFramebuffers.resize(imageCount());
     for (size_t i = 0; i < imageCount(); i++)
     {
-        std::array<vk::ImageView, 2> attachments = {_swapChainImageViews[i], _depthImageViews[i]};
+        std::array<vk::ImageView, 1> attachments = {_swapChainImageViews[i]};
 
         vk::Extent2D swapChainExtent = getSwapChainExtent();
         vk::FramebufferCreateInfo framebufferInfo = {};
@@ -350,55 +325,6 @@ void SwapChain::createFramebuffers()
             vk::Result::eSuccess)
         {
             throw std::runtime_error("failed to create framebuffer!");
-        }
-    }
-}
-
-void SwapChain::createDepthResources()
-{
-    vk::Format depthFormat = findDepthFormat();
-    _swapChainDepthFormat = depthFormat;
-    vk::Extent2D swapChainExtent = getSwapChainExtent();
-
-    _depthImages.resize(imageCount());
-    _depthImageMemories.resize(imageCount());
-    _depthImageViews.resize(imageCount());
-
-    for (int i = 0; i < _depthImages.size(); i++)
-    {
-        vk::ImageCreateInfo imageInfo{};
-        imageInfo.sType = vk::StructureType::eImageCreateInfo;
-        imageInfo.imageType = vk::ImageType::e2D;
-        imageInfo.extent.width = swapChainExtent.width;
-        imageInfo.extent.height = swapChainExtent.height;
-        imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = 1;
-        imageInfo.arrayLayers = 1;
-        imageInfo.format = depthFormat;
-        imageInfo.tiling = vk::ImageTiling::eOptimal;
-        imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-        imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
-        imageInfo.samples = vk::SampleCountFlagBits::e1;
-        imageInfo.sharingMode = vk::SharingMode::eExclusive;
-        // imageInfo.flags = vk::ImageCreateFlagBits::;
-
-        _device.createImageWithInfo(imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal, _depthImages[i],
-                                    _depthImageMemories[i]);
-
-        vk::ImageViewCreateInfo viewInfo{};
-        viewInfo.sType = vk::StructureType::eImageViewCreateInfo;
-        viewInfo.image = _depthImages[i];
-        viewInfo.viewType = vk::ImageViewType::e2D;
-        viewInfo.format = depthFormat;
-        viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = 1;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
-
-        if (_device.device().createImageView(&viewInfo, nullptr, &_depthImageViews[i]) != vk::Result::eSuccess)
-        {
-            throw std::runtime_error("failed to create texture image view!");
         }
     }
 }

@@ -1,4 +1,4 @@
-#include "cmx_post_outline_material.h"
+#include "cmx_post_passthrough_material.h"
 
 // cmx
 #include "cmx_drawable.h"
@@ -16,7 +16,7 @@
 namespace cmx
 {
 
-void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
+void PostPassthroughMaterial::bind(FrameInfo *frameInfo, const Drawable *)
 {
     if (_boundID != _id)
     {
@@ -35,24 +35,74 @@ void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
 
         _boundID = _id;
     }
+
+    PushConstantData push{};
+    push.status = _status;
+
+    frameInfo->commandBuffer.pushConstants(_pipelineLayout,
+                                           vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
+                                           sizeof(PushConstantData), &push);
 }
 
-void PostOutlineMaterial::editor()
+void PostPassthroughMaterial::editor()
 {
     Material::editor();
+
+    static std::map<int, std::string> options{{0, "albedo"}, {1, "normals"}, {2, "depth"}};
+
+    const char *selected;
+
+    if (options.find(_status) != options.end())
+    {
+        selected = options[_status].c_str();
+    }
+    else
+    {
+        _status = 0;
+        selected = options[_status].c_str();
+    }
+
+    if (ImGui::BeginCombo("Visualizing", selected))
+    {
+        for (auto [status, name] : options)
+        {
+            bool isSelected = (strcmp(selected, name.c_str()) == 0);
+            if (ImGui::Selectable(name.c_str(), isSelected) && !isSelected)
+            {
+                selected = name.c_str();
+                _status = status;
+                spdlog::info("{0}", _status);
+                isSelected = true;
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
 }
 
-tinyxml2::XMLElement *PostOutlineMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+tinyxml2::XMLElement *PostPassthroughMaterial::save(tinyxml2::XMLDocument &doc,
+                                                    tinyxml2::XMLElement *parentElement) const
 {
-    return Material::save(doc, parentElement);
+    tinyxml2::XMLElement *materialElement = Material::save(doc, parentElement);
+
+    materialElement->SetAttribute("status", _status);
+
+    return materialElement;
 }
 
-void PostOutlineMaterial::load(tinyxml2::XMLElement *materialElement)
+void PostPassthroughMaterial::load(tinyxml2::XMLElement *materialElement)
 {
     Material::load(materialElement);
+
+    _status = materialElement->IntAttribute("status", 0);
 }
 
-void PostOutlineMaterial::initialize()
+void PostPassthroughMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
@@ -63,12 +113,19 @@ void PostOutlineMaterial::initialize()
     createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
 }
 
-void PostOutlineMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
+void PostPassthroughMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
+    vk::PushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(PushConstantData);
+
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = vk::StructureType::ePipelineLayoutCreateInfo;
     pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
     if (_renderSystem->getDevice()->device().createPipelineLayout(&pipelineLayoutInfo, nullptr, &_pipelineLayout) !=
         vk::Result::eSuccess)
@@ -79,7 +136,7 @@ void PostOutlineMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayo
     _requestedSamplerCount -= 1;
 }
 
-void PostOutlineMaterial::createPipeline(vk::RenderPass renderPass)
+void PostPassthroughMaterial::createPipeline(vk::RenderPass renderPass)
 {
     assert(_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 

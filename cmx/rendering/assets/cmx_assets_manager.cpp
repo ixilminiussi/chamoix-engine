@@ -9,6 +9,8 @@
 #include "cmx_mesh_material.h"
 #include "cmx_model.h"
 #include "cmx_parallax_material.h"
+#include "cmx_post_outline_material.h"
+#include "cmx_post_passthrough_material.h"
 #include "cmx_primitives.h"
 #include "cmx_register.h"
 #include "cmx_render_system.h"
@@ -47,6 +49,8 @@ AssetsManager::AssetsManager(class Scene *parent)
     addMaterial(new HudMaterial(), "hud_material");
     addMaterial(new BillboardMaterial(), "billboard_material");
     addMaterial(new ParallaxMaterial(), "parallax_material");
+    addPostProcess(new PostPassthroughMaterial(), "passthrough_postprocess");
+    addPostProcess(new PostOutlineMaterial(), "outline_postprocess");
 };
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
@@ -144,6 +148,25 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 
             materialElement = materialElement->NextSiblingElement("material");
         }
+
+        tinyxml2::XMLElement *postProcessElement = assetsElement->FirstChildElement("postProcess");
+        while (postProcessElement)
+        {
+            Material *postProcess = Register::getInstance().getMaterial(postProcessElement->Attribute("type"));
+            const char *name = postProcessElement->Attribute("name");
+
+            if (!addMaterial(postProcess, postProcessElement->Attribute("name")))
+            {
+                getMaterial(postProcessElement->Attribute("name"))->load(postProcessElement);
+                delete postProcess;
+            }
+            else
+            {
+                postProcess->load(postProcessElement);
+            }
+
+            postProcessElement = postProcessElement->NextSiblingElement("postProcess");
+        }
     }
 }
 
@@ -201,6 +224,20 @@ void AssetsManager::unload()
         }
 
         _materials.clear();
+    }
+
+    {
+        auto it = _postProcesses.begin();
+
+        while (it != _postProcesses.end())
+        {
+            (*it).second->free();
+            delete (*it).second;
+            spdlog::info("AssetsManager: Unloaded postProcess [{0}]", (*it).first);
+            it++;
+        }
+
+        _postProcesses.clear();
     }
     spdlog::info("AssetsManager: Successfully unloaded assets manager!");
 }
@@ -314,6 +351,42 @@ Material *AssetsManager::getMaterial(const char *name)
     }
 
     return _materials[name];
+}
+
+bool AssetsManager::addPostProcess(Material *postProcess, const char *name)
+{
+    if (_postProcesses.find(std::string(name)) != _postProcesses.end())
+    {
+        spdlog::warn("AssetsManager: postProcess of same name '{0}' already exists", name);
+        return false;
+    }
+
+    if (postProcess == nullptr)
+        return false;
+
+    postProcess->name = name;
+    postProcess->initialize();
+
+    if (_postProcesses.find(std::string(name)) != _postProcesses.end())
+    {
+        _postProcesses[name]->free();
+        delete _postProcesses[name];
+    }
+
+    _postProcesses[name] = postProcess;
+
+    return true;
+}
+
+Material *AssetsManager::getPostProcess(const char *name)
+{
+    if (_postProcesses.find(std::string(name)) == _postProcesses.end())
+    {
+        spdlog::warn("assetsmanager: no such postProcess named '{0}'", name);
+        return nullptr;
+    }
+
+    return _postProcesses[name];
 }
 
 void AssetsManager::addModel(const char *filepath, const char *name)

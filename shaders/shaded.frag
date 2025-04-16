@@ -123,4 +123,5 @@ void main()
     }
 
     outColor.a = 1.0f;
+    outNormal = vec4(normalize(inNormalWorld).rgb, 1.0);
 }

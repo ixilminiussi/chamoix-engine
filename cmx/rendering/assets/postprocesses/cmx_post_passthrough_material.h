@@ -1,5 +1,5 @@
-#ifndef CMX_HUD_MATERIAL
-#define CMX_HUD_MATERIAL
+#ifndef CMX_POST_PASSTHROUGH_MATERIAL
+#define CMX_POST_PASSTHROUGH_MATERIAL
 
 // cmx
 #include "cmx_material.h"
@@ -12,12 +12,12 @@
 namespace cmx
 {
 
-class PostOutlineMaterial : public Material
+class PostPassthroughMaterial : public Material
 {
   public:
-    PostOutlineMaterial() : Material{"shaders/postprocess.vert.spv", "shaders/post_outline.frag.spv", false} {};
+    PostPassthroughMaterial() : Material{"shaders/postprocess.vert.spv", "shaders/post_passthrough.frag.spv", false} {};
 
-    CLONEABLE_MATERIAL(PostOutlineMaterial)
+    CLONEABLE_MATERIAL(PostPassthroughMaterial)
 
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
@@ -27,12 +27,19 @@ class PostOutlineMaterial : public Material
     void initialize() override;
 
   protected:
+    struct PushConstantData
+    {
+        int status;
+    };
+
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
+
+    int _status; // 0 for color, 1 for normals, 2 for depth
 };
 
 } // namespace cmx
 
-REGISTER_MATERIAL(cmx::PostOutlineMaterial)
+REGISTER_MATERIAL(cmx::PostPassthroughMaterial)
 
 #endif

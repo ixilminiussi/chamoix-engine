@@ -25,7 +25,7 @@ class GraphicsManager
     void drawRenderQueue(std::weak_ptr<class Camera>, class LightEnvironment *);
     static const std::vector<size_t> &getDescriptorSetIDs();
 
-    void editor();
+    void editor(class AssetsManager *assetsManager);
 
   private:
     std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> _drawableRenderQueue;
@@ -33,7 +33,7 @@ class GraphicsManager
     // warning flags
     bool _noCameraFlag{false};
     class RenderSystem *_renderSystem;
-    Material *_postProcessMaterial;
+    std::vector<Material *> _postProcessMaterials;
 
     static std::vector<size_t> _shadowMapDescriptorSetIDs;
 };

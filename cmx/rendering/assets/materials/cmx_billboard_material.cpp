@@ -87,6 +87,7 @@ void BillboardMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+
     if (_renderSystem->getDevice()->device().createPipelineLayout(&pipelineLayoutInfo, nullptr, &_pipelineLayout) !=
         vk::Result::eSuccess)
     {

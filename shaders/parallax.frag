@@ -69,7 +69,6 @@ float getPCFShadow(vec3 projCoords)
     const float angle = two_PI / 8.f;
     const vec2 lightUVCoords = 0.5 * projCoords.xy + 0.5;
     const vec2 texelSize = 1.0 / textureSize(sShadowMap, 0) * 1.5;
-    ;
 
     float combined = getShadowFactor(lightUVCoords, projCoords);
 
