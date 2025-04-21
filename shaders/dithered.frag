@@ -70,18 +70,29 @@ vec2 getUVFrequency()
     return sqrt(vec2(Q + discriminant, Q - discriminant) / 2);
 }
 
+// returns power of 2 for UV scale on x, and the z UV to sample
+// from our 3D dithering texture on y
 vec2 propperDitheringScale(float brightness)
 {
     const float scale = push.normalMatrix[3][0];
 
+    // use the UV frequency to keep all UVs within power of 2
+    // of one another
     vec2 uvFrequency = getUVFrequency();
-    float spacing = (uvFrequency.x * .25 + uvFrequency.y * .75);
+    float spacing = uvFrequency.x * .25 + uvFrequency.y * .75;
     spacing *= exp2(scale);
+
+    // brighter areas means smaller dots/UV frequency
     spacing /= brightness;
 
+    // round down to the nearest power of 2 for the overall
+    // UV multiplication
     float logCurve = log2(spacing);
     float roundedLogCurve = floor(logCurve);
 
+    // find the difference between the target UV frequency
+    // and the nearest power of 2 to find the correct z
+    // to transition within our 3d dithering texture
     float subLayer = logCurve - roundedLogCurve;
     subLayer = 1.0 - subLayer;
 
@@ -134,18 +145,43 @@ vec3 getDiffuseLight()
     return diffuseLight;
 }
 
+vec2 flattenUVs()
+{
+    // Estimate screen-space gradients of the UVs
+    vec2 dx = dFdx(inUV);
+    vec2 dy = dFdy(inUV);
+
+    const float max = 4.0;
+    // Compute the length (magnitude) of the change in each direction
+    float lenX = length(dx);
+    float lenY = length(dy);
+
+    float scaleLimit = 4.; // max scaling correction
+    lenX = clamp(lenX, 1.0 / scaleLimit, scaleLimit);
+    lenY = clamp(lenY, 1.0 / scaleLimit, scaleLimit);
+
+    // Normalize by the average (or max) to make both axes scale evenly
+    float avgLen = (lenX + lenY) * 0.5;
+
+    return (inUV - 0.5) / vec2(lenX, lenY) * avgLen + 0.5;
+}
+
 void main()
 {
-    bool dotToggle = ((uint(push.normalMatrix[3][2]) & 1u) == 0u);
+    // whether or not we use light dots on dark background, or the reverse
+    const bool dotToggle = ((uint(push.normalMatrix[3][2]) & 1u) == 0u);
 
-    vec3 diffuseLight = getDiffuseLight();
+    const vec3 diffuseLight = getDiffuseLight();
 
     float brightness = dotToggle ? 1 - getLuminance(diffuseLight) : getLuminance(diffuseLight);
     brightness /= 2;
 
-    vec2 ditheringLevel = propperDitheringScale(brightness);
-    vec4 ditheringSample = texture(sDitheringPattern, vec3(inUV / ditheringLevel.x, ditheringLevel.y));
+    const vec2 ditheringLevel = propperDitheringScale(brightness);
 
+    const vec2 uvFrequency = getUVFrequency();
+    const vec4 ditheringSample = texture(sDitheringPattern, vec3(flattenUVs() / ditheringLevel.x, ditheringLevel.y));
+
+    // push.normalMatrix[3][1] is our specified threshold
     if (dotToggle)
     {
         outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(inLightColor, 1.0)

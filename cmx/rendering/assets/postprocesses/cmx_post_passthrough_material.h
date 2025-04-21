@@ -30,6 +30,7 @@ class PostPassthroughMaterial : public Material
     struct PushConstantData
     {
         int status;
+        float nearPlane, farPlane;
     };
 
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;

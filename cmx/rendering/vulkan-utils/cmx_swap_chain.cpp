@@ -56,30 +56,30 @@ void SwapChain::free()
 {
     for (vk::Framebuffer framebuffer : _swapChainFramebuffers)
     {
-        vkDestroyFramebuffer(_device.device(), framebuffer, nullptr);
+        _device.device().destroyFramebuffer(framebuffer, nullptr);
     }
     _swapChainFramebuffers.clear();
 
-    vkDestroyRenderPass(_device.device(), _renderPass, nullptr);
+    _device.device().destroyRenderPass(_renderPass, nullptr);
 
     for (int i = 0; i < _swapChainImageViews.size(); i++)
     {
-        vkDestroyImageView(_device.device(), _swapChainImageViews[i], nullptr);
+        _device.device().destroyImageView(_swapChainImageViews[i], nullptr);
     }
     _swapChainImageViews.clear();
 
     if (_swapChain != nullptr)
     {
-        vkDestroySwapchainKHR(_device.device(), _swapChain, nullptr);
+        _device.device().destroySwapchainKHR(_swapChain, nullptr);
         _swapChain = nullptr;
     }
 
     // cleanup synchronization objects
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        vkDestroySemaphore(_device.device(), _renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(_device.device(), _imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(_device.device(), _inFlightFences[i], nullptr);
+        _device.device().destroySemaphore(_renderFinishedSemaphores[i], nullptr);
+        _device.device().destroySemaphore(_imageAvailableSemaphores[i], nullptr);
+        _device.device().destroyFence(_inFlightFences[i], nullptr);
     }
 
     _freed = true;

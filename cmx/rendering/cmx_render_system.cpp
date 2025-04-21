@@ -176,7 +176,7 @@ void RenderSystem::checkAspectRatio(Camera *camera)
     float aspect = _renderer->getAspectRatio();
     camera->updateAspectRatio(aspect);
 
-    if (_imageResolution != _window->getExtent())
+    if (_window->wasWindowResized())
     {
         freeImages();
         initializeScreenTextures();
@@ -199,8 +199,8 @@ FrameInfo *RenderSystem::beginCommandBuffer()
 void RenderSystem::beginRender(FrameInfo *frameInfo, const LightEnvironment *lightEnvironment) const
 {
     static std::array<vk::ClearValue, 3> clearValues{};
-    clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
-    clearValues[1].color = {0.1f, 0.1f, 0.1f, 1.0f};
+    clearValues[0].color = {1.0f, 1.0f, 1.0f, 1.0f};
+    clearValues[1].color = {1.0f, 1.0f, 1.0f, 1.0f};
     clearValues[2].depthStencil = vk::ClearDepthStencilValue{1.0f, 0};
 
     vk::RenderPassBeginInfo renderPassBeginInfo{};
@@ -228,7 +228,6 @@ void RenderSystem::beginRender(FrameInfo *frameInfo, const LightEnvironment *lig
 void RenderSystem::endRender(FrameInfo *frameInfo) const
 {
     frameInfo->commandBuffer.endRenderPass();
-    // transitionImages(frameInfo);
 }
 
 void RenderSystem::beginPostProcess(FrameInfo *frameInfo) const
@@ -401,24 +400,11 @@ void RenderSystem::createRenderPass()
     subpass.colorAttachmentCount = 2;
     subpass.pColorAttachments = colorAttachmentRefs;
 
-    // vk::SubpassDependency dependency = {};
-    // dependency.dstSubpass = 0;
-    // dependency.dstAccessMask =
-    //     vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-    // dependency.dstStageMask =
-    //     vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-    // dependency.srcSubpass = vk::SubpassExternal;
-    // dependency.srcAccessMask = vk::AccessFlagBits::eNone;
-    // dependency.srcStageMask =
-    //     vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-
     vk::RenderPassCreateInfo renderPassInfo{};
     renderPassInfo.attachmentCount = 3;
     renderPassInfo.pAttachments = attachments;
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
-    // renderPassInfo.dependencyCount = 1;
-    // renderPassInfo.pDependencies = &dependency;
 
     if (_device->device().createRenderPass(&renderPassInfo, nullptr, &_renderPass) != vk::Result::eSuccess)
     {
@@ -496,61 +482,18 @@ void RenderSystem::freeImages()
 {
     _device->device().destroyFramebuffer(_framebuffer);
     _device->device().destroyRenderPass(_renderPass);
+    _device->device().destroySampler(_colorSampler);
+    _device->device().destroyImageView(_colorImageView);
+    _device->device().destroyImage(_colorImage);
+    _device->device().freeMemory(_colorImageMemory);
+    _device->device().destroySampler(_normalSampler);
+    _device->device().destroyImageView(_normalImageView);
+    _device->device().destroyImage(_normalImage);
+    _device->device().freeMemory(_normalImageMemory);
     _device->device().destroySampler(_depthSampler);
     _device->device().destroyImageView(_depthImageView);
     _device->device().destroyImage(_depthImage);
     _device->device().freeMemory(_depthImageMemory);
-}
-
-void RenderSystem::transitionImages(FrameInfo *frameInfo) const
-{
-    vk::ImageMemoryBarrier depthBarrier{};
-    depthBarrier.image = _depthImage;
-    depthBarrier.oldLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-    depthBarrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    depthBarrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-    depthBarrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-    depthBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
-    depthBarrier.subresourceRange.baseMipLevel = 0;
-    depthBarrier.subresourceRange.levelCount = 1;
-    depthBarrier.subresourceRange.baseArrayLayer = 0;
-    depthBarrier.subresourceRange.layerCount = 1;
-
-    frameInfo->commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eLateFragmentTests,
-                                             vk::PipelineStageFlagBits::eFragmentShader, {}, 0, nullptr, 0, nullptr, 1,
-                                             &depthBarrier);
-
-    vk::ImageMemoryBarrier colorBarrier{};
-    colorBarrier.image = _colorImage;
-    colorBarrier.oldLayout = vk::ImageLayout::eColorAttachmentOptimal;
-    colorBarrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    colorBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-    colorBarrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-    colorBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    colorBarrier.subresourceRange.baseMipLevel = 0;
-    colorBarrier.subresourceRange.levelCount = 1;
-    colorBarrier.subresourceRange.baseArrayLayer = 0;
-    colorBarrier.subresourceRange.layerCount = 1;
-
-    frameInfo->commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                             vk::PipelineStageFlagBits::eFragmentShader, {}, 0, nullptr, 0, nullptr, 1,
-                                             &colorBarrier);
-
-    vk::ImageMemoryBarrier normalBarrier{};
-    normalBarrier.image = _normalImage;
-    normalBarrier.oldLayout = vk::ImageLayout::eColorAttachmentOptimal;
-    normalBarrier.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    normalBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-    normalBarrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-    normalBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    normalBarrier.subresourceRange.baseMipLevel = 0;
-    normalBarrier.subresourceRange.levelCount = 1;
-    normalBarrier.subresourceRange.baseArrayLayer = 0;
-    normalBarrier.subresourceRange.layerCount = 1;
-
-    frameInfo->commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                                             vk::PipelineStageFlagBits::eFragmentShader, {}, 0, nullptr, 0, nullptr, 1,
-                                             &normalBarrier);
 }
 
 void RenderSystem::writeUbo(FrameInfo *frameInfo, GlobalUbo *ubo)

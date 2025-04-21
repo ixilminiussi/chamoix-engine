@@ -29,18 +29,18 @@ class PostOutlineMaterial : public Material
   protected:
     struct PushConstantData
     {
-        glm::vec2 colorEdgeSettings;
-        glm::vec2 normalEdgeSettings;
-        glm::vec2 depthEdgeSettings;
+        float colorEdgeThickness, colorEdgeThreshold, colorDepthFactor;
+        float normalEdgeThickness, normalEdgeThreshold, normalDepthFactor;
+        float depthEdgeThickness, depthEdgeThreshold, depthDepthFactor;
         float nearPlane, farPlane;
     };
 
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
-    float _depthEdgeThickness{3.f}, _depthEdgeThreshold{1.5f};
-    float _normalEdgeThickness, _normalEdgeThreshold;
-    float _colorEdgeThickness, _colorEdgeThreshold;
+    float _depthEdgeThickness{3.f}, _depthEdgeThreshold{1.5f}, _depthDepthFactor{1.};
+    float _normalEdgeThickness, _normalEdgeThreshold, _normalDepthFactor;
+    float _colorEdgeThickness, _colorEdgeThreshold, _colorDepthFactor;
 };
 
 } // namespace cmx

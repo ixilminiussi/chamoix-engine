@@ -100,8 +100,6 @@ class RenderSystem
     void createFrameBuffer();
     void createSamplers();
 
-    void transitionImages(class FrameInfo *) const;
-
     void freeImages();
 
     vk::Format _colorFormat;

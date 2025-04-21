@@ -10,15 +10,21 @@ layout(location = 0) out vec4 outColor;
 
 layout(push_constant) uniform Push
 {
-    vec2 colorSettings;
-    vec2 normalSettings;
-    vec2 depthSettings;
+    float colorEdgeThickness;
+    float colorEdgeThreshold;
+    float colorDepthFactor;
+    float normalEdgeThickness;
+    float normalEdgeThreshold;
+    float normalDepthFactor;
+    float depthEdgeThickness;
+    float depthEdgeThreshold;
+    float depthDepthFactor;
     float nearPlane;
     float farPlane;
 }
 push;
 
-float linearizeDepth(float depth, float near, float far)
+float linearizedDepth(float depth, float near, float far)
 {
     float z = depth * 2.0 - 1.0;
     return (2.0 * near * far) / (far + near - z * (far - near));
@@ -28,15 +34,17 @@ bool isDepthEdge(vec2 uv, float threshold, float edgeThickness)
 {
     const vec2 texelSize = (0.2 * edgeThickness) / textureSize(sDepth, 0);
 
-    float sampleN = linearizeDepth(texture(sDepth, uv + vec2(0.0, texelSize.y)).r, push.nearPlane, push.farPlane);
-    float sampleS = linearizeDepth(texture(sDepth, uv + vec2(0.0, -texelSize.y)).r, push.nearPlane, push.farPlane);
-    float sampleE = linearizeDepth(texture(sDepth, uv + vec2(texelSize.x, 0.0)).r, push.nearPlane, push.farPlane);
-    float sampleW = linearizeDepth(texture(sDepth, uv + vec2(-texelSize.x, 0.0)).r, push.nearPlane, push.farPlane);
-    float sampleNE = linearizeDepth(texture(sDepth, uv + texelSize * vec2(1.0, 1.0)).r, push.nearPlane, push.farPlane);
-    float sampleNW = linearizeDepth(texture(sDepth, uv + texelSize * vec2(-1.0, 1.0)).r, push.nearPlane, push.farPlane);
-    float sampleSE = linearizeDepth(texture(sDepth, uv + texelSize * vec2(1.0, -1.0)).r, push.nearPlane, push.farPlane);
+    float sampleN = linearizedDepth(texture(sDepth, uv + vec2(0.0, texelSize.y)).r, push.nearPlane, push.farPlane);
+    float sampleS = linearizedDepth(texture(sDepth, uv + vec2(0.0, -texelSize.y)).r, push.nearPlane, push.farPlane);
+    float sampleE = linearizedDepth(texture(sDepth, uv + vec2(texelSize.x, 0.0)).r, push.nearPlane, push.farPlane);
+    float sampleW = linearizedDepth(texture(sDepth, uv + vec2(-texelSize.x, 0.0)).r, push.nearPlane, push.farPlane);
+    float sampleNE = linearizedDepth(texture(sDepth, uv + texelSize * vec2(1.0, 1.0)).r, push.nearPlane, push.farPlane);
+    float sampleNW =
+        linearizedDepth(texture(sDepth, uv + texelSize * vec2(-1.0, 1.0)).r, push.nearPlane, push.farPlane);
+    float sampleSE =
+        linearizedDepth(texture(sDepth, uv + texelSize * vec2(1.0, -1.0)).r, push.nearPlane, push.farPlane);
     float sampleSW =
-        linearizeDepth(texture(sDepth, uv + texelSize * vec2(-1.0, -1.0)).r, push.nearPlane, push.farPlane);
+        linearizedDepth(texture(sDepth, uv + texelSize * vec2(-1.0, -1.0)).r, push.nearPlane, push.farPlane);
 
     float gx = sampleNW - sampleNE + 2.0 * sampleW - 2.0 * sampleE + sampleSW - sampleSE;
 
@@ -75,12 +83,18 @@ bool isNormalEdge(vec2 uv, float threshold, float edgeThickness)
 
 void main()
 {
-    if (push.depthSettings.x > 0. && isDepthEdge(inUV, push.depthSettings.y, push.depthSettings.x))
+    const float depth = linearizedDepth(texture(sDepth, inUV, 1.).r, push.nearPlane, push.farPlane);
+    const float depthFactor = 1. / depth;
+
+    if (push.depthEdgeThickness > 0. &&
+        isDepthEdge(inUV, push.depthEdgeThreshold * depth * push.depthDepthFactor, push.depthEdgeThickness))
     {
         outColor = vec4(1.0);
         return;
     }
-    if (push.normalSettings.x > 0. && isNormalEdge(inUV, push.normalSettings.y, push.normalSettings.x))
+    if (push.normalEdgeThickness > 0. &&
+        isNormalEdge(inUV, push.normalEdgeThreshold * depth * push.depthDepthFactor,
+                     push.normalEdgeThickness / max(1.0, (depth * push.normalDepthFactor))))
     {
         outColor = vec4(1.0);
         return;

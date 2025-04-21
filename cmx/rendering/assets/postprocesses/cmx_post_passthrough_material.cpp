@@ -1,6 +1,7 @@
 #include "cmx_post_passthrough_material.h"
 
 // cmx
+#include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
 #include "cmx_graphics_manager.h"
@@ -38,6 +39,8 @@ void PostPassthroughMaterial::bind(FrameInfo *frameInfo, const Drawable *)
 
     PushConstantData push{};
     push.status = _status;
+    push.nearPlane = frameInfo->camera->getNearPlane();
+    push.farPlane = frameInfo->camera->getFarPlane();
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,

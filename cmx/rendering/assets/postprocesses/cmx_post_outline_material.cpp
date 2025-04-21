@@ -4,7 +4,6 @@
 #include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
-#include "cmx_graphics_manager.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
@@ -38,9 +37,15 @@ void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
     }
 
     PushConstantData push{};
-    push.colorEdgeSettings = {_colorEdgeThickness, _colorEdgeThreshold};
-    push.normalEdgeSettings = {_normalEdgeThickness, _normalEdgeThreshold};
-    push.depthEdgeSettings = {_depthEdgeThickness, _depthEdgeThreshold};
+    push.colorEdgeThickness = _colorEdgeThickness;
+    push.colorEdgeThreshold = _colorEdgeThreshold;
+    push.colorDepthFactor = _colorDepthFactor;
+    push.normalEdgeThickness = _normalEdgeThickness;
+    push.normalEdgeThreshold = _normalEdgeThreshold;
+    push.normalDepthFactor = _normalDepthFactor;
+    push.depthEdgeThickness = _depthEdgeThickness;
+    push.depthEdgeThreshold = _depthEdgeThreshold;
+    push.depthDepthFactor = _depthDepthFactor;
     push.nearPlane = frameInfo->camera->getNearPlane();
     push.farPlane = frameInfo->camera->getFarPlane();
 
@@ -57,13 +62,15 @@ void PostOutlineMaterial::editor()
     {
         ImGui::DragFloat("Line thickness##Color", &_colorEdgeThickness, 1.f, 0.f, 20.f);
         ImGui::DragFloat("Edge threshold##Color", &_colorEdgeThreshold, 0.05f, 0.f, 1.f);
+        ImGui::DragFloat("Depth factor##Color", &_colorDepthFactor, 0.05f, 0.f, 5.f);
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNode("Normal"))
     {
         ImGui::DragFloat("Line thickness##Normal", &_normalEdgeThickness, 1.f, 0.f, 20.f);
-        ImGui::DragFloat("Edge threshold##Normal", &_normalEdgeThreshold, 0.05f, 0.f, 100.f);
+        ImGui::DragFloat("Edge threshold##Normal", &_normalEdgeThreshold, 0.01f, 0.f, 1.f);
+        ImGui::DragFloat("Depth factor##Depth", &_normalDepthFactor, 0.01f, 0.01f, .5f);
         ImGui::TreePop();
     }
 
@@ -71,6 +78,7 @@ void PostOutlineMaterial::editor()
     {
         ImGui::DragFloat("Line thickness##Depth", &_depthEdgeThickness, 1.f, 0.f, 20.f);
         ImGui::DragFloat("Edge threshold##Depth", &_depthEdgeThreshold, 0.05f, 0.f, 10.f);
+        ImGui::DragFloat("Depth factor##Depth", &_depthDepthFactor, 0.01f, 0.01f, .5f);
         ImGui::TreePop();
     }
 }
