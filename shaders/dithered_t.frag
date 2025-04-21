@@ -197,7 +197,6 @@ vec2 flattenUVs()
     vec2 dx = dFdx(inUV);
     vec2 dy = dFdy(inUV);
 
-    const float max = 4.0;
     // Compute the length (magnitude) of the change in each direction
     float lenX = length(dx);
     float lenY = length(dy);

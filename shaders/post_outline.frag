@@ -10,6 +10,7 @@ layout(location = 0) out vec4 outColor;
 
 layout(push_constant) uniform Push
 {
+    vec3 edgeColor;
     float colorEdgeThickness;
     float colorEdgeThreshold;
     float colorDepthFactor;
@@ -89,14 +90,14 @@ void main()
     if (push.depthEdgeThickness > 0. &&
         isDepthEdge(inUV, push.depthEdgeThreshold * depth * push.depthDepthFactor, push.depthEdgeThickness))
     {
-        outColor = vec4(1.0);
+        outColor = vec4(push.edgeColor, 1.0);
         return;
     }
     if (push.normalEdgeThickness > 0. &&
         isNormalEdge(inUV, push.normalEdgeThreshold * depth * push.depthDepthFactor,
                      push.normalEdgeThickness / max(1.0, (depth * push.normalDepthFactor))))
     {
-        outColor = vec4(1.0);
+        outColor = vec4(push.edgeColor, 1.0);
         return;
     }
 

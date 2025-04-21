@@ -29,6 +29,7 @@ class PostOutlineMaterial : public Material
   protected:
     struct PushConstantData
     {
+        glm::vec3 edgeColor;
         float colorEdgeThickness, colorEdgeThreshold, colorDepthFactor;
         float normalEdgeThickness, normalEdgeThreshold, normalDepthFactor;
         float depthEdgeThickness, depthEdgeThreshold, depthDepthFactor;
@@ -38,8 +39,9 @@ class PostOutlineMaterial : public Material
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
-    float _depthEdgeThickness{3.f}, _depthEdgeThreshold{1.5f}, _depthDepthFactor{1.};
-    float _normalEdgeThickness, _normalEdgeThreshold, _normalDepthFactor;
+    glm::vec3 _edgeColor{1.f};
+    float _depthEdgeThickness{3.f}, _depthEdgeThreshold{0.5f}, _depthDepthFactor{0.51f};
+    float _normalEdgeThickness{3.f}, _normalEdgeThreshold{0.04f}, _normalDepthFactor{0.04f};
     float _colorEdgeThickness, _colorEdgeThreshold, _colorDepthFactor;
 };
 

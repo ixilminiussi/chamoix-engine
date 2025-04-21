@@ -37,6 +37,7 @@ void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
     }
 
     PushConstantData push{};
+    push.edgeColor = _edgeColor;
     push.colorEdgeThickness = _colorEdgeThickness;
     push.colorEdgeThreshold = _colorEdgeThreshold;
     push.colorDepthFactor = _colorDepthFactor;
@@ -57,6 +58,8 @@ void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
 void PostOutlineMaterial::editor()
 {
     Material::editor();
+
+    ImGui::ColorPicker3("Edge Color##Outline", (float *)&_edgeColor);
 
     if (ImGui::TreeNode("Color"))
     {

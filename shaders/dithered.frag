@@ -57,9 +57,11 @@ float getLuminance(vec3 color)
 
 vec2 getUVFrequency()
 {
+    // get partial derivative of UVs in respect to screen space x and y
     vec2 dx = dFdx(inUV);
     vec2 dy = dFdy(inUV);
 
+    // uses eigen value to determine the two principal rates of change
     mat2 matr = {dx, dy};
     vec4 vectorized = vec4(dx, dy);
     float Q = dot(vectorized, vectorized);
@@ -151,7 +153,6 @@ vec2 flattenUVs()
     vec2 dx = dFdx(inUV);
     vec2 dy = dFdy(inUV);
 
-    const float max = 4.0;
     // Compute the length (magnitude) of the change in each direction
     float lenX = length(dx);
     float lenY = length(dy);

@@ -2,7 +2,7 @@
 <scene name="sponza">
     <assets>
         <material type="cmx::BillboardMaterial" vertex="shaders/billboard.vert.spv" fragment="shaders/billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
-        <material type="cmx::DitheredMaterial" vertex="shaders/dithered.vert.spv" fragment="shaders/dithered.frag.spv" editorOnly="false" scale="3.7" threshold="0.85600001" dotsToggle="true" name="dithered_material">
+        <material type="cmx::DitheredMaterial" vertex="shaders/dithered.vert.spv" fragment="shaders/dithered.frag.spv" editorOnly="false" scale="3.5" threshold="1.4630001" dotsToggle="true" name="dithered_material">
             <lightColor r="1" g="1" b="1"/>
             <darkColor r="0" g="0" b="0"/>
         </material>
@@ -39,8 +39,37 @@
         <model filepath="assets/models_sponza/wooden_parts.obj" name="wooden_parts"/>
         <texture filepath="assets/textures_sponza/arch_stone_wall_01_BaseColor.png" name="arch_stone_wall_01"/>
         <texture filepath="assets/textures_sponza/brickwall_01_BaseColor.png" name="brickwall_01"/>
+        <texture filepath="assets/textures_sponza/brickwall_02_BaseColor.png" name="brickwall_02"/>
+        <texture filepath="assets/textures_sponza/ceiling_plaster_01_BaseColor.png" name="ceiling_plaster_01"/>
+        <texture filepath="assets/textures_sponza/ceiling_plaster_02_BaseColor.png" name="ceiling_plaster_02"/>
         <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
         <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
+        <texture filepath="assets/textures_sponza/col_brickwall_01_BaseColor.png" name="col_brickwall_01"/>
+        <texture filepath="assets/textures_sponza/col_head_1stfloor_BaseColor.png" name="col_head_1stfloor"/>
+        <texture filepath="assets/textures_sponza/col_head_2ndfloor_02_BaseColor.png" name="col_head_2ndfloor_02"/>
+        <texture filepath="assets/textures_sponza/col_head_2ndfloor_03_BaseColor.png" name="col_head_2ndfloor_03"/>
+        <texture filepath="assets/textures_sponza/column_1stfloor_BaseColor.png" name="column_1stfloor"/>
+        <texture filepath="assets/textures_sponza/column_brickwall_01_BaseColor.png" name="column_brickwall_01"/>
+        <texture filepath="assets/textures_sponza/column_head_1stfloor_BaseColor.png" name="column_head_1stfloor"/>
+        <texture filepath="assets/textures_sponza/column_head_2ndfloor_02_BaseColor.png" name="column_head_2ndfloor_02"/>
+        <texture filepath="assets/textures_sponza/column_head_2ndfloor_03_BaseColor.png" name="column_head_2ndfloor_03"/>
+        <texture filepath="assets/textures_sponza/curtain_fabric_blue_BaseColor.png" name="curtain_fabric_blue"/>
+        <texture filepath="assets/textures_sponza/curtain_fabric_green_BaseColor.png" name="curtain_fabric_green"/>
+        <texture filepath="assets/textures_sponza/curtain_fabric_red_BaseColor.png" name="curtain_fabric_red"/>
+        <texture filepath="assets/textures_sponza/door_stoneframe_01_BaseColor.png" name="door_stoneframe_01"/>
+        <texture filepath="assets/textures_sponza/door_stoneframe_02_BaseColor.png" name="door_stoneframe_02"/>
+        <texture filepath="assets/textures_sponza/floor_tiles_01_BaseColor.png" name="floor_tiles_01"/>
+        <texture filepath="assets/textures_sponza/lionhead_01_BaseColor.png" name="lionhead_01"/>
+        <texture filepath="assets/textures_sponza/metal_door_01_BaseColor.png" name="metal_door_01"/>
+        <texture filepath="assets/textures_sponza/ornament_01_BaseColor.png" name="ornament_01"/>
+        <texture filepath="assets/textures_sponza/roof_tiles_01_BaseColor.png" name="roof_tiles_01"/>
+        <texture filepath="assets/textures_sponza/stone_01_tile_BaseColor.png" name="stone_01_tile"/>
+        <texture filepath="assets/textures_sponza/stone_trims_01_BaseColor.png" name="stone_trims_01"/>
+        <texture filepath="assets/textures_sponza/stone_trims_02_BaseColor.png" name="stone_trims_02"/>
+        <texture filepath="assets/textures_sponza/stones_2ndfloor_01_BaseColor.png" name="stones_2ndfloor_01"/>
+        <texture filepath="assets/textures_sponza/window_frame_01_BaseColor.png" name="window_frame_01"/>
+        <texture filepath="assets/textures_sponza/wood_door_01_BaseColor.png" name="wood_door_01"/>
+        <texture filepath="assets/textures_sponza/wood_tile_01_BaseColor.png" name="wood_tile_01"/>
         <texture name="cmx_radial_dithering_hd">
             <layer filepath="assets/cmx/dithering/radial17.png"/>
             <layer filepath="assets/cmx/dithering/radial18.png"/>
@@ -92,7 +121,7 @@
             <layer filepath="assets/cmx/dithering/radial64.png"/>
         </texture>
     </assets>
-    <lightEnvironment timeOfDay="14.75">
+    <lightEnvironment timeOfDay="13.75">
         <sun axis="0">
             <gradient>
                 <mark position="0.352" r="0.55000001" g="0.5" b="1"/>
@@ -105,8 +134,8 @@
     <actor type="cmx::MeshActor" name="Sponza" id="1" visible="true">
         <transform>
             <position x="0" y="0" z="7"/>
-            <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
-            <scale x="3" y="3" z="3"/>
+            <rotation pitch="0.9953962" yaw="-4.1895727e-09" roll="-0.095845744" w="-4.3510351e-08"/>
+            <scale x="3.0000026" y="2.9999862" z="2.9999807"/>
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
