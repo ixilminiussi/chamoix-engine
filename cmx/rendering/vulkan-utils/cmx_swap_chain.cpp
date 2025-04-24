@@ -213,7 +213,7 @@ void SwapChain::createSwapChain()
 
     // we only specified a minimum number of images in the swap chain, so the implementation is
     // allowed to create a swap chain with more. That's why we'll first query the final number of
-    // images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
+    // images with getSwapchainImagesKHR, then resize the container and finally call it again to
     // retrieve the handles.
     if (_device.device().getSwapchainImagesKHR(_swapChain, &imageCount, nullptr) != vk::Result::eSuccess)
     {

@@ -178,7 +178,21 @@ void RenderSystem::checkAspectRatio(Camera *camera)
 
     if (_window->wasWindowResized())
     {
-        freeImages();
+        _device->device().destroyFramebuffer(_framebuffer);
+        _device->device().destroyRenderPass(_renderPass);
+        freeSamplerDescriptor(_samplerDescriptorSetIDs[0]);
+        _device->device().destroyImageView(_colorImageView);
+        _device->device().destroyImage(_colorImage);
+        _device->device().freeMemory(_colorImageMemory);
+        freeSamplerDescriptor(_samplerDescriptorSetIDs[1]);
+        _device->device().destroyImageView(_normalImageView);
+        _device->device().destroyImage(_normalImage);
+        _device->device().freeMemory(_normalImageMemory);
+        freeSamplerDescriptor(_samplerDescriptorSetIDs[2]);
+        _device->device().destroyImageView(_depthImageView);
+        _device->device().destroyImage(_depthImage);
+        _device->device().freeMemory(_depthImageMemory);
+
         initializeScreenTextures();
     }
 }
@@ -434,62 +448,73 @@ void RenderSystem::createFrameBuffer()
 
 void RenderSystem::createSamplers()
 {
-    vk::SamplerCreateInfo colorSamplerCreateInfo{};
-    colorSamplerCreateInfo.magFilter = vk::Filter::eLinear;
-    colorSamplerCreateInfo.minFilter = vk::Filter::eLinear;
-    colorSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-    colorSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-    colorSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-    colorSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
-    colorSamplerCreateInfo.unnormalizedCoordinates = false;
-    colorSamplerCreateInfo.compareEnable = true;
+    if (!_colorSampler)
+    {
+        vk::SamplerCreateInfo colorSamplerCreateInfo{};
+        colorSamplerCreateInfo.magFilter = vk::Filter::eLinear;
+        colorSamplerCreateInfo.minFilter = vk::Filter::eLinear;
+        colorSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        colorSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        colorSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        colorSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        colorSamplerCreateInfo.unnormalizedCoordinates = false;
+        colorSamplerCreateInfo.compareEnable = true;
 
-    _colorSampler = _device->device().createSampler(colorSamplerCreateInfo);
+        _colorSampler = _device->device().createSampler(colorSamplerCreateInfo);
+    }
 
-    _samplerDescriptorSetIDs[0] = RenderSystem::getInstance()->createSamplerDescriptor(_colorImageView, _colorSampler);
+    _samplerDescriptorSetIDs[0] = createSamplerDescriptor(_colorImageView, _colorSampler);
 
-    vk::SamplerCreateInfo normalSamplerCreateInfo{};
-    normalSamplerCreateInfo.magFilter = vk::Filter::eLinear;
-    normalSamplerCreateInfo.minFilter = vk::Filter::eLinear;
-    normalSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-    normalSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-    normalSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-    normalSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
-    normalSamplerCreateInfo.unnormalizedCoordinates = false;
-    normalSamplerCreateInfo.compareEnable = true;
+    if (!_normalSampler)
+    {
+        vk::SamplerCreateInfo normalSamplerCreateInfo{};
+        normalSamplerCreateInfo.magFilter = vk::Filter::eLinear;
+        normalSamplerCreateInfo.minFilter = vk::Filter::eLinear;
+        normalSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        normalSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        normalSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        normalSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        normalSamplerCreateInfo.unnormalizedCoordinates = false;
+        normalSamplerCreateInfo.compareEnable = true;
 
-    _normalSampler = _device->device().createSampler(normalSamplerCreateInfo);
+        _normalSampler = _device->device().createSampler(normalSamplerCreateInfo);
+    }
 
-    _samplerDescriptorSetIDs[1] =
-        RenderSystem::getInstance()->createSamplerDescriptor(_normalImageView, _normalSampler);
+    _samplerDescriptorSetIDs[1] = createSamplerDescriptor(_normalImageView, _normalSampler);
 
-    vk::SamplerCreateInfo depthSamplerCreateInfo{};
-    depthSamplerCreateInfo.magFilter = vk::Filter::eLinear;
-    depthSamplerCreateInfo.minFilter = vk::Filter::eLinear;
-    depthSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-    depthSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-    depthSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-    depthSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
-    depthSamplerCreateInfo.unnormalizedCoordinates = false;
-    depthSamplerCreateInfo.compareEnable = true;
+    if (!_depthSampler)
+    {
+        vk::SamplerCreateInfo depthSamplerCreateInfo{};
+        depthSamplerCreateInfo.magFilter = vk::Filter::eLinear;
+        depthSamplerCreateInfo.minFilter = vk::Filter::eLinear;
+        depthSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        depthSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        depthSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        depthSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        depthSamplerCreateInfo.unnormalizedCoordinates = false;
+        depthSamplerCreateInfo.compareEnable = true;
 
-    _depthSampler = _device->device().createSampler(depthSamplerCreateInfo);
+        _depthSampler = _device->device().createSampler(depthSamplerCreateInfo);
+    }
 
-    _samplerDescriptorSetIDs[2] = RenderSystem::getInstance()->createSamplerDescriptor(_depthImageView, _depthSampler);
+    _samplerDescriptorSetIDs[2] = createSamplerDescriptor(_depthImageView, _depthSampler);
 }
 
 void RenderSystem::freeImages()
 {
     _device->device().destroyFramebuffer(_framebuffer);
     _device->device().destroyRenderPass(_renderPass);
+    freeSamplerDescriptor(_samplerDescriptorSetIDs[0]);
     _device->device().destroySampler(_colorSampler);
     _device->device().destroyImageView(_colorImageView);
     _device->device().destroyImage(_colorImage);
     _device->device().freeMemory(_colorImageMemory);
+    freeSamplerDescriptor(_samplerDescriptorSetIDs[1]);
     _device->device().destroySampler(_normalSampler);
     _device->device().destroyImageView(_normalImageView);
     _device->device().destroyImage(_normalImage);
     _device->device().freeMemory(_normalImageMemory);
+    freeSamplerDescriptor(_samplerDescriptorSetIDs[2]);
     _device->device().destroySampler(_depthSampler);
     _device->device().destroyImageView(_depthImageView);
     _device->device().destroyImage(_depthImage);

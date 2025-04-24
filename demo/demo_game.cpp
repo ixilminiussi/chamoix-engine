@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-Demo::Demo() : mainScene{"scenes/sponza.xml", this, "sponza"}
+Demo::Demo() : mainScene{"scenes/demo-scene.xml", this, "sponza"}
 {
     cmx::Register &cmxRegister = cmx::Register::getInstance();
 }
