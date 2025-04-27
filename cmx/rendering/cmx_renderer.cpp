@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <glm/ext/scalar_constants.hpp>
 #include <spdlog/common.h>
+#include <spdlog/fmt/bundled/base.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -178,13 +179,16 @@ void Renderer::beginSwapChainRenderPass(vk::CommandBuffer commandBuffer)
     static vk::Viewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(_swapChain->getSwapChainExtent().width);
-    viewport.height = static_cast<float>(_swapChain->getSwapChainExtent().height);
+    viewport.width = static_cast<float>(_swapChain->width());
+    viewport.height = static_cast<float>(_swapChain->height());
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    static vk::Rect2D scissor{{0, 0}, _swapChain->getSwapChainExtent()};
+    static vk::Rect2D scissor{};
+    scissor.offset = vk::Offset2D{0, 0};
+    scissor.extent = _swapChain->getSwapChainExtent();
     commandBuffer.setViewport(0, 1, &viewport);
     commandBuffer.setScissor(0, 1, &scissor);
+    spdlog::info("viewport width : {0}, viewport height : {1}", scissor.extent.width, scissor.extent.height);
 }
 
 void Renderer::endSwapChainRenderPass(vk::CommandBuffer commandBuffer)
