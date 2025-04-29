@@ -46,7 +46,7 @@ Material::Material(const std::string &vertPath, const std::string &fragPath, siz
 
 void Material::editor()
 {
-    ImGui::Text("Misc:");
+    ImGui::Text("Material:");
     ImGui::Checkbox("visible", &_isVisible);
     ImGui::SameLine();
     ImGui::Checkbox("editor only", &_editorOnly);

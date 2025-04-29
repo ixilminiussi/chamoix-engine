@@ -1,7 +1,6 @@
 #include "cmx_graphics_manager.h"
 
 // cmx
-#include "IconsMaterialSymbols.h"
 #include "cmx_assets_manager.h"
 #include "cmx_camera.h"
 #include "cmx_drawable.h"
@@ -13,9 +12,11 @@
 #include "cmx_post_passthrough_material.h"
 #include "cmx_render_system.h"
 #include "cmx_texture.h"
+#include "cmx_utils.h"
 #include "imgui.h"
 
 // lib
+#include <IconsMaterialSymbols.h>
 #include <immintrin.h>
 #include <spdlog/spdlog.h>
 
@@ -27,7 +28,7 @@ std::vector<size_t> GraphicsManager::_shadowMapDescriptorSetIDs{};
 GraphicsManager::GraphicsManager() : _drawableRenderQueue{}
 {
     _renderSystem = RenderSystem::getInstance();
-    _postProcessMaterials = {new PostPassthroughMaterial(), new PostOutlineMaterial()};
+    _postProcessMaterials = {new PostPassthroughMaterial()};
 
     for (Material *material : _postProcessMaterials)
     {
@@ -190,14 +191,79 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
 
 void GraphicsManager::editor(AssetsManager *assetsManager)
 {
+    auto it = _postProcessMaterials.begin();
     int i = 0;
-    for (Material *material : _postProcessMaterials)
+
+    while (it != _postProcessMaterials.end())
     {
-        ImGui::PushID(i);
-        material->editor();
+        ImGui::PushID(i++);
+        Material *material = *it;
+        if (material)
+        {
+            ImGui::Text("%s", material->name.c_str());
+            if (i > 0)
+            {
+                ImGui::SameLine();
+                if (ImGui::Button(ICON_MS_DELETE))
+                {
+                    _postProcessMaterials.erase(it);
+                    ImGui::PopID();
+                    continue;
+                }
+            }
+            material->editor();
+        }
+
+        it++;
         ImGui::PopID();
-        i++;
     }
+
+    // add new post process material
+    static const char *selected = assetsManager->getPostProcesses().begin()->first.c_str();
+
+    ImGui::SeparatorText("New Post Process");
+    ImGui::PushID(i++);
+    ImGui::SetNextItemWidth(170);
+    if (ImGui::BeginCombo("##Material", selected))
+    {
+        for (const auto &[name, material] : assetsManager->getPostProcesses())
+        {
+            bool isSelected = (strcmp(selected, name.c_str()) == 0);
+
+            if (ImGui::Selectable(name.c_str(), isSelected) && !isSelected)
+            {
+                selected = name.c_str();
+                isSelected = true;
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+    ImGui::PopID();
+
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_MS_ADD))
+    {
+        std::string name = std::string(selected);
+        Material *newPostProcess = assetsManager->getPostProcess(selected);
+        newPostProcess->name = name;
+        addPostProcess(assetsManager->getPostProcess(selected));
+    }
+}
+
+void GraphicsManager::addPostProcess(class Material *material)
+{
+    if (material == nullptr)
+    {
+        return;
+    }
+
+    _postProcessMaterials.push_back(material);
 }
 
 const std::vector<size_t> &GraphicsManager::getDescriptorSetIDs()

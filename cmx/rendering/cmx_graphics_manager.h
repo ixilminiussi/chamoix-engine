@@ -28,6 +28,8 @@ class GraphicsManager
     void editor(class AssetsManager *assetsManager);
 
   private:
+    void addPostProcess(class Material *material);
+
     std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> _drawableRenderQueue;
 
     // warning flags

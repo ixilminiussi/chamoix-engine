@@ -449,13 +449,13 @@ void ViewportUI::renderSceneTree()
     ImGui::SetNextItemWidth(170);
     if (ImGui::BeginCombo("##", selected))
     {
-        for (const auto &pair : _cmxRegister->getActorRegister())
+        for (const auto &[name, func] : _cmxRegister->getActorRegister())
         {
-            bool isSelected = (strcmp(selected, pair.first.c_str()) == 0);
+            bool isSelected = (strcmp(selected, name.c_str()) == 0);
 
-            if (ImGui::Selectable(pair.first.c_str(), isSelected))
+            if (ImGui::Selectable(name.c_str(), isSelected))
             {
-                selected = pair.first.c_str();
+                selected = name.c_str();
             }
 
             if (isSelected)
