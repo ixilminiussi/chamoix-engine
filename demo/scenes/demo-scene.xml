@@ -12,6 +12,8 @@
         <material type="cmx::ParallaxMaterial" vertex="shaders/parallax.vert.spv" fragment="shaders/parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.02" occlusionMapping="true" layerCount="12" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(1)"/>
+        <postProcess type="cmx::PostOutlineMaterial" vertex="shaders/postprocess.vert.spv" fragment="shaders/post_outline.frag.spv" editorOnly="false" name="outline_postprocess"/>
+        <postProcess type="cmx::PostPassthroughMaterial" vertex="shaders/postprocess.vert.spv" fragment="shaders/post_passthrough.frag.spv" editorOnly="false" status="88" name="passthrough_postprocess"/>
         <model filepath="assets/cmx/camera.obj" name="cmx_camera"/>
         <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
         <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
@@ -107,6 +109,7 @@
             </gradient>
         </sun>
     </lightEnvironment>
+    <graphicsManager t1="outline_postprocess"/>
     <actor type="cmx::Actor" name="Penguin(2)" id="11" visible="true">
         <transform>
             <position x="3" y="0" z="7"/>

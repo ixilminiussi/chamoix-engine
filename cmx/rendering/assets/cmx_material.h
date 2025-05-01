@@ -57,21 +57,29 @@ struct BindingInfo
 };
 
 #define CLONEABLE_MATERIAL(Type)                                                                                       \
-    Type(std::string vertFilepath, std::string fragFilepath, size_t id, bool modelBased, bool editorOnly,              \
+    Type(std::string vertFilepath, std::string fragFilepath, size_t id, bool modelBased, Role role, bool editorOnly,   \
          bool doNotSave)                                                                                               \
-        : Material{vertFilepath, fragFilepath, id, modelBased, editorOnly}                                             \
+        : Material{vertFilepath, fragFilepath, id, modelBased, role, editorOnly}                                       \
     {                                                                                                                  \
         _doNotSave = doNotSave;                                                                                        \
     }                                                                                                                  \
     Material *clone(bool doNotSave) const override                                                                     \
     {                                                                                                                  \
-        return new Type(_vertFilepath, _fragFilepath, _id, _modelBased, _editorOnly, doNotSave);                       \
+        return new Type(_vertFilepath, _fragFilepath, _id, _modelBased, _role, _editorOnly, doNotSave);                \
     }
 
 class Material
 {
   public:
-    Material(const std::string &vertPath, const std::string &fragPath, bool modelBased = true);
+    enum Role
+    {
+        eMaterial,
+        ePostProcess,
+        eCompute
+    };
+
+    Material(const std::string &vertPath, const std::string &fragPath, bool modelBased = true,
+             Role role = Role::eMaterial);
     virtual ~Material() = default;
 
     virtual Material *clone(bool doNotSave = true) const = 0;
@@ -86,6 +94,10 @@ class Material
     virtual void initialize();
     virtual void free();
 
+    Role getRole() const
+    {
+        return _role;
+    }
     bool isTransparent() const
     {
         return _transparent;
@@ -128,7 +140,7 @@ class Material
   protected:
     Material(size_t ID);
     Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased = true,
-             bool editorOnly = false);
+             Role role = eMaterial, bool editorOnly = false);
 
     virtual void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) = 0;
     virtual void createPipeline(vk::RenderPass) = 0;
@@ -139,6 +151,7 @@ class Material
     class Actor *parent{nullptr};
     bool _transparent{false};
 
+    Role _role{Role::eMaterial};
     bool _modelBased;
     bool _doNotSave;
     bool _editorOnly;

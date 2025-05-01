@@ -26,6 +26,8 @@ class GraphicsManager
     static const std::vector<size_t> &getDescriptorSetIDs();
 
     void editor(class AssetsManager *assetsManager);
+    tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
+    void load(tinyxml2::XMLElement *, class AssetsManager *assetsManager);
 
   private:
     void addPostProcess(class Material *material);

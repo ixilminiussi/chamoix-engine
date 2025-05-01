@@ -26,9 +26,9 @@ namespace cmx
 size_t Material::_idProvider{1};
 size_t Material::_boundID{1};
 
-Material::Material(const std::string &vertPath, const std::string &fragPath, bool modelBased)
-    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{_idProvider}, _doNotSave{false},
-      _editorOnly{false}, _isVisible{true}
+Material::Material(const std::string &vertPath, const std::string &fragPath, bool modelBased, Role role)
+    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _role{role}, _id{_idProvider},
+      _doNotSave{false}, _editorOnly{false}, _isVisible{true}
 {
     _renderSystem = RenderSystem::getInstance();
 
@@ -36,9 +36,9 @@ Material::Material(const std::string &vertPath, const std::string &fragPath, boo
     _boundID = _idProvider + 1;
 }
 
-Material::Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased,
+Material::Material(const std::string &vertPath, const std::string &fragPath, size_t id, bool modelBased, Role role,
                    bool editorOnly)
-    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _id{id}, _doNotSave{true},
+    : _vertFilepath{vertPath}, _fragFilepath{fragPath}, _modelBased{modelBased}, _role{role}, _id{id}, _doNotSave{true},
       _editorOnly{editorOnly}, _isVisible{true}
 {
     _renderSystem = RenderSystem::getInstance();
@@ -57,7 +57,17 @@ tinyxml2::XMLElement *Material::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLEl
     if (_doNotSave)
         return nullptr;
 
-    tinyxml2::XMLElement *materialElement = doc.NewElement("material");
+    tinyxml2::XMLElement *materialElement;
+
+    switch (_role)
+    {
+    case Role::ePostProcess:
+        materialElement = doc.NewElement("postProcess");
+        break;
+    default:
+        materialElement = doc.NewElement("material");
+        break;
+    }
 
     materialElement->SetAttribute("type", getType().c_str());
     materialElement->SetAttribute("vertex", _vertFilepath.c_str());

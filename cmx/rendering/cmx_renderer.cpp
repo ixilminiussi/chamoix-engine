@@ -188,14 +188,13 @@ void Renderer::beginSwapChainRenderPass(vk::CommandBuffer commandBuffer)
     scissor.extent = _swapChain->getSwapChainExtent();
     commandBuffer.setViewport(0, 1, &viewport);
     commandBuffer.setScissor(0, 1, &scissor);
-    spdlog::info("viewport width : {0}, viewport height : {1}", scissor.extent.width, scissor.extent.height);
 }
 
 void Renderer::endSwapChainRenderPass(vk::CommandBuffer commandBuffer)
 {
-    assert(_isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
+    assert(_isFrameStarted && "Renderer: Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() &&
-           "Can't end render pass on command buffer from a different frame");
+           "Renderer: Can't end render pass on command buffer from a different frame");
 
     commandBuffer.endRenderPass();
 }

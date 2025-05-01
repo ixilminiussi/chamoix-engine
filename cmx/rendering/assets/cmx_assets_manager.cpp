@@ -6,6 +6,7 @@
 #include "cmx_dithered_material.h"
 #include "cmx_dithered_textured_material.h"
 #include "cmx_hud_material.h"
+#include "cmx_material.h"
 #include "cmx_mesh_material.h"
 #include "cmx_model.h"
 #include "cmx_parallax_material.h"
@@ -63,6 +64,15 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
         if (materialElement != nullptr)
         {
             materialElement->SetAttribute("name", pair.first.c_str());
+        }
+    }
+
+    for (const auto &pair : _postProcesses)
+    {
+        tinyxml2::XMLElement *postProcessElement = pair.second->save(doc, assetsElement);
+        if (postProcessElement != nullptr)
+        {
+            postProcessElement->SetAttribute("name", pair.first.c_str());
         }
     }
 
@@ -136,10 +146,20 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
             Material *material = Register::getInstance().getMaterial(materialElement->Attribute("type"));
             const char *name = materialElement->Attribute("name");
 
-            if (!addMaterial(material, materialElement->Attribute("name")))
+            if (!addMaterial(material, materialElement->Attribute(
+                                           "name"))) // could be incorrect role, could be already existing actor
             {
-                getMaterial(materialElement->Attribute("name"))->load(materialElement);
-                delete material;
+                Material *existingMaterial = getMaterial(materialElement->Attribute("name"));
+                if (existingMaterial != nullptr)
+                {
+                    existingMaterial->load(materialElement);
+                    delete material;
+                }
+                else
+                {
+                    spdlog::warn("AssetsManager: load error, regular materials should be marked as such using "
+                                 "<material> and not <postProcess>");
+                }
             }
             else
             {
@@ -155,10 +175,20 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
             Material *postProcess = Register::getInstance().getMaterial(postProcessElement->Attribute("type"));
             const char *name = postProcessElement->Attribute("name");
 
-            if (!addMaterial(postProcess, postProcessElement->Attribute("name")))
+            if (!addPostProcess(postProcess, postProcessElement->Attribute(
+                                                 "name"))) // could be incorrect role, could be already existing actor
             {
-                getMaterial(postProcessElement->Attribute("name"))->load(postProcessElement);
-                delete postProcess;
+                Material *existingPostProcess = getPostProcess(postProcessElement->Attribute("name"));
+                if (existingPostProcess != nullptr)
+                {
+                    existingPostProcess->load(postProcessElement);
+                    delete postProcess;
+                }
+                else
+                {
+                    spdlog::warn("AssetsManager: load error, post process materials should be marked as such using "
+                                 "<postprocess> and not <material>");
+                }
             }
             else
             {
@@ -300,6 +330,11 @@ void AssetsManager::editor()
 
 bool AssetsManager::addMaterial(Material *material, const char *name)
 {
+    if (material->getRole() == Material::ePostProcess)
+    {
+        spdlog::warn("AssetsManager: material '{0}' is a PostProcess, use addPostProcess instead", name);
+        return false;
+    }
     if (_materials.find(std::string(name)) != _materials.end())
     {
         spdlog::warn("AssetsManager: material of same name '{0}' already exists", name);
@@ -327,7 +362,7 @@ Material *AssetsManager::makeUnique(const char *name, bool doNotSave)
 {
     if (_materials.find(std::string(name)) == _materials.end())
     {
-        spdlog::warn("assetsmanager: no such material named '{0}'", name);
+        spdlog::warn("AssetsManager: no such material named '{0}'", name);
         return nullptr;
     }
 
@@ -346,7 +381,7 @@ Material *AssetsManager::getMaterial(const char *name)
 {
     if (_materials.find(std::string(name)) == _materials.end())
     {
-        spdlog::warn("assetsmanager: no such material named '{0}'", name);
+        spdlog::warn("AssetsManager: no such material named '{0}'", name);
         return nullptr;
     }
 
@@ -355,6 +390,11 @@ Material *AssetsManager::getMaterial(const char *name)
 
 bool AssetsManager::addPostProcess(Material *postProcess, const char *name)
 {
+    if (postProcess->getRole() == Material::eMaterial)
+    {
+        spdlog::warn("AssetsManager: material '{0}' is a Material, use addMaterial() instead", name);
+        return false;
+    }
     if (_postProcesses.find(std::string(name)) != _postProcesses.end())
     {
         spdlog::warn("AssetsManager: postProcess of same name '{0}' already exists", name);
@@ -382,7 +422,7 @@ Material *AssetsManager::getPostProcess(const char *name)
 {
     if (_postProcesses.find(std::string(name)) == _postProcesses.end())
     {
-        spdlog::warn("assetsmanager: no such postProcess named '{0}'", name);
+        spdlog::warn("Assetsmanager: no such postProcess named '{0}'", name);
         return nullptr;
     }
 

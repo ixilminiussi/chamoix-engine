@@ -2,26 +2,16 @@
 
 ## Chamoix
 
-### Textures
-- [x] 3d textures
-
 ### Materials
-- [x] save
-- [x] load
 - [ ] adapt existing scenes
-- [x] material instances
-- [x] dithering
-- [x] fix component deletion
-- [x] editor-only materials
+- [ ] compute shaders
+- [ ] ssao post process
+- [ ] shadow buffer
+- [ ] clouds
 
 ### editor
-- [x] rename elements
-- [x] camera renderer
-- [x] order options by alphabet
-- [x] dithering editor
-
-### misc
-- [x] test physics
+- [x] graphics manager
 
 ### fix
 - [ ] duplication not working correctly when passing over shapes, models and materials
+- [ ] default window placement

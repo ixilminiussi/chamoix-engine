@@ -59,7 +59,7 @@ void PostOutlineMaterial::editor()
 {
     Material::editor();
 
-    ImGui::ColorPicker3("Edge Color##Outline", (float *)&_edgeColor);
+    ImGui::ColorEdit3("Edge Color##Outline", (float *)&_edgeColor);
 
     if (ImGui::TreeNode("Color"))
     {

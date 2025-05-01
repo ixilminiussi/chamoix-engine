@@ -70,6 +70,7 @@ void Scene::loadFrom(const std::string &filepath, bool skipAssets)
             _assetsManager->load(rootElement);
         }
         _lightEnvironment->load(rootElement);
+        _graphicsManager->load(rootElement, _assetsManager.get());
 
         tinyxml2::XMLElement *actorElement = rootElement->FirstChildElement("actor");
         while (actorElement)
@@ -332,6 +333,7 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 
     _assetsManager->save(doc, sceneElement);
     _lightEnvironment->save(doc, sceneElement);
+    _graphicsManager->save(doc, sceneElement);
 
     for (auto &actorPair : _actors)
     {

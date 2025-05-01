@@ -118,13 +118,13 @@ void GraphicsManager::remove(const Drawable *drawable)
     }
 }
 
-void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvironment *lightEnvironment)
+void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvironment *graphicsManager)
 {
     FrameInfo *frameInfo = _renderSystem->beginCommandBuffer();
     if (!frameInfo)
         return;
 
-    lightEnvironment->drawShadowMaps(frameInfo, _drawableRenderQueue, _shadowMapDescriptorSetIDs);
+    graphicsManager->drawShadowMaps(frameInfo, _drawableRenderQueue, _shadowMapDescriptorSetIDs);
 
     if (Camera *camera = cameraWk.lock().get())
     {
@@ -138,13 +138,13 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
         ubo.view = camera->getView();
         ubo.cameraPos = glm::vec4(camera->getPosition(), 1.0f);
 
-        if (lightEnvironment)
+        if (graphicsManager)
         {
-            lightEnvironment->populateUbo(&ubo);
+            graphicsManager->populateUbo(&ubo);
         }
         _renderSystem->writeUbo(frameInfo, &ubo);
 
-        _renderSystem->beginRender(frameInfo, lightEnvironment);
+        _renderSystem->beginRender(frameInfo, graphicsManager);
 
         Material::resetBoundID();
         for (auto &[materialID, drawableQueue] : _drawableRenderQueue)
@@ -249,14 +249,56 @@ void GraphicsManager::editor(AssetsManager *assetsManager)
     ImGui::SameLine();
     if (ImGui::Button(ICON_MS_ADD))
     {
-        std::string name = std::string(selected);
-        Material *newPostProcess = assetsManager->getPostProcess(selected);
-        newPostProcess->name = name;
-        addPostProcess(assetsManager->getPostProcess(selected));
+        Material *material = assetsManager->getPostProcess(selected);
+        addPostProcess(material);
     }
 }
 
-void GraphicsManager::addPostProcess(class Material *material)
+tinyxml2::XMLElement &GraphicsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+{
+    tinyxml2::XMLElement *graphicsManagerElement = doc.NewElement("graphicsManager");
+
+    int i = -1;
+    for (Material *material : _postProcessMaterials)
+    {
+        i++;
+        if (i == 0)
+        {
+            continue;
+        }
+
+        graphicsManagerElement->SetAttribute(("pp" + std::to_string(i)).c_str(), material->name.c_str());
+    }
+
+    parentElement->InsertEndChild(graphicsManagerElement);
+
+    return *graphicsManagerElement;
+}
+
+void GraphicsManager::load(tinyxml2::XMLElement *parentElement, AssetsManager *assetsManager)
+{
+    if (tinyxml2::XMLElement *graphicsManagerElement = parentElement->FirstChildElement("graphicsManager"))
+    {
+        int i = 0;
+        while (true)
+        {
+            i++;
+            std::string attributeName = "pp" + std::to_string(i);
+            const char *name = graphicsManagerElement->Attribute(attributeName.c_str());
+            if (name != 0)
+            {
+                Material *material = assetsManager->getPostProcess(name);
+                addPostProcess(material);
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+}
+
+void GraphicsManager::addPostProcess(Material *material)
 {
     if (material == nullptr)
     {
