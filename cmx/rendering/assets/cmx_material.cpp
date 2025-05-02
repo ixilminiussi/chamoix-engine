@@ -7,16 +7,17 @@
 #include "cmx_renderer.h"
 
 // lib
-#include "imgui.h"
-#include <SPIRV-Reflect/spirv_reflect.h>
-#include <cstdlib>
+#include <imgui.h>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
 // std
+#include <cstdlib>
 #include <fstream>
 #ifndef _WIN32
 #include <cxxabi.h>
+#else
+#include <regex>
 #endif
 #include <memory>
 
@@ -184,7 +185,7 @@ std::vector<uint32_t> Material::loadSpirvData(const std::string &filename)
     }
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
-    std::vector<uint32_t> buffer(size / sizeof(uint32_t));
+    std::vector<uint32_t> buffer(static_cast<size_t>(size) / sizeof(uint32_t));
     if (!file.read(reinterpret_cast<char *>(buffer.data()), size))
     {
         throw std::runtime_error("Error reading file: " + filename);
@@ -193,7 +194,7 @@ std::vector<uint32_t> Material::loadSpirvData(const std::string &filename)
 }
 
 #ifdef _WIN32
-std::string Material : getType() const
+std::string Material::getType() const
 {
     return std::regex_replace(typeid(*this).name(), std::regex(R"(^(class |struct ))"), "");
 }

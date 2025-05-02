@@ -17,10 +17,10 @@ class GraphicsManager
   public:
     GraphicsManager();
 
-    void add(class Drawable *, class DrawOption *);
+    void add(class Drawable *, struct DrawOption *);
     void remove(const class Drawable *);
-    void remove(const class DrawOption *);
-    void update(class Drawable *, class DrawOption *, size_t oldID);
+    void remove(const struct DrawOption *);
+    void update(class Drawable *, struct DrawOption *, size_t oldID);
 
     void drawRenderQueue(std::weak_ptr<class Camera>, class LightEnvironment *);
     static const std::vector<size_t> &getDescriptorSetIDs();
@@ -32,7 +32,7 @@ class GraphicsManager
   private:
     void addPostProcess(class Material *material);
 
-    std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> _drawableRenderQueue;
+    std::map<uint8_t, std::vector<std::pair<class Drawable *, struct DrawOption *>>> _drawableRenderQueue;
 
     // warning flags
     bool _noCameraFlag{false};

@@ -32,7 +32,6 @@ void Register::addActor(const char *name, std::function<Actor *(class Scene *, c
 {
     if (actorRegister.find(name) != actorRegister.end())
     {
-        actorRegister.at(name);
         spdlog::warn("Register: duplicate actor '{0}' in register", name);
         return;
     }
@@ -44,7 +43,6 @@ void Register::addComponent(const char *name, std::function<std::shared_ptr<clas
 {
     if (componentRegister.find(name) != componentRegister.end())
     {
-        componentRegister.at(name);
         spdlog::warn("Register: duplicate component '{0}' in register", name);
         return;
     }
@@ -56,7 +54,6 @@ void Register::addMaterial(const char *name, std::function<class Material *()> b
 {
     if (materialRegister.find(name) != materialRegister.end())
     {
-        materialRegister.at(name);
         spdlog::warn("Register: duplicate material '{0}' in register", name);
         return;
     }

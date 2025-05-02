@@ -233,7 +233,7 @@ void RenderSystem::beginPostProcess(FrameInfo *frameInfo) const
     _renderer->beginSwapChainRenderPass(frameInfo->commandBuffer);
 }
 
-void RenderSystem::endPostProcess(class FrameInfo *frameInfo) const
+void RenderSystem::endPostProcess(struct FrameInfo *frameInfo) const
 {
     _renderer->endSwapChainRenderPass(frameInfo->commandBuffer);
     _renderer->endFrame();

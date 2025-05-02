@@ -62,7 +62,7 @@ void SwapChain::free()
 
     _device.device().destroyRenderPass(_renderPass, nullptr);
 
-    for (int i = 0; i < _swapChainImageViews.size(); i++)
+    for (size_t i = 0; i < _swapChainImageViews.size(); i++)
     {
         _device.device().destroyImageView(_swapChainImageViews[i], nullptr);
     }
@@ -103,7 +103,7 @@ vk::Result SwapChain::acquireNextImage(uint32_t *imageIndex)
 
 vk::Result SwapChain::submitCommandBuffers(const vk::CommandBuffer *buffers, uint32_t *imageIndex)
 {
-    if (_imagesInFlight[*imageIndex] != VK_NULL_HANDLE)
+    if (_imagesInFlight[*imageIndex] != nullptr)
     {
         if (_device.device().waitForFences(1, &_imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX) !=
             vk::Result::eSuccess)

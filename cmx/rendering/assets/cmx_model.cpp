@@ -185,11 +185,11 @@ void Model::Builder::loadModel(const std::string &filepath)
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
     for (const auto &shape : shapes)
     {
-        for (int i = 0; i < shape.mesh.indices.size(); i += 3)
+        for (size_t i = 0; i < shape.mesh.indices.size(); i += 3)
         {
             std::array<Vertex, 3> triVerts;
 
-            for (int j = 0; j < 3; ++j)
+            for (size_t j = 0; j < 3; ++j)
             {
                 const auto &index = shape.mesh.indices[i + j];
                 Vertex vertex{};

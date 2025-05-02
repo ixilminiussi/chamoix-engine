@@ -44,7 +44,7 @@ void ParallaxMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
     push.normalMatrix[2][3] = _worldSpaceUV ? _UVScale : 0.f;
     push.normalMatrix[3][3] = glm::radians(_UVRotate);
     push.normalMatrix[3][2] = _parallaxDepth;
-    push.normalMatrix[3][1] = _occlusionMapping ? _parallaxLevels : 1;
+    push.normalMatrix[3][1] = _occlusionMapping ? static_cast<float>(_parallaxLevels) : 1.f;
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,

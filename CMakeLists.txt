@@ -14,6 +14,8 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
+
 add_subdirectory(.external)
 add_subdirectory(cmx)
 add_subdirectory(demo)
@@ -24,6 +26,17 @@ target_link_libraries(VulkanTest PRIVATE
     cmx
     demo
 )
+
+set(CMX_FILES "${CMAKE_SOURCE_DIR}/assets")
+
+set(CMX_EDITOR_FILES "${CMAKE_SOURCE_DIR}/editor")
+add_definitions(-DCMX_EDITOR_FILES="${CMX_FILES}")
+
+set(GAME_FILES "${CMAKE_SOURCE_DIR}/demo")
+add_definitions(-DGAME_FILES="${GAME_FILES}")
+
+file(GLOB CMX_ASSETS "${CMX_FILES}/*")
+file(COPY ${CMX_ASSETS} DESTINATION "${GAME_FILES}/cmx")
 
 add_custom_target(clean_all
     COMMAND ${CMAKE_COMMAND} -E remove VulkanTest

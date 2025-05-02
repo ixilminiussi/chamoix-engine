@@ -76,7 +76,7 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::initializeUbo()
 {
-    for (int i = 0; i < _uboBuffers.size(); i++)
+    for (size_t i = 0; i < _uboBuffers.size(); i++)
     {
         _uboBuffers[i] =
             std::make_unique<Buffer>(*_device.get(), sizeof(GlobalUbo), 1, vk::BufferUsageFlagBits::eUniformBuffer,
@@ -93,7 +93,7 @@ void RenderSystem::initializeUbo()
                            .addBinding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAllGraphics)
                            .build();
 
-    for (int i = 0; i < _globalDescriptorSets.size(); i++)
+    for (size_t i = 0; i < _globalDescriptorSets.size(); i++)
     {
         auto bufferInfo = _uboBuffers[i]->descriptorInfo();
         DescriptorWriter(*_globalSetLayout, *_globalPool).writeBuffer(0, &bufferInfo).build(_globalDescriptorSets[i]);
@@ -249,7 +249,7 @@ void RenderSystem::beginPostProcess(FrameInfo *frameInfo) const
     _renderer->beginSwapChainRenderPass(frameInfo->commandBuffer);
 }
 
-void RenderSystem::endPostProcess(class FrameInfo *frameInfo) const
+void RenderSystem::endPostProcess(struct FrameInfo *frameInfo) const
 {
     _renderer->endSwapChainRenderPass(frameInfo->commandBuffer);
     _renderer->endFrame();

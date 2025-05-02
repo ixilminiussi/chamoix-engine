@@ -126,7 +126,7 @@ class Device
 
     vk::Instance _instance;
     VkDebugUtilsMessengerEXT _debugMessenger;
-    vk::PhysicalDevice _physicalDevice = VK_NULL_HANDLE;
+    vk::PhysicalDevice _physicalDevice = nullptr;
     Window &_window;
     vk::CommandPool _commandPool;
 

@@ -9,7 +9,7 @@
 - [ ] adapt existing scenes
 - [ ] compute shaders
 - [ ] ssao post process
-- [ ] shadow buffer
+- [ ] shadow buffer, DYNAMIC vs STATIC and editor auto refresh mode
 - [ ] clouds
 
 ### editor

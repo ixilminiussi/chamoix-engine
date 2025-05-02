@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <glm/ext/scalar_constants.hpp>
 #include <spdlog/common.h>
-#include <spdlog/fmt/bundled/base.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>

@@ -269,7 +269,7 @@ LightEnvironment::~LightEnvironment()
 }
 
 void LightEnvironment::drawShadowMaps(
-    class FrameInfo *frameInfo,
+    struct FrameInfo *frameInfo,
     const std::map<uint8_t, std::vector<std::pair<Drawable *, DrawOption *>>> &drawableRenderQueue,
     std::vector<size_t> &descriptorSetIDs)
 {

@@ -6,9 +6,8 @@
 #include "cmx_pipeline.h"
 
 // lib
-#include <SPIRV-Reflect/spirv_reflect.h>
+#include <spirv_reflect.h>
 #include <glm/ext/matrix_float4x4.hpp>
-#include <set>
 #include <tinyxml2.h>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
@@ -16,6 +15,7 @@
 
 // std
 #include <memory>
+#include <set>
 
 namespace cmx
 {

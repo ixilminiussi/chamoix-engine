@@ -63,8 +63,8 @@ class DirectionalLight
     void createDescriptorSet(class Device *);
 
     void freeShadowMap(class Device *);
-    [[nodiscard]] Material *beginRender(class FrameInfo *) const;
-    [[nodiscard]] size_t endRender(class FrameInfo *) const;
+    [[nodiscard]] Material *beginRender(struct FrameInfo *) const;
+    [[nodiscard]] size_t endRender(struct FrameInfo *) const;
 
     vk::Image _image;
     vk::ImageView _imageView;
@@ -98,8 +98,8 @@ class LightEnvironment
 
     void populateUbo(struct GlobalUbo *) const;
 
-    void drawShadowMaps(class FrameInfo *,
-                        const std::map<uint8_t, std::vector<std::pair<class Drawable *, class DrawOption *>>> &,
+    void drawShadowMaps(struct FrameInfo *,
+                        const std::map<uint8_t, std::vector<std::pair<class Drawable *, struct DrawOption *>>> &,
                         std::vector<size_t> &descriptorSetIDs);
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
     void load(tinyxml2::XMLElement *);

@@ -5,7 +5,7 @@ SHADERS=("void.vert" "void.frag" "dithered_t.vert" "dithered_t.frag" "dithered.v
 
 # Source and output directories (update these paths as needed)
 SOURCE_DIR="../shaders"   # Folder where your shaders are located
-OUTPUT_DIR="./shaders"    # Folder where compiled SPIR-V files will be placed
+OUTPUT_DIR="../shaders"    # Folder where compiled SPIR-V files will be placed
 
 # Ensure the output directory exists
 mkdir -p "$OUTPUT_DIR"
@@ -36,41 +36,3 @@ for shader in "${SHADERS[@]}"; do
 done
 
 echo "Shader compilation complete."
-
-# Copying cmx assets to build directory
-SOURCE_DIR="../assets"
-OUTPUT_DIR="assets/cmx"
-
-mkdir -p "$OUTPUT_DIR"
-
-cp -r $SOURCE_DIR/* $OUTPUT_DIR/
-echo "Cmx assets copied"
-
-# Copying game assets to build directory
-SOURCE_DIR="../$1"
-OUTPUT_DIR="."
-
-# Ensure the ouput directory exists
-mkdir -p "$OUTPUT_DIR"
-
-# Copy over the files
-cp -r $SOURCE_DIR/assets $OUTPUT_DIR/
-echo "Assets copied."
-
-cp -r $SOURCE_DIR/scenes $OUTPUT_DIR/
-echo "Scenes copied."
-
-cp -r $SOURCE_DIR/properties $OUTPUT_DIR/
-echo "Properties copied."
-
-
-# Copying editor to the build directory
-SOURCE_DIR="../editor"
-OUTPUT_DIR="./editor"
-
-# Ensure the ouput directory exists
-mkdir -p "$OUTPUT_DIR"
-
-# Copy over the files
-cp -r $SOURCE_DIR/* $OUTPUT_DIR/
-echo "Editor assets copied."

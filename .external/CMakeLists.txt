@@ -1,3 +1,4 @@
+# .external/CMakeLists.txt
 cmake_minimum_required(VERSION 3.10)
 
 include(FetchContent)
@@ -10,6 +11,35 @@ add_subdirectory(spirv-reflect)
 add_subdirectory(imgui-gradient-hotfix)
 
 target_include_directories(imgui_gradient SYSTEM PRIVATE imgui)
+
+add_compile_definitions(VULKAN_HPP_TYPESAFE_CONVERSION)
+
+# -- Vulkan: Try to use system Vulkan first
+find_package(Vulkan REQUIRED)
+if(NOT Vulkan_FOUND) 
+  message(STATUS "System Vulkan not found, fetching from GitHub")
+  # 1A) Vulkan Headers
+  FetchContent_Declare(
+    VulkanHeaders
+    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
+    GIT_TAG        v1.3.296    # match your desired version
+    GIT_SHALLOW    TRUE
+  )
+  FetchContent_MakeAvailable(VulkanHeaders)
+
+  # 1B) Vulkan Loader
+  FetchContent_Declare(
+    VulkanLoader
+    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Loader.git
+    GIT_TAG        v1.3.296
+    GIT_SHALLOW    TRUE
+  )
+  # tell the loader where to find the headers we just fetched:
+  set(VULKAN_HEADERS_INSTALL_DIR ${vulkanheaders_SOURCE_DIR}/include CACHE PATH "" FORCE)
+  FetchContent_MakeAvailable(VulkanLoader)
+else()
+  message(STATUS "Found system Vulkan")
+endif()
 
 # -- GLFW: Try to use system glfw3 first
 find_package(glfw3 QUIET)
@@ -55,31 +85,6 @@ add_library(imgui STATIC
   imgui/backends/imgui_impl_glfw.cpp  
   imgui/backends/imgui_impl_vulkan.cpp  
 )
-
-# Cross-platform Vulkan detection
-if(WIN32)
-    message(STATUS "Compiling on Windows")
-    
-    find_package(Vulkan QUIET)
-
-    if(NOT Vulkan_FOUND)
-        set(VULKAN_SDK "$ENV{VULKAN_SDK}")
-        if(VULKAN_SDK)
-            set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK}/Include")
-            set(Vulkan_LIBRARIES "${VULKAN_SDK}/Lib/vulkan-1.lib")
-            message(STATUS "Using Vulkan from: ${VULKAN_SDK}")
-        else()
-            message(FATAL_ERROR "Vulkan SDK not found! Please install it and set the VULKAN_SDK environment variable.")
-        endif()
-    endif()
-
-    if(NOT TARGET glfw)
-        find_package(glfw3 REQUIRED)
-    endif()
-else()
-    message(STATUS "Compiling on Linux/macOS")
-    find_package(Vulkan REQUIRED)
-endif()
 
 target_include_directories(imgui PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imgui>

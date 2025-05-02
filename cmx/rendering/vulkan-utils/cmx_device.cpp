@@ -19,7 +19,7 @@ namespace cmx
 {
 
 // local callback functions
-static vk::Bool32 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+static VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                 VkDebugUtilsMessageTypeFlagsEXT messageType,
                                 const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData)
 {
@@ -159,7 +159,7 @@ void Device::pickPhysicalDevice()
         }
     }
 
-    if (_physicalDevice == VK_NULL_HANDLE)
+    if (_physicalDevice == nullptr)
     {
         throw std::runtime_error("failed to find a suitable GPU!");
     }

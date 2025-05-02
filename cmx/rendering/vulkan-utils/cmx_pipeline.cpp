@@ -70,9 +70,9 @@ std::vector<char> Pipeline::readFile(const std::string &filepath)
 void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
                                       const PipelineConfigInfo &configInfo)
 {
-    assert(configInfo.pipelineLayout != VK_NULL_HANDLE &&
+    assert(configInfo.pipelineLayout != nullptr &&
            "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
-    assert(configInfo.renderPass != VK_NULL_HANDLE &&
+    assert(configInfo.renderPass != nullptr &&
            "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
     std::vector<char> vertCode = readFile(vertFilepath);

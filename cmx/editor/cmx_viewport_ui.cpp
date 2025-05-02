@@ -104,11 +104,11 @@ void ViewportUI::initImGUI()
     init_info.PhysicalDevice = cmxDevice.physicalDevice();
     init_info.Device = cmxDevice.device();
     init_info.Queue = cmxDevice.graphicsQueue();
-    init_info.DescriptorPool = _imguiPool->getDescriptorPool();
+    init_info.DescriptorPool = _imguiPool->getDescriptorPool().operator VkDescriptorPool();
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = renderSystem->_renderer->getSwapChainRenderPass();
+    init_info.RenderPass = renderSystem->_renderer->getSwapChainRenderPass(). operator VkRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
 

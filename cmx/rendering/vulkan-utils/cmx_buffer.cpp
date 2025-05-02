@@ -105,13 +105,13 @@ void Buffer::writeToBuffer(void *data, vk::DeviceSize size, vk::DeviceSize offse
 
     if (size == VK_WHOLE_SIZE)
     {
-        memcpy(_mapped, data, _bufferSize);
+        memcpy(_mapped, data, static_cast<size_t>(_bufferSize));
     }
     else
     {
         char *memOffset = (char *)_mapped;
         memOffset += offset;
-        memcpy(memOffset, data, size);
+        memcpy(memOffset, data, static_cast<size_t>(size));
     }
 }
 

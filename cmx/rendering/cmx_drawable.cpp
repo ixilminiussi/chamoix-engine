@@ -14,8 +14,8 @@
 
 // lib
 #include <IconsMaterialSymbols.h>
-#include <SPIRV-Reflect/include/spirv/unified1/spirv.h>
-#include <SPIRV-Reflect/spirv_reflect.h>
+#include <include/spirv/unified1/spirv.h>
+#include <spirv_reflect.h>
 #include <algorithm>
 #include <cstring>
 #include <imgui.h>
