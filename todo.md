@@ -11,6 +11,7 @@
 
 ### editor
 - [x] graphics manager
+- [ ] dynamic scene loader
 
 ### fix
 - [ ] duplication not working correctly when passing over shapes, models and materials
