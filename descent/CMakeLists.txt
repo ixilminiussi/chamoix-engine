@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 add_library(descent
     descent_game.cpp
     bullet_actor.cpp
+    gun_component.cpp
     descent_game.cpp
     enemy_ship_actor.cpp
     ship_actor.cpp
