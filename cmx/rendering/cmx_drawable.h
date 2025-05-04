@@ -53,11 +53,10 @@ class Drawable : public virtual Transformable
     const std::vector<DrawOption const *> getDrawOptions() const;
 
   private:
-    std::map<size_t, DrawOption> _drawOptions;
-
     class Actor **_parentP{nullptr};
 
   protected:
+    std::map<size_t, DrawOption> _drawOptions;
     bool _isVisible{true};
 };
 

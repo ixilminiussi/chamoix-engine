@@ -67,12 +67,7 @@ void Descent::run()
 
     getScene()->unload();
 
-    for (const auto &[key, renderSystem] : _renderSystems)
-    {
-        renderSystem->free();
-    }
-    _renderSystems.clear();
-    cmx::RenderSystem::closeWindow();
+    cmx::RenderSystem::getInstance()->closeWindow();
 }
 
 void Descent::load()

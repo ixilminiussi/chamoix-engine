@@ -18,7 +18,7 @@ void BulletActor::onBegin()
 
     _billboardComponent = std::make_shared<cmx::BillboardComponent>();
     attachComponent(_billboardComponent);
-    _billboardComponent->setTexture("fire_ball");
+    _billboardComponent->setTextures({"fire_ball"});
 }
 
 void BulletActor::update(float dt)
@@ -33,7 +33,7 @@ void BulletActor::setBulletInfo(const BulletInfo &info)
     _bounceCount = info.bounceCount;
     _damage = info.damage;
 
-    _billboardComponent->setHue(info.color);
+    _billboardComponent->setHue(glm::vec4(info.color, 1.0));
 
     _physicsComponent->setMask(info.mask);
 }

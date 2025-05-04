@@ -1,6 +1,7 @@
 #include "enemy_ship_actor.h"
 
 #include "bullet_actor.h"
+#include "cmx_physics_body.h"
 #include "gun_component.h"
 #include "ship_camera_component.h"
 
@@ -47,7 +48,7 @@ void EnemyShipActor::onBegin()
     auto meshComponent = std::make_shared<cmx::MeshComponent>();
     attachComponent(meshComponent);
     meshComponent->setModel("enemy-ship");
-    meshComponent->setTexture("enemy-ship");
+    meshComponent->setTextures({"enemy-ship"});
     meshComponent->setScale({50.f, 50.f, 50.f});
     meshComponent->setRotation({glm::pi<float>(), glm::half_pi<float>(), 0.f});
 
@@ -114,7 +115,7 @@ void EnemyShipActor::tiltToLocked(float dt)
     _transform.rotation = angledRoll * _transform.rotation;
 }
 
-void EnemyShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
+void EnemyShipActor::onBeginOverlap(cmx::PhysicsBody *ownedBody, cmx::PhysicsBody *overlappingBody,
                                     cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
 {
     if (BulletActor *bullet = dynamic_cast<BulletActor *>(overlappingActor))

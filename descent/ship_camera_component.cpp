@@ -11,6 +11,15 @@
 // std
 #include <cmath>
 
+ShipCameraComponent::ShipCameraComponent()
+    : cmx::CameraComponent()
+#ifndef NDEBUG
+      ,
+      Drawable{&_parent}
+#endif
+{
+}
+
 void ShipCameraComponent::update(float dt)
 {
     _cummulatedTime += dt;

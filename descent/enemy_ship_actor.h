@@ -13,7 +13,7 @@ class EnemyShipActor : public cmx::PhysicsActor
 
     void update(float dt) override;
 
-    void onBeginOverlap(class cmx::PhysicsComponent *ownedComponent, class cmx::PhysicsComponent *overlappingComponent,
+    void onBeginOverlap(class cmx::PhysicsBody *ownedBody, class cmx::PhysicsBody *overlappingBody,
                         cmx::Actor *overlappingActor, const cmx::HitInfo &) override;
 
     void shoot();
@@ -32,6 +32,7 @@ class EnemyShipActor : public cmx::PhysicsActor
     int _health{50};
 };
 
+//
 REGISTER_ACTOR(EnemyShipActor)
 
 #endif

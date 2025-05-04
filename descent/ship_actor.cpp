@@ -205,7 +205,7 @@ void ShipActor::tiltToLocked(float dt)
     _transform.rotation = angledRoll * _transform.rotation;
 }
 
-void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::PhysicsComponent *overlappingComponent,
+void ShipActor::onBeginOverlap(cmx::PhysicsBody *ownedBody, cmx::PhysicsBody *overlappingBody,
                                cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
 {
     _transform.position -= (hitInfo.depth + glm::epsilon<float>()) * hitInfo.normal;
@@ -213,8 +213,8 @@ void ShipActor::onBeginOverlap(cmx::PhysicsComponent *ownedComponent, cmx::Physi
     _physicsComponent->getShape()->reassess();
 }
 
-void ShipActor::onEndOverlap(class cmx::PhysicsComponent *ownedComponent,
-                             class cmx::PhysicsComponent *overlappingComponent, cmx::Actor *overlappingActor)
+void ShipActor::onEndOverlap(class cmx::PhysicsBody *ownedBody, class cmx::PhysicsBody *overlappingBody,
+                             cmx::Actor *overlappingActor)
 {
 }
 
