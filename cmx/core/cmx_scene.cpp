@@ -58,7 +58,7 @@ void Scene::loadFrom(const std::string &filepath, bool skipAssets)
     Register &cmxRegister = Register::getInstance();
 
     tinyxml2::XMLDocument doc;
-    if (doc.LoadFile((std::string(CMX_FILES) + filepath).c_str()) == tinyxml2::XML_SUCCESS)
+    if (doc.LoadFile((std::string(GAME_FILES) + filepath).c_str()) == tinyxml2::XML_SUCCESS)
     {
         spdlog::info("Scene: Loading new scene from `{0}`...", filepath);
 
@@ -342,7 +342,7 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
 
     doc.InsertEndChild(sceneElement);
 
-    if (doc.SaveFile(_xmlPath.c_str()) != tinyxml2::XML_SUCCESS)
+    if (doc.SaveFile((std::string(GAME_FILES) + _xmlPath).c_str()) != tinyxml2::XML_SUCCESS)
     {
         spdlog::error("Scene {0}: {1}", name, doc.ErrorStr());
     };

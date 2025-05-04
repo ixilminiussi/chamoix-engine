@@ -137,7 +137,8 @@ void Texture::Builder::loadTexture(const char *filepath)
 {
     int channels;
 
-    images = {stbi_load(filepath, &width, &height, &channels, STBI_rgb_alpha)};
+    images = {stbi_load((std::string(GAME_FILES) + std::string(filepath)).c_str(), &width, &height, &channels,
+                        STBI_rgb_alpha)};
 
     mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
 
@@ -168,7 +169,8 @@ void Texture::Builder::loadTexture3D(const std::vector<std::string> &filepaths)
 
     for (int i = 0; i < numImages; i++)
     {
-        images[i] = stbi_load(filepaths[i].c_str(), &imgWidth, &imgHeight, &channels, STBI_rgb_alpha);
+        images[i] = stbi_load((std::string(GAME_FILES) + filepaths[i]).c_str(), &imgWidth, &imgHeight, &channels,
+                              STBI_rgb_alpha);
 
         if (!images[i])
         {

@@ -23,7 +23,7 @@ struct SimplePushConstantData
 class VoidMaterial : public Material
 {
   public:
-    VoidMaterial() : Material{"shaders/void.vert.spv", "shaders/void.frag.spv"} {};
+    VoidMaterial() : Material{"void.vert.spv", "void.frag.spv"} {};
 
     CLONEABLE_MATERIAL(VoidMaterial)
 

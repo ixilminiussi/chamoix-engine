@@ -26,7 +26,7 @@ struct PushConstantData
 class BillboardMaterial : public Material
 {
   public:
-    BillboardMaterial() : Material{"shaders/billboard.vert.spv", "shaders/billboard.frag.spv", false} {};
+    BillboardMaterial() : Material{"billboard.vert.spv", "billboard.frag.spv", false} {};
 
     CLONEABLE_MATERIAL(BillboardMaterial)
 

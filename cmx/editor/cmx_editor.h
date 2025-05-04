@@ -22,7 +22,8 @@ class Editor
     void update(float dt);
     void render(const struct FrameInfo &);
 
-    void initInputManager(class Window &, const std::string &shortcutsPath = "editor/shortcuts.xml");
+    void initInputManager(class Window &,
+                          const std::string &shortcutsPath = std::string(EDITOR_FILES) + std::string("shortcuts.xml"));
 
     class InputManager *getInputManager()
     {

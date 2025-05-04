@@ -109,6 +109,8 @@ void PostPassthroughMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
+    _status = 0;
+
     loadBindings();
 
     createPipelineLayout({renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),

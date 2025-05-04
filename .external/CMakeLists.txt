@@ -18,7 +18,6 @@ add_compile_definitions(VULKAN_HPP_TYPESAFE_CONVERSION)
 find_package(Vulkan REQUIRED)
 if(NOT Vulkan_FOUND) 
   message(STATUS "System Vulkan not found, fetching from GitHub")
-  # 1A) Vulkan Headers
   FetchContent_Declare(
     VulkanHeaders
     GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
@@ -27,14 +26,12 @@ if(NOT Vulkan_FOUND)
   )
   FetchContent_MakeAvailable(VulkanHeaders)
 
-  # 1B) Vulkan Loader
   FetchContent_Declare(
     VulkanLoader
     GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Loader.git
     GIT_TAG        v1.3.296
     GIT_SHALLOW    TRUE
   )
-  # tell the loader where to find the headers we just fetched:
   set(VULKAN_HEADERS_INSTALL_DIR ${vulkanheaders_SOURCE_DIR}/include CACHE PATH "" FORCE)
   FetchContent_MakeAvailable(VulkanLoader)
 else()

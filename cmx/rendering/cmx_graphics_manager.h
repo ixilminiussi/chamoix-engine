@@ -17,6 +17,7 @@ class GraphicsManager
   public:
     GraphicsManager();
 
+    void free();
     void add(class Drawable *, struct DrawOption *);
     void remove(const class Drawable *);
     void remove(const struct DrawOption *);

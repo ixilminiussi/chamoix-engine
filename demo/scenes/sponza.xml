@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scene name="sponza">
     <assets>
-        <material type="cmx::BillboardMaterial" vertex="shaders/billboard.vert.spv" fragment="shaders/billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
-        <material type="cmx::DitheredMaterial" vertex="shaders/dithered.vert.spv" fragment="shaders/dithered.frag.spv" editorOnly="false" scale="3.5" threshold="1.4630001" dotsToggle="true" name="dithered_material">
+        <material type="cmx::BillboardMaterial" vertex="billboard.vert.spv" fragment="billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
+        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" scale="3.5" threshold="1.4630001" dotsToggle="true" name="dithered_material">
             <lightColor r="1" g="1" b="1"/>
             <darkColor r="0" g="0" b="0"/>
         </material>
-        <material type="cmx::DitheredTexturedMaterial" vertex="shaders/dithered_t.vert.spv" fragment="shaders/dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="4.1999998" threshold="0.80000001" m="0.2" name="dithered_textured_material"/>
-        <material type="cmx::HudMaterial" vertex="shaders/hud.vert.spv" fragment="shaders/hud.frag.spv" editorOnly="false" name="hud_material"/>
-        <material type="cmx::MeshMaterial" vertex="shaders/mesh.vert.spv" fragment="shaders/mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
-        <material type="cmx::ParallaxMaterial" vertex="shaders/parallax.vert.spv" fragment="shaders/parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
-        <material type="cmx::ShadedMaterial" vertex="shaders/shaded.vert.spv" fragment="shaders/shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
+        <material type="cmx::DitheredTexturedMaterial" vertex="dithered_t.vert.spv" fragment="dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="4.1999998" threshold="0.80000001" m="0.2" name="dithered_textured_material"/>
+        <material type="cmx::HudMaterial" vertex="hud.vert.spv" fragment="hud.frag.spv" editorOnly="false" name="hud_material"/>
+        <material type="cmx::MeshMaterial" vertex="mesh.vert.spv" fragment="mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
+        <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
+        <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
         <model filepath="assets/models_sponza/arch_stones_01.obj" name="arch_stones_01"/>
         <model filepath="assets/models_sponza/arch_wall_2ndfloor.obj" name="arch_wall_2ndfloor"/>
         <model filepath="assets/models_sponza/ceiling_2ndfloor.obj" name="ceiling_2ndfloor"/>
-        <model filepath="assets/cmx/camera.obj" name="cmx_camera"/>
-        <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
-        <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
-        <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
-        <model filepath="assets/cmx/sphere.obj" name="cmx_sphere"/>
-        <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
+        <model filepath=".cmx_assets/camera.obj" name="cmx_camera"/>
+        <model filepath=".cmx_assets/cube.obj" name="cmx_cube"/>
+        <model filepath=".cmx_assets/cylinder.obj" name="cmx_cylinder"/>
+        <model filepath=".cmx_assets/plane.obj" name="cmx_plane"/>
+        <model filepath=".cmx_assets/sphere.obj" name="cmx_sphere"/>
+        <model filepath=".cmx_assets/torus.obj" name="cmx_torus"/>
         <model filepath="assets/models_sponza/column_2ndfloor_19.obj" name="column_2ndfloor_19"/>
         <model filepath="assets/models_sponza/exterior.obj" name="exterior"/>
         <model filepath="assets/models_sponza/lamps_2ndfloor_01.obj" name="lamps_2ndfloor_01"/>
@@ -42,8 +42,8 @@
         <texture filepath="assets/textures_sponza/brickwall_02_BaseColor.png" name="brickwall_02"/>
         <texture filepath="assets/textures_sponza/ceiling_plaster_01_BaseColor.png" name="ceiling_plaster_01"/>
         <texture filepath="assets/textures_sponza/ceiling_plaster_02_BaseColor.png" name="ceiling_plaster_02"/>
-        <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
-        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
+        <texture filepath=".cmx_assets/missing-texture.png" name="cmx_missing"/>
+        <texture filepath=".cmx_assets/point-light.png" name="cmx_point_light"/>
         <texture filepath="assets/textures_sponza/col_brickwall_01_BaseColor.png" name="col_brickwall_01"/>
         <texture filepath="assets/textures_sponza/col_head_1stfloor_BaseColor.png" name="col_head_1stfloor"/>
         <texture filepath="assets/textures_sponza/col_head_2ndfloor_02_BaseColor.png" name="col_head_2ndfloor_02"/>
@@ -71,54 +71,54 @@
         <texture filepath="assets/textures_sponza/wood_door_01_BaseColor.png" name="wood_door_01"/>
         <texture filepath="assets/textures_sponza/wood_tile_01_BaseColor.png" name="wood_tile_01"/>
         <texture name="cmx_radial_dithering_hd">
-            <layer filepath="assets/cmx/dithering/radial17.png"/>
-            <layer filepath="assets/cmx/dithering/radial18.png"/>
-            <layer filepath="assets/cmx/dithering/radial19.png"/>
-            <layer filepath="assets/cmx/dithering/radial20.png"/>
-            <layer filepath="assets/cmx/dithering/radial21.png"/>
-            <layer filepath="assets/cmx/dithering/radial22.png"/>
-            <layer filepath="assets/cmx/dithering/radial23.png"/>
-            <layer filepath="assets/cmx/dithering/radial24.png"/>
-            <layer filepath="assets/cmx/dithering/radial25.png"/>
-            <layer filepath="assets/cmx/dithering/radial26.png"/>
-            <layer filepath="assets/cmx/dithering/radial27.png"/>
-            <layer filepath="assets/cmx/dithering/radial28.png"/>
-            <layer filepath="assets/cmx/dithering/radial29.png"/>
-            <layer filepath="assets/cmx/dithering/radial30.png"/>
-            <layer filepath="assets/cmx/dithering/radial31.png"/>
-            <layer filepath="assets/cmx/dithering/radial32.png"/>
-            <layer filepath="assets/cmx/dithering/radial33.png"/>
-            <layer filepath="assets/cmx/dithering/radial34.png"/>
-            <layer filepath="assets/cmx/dithering/radial35.png"/>
-            <layer filepath="assets/cmx/dithering/radial36.png"/>
-            <layer filepath="assets/cmx/dithering/radial37.png"/>
-            <layer filepath="assets/cmx/dithering/radial38.png"/>
-            <layer filepath="assets/cmx/dithering/radial39.png"/>
-            <layer filepath="assets/cmx/dithering/radial40.png"/>
-            <layer filepath="assets/cmx/dithering/radial41.png"/>
-            <layer filepath="assets/cmx/dithering/radial42.png"/>
-            <layer filepath="assets/cmx/dithering/radial43.png"/>
-            <layer filepath="assets/cmx/dithering/radial44.png"/>
-            <layer filepath="assets/cmx/dithering/radial45.png"/>
-            <layer filepath="assets/cmx/dithering/radial46.png"/>
-            <layer filepath="assets/cmx/dithering/radial47.png"/>
-            <layer filepath="assets/cmx/dithering/radial48.png"/>
-            <layer filepath="assets/cmx/dithering/radial49.png"/>
-            <layer filepath="assets/cmx/dithering/radial50.png"/>
-            <layer filepath="assets/cmx/dithering/radial51.png"/>
-            <layer filepath="assets/cmx/dithering/radial52.png"/>
-            <layer filepath="assets/cmx/dithering/radial53.png"/>
-            <layer filepath="assets/cmx/dithering/radial54.png"/>
-            <layer filepath="assets/cmx/dithering/radial55.png"/>
-            <layer filepath="assets/cmx/dithering/radial56.png"/>
-            <layer filepath="assets/cmx/dithering/radial57.png"/>
-            <layer filepath="assets/cmx/dithering/radial58.png"/>
-            <layer filepath="assets/cmx/dithering/radial59.png"/>
-            <layer filepath="assets/cmx/dithering/radial60.png"/>
-            <layer filepath="assets/cmx/dithering/radial61.png"/>
-            <layer filepath="assets/cmx/dithering/radial62.png"/>
-            <layer filepath="assets/cmx/dithering/radial63.png"/>
-            <layer filepath="assets/cmx/dithering/radial64.png"/>
+            <layer filepath=".cmx_assets/dithering/radial17.png"/>
+            <layer filepath=".cmx_assets/dithering/radial18.png"/>
+            <layer filepath=".cmx_assets/dithering/radial19.png"/>
+            <layer filepath=".cmx_assets/dithering/radial20.png"/>
+            <layer filepath=".cmx_assets/dithering/radial21.png"/>
+            <layer filepath=".cmx_assets/dithering/radial22.png"/>
+            <layer filepath=".cmx_assets/dithering/radial23.png"/>
+            <layer filepath=".cmx_assets/dithering/radial24.png"/>
+            <layer filepath=".cmx_assets/dithering/radial25.png"/>
+            <layer filepath=".cmx_assets/dithering/radial26.png"/>
+            <layer filepath=".cmx_assets/dithering/radial27.png"/>
+            <layer filepath=".cmx_assets/dithering/radial28.png"/>
+            <layer filepath=".cmx_assets/dithering/radial29.png"/>
+            <layer filepath=".cmx_assets/dithering/radial30.png"/>
+            <layer filepath=".cmx_assets/dithering/radial31.png"/>
+            <layer filepath=".cmx_assets/dithering/radial32.png"/>
+            <layer filepath=".cmx_assets/dithering/radial33.png"/>
+            <layer filepath=".cmx_assets/dithering/radial34.png"/>
+            <layer filepath=".cmx_assets/dithering/radial35.png"/>
+            <layer filepath=".cmx_assets/dithering/radial36.png"/>
+            <layer filepath=".cmx_assets/dithering/radial37.png"/>
+            <layer filepath=".cmx_assets/dithering/radial38.png"/>
+            <layer filepath=".cmx_assets/dithering/radial39.png"/>
+            <layer filepath=".cmx_assets/dithering/radial40.png"/>
+            <layer filepath=".cmx_assets/dithering/radial41.png"/>
+            <layer filepath=".cmx_assets/dithering/radial42.png"/>
+            <layer filepath=".cmx_assets/dithering/radial43.png"/>
+            <layer filepath=".cmx_assets/dithering/radial44.png"/>
+            <layer filepath=".cmx_assets/dithering/radial45.png"/>
+            <layer filepath=".cmx_assets/dithering/radial46.png"/>
+            <layer filepath=".cmx_assets/dithering/radial47.png"/>
+            <layer filepath=".cmx_assets/dithering/radial48.png"/>
+            <layer filepath=".cmx_assets/dithering/radial49.png"/>
+            <layer filepath=".cmx_assets/dithering/radial50.png"/>
+            <layer filepath=".cmx_assets/dithering/radial51.png"/>
+            <layer filepath=".cmx_assets/dithering/radial52.png"/>
+            <layer filepath=".cmx_assets/dithering/radial53.png"/>
+            <layer filepath=".cmx_assets/dithering/radial54.png"/>
+            <layer filepath=".cmx_assets/dithering/radial55.png"/>
+            <layer filepath=".cmx_assets/dithering/radial56.png"/>
+            <layer filepath=".cmx_assets/dithering/radial57.png"/>
+            <layer filepath=".cmx_assets/dithering/radial58.png"/>
+            <layer filepath=".cmx_assets/dithering/radial59.png"/>
+            <layer filepath=".cmx_assets/dithering/radial60.png"/>
+            <layer filepath=".cmx_assets/dithering/radial61.png"/>
+            <layer filepath=".cmx_assets/dithering/radial62.png"/>
+            <layer filepath=".cmx_assets/dithering/radial63.png"/>
+            <layer filepath=".cmx_assets/dithering/radial64.png"/>
         </texture>
     </assets>
     <lightEnvironment timeOfDay="13.75">

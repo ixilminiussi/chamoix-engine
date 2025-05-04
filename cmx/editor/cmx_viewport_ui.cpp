@@ -108,12 +108,13 @@ void ViewportUI::initImGUI()
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = renderSystem->_renderer->getSwapChainRenderPass(). operator VkRenderPass();
+    init_info.RenderPass = renderSystem->_renderer->getSwapChainRenderPass().operator VkRenderPass();
 
     ImGui_ImplVulkan_Init(&init_info);
 
     ImGuiIO &io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("editor/JetBrainsMonoNL-Regular.ttf", 16.0f);
+    io.Fonts->AddFontFromFileTTF((std::string(EDITOR_FILES) + std::string("JetBrainsMonoNL-Regular.ttf")).c_str(),
+                                 16.0f);
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     float iconFontSize = 16.0f;
@@ -124,7 +125,8 @@ void ViewportUI::initImGUI()
     icons_config.MergeMode = true;
     icons_config.PixelSnapH = true;
     icons_config.GlyphOffset = {0.0f, 4.0f};
-    io.Fonts->AddFontFromFileTTF("editor/MaterialIcons-Regular.ttf", iconFontSize, &icons_config, icons_ranges);
+    io.Fonts->AddFontFromFileTTF((std::string(EDITOR_FILES) + std::string("MaterialIcons-Regular.ttf")).c_str(),
+                                 iconFontSize, &icons_config, icons_ranges);
     // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 
     _fileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);

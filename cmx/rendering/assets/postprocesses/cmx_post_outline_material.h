@@ -15,8 +15,7 @@ namespace cmx
 class PostOutlineMaterial : public Material
 {
   public:
-    PostOutlineMaterial()
-        : Material{"shaders/postprocess.vert.spv", "shaders/post_outline.frag.spv", false, ePostProcess} {};
+    PostOutlineMaterial() : Material{"postprocess.vert.spv", "post_outline.frag.spv", false, ePostProcess} {};
 
     CLONEABLE_MATERIAL(PostOutlineMaterial)
 

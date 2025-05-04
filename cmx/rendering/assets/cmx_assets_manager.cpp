@@ -33,15 +33,15 @@ namespace cmx
 AssetsManager::AssetsManager(class Scene *parent)
     : _parentScene{parent}, _models{}, _textures2D{}, _textures3D{}, _materials{}
 {
-    addModel("assets/cmx/cube.obj", PRIMITIVE_CUBE);
-    addModel("assets/cmx/cylinder.obj", PRIMITIVE_CYLINDER);
-    addModel("assets/cmx/plane.obj", PRIMITIVE_PLANE);
-    addModel("assets/cmx/sphere.obj", PRIMITIVE_SPHERE);
-    addModel("assets/cmx/torus.obj", PRIMITIVE_TORUS);
-    addModel("assets/cmx/camera.obj", "cmx_camera");
+    addModel(".cmx_assets/cube.obj", PRIMITIVE_CUBE);
+    addModel(".cmx_assets/cylinder.obj", PRIMITIVE_CYLINDER);
+    addModel(".cmx_assets/plane.obj", PRIMITIVE_PLANE);
+    addModel(".cmx_assets/sphere.obj", PRIMITIVE_SPHERE);
+    addModel(".cmx_assets/torus.obj", PRIMITIVE_TORUS);
+    addModel(".cmx_assets/camera.obj", "cmx_camera");
 
-    add2DTexture("assets/cmx/missing-texture.png", "cmx_missing");
-    add2DTexture("assets/cmx/point-light.png", "cmx_point_light");
+    add2DTexture(".cmx_assets/missing-texture.png", "cmx_missing");
+    add2DTexture(".cmx_assets/point-light.png", "cmx_point_light");
 
     addMaterial(new ShadedMaterial(), "shaded_material");
     addMaterial(new MeshMaterial(), "mesh_material");

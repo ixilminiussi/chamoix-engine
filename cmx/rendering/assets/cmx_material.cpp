@@ -178,11 +178,12 @@ void Material::loadBindings(const std::string &filename)
 
 std::vector<uint32_t> Material::loadSpirvData(const std::string &filename)
 {
-    std::ifstream file(filename, std::ios::binary | std::ios::ate);
+    std::ifstream file{std::string(SHADER_FILES) + filename, std::ios::binary};
     if (!file.is_open())
     {
         throw std::runtime_error("Shader: Could not open file: " + filename);
     }
+    file.seekg(0, std::ios::end);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
     std::vector<uint32_t> buffer(static_cast<size_t>(size) / sizeof(uint32_t));

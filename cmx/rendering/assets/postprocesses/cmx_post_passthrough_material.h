@@ -15,8 +15,7 @@ namespace cmx
 class PostPassthroughMaterial : public Material
 {
   public:
-    PostPassthroughMaterial()
-        : Material{"shaders/postprocess.vert.spv", "shaders/post_passthrough.frag.spv", false, ePostProcess} {};
+    PostPassthroughMaterial() : Material{"postprocess.vert.spv", "post_passthrough.frag.spv", false, ePostProcess} {};
 
     CLONEABLE_MATERIAL(PostPassthroughMaterial)
 

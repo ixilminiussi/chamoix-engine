@@ -16,7 +16,7 @@ namespace cmx
 class DitheredTexturedMaterial : public Material
 {
   public:
-    DitheredTexturedMaterial() : Material{"shaders/dithered_t.vert.spv", "shaders/dithered_t.frag.spv"} {};
+    DitheredTexturedMaterial() : Material{"dithered_t.vert.spv", "dithered_t.frag.spv"} {};
 
     CLONEABLE_MATERIAL(DitheredTexturedMaterial)
 

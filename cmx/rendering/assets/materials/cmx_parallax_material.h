@@ -16,7 +16,7 @@ namespace cmx
 class ParallaxMaterial : public Material
 {
   public:
-    ParallaxMaterial() : Material{"shaders/parallax.vert.spv", "shaders/parallax.frag.spv"} {};
+    ParallaxMaterial() : Material{"parallax.vert.spv", "parallax.frag.spv"} {};
 
     CLONEABLE_MATERIAL(ParallaxMaterial)
 

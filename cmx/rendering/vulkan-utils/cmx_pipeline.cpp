@@ -50,11 +50,10 @@ void Pipeline::bind(vk::CommandBuffer commandBuffer)
 
 std::vector<char> Pipeline::readFile(const std::string &filepath)
 {
-    std::ifstream file{filepath, std::ios::ate | std::ios::binary};
-
+    std::ifstream file{std::string(SHADER_FILES) + filepath, std::ios::ate | std::ios::binary};
     if (!file.is_open())
     {
-        throw std::runtime_error("failed to open file: " + filepath);
+        throw std::runtime_error("Pipeline: failed to open file: " + filepath);
     }
 
     size_t fileSize = static_cast<size_t>(file.tellg());
@@ -72,8 +71,7 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std
 {
     assert(configInfo.pipelineLayout != nullptr &&
            "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
-    assert(configInfo.renderPass != nullptr &&
-           "Cannot create graphics pipeline: no renderPass provided in configInfo");
+    assert(configInfo.renderPass != nullptr && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
     std::vector<char> vertCode = readFile(vertFilepath);
     std::vector<char> fragCode = readFile(fragFilepath);

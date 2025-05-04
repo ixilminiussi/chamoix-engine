@@ -25,7 +25,7 @@ struct PushConstantData
 class MeshMaterial : public Material
 {
   public:
-    MeshMaterial() : Material{"shaders/mesh.vert.spv", "shaders/mesh.frag.spv"} {};
+    MeshMaterial() : Material{"mesh.vert.spv", "mesh.frag.spv"} {};
 
     CLONEABLE_MATERIAL(MeshMaterial)
 

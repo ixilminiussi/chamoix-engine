@@ -273,9 +273,8 @@ void LightEnvironment::drawShadowMaps(
     const std::map<uint8_t, std::vector<std::pair<Drawable *, DrawOption *>>> &drawableRenderQueue,
     std::vector<size_t> &descriptorSetIDs)
 {
-    if (_updateShadowMap)
+    // if (_updateShadowMap) // TODO: only update shadow map on dynamic objects, or during editor mode
     {
-        spdlog::info("LightEnvironment: Shadow Map updated");
         vk::DescriptorSet descriptorSetHolder = frameInfo->globalDescriptorSet;
 
         descriptorSetIDs.clear();

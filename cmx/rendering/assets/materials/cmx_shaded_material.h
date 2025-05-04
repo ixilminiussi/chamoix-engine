@@ -16,7 +16,7 @@ namespace cmx
 class ShadedMaterial : public Material
 {
   public:
-    ShadedMaterial() : Material{"shaders/shaded.vert.spv", "shaders/shaded.frag.spv"} {};
+    ShadedMaterial() : Material{"shaded.vert.spv", "shaded.frag.spv"} {};
 
     CLONEABLE_MATERIAL(ShadedMaterial)
 

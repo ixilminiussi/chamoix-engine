@@ -173,7 +173,7 @@ void Model::Builder::loadModel(const std::string &filepath)
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str()))
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, (std::string(GAME_FILES) + filepath).c_str()))
     {
         spdlog::warn("Model: tinyobj -> {0}", warn);
         throw std::runtime_error("Model: tinyobj ->" + err);
