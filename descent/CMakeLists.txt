@@ -8,6 +8,7 @@ add_library(descent
     descent_game.cpp
     enemy_ship_actor.cpp
     ship_actor.cpp
+    room_actor.cpp
     ship_camera_component.cpp
     wall_actor.cpp
 )
