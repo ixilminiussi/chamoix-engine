@@ -28,3 +28,4 @@
 
 ### fix
 - [ ] duplication not working correctly when passing over shapes, models and materials
+- [ ] shadow buffer settings save and load
