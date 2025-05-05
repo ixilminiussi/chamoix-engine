@@ -22,9 +22,8 @@ git clone --recurse-submodules https://github.com/ixilminiussi/chamoix-engine.gi
 ``` bash
 mkdir build
 cd build
-../compile.sh petanque # copies the game files into build, compiles shaders
-cmake -GNinja -DCMAKE_BUILD_TYPE=Debug .. # build can be rather slow, ninja is recommended for faster compilation. make also works
-ninja
+cmake -GNinja -DCMAKE_BUILD_TYPE=Debug .. -DGAME=demo # use -DGAME to specify the game directory you intend to build
+ninja # or make if using make
 ./VulkanTest
 ```
 
@@ -37,8 +36,7 @@ ninja
 ``` bash
 mkdir build
 cd build
-../compile.sh petanque # copies the game files into build, compiles shaders
-cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. 
+cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. -DGAME=demo
 ninja
 ./VulkanTest
 ```
