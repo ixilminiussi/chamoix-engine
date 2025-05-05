@@ -6,14 +6,14 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 uv;
 layout(location = 4) in vec3 tangent;
 
-layout(location = 0) out vec3 fragPositionWorld;
-layout(location = 1) out vec3 fragColor;
-layout(location = 2) out vec3 fragNormalWorld;
-layout(location = 3) out vec2 fragUV;
-layout(location = 4) out vec4 fragPositionLightSpace;
+layout(location = 0) out vec3 outPositionWorld;
+layout(location = 1) out vec3 outColor;
+layout(location = 2) out vec3 outNormalWorld;
+layout(location = 3) out vec2 outUV;
+layout(location = 4) out vec4 outPositionLightSpace;
 
-layout(location = 5) out vec3 fragDarkColor;
-layout(location = 6) out vec3 fragLightColor;
+layout(location = 5) out vec3 outDarkColor;
+layout(location = 6) out vec3 outLightColor;
 
 struct DirectionalLight
 {
@@ -48,14 +48,25 @@ layout(push_constant) uniform Push
 }
 push;
 
+// we default to this one such that stretches don't affect us.
+vec2 getWorldSpaceUV()
+{
+    vec3 up = abs(outNormalWorld.z) > 0.999 ? vec3(1, 0, 0) : vec3(0, 0, 1);
+    vec3 tangent = normalize(cross(outNormalWorld, up));
+    vec3 bitangent = cross(outNormalWorld, tangent);
+
+    return (vec2(dot(outPositionWorld, tangent), dot(outPositionWorld, bitangent)));
+}
+
 void main()
 {
-    fragDarkColor.x = push.modelMatrix[0][3];
-    fragDarkColor.y = push.modelMatrix[1][3];
-    fragDarkColor.z = push.modelMatrix[2][3];
-    fragLightColor.x = push.normalMatrix[0][3];
-    fragLightColor.y = push.normalMatrix[1][3];
-    fragLightColor.z = push.normalMatrix[2][3];
+    bool worldSpaceUV = push.normalMatrix[3][3] != 0.f;
+    outDarkColor.x = push.modelMatrix[0][3];
+    outDarkColor.y = push.modelMatrix[1][3];
+    outDarkColor.z = push.modelMatrix[2][3];
+    outLightColor.x = push.normalMatrix[0][3];
+    outLightColor.y = push.normalMatrix[1][3];
+    outLightColor.z = push.normalMatrix[2][3];
 
     mat4 modelMatrix = push.modelMatrix;
     modelMatrix[0][3] = 0;
@@ -66,10 +77,10 @@ void main()
     vec4 worldPosition = modelMatrix * vec4(position, 1.0f);
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
-    fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
-    fragPositionWorld = worldPosition.xyz;
-    fragColor = color;
-    fragPositionLightSpace = ubo.sun.projectionMatrix * ubo.sun.viewMatrix * worldPosition;
+    outNormalWorld = normalize(mat3(push.normalMatrix) * normal);
+    outPositionWorld = worldPosition.xyz;
+    outColor = color;
+    outPositionLightSpace = ubo.sun.projectionMatrix * ubo.sun.viewMatrix * worldPosition;
 
-    fragUV = uv;
+    outUV = worldSpaceUV ? getWorldSpaceUV() : uv;
 }

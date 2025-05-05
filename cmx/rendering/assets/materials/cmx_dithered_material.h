@@ -33,6 +33,7 @@ class DitheredMaterial : public Material
 
     glm::vec3 _lightColor{0.596, 0.624, 0.808};
     glm::vec3 _darkColor{0.153, 0.157, 0.22};
+    bool _worldSpaceUV{false};
     float _scale{5.f};
     float _threshold{1.f};
     bool _lightDots{true};

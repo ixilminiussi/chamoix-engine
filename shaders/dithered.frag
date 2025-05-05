@@ -147,26 +147,6 @@ vec3 getDiffuseLight()
     return diffuseLight;
 }
 
-vec2 flattenUVs()
-{
-    // Estimate screen-space gradients of the UVs
-    vec2 dx = dFdx(inUV);
-    vec2 dy = dFdy(inUV);
-
-    // Compute the length (magnitude) of the change in each direction
-    float lenX = length(dx);
-    float lenY = length(dy);
-
-    float scaleLimit = 4.; // max scaling correction
-    lenX = clamp(lenX, 1.0 / scaleLimit, scaleLimit);
-    lenY = clamp(lenY, 1.0 / scaleLimit, scaleLimit);
-
-    // Normalize by the average (or max) to make both axes scale evenly
-    float avgLen = (lenX + lenY) * 0.5;
-
-    return (inUV - 0.5) / vec2(lenX, lenY) * avgLen + 0.5;
-}
-
 void main()
 {
     // whether or not we use light dots on dark background, or the reverse
@@ -180,7 +160,7 @@ void main()
     const vec2 ditheringLevel = propperDitheringScale(brightness);
 
     const vec2 uvFrequency = getUVFrequency();
-    const vec4 ditheringSample = texture(sDitheringPattern, vec3(flattenUVs() / ditheringLevel.x, ditheringLevel.y));
+    const vec4 ditheringSample = texture(sDitheringPattern, vec3(inUV / ditheringLevel.x, ditheringLevel.y));
 
     // push.normalMatrix[3][1] is our specified threshold
     if (dotToggle)

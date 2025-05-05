@@ -6,11 +6,6 @@ add_library(cmx)
 
 target_include_directories(cmx PUBLIC ${CMAKE_SOURCE_DIR}/.external/stb)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR
-CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-target_compile_options(cmx PRIVATE -Wno-cpp)
-endif()
-
 target_compile_definitions(cmx PRIVATE VULKAN_HPP_TYPESAFE_CONVERSION)
 
 add_subdirectory(editor)

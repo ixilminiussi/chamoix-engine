@@ -48,6 +48,8 @@ void DitheredMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
     push.normalMatrix[1][3] = _lightColor.y;
     push.normalMatrix[2][3] = _lightColor.z;
 
+    push.normalMatrix[3][3] = _worldSpaceUV ? 1.0f : 0.0f;
+
     push.modelMatrix[0][3] = _darkColor.x;
     push.modelMatrix[1][3] = _darkColor.y;
     push.modelMatrix[2][3] = _darkColor.z;
@@ -61,6 +63,7 @@ void DitheredMaterial::editor()
 {
     Material::editor();
 
+    ImGui::Checkbox("World space UV", &_worldSpaceUV);
     ImGui::DragFloat("Scale", &_scale, 0.1f, 1.f, 8.f);
     ImGui::SliderFloat("Threshold", &_threshold, 0.5f, 2.f);
     ImGui::ColorEdit3("Light Color", (float *)&_lightColor);
@@ -89,6 +92,7 @@ tinyxml2::XMLElement *DitheredMaterial::save(tinyxml2::XMLDocument &doc, tinyxml
     if (materialElement == nullptr)
         return nullptr;
 
+    materialElement->SetAttribute("worldSpaceUV", _worldSpaceUV);
     materialElement->SetAttribute("scale", _scale);
     materialElement->SetAttribute("threshold", _threshold);
     materialElement->SetAttribute("dotsToggle", _lightDots);
@@ -112,6 +116,7 @@ void DitheredMaterial::load(tinyxml2::XMLElement *materialElement)
 {
     Material::load(materialElement);
 
+    _worldSpaceUV = materialElement->BoolAttribute("worldSpaceUV");
     _scale = materialElement->FloatAttribute("scale", 5.f);
     _threshold = materialElement->FloatAttribute("threshold", 1.f);
     _lightDots = materialElement->BoolAttribute("dotsToggle", true);

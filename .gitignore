@@ -2,3 +2,4 @@ build/
 CMakeFiles/
 .cache/
 */.cmx_assets/
+.external/*/

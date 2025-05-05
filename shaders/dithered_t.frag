@@ -51,9 +51,11 @@ const float two_PI = 6.2831;
 
 vec2 getUVFrequency()
 {
+    // get partial derivative of UVs in respect to screen space x and y
     vec2 dx = dFdx(inUV);
     vec2 dy = dFdy(inUV);
 
+    // uses eigen value to determine the two principal rates of change
     mat2 matr = {dx, dy};
     vec4 vectorized = vec4(dx, dy);
     float Q = dot(vectorized, vectorized);
@@ -189,26 +191,6 @@ vec4 blurSample()
 
     color /= weights;
     return color;
-}
-
-vec2 flattenUVs()
-{
-    // Estimate screen-space gradients of the UVs
-    vec2 dx = dFdx(inUV);
-    vec2 dy = dFdy(inUV);
-
-    // Compute the length (magnitude) of the change in each direction
-    float lenX = length(dx);
-    float lenY = length(dy);
-
-    float scaleLimit = 4.; // max scaling correction
-    lenX = clamp(lenX, 1.0 / scaleLimit, scaleLimit);
-    lenY = clamp(lenY, 1.0 / scaleLimit, scaleLimit);
-
-    // Normalize by the average (or max) to make both axes scale evenly
-    float avgLen = (lenX + lenY) * 0.5;
-
-    return (inUV - 0.5) / vec2(lenX, lenY) * avgLen + 0.5;
 }
 
 void main()

@@ -14,6 +14,12 @@ target_include_directories(imgui_gradient SYSTEM PRIVATE imgui)
 
 add_compile_definitions(VULKAN_HPP_TYPESAFE_CONVERSION)
 
+## -- boost: Try to use system boost first
+cmake_policy(SET CMP0167 OLD)
+cmake_policy(SET CMP0135 NEW)
+cmake_policy(SET CMP0169 NEW)
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS  TRUE)
+
 # -- Vulkan: Try to use system Vulkan first
 find_package(Vulkan REQUIRED)
 if(NOT Vulkan_FOUND) 

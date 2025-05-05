@@ -10,6 +10,7 @@
 
 // std
 #include <memory>
+#include <ranges>
 
 namespace cmx
 {
@@ -24,18 +25,12 @@ PhysicsManager::~PhysicsManager()
 
 void PhysicsManager::executeStep(float dt)
 {
-    auto advance = [&](auto &it) {
-        it++;
+    std::vector<PhysicsBody *> flatAll;
+    flatAll.reserve(_rigidBodies.size() + _dynamicBodies.size() + _staticBodies.size());
 
-        if (it == _rigidBodies.end())
-        {
-            it = _dynamicBodies.begin();
-        }
-        if (it == _dynamicBodies.end())
-        {
-            it = _staticBodies.begin();
-        }
-    };
+    flatAll.insert(flatAll.end(), _rigidBodies.begin(), _rigidBodies.end());
+    flatAll.insert(flatAll.end(), _dynamicBodies.begin(), _dynamicBodies.end());
+    flatAll.insert(flatAll.end(), _staticBodies.begin(), _staticBodies.end());
 
     bool first = true;
 
@@ -45,10 +40,11 @@ void PhysicsManager::executeStep(float dt)
         (*it)->applyVelocity(dt);
     }
 
-    for (auto it = (_rigidBodies.size() > 0) ? _rigidBodies.begin() : _dynamicBodies.begin();
-         it != _dynamicBodies.end() && it != _staticBodies.begin(); advance(it))
+    int innerAll = _rigidBodies.size() + _dynamicBodies.size();
+
+    for (int i = 0; i < innerAll; i++)
     {
-        PhysicsBody *physicsBody = *it;
+        PhysicsBody *physicsBody = flatAll[i];
         std::shared_ptr<Shape> shape = physicsBody->getShape();
 
         if (shape.get() == nullptr)
@@ -59,13 +55,10 @@ void PhysicsManager::executeStep(float dt)
             shape->swapBuffer();
         }
 
-        auto itAlt = it;
-
-        advance(itAlt);
-
-        for (; itAlt != _staticBodies.end(); advance(itAlt))
+        for (int j = i + 1; j < flatAll.size(); j++)
         {
-            std::shared_ptr<Shape> otherShape = (*itAlt)->getShape();
+            PhysicsBody *otherBody = flatAll[j];
+            std::shared_ptr<Shape> otherShape = otherBody->getShape();
 
             if (otherShape.get() == nullptr)
                 continue;
@@ -80,53 +73,53 @@ void PhysicsManager::executeStep(float dt)
             {
                 if (physicsBody->isRigid())
                 {
-                    physicsBody->applyCollision(dt, hitInfo, **itAlt);
+                    physicsBody->applyCollision(dt, hitInfo, *otherBody);
                 }
 
-                if ((*itAlt)->isRigid())
+                if ((otherBody)->isRigid())
                 {
                     hitInfo.flip();
-                    (*itAlt)->applyCollision(dt, hitInfo, *physicsBody);
+                    (otherBody)->applyCollision(dt, hitInfo, *physicsBody);
                     hitInfo.flip();
                 }
 
-                shape->addOverlappingComponent(*itAlt);
+                shape->addOverlappingComponent(otherBody);
                 otherShape->addOverlappingComponent(physicsBody);
 
                 if (auto parent = dynamic_cast<PhysicsActor *>(physicsBody->getParentActor()))
                 {
-                    parent->onContinuousOverlap(physicsBody, *itAlt, (*itAlt)->getParentActor(), hitInfo);
+                    parent->onContinuousOverlap(physicsBody, otherBody, otherBody->getParentActor(), hitInfo);
                 }
-                if (auto parent = dynamic_cast<PhysicsActor *>((*itAlt)->getParentActor()))
+                if (auto parent = dynamic_cast<PhysicsActor *>(otherBody->getParentActor()))
                 {
                     hitInfo.flip();
-                    parent->onContinuousOverlap(*itAlt, physicsBody, physicsBody->getParentActor(), hitInfo);
+                    parent->onContinuousOverlap(otherBody, physicsBody, physicsBody->getParentActor(), hitInfo);
                 }
 
-                if (!shape->wasOverlapping(*itAlt))
+                if (!shape->wasOverlapping(otherBody))
                 {
                     if (auto parent = dynamic_cast<PhysicsActor *>(physicsBody->getParentActor()))
                     {
-                        parent->onBeginOverlap(physicsBody, *itAlt, (*itAlt)->getParentActor(), hitInfo);
+                        parent->onBeginOverlap(physicsBody, otherBody, otherBody->getParentActor(), hitInfo);
                     }
-                    if (auto parent = dynamic_cast<PhysicsActor *>((*itAlt)->getParentActor()))
+                    if (auto parent = dynamic_cast<PhysicsActor *>(otherBody->getParentActor()))
                     {
                         hitInfo.flip();
-                        parent->onBeginOverlap(*itAlt, physicsBody, physicsBody->getParentActor(), hitInfo);
+                        parent->onBeginOverlap(otherBody, physicsBody, physicsBody->getParentActor(), hitInfo);
                     }
                 }
             }
             else
             {
-                if (shape->wasOverlapping(*itAlt))
+                if (shape->wasOverlapping(otherBody))
                 {
                     if (auto parent = dynamic_cast<PhysicsActor *>(physicsBody->getParentActor()))
                     {
-                        parent->onEndOverlap(physicsBody, *itAlt, (*itAlt)->getParentActor());
+                        parent->onEndOverlap(physicsBody, otherBody, otherBody->getParentActor());
                     }
-                    if (auto parent = dynamic_cast<PhysicsActor *>((*itAlt)->getParentActor()))
+                    if (auto parent = dynamic_cast<PhysicsActor *>(otherBody->getParentActor()))
                     {
-                        parent->onEndOverlap(*itAlt, physicsBody, physicsBody->getParentActor());
+                        parent->onEndOverlap(otherBody, physicsBody, physicsBody->getParentActor());
                     }
                 }
             }
