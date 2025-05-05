@@ -30,7 +30,7 @@ set(CMX_FILES "${CMAKE_SOURCE_DIR}/assets/")
 set(CMX_EDITOR_FILES "${CMAKE_SOURCE_DIR}/editor/")
 add_definitions(-DEDITOR_FILES="${CMX_EDITOR_FILES}")
 
-set(SHADER_FILES "./shaders/")
+set(SHADER_FILES "${CMAKE_BINARY_DIR}/shaders/")
 add_definitions(-DSHADER_FILES="${SHADER_FILES}")
 
 # Add subdirectories

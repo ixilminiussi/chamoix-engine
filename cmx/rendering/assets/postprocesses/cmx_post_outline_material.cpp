@@ -139,7 +139,6 @@ void PostOutlineMaterial::createPipeline(vk::RenderPass renderPass)
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
 
-    pipelineConfig.colorBlendAttachments.erase(pipelineConfig.colorBlendAttachments.end());
     pipelineConfig.colorBlendInfo.attachmentCount = 1;
     pipelineConfig.bindingDescriptions.clear();
     pipelineConfig.attributeDescriptions.clear();
