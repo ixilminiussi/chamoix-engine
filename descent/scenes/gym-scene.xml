@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scene name="gym">
     <assets>
-        <model filepath="assets/cmx/container.obj" name="cmx_container"/>
-        <model filepath="assets/cmx/torus.obj" name="cmx_torus"/>
+	<model filepath="assets/models/container.obj" name="cmx_container"/>
+        <model filepath=".cmx_assets/torus.obj" name="cmx_torus"/>
         <model filepath="assets/models/enemy-ship.obj" name="enemy-ship"/>
-        <model filepath="assets/cmx/sphere.obj" name="cmx_sphere"/>
-        <model filepath="assets/cmx/camera.obj" name="cmx_camera"/>
-        <model filepath="assets/cmx/plane.obj" name="cmx_plane"/>
-        <model filepath="assets/cmx/cylinder.obj" name="cmx_cylinder"/>
-        <model filepath="assets/cmx/cube.obj" name="cmx_cube"/>
+        <model filepath=".cmx_assets/sphere.obj" name="cmx_sphere"/>
+        <model filepath=".cmx_assets/camera.obj" name="cmx_camera"/>
+        <model filepath=".cmx_assets/plane.obj" name="cmx_plane"/>
+        <model filepath=".cmx_assets/cylinder.obj" name="cmx_cylinder"/>
+        <model filepath=".cmx_assets/cube.obj" name="cmx_cube"/>
         <texture filepath="assets/textures/enemy-ship.png" name="enemy-ship"/>
         <texture filepath="assets/textures/planks_big_oak.png" name="planks_big_oak"/>
         <texture filepath="assets/textures/birch_planks.png" name="birch_planks"/>
         <texture filepath="assets/textures/jungle_planks.png" name="jungle_planks"/>
         <texture filepath="assets/textures/dark_oak_planks.png" name="dark_oak_planks"/>
-        <texture filepath="assets/cmx/missing-texture.png" name="cmx_missing"/>
+        <texture filepath=".cmx_assets/missing-texture.png" name="cmx_missing"/>
         <texture filepath="assets/textures/mossy_stone_bricks.png" name="mossy_stone_bricks"/>
         <texture filepath="assets/textures/snow.png" name="snow"/>
         <texture filepath="assets/textures/chiseled_tuff_bricks.png" name="chiseled_tuff_bricks"/>
         <texture filepath="assets/textures/chiseled_tuff.png" name="chiseled_tuff"/>
         <texture filepath="assets/textures/crimson_planks.png" name="crimson_planks"/>
-        <texture filepath="assets/cmx/point-light.png" name="cmx_point_light"/>
+        <texture filepath=".cmx_assets/point-light.png" name="cmx_point_light"/>
         <texture filepath="assets/textures/acacia_planks.png" name="acacia_planks"/>
         <texture filepath="assets/textures/oak_planks.png" name="oak_planks"/>
         <texture filepath="assets/textures/stone_bricks.png" name="stone_bricks"/>
