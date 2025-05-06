@@ -2,7 +2,7 @@
 <scene name="first scene">
     <assets>
         <material type="cmx::BillboardMaterial" vertex="billboard.vert.spv" fragment="billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
-        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" scale="5" threshold="0.85600001" dotsToggle="true" name="dithered_material">
+        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" worldSpaceUV="false" scale="5" threshold="0.85600001" dotsToggle="true" name="dithered_material">
             <lightColor r="1" g="1" b="1"/>
             <darkColor r="0" g="0" b="0"/>
         </material>

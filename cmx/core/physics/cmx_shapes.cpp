@@ -80,7 +80,7 @@ void Shape::reassess()
 
     while (previousIt != _overlappingComponents[_alternativeBuffer].end())
     {
-        if (*currentIt == *previousIt)
+        if (currentIt != _overlappingComponents[_buffer].end() && *currentIt == *previousIt)
         {
             currentIt++;
             previousIt++;
@@ -104,10 +104,7 @@ void Shape::reassess()
                 }
             }
         }
-        if (currentIt != _overlappingComponents[_buffer].end())
-        {
-            currentIt++;
-        }
+
         previousIt++;
     }
 }
