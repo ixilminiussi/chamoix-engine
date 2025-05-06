@@ -24,6 +24,7 @@ class ViewportUI
     ~ViewportUI();
 
     void render(const struct FrameInfo &);
+    void update();
 
     void load();
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parent);
@@ -57,9 +58,8 @@ class ViewportUI
     void renderPlayButton();
     void renderCurrentSceneMetaData();
 
-    void autoSave();
-
-    ImGui::FileBrowser _fileDialog;
+    ImGui::FileBrowser _saveFileDialog;
+    ImGui::FileBrowser _openFileDialog;
     ImGuiDockNode *_centralNode{nullptr};
 
     bool _initialized{false};

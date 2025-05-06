@@ -27,7 +27,7 @@ namespace cmx
 {
 
 Scene::Scene(const std::string &xmlPath, class Game *game, const std::string &name)
-    : _xmlPath{xmlPath}, _game{game}, name{name} {};
+    : _xmlPath{std::string(GAME_FILES) + xmlPath}, _game{game}, name{name} {};
 
 Scene::~Scene()
 {
@@ -42,12 +42,15 @@ void Scene::load(bool skipAssets)
     loadFrom(_xmlPath, skipAssets);
 }
 
-void Scene::loadFrom(const std::string &filepath, bool skipAssets)
+void Scene::loadFrom(const std::string &filepath, bool skipAssets, bool absolute)
 {
     if (!skipAssets)
     {
         _assetsManager = std::make_unique<AssetsManager>(this);
     }
+
+    _xmlPath = absolute ? filepath : std::string(GAME_FILES) + filepath;
+
     _graphicsManager = std::make_unique<GraphicsManager>();
     _physicsManager = std::make_unique<PhysicsManager>();
     _lightEnvironment = std::make_unique<LightEnvironment>();
@@ -58,9 +61,9 @@ void Scene::loadFrom(const std::string &filepath, bool skipAssets)
     Register &cmxRegister = Register::getInstance();
 
     tinyxml2::XMLDocument doc;
-    if (doc.LoadFile((std::string(GAME_FILES) + filepath).c_str()) == tinyxml2::XML_SUCCESS)
+    if (doc.LoadFile(_xmlPath.c_str()) == tinyxml2::XML_SUCCESS)
     {
-        spdlog::info("Scene: Loading new scene from `{0}`...", filepath);
+        spdlog::info("Scene: Loading new scene from `{0}`...", _xmlPath);
 
         tinyxml2::XMLElement *rootElement = doc.RootElement();
         name = std::string(rootElement->Attribute("name"));
@@ -93,7 +96,7 @@ void Scene::loadFrom(const std::string &filepath, bool skipAssets)
     }
     else
     {
-        spdlog::warn("Scene {0}: Couldn't load scene from `{1}`, {2}", name, filepath, doc.ErrorStr());
+        spdlog::warn("Scene {0}: Couldn't load scene from `{1}`, {2}", name, _xmlPath, doc.ErrorStr());
     }
 }
 
@@ -146,10 +149,10 @@ Actor *Scene::getActorByID(uint32_t id)
     return actor;
 }
 
-void Scene::setCamera(std::shared_ptr<Camera> camera)
+void Scene::setCamera(std::shared_ptr<Camera> camera, bool bForce)
 {
 #ifndef NDEBUG
-    if (Editor::isActive())
+    if (Editor::isActive() && !bForce)
     {
         return;
     }
@@ -319,11 +322,11 @@ tinyxml2::XMLElement &Scene::save()
     return saveAs(_xmlPath.c_str());
 }
 
-tinyxml2::XMLElement &Scene::saveAs(const char *filepath)
+tinyxml2::XMLElement &Scene::saveAs(const char *filepath, bool absolute)
 {
     spdlog::info("Scene {0}: saving scene to `{1}`...", name, filepath);
 
-    _xmlPath = std::string(filepath);
+    _xmlPath = absolute ? std::string(filepath) : std::string(GAME_FILES) + std::string(filepath);
 
     tinyxml2::XMLDocument doc;
     doc.InsertFirstChild(doc.NewDeclaration());

@@ -35,9 +35,9 @@ class Scene
     }
 
     tinyxml2::XMLElement &save();
-    tinyxml2::XMLElement &saveAs(const char *filepath);
+    tinyxml2::XMLElement &saveAs(const char *filepath, bool absolute = true);
     void load(bool skipAssets = false);
-    void loadFrom(const std::string &filepath, bool skipAssets = false);
+    void loadFrom(const std::string &filepath, bool skipAssets = false, bool absolute = true);
     void unload(bool keepAssets = false);
 
     void update(float dt);
@@ -48,7 +48,7 @@ class Scene
     void addComponent(std::shared_ptr<class Component>);
     void removeComponent(std::shared_ptr<class Component>);
 
-    void setCamera(std::shared_ptr<class Camera> camera);
+    void setCamera(std::shared_ptr<class Camera> camera, bool bForce = false);
 
     const std::weak_ptr<class Camera> getCamera() const
     {

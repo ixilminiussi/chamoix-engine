@@ -122,9 +122,9 @@ void InputManager::save()
     saveAs(_filepath);
 }
 
-void InputManager::saveAs(const std::string &customFilepath)
+void InputManager::saveAs(const std::string &filepath)
 {
-    spdlog::info("InputManager: saving state to `{0}`", customFilepath);
+    spdlog::info("InputManager: saving state to `{0}`", filepath);
 
     tinyxml2::XMLDocument doc;
     doc.InsertFirstChild(doc.NewDeclaration());
@@ -139,12 +139,12 @@ void InputManager::saveAs(const std::string &customFilepath)
 
     doc.InsertEndChild(inputManagerElement);
 
-    if (doc.SaveFile(customFilepath.c_str()) != tinyxml2::XML_SUCCESS)
+    if (doc.SaveFile(filepath.c_str()) != tinyxml2::XML_SUCCESS)
     {
         spdlog::error("InputManager: {0}", doc.ErrorStr());
     };
 
-    spdlog::info("InputManager: saving success!", _filepath);
+    spdlog::info("InputManager: saving success!", filepath);
 }
 
 void InputManager::load()

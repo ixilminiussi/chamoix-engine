@@ -129,7 +129,8 @@ void ViewportUI::initImGUI()
                                  iconFontSize, &icons_config, icons_ranges);
     // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 
-    _fileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
+    _saveFileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
+    _openFileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_CreateNewDir);
 }
 
 void ViewportUI::render(const struct FrameInfo &frameInfo)
@@ -169,15 +170,38 @@ void ViewportUI::render(const struct FrameInfo &frameInfo)
 
     renderPlayButton();
 
-    _fileDialog.Display();
-    if (_fileDialog.HasSelected())
-    {
-        _attachedScene->saveAs(_fileDialog.GetSelected().string().c_str());
-        _fileDialog.ClearSelected();
-    }
+    _saveFileDialog.Display();
+    _openFileDialog.Display();
 
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), frameInfo.commandBuffer);
+}
+
+void ViewportUI::update()
+{
+    if (_saveFileDialog.HasSelected())
+    {
+        _attachedScene->saveAs(_saveFileDialog.GetSelected().string().c_str());
+        _saveFileDialog.ClearSelected();
+    }
+
+    if (_openFileDialog.HasSelected())
+    {
+        _attachedScene->unload();
+        _attachedScene->getGame()->getInputManager()->unbindAll();
+
+        if (Editor *editor = Editor::getInstance())
+        {
+            _attachedScene->loadFrom(_openFileDialog.GetSelected().string().c_str());
+
+            if (ViewportActor *viewportActor = editor->getViewportActor())
+            {
+                _attachedScene->setCamera(viewportActor->getCamera(), true);
+            }
+        }
+
+        _openFileDialog.ClearSelected();
+    }
 }
 
 void ViewportUI::renderDockSpace()
@@ -249,10 +273,18 @@ void ViewportUI::renderTopBar()
             }
             else
             {
-                _fileDialog.SetTitle("choose save location");
-                _fileDialog.SetTypeFilters({".xml"});
-                _fileDialog.Open();
+                _saveFileDialog.SetPwd(GAME_FILES);
+                _saveFileDialog.SetTitle("choose save location");
+                _saveFileDialog.SetTypeFilters({".xml"});
+                _saveFileDialog.Open();
             }
+        }
+        if (ImGui::MenuItem(ICON_MS_UPLOAD_FILE " Load from", "Ctrl+S"))
+        {
+            _openFileDialog.SetPwd(GAME_FILES);
+            _openFileDialog.SetTitle("choose save location");
+            _openFileDialog.SetTypeFilters({".xml"});
+            _openFileDialog.Open();
         }
         ImGui::EndMenu();
     }
@@ -598,13 +630,6 @@ void ViewportUI::renderCurrentSceneMetaData()
     ImGui::Text("%s", _attachedScene->getXMLPath().c_str());
 
     ImGui::End();
-}
-
-void ViewportUI::autoSave()
-{
-    const std::string path = _attachedScene->getXMLPath();
-    _attachedScene->saveAs("temp/auto-save.xml");
-    _attachedScene->setXMLPath(path);
 }
 
 void ViewportUI::guizmoToRotate(float, int)

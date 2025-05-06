@@ -75,24 +75,22 @@ void Editor::toggle(float dt, int)
     if (_active)
     {
         _viewportUI->saveState();
-        _scene->saveAs(".editor/temp.xml");
+        _scene->saveAs(".editor/temp.xml", false);
         _scene->unload(true);
         _scene->getGame()->getInputManager()->unbindAll();
 
         _active = false;
         _viewportActor->lock();
 
-        _scene->loadFrom(".editor/temp.xml", true);
+        _scene->loadFrom(".editor/temp.xml", true, false);
     }
     else
     {
         _scene->unload(true);
         _scene->getGame()->getInputManager()->unbindAll();
 
-        _active = true;
-        _scene->loadFrom(".editor/temp.xml", true);
-        _active = false;
-        _scene->setCamera(_viewportActor->getCamera());
+        _scene->loadFrom(".editor/temp.xml", true, false);
+        _scene->setCamera(_viewportActor->getCamera(), true);
         _viewportUI->reloadState();
 
         _active = true;
@@ -107,6 +105,7 @@ void Editor::update(float dt)
     if (_active)
     {
         _viewportActor->update(dt);
+        _viewportUI->update();
     }
 }
 
