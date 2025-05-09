@@ -1,3 +1,5 @@
+# ![Surface Stable Dithering Explained](https://www.notion.so/Surface-stable-fractal-dithering-1dbe6f2472698047ad97d559e5174fc7?pvs=4)
+
 # Chamoix engine
 Chamoix engine is my little vulkan/glfw/imgui game engine for 3d games with the goal of learning more about engine/graphics programming
 
