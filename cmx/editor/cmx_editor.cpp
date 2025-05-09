@@ -8,7 +8,10 @@
 #include "cmx_viewport_ui.h"
 
 // std
+#include "ImGuizmo.h"
+#include <immintrin.h>
 #include <memory>
+#include <spdlog/fmt/bundled/base.h>
 
 namespace cmx
 {
@@ -48,7 +51,7 @@ void Editor::load(Window &cmxWindow)
     _inputManager->bindAxis("viewport movement", &ViewportActor::onMovementInput, _viewportActor.get());
     _inputManager->bindAxis("viewport rotation", &ViewportActor::onMouseMovement, _viewportActor.get());
     _inputManager->bindButton("viewport toggle", &ViewportActor::select, _viewportActor.get());
-    _inputManager->bindButton("editor toggle", &Editor::toggle, this);
+    _inputManager->bindButton("editor exit", &Editor::leave, this);
     _inputManager->bindButton("translate mode", &ViewportUI::guizmoToTranslate, _viewportUI.get());
     _inputManager->bindButton("scale mode", &ViewportUI::guizmoToScale, _viewportUI.get());
     _inputManager->bindButton("rotate mode", &ViewportUI::guizmoToRotate, _viewportUI.get());
@@ -69,11 +72,16 @@ void Editor::attachScene(Scene *scene)
     _active = true;
 }
 
-void Editor::toggle(float dt, int)
+void Editor::declarePlayIntent()
 {
-    spdlog::info("toggled");
+    _playIntent = true;
+}
+
+void Editor::play()
+{
     if (_active)
     {
+        _playIntent = false;
         _viewportUI->saveState();
         _scene->saveAs(".editor/temp.xml", false);
         _scene->unload(true);
@@ -82,20 +90,61 @@ void Editor::toggle(float dt, int)
         _active = false;
         _viewportActor->lock();
 
-        _scene->loadFrom(".editor/temp.xml", true, false);
+        _scene->load(true);
     }
-    else
+}
+
+void Editor::leave(float dt, int)
+{
+    if (!_active)
     {
         _scene->unload(true);
         _scene->getGame()->getInputManager()->unbindAll();
 
-        _scene->loadFrom(".editor/temp.xml", true, false);
+        _active = true;
+        _scene->load(true);
         _scene->setCamera(_viewportActor->getCamera(), true);
         _viewportUI->reloadState();
 
-        _active = true;
         _viewportActor->unlock();
     }
+}
+
+glm::vec2 Editor::getSceneViewportSize()
+{
+    glm::vec2 size;
+    if (_viewportUI != nullptr)
+    {
+        ImVec2 imguiSize = _viewportUI->getSceneViewportSize();
+        size.x = std::max(100.f, imguiSize.x);
+        size.y = std::max(100.f, imguiSize.y);
+    }
+    else
+    {
+        size = {100.f, 100.f};
+    }
+
+    return size;
+}
+
+bool Editor::isViewportActorSelected()
+{
+    if (_viewportUI == nullptr || _viewportActor == nullptr || !_active)
+    {
+        return true;
+    }
+
+    return _viewportActor->isSelected();
+}
+
+bool Editor::isViewportActorHovered()
+{
+    if (_viewportUI == nullptr || !_active)
+    {
+        return true;
+    }
+
+    return (_viewportUI->isHoveringSceneViewport() && !ImGuizmo::IsOver());
 }
 
 void Editor::update(float dt)
@@ -106,6 +155,9 @@ void Editor::update(float dt)
     {
         _viewportActor->update(dt);
         _viewportUI->update();
+
+        if (_playIntent)
+            play();
     }
 }
 

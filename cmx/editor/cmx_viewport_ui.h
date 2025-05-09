@@ -44,12 +44,21 @@ class ViewportUI
         _attachedScene = scene;
     };
 
+    ImVec2 getSceneViewportSize();
+
+    bool isHoveringSceneViewport()
+    {
+        return _isHoveringSceneViewport;
+    }
+
   private:
+    void renderScene();
     void renderDockSpace();
     void renderTopBar();
+    void renderPlayBar();
     void renderViewportSettings();
     void renderProjectSettings();
-    void renderSceneManager();
+    void renderWorldManager();
     void renderSceneTree();
     void renderInspector();
     void renderGraphicsManager();
@@ -58,6 +67,9 @@ class ViewportUI
     void renderPlayButton();
     void renderCurrentSceneMetaData();
 
+    ImVec2 _sceneViewportSize;
+    bool _isHoveringSceneViewport;
+
     ImGui::FileBrowser _saveFileDialog;
     ImGui::FileBrowser _openFileDialog;
     ImGuiDockNode *_centralNode{nullptr};
@@ -65,17 +77,21 @@ class ViewportUI
     bool _initialized{false};
     std::unique_ptr<class DescriptorPool> _imguiPool;
 
+    bool _showScene{true};
     bool _showViewportSettings{false};
     bool _showProjectSettings{false};
-    bool _showSceneManager{false};
+    bool _showWorldManager{true};
     bool _showSceneTree{true};
-    bool _showInspector{false};
+    bool _showInspector{true};
     bool _showAssetsManager{false};
     bool _showGraphicsManager{true};
     Actor *_inspectedActor{nullptr};
 
     class Scene *_attachedScene;
     class Register *_cmxRegister;
+
+    int _menuBarHeight;
+    const int _playBarHeight = 40;
 };
 
 } // namespace cmx

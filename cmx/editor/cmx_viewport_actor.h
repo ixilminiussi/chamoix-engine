@@ -31,12 +31,19 @@ class ViewportActor
     void lock()
     {
         _locked = true;
+        _selected = false;
     };
     void unlock()
     {
         _locked = false;
+        _selected = false;
         InputManager::setMouseCapture(false, true);
     };
+
+    bool isSelected() const
+    {
+        return _selected;
+    }
 
     std::shared_ptr<class Camera> getCamera()
     {

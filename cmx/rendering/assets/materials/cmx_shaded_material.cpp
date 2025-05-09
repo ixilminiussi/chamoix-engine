@@ -123,7 +123,7 @@ void ShadedMaterial::initialize()
 
     createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
                           renderSystem->getSamplerDescriptorSetLayout()});
-    createPipeline(renderSystem->getRenderPass());
+    createPipeline(renderSystem->getGBuffer()->getRenderPass());
 }
 
 void ShadedMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

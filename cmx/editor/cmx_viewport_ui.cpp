@@ -70,8 +70,6 @@ void ViewportUI::reloadState()
 void ViewportUI::initImGUI()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
-    // 1: create descriptor pool for IMGUI
-    // the size of the pool is very oversize, but it's copied from imgui demo itself.
     Device &cmxDevice = *renderSystem->getDevice();
     Window &cmxWindow = *renderSystem->_window;
 
@@ -89,16 +87,12 @@ void ViewportUI::initImGUI()
                      .addPoolSize(vk::DescriptorType::eStorageBufferDynamic, 1000)
                      .addPoolSize(vk::DescriptorType::eInputAttachment, 1000)
                      .build();
-    // 2: initialize imgui library
 
-    // this initializes the core structures of imgui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    // this initializes imgui for SDL
     ImGui_ImplGlfw_InitForVulkan(cmxWindow.getGLFWwindow(), true);
 
-    // this initializes imgui for Vulkan
     ImGui_ImplVulkan_InitInfo init_info = {};
     init_info.Instance = cmxDevice.instance();
     init_info.PhysicalDevice = cmxDevice.physicalDevice();
@@ -119,7 +113,6 @@ void ViewportUI::initImGUI()
 
     float iconFontSize = 16.0f;
 
-    // merge in icons from Font Awesome
     static const ImWchar icons_ranges[] = {ICON_MIN_MS, ICON_MAX_16_MS, 0};
     ImFontConfig icons_config;
     icons_config.MergeMode = true;
@@ -127,15 +120,14 @@ void ViewportUI::initImGUI()
     icons_config.GlyphOffset = {0.0f, 4.0f};
     io.Fonts->AddFontFromFileTTF((std::string(EDITOR_FILES) + std::string("MaterialIcons-Regular.ttf")).c_str(),
                                  iconFontSize, &icons_config, icons_ranges);
-    // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 
     _saveFileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
     _openFileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_CreateNewDir);
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 }
 
 void ViewportUI::render(const struct FrameInfo &frameInfo)
 {
-    // imgui new frame
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
 
@@ -144,8 +136,11 @@ void ViewportUI::render(const struct FrameInfo &frameInfo)
     renderDockSpace();
 
     renderTopBar();
-    renderGuizmoManager();
+    renderPlayBar();
     renderCurrentSceneMetaData();
+
+    if (_showScene)
+        renderScene();
 
     if (_showGraphicsManager)
         renderGraphicsManager();
@@ -159,14 +154,14 @@ void ViewportUI::render(const struct FrameInfo &frameInfo)
     if (_showSceneTree)
         renderSceneTree();
 
-    if (_showInspector)
-        renderInspector();
-
     if (_showAssetsManager)
         renderAssetsManager();
 
-    if (_showSceneManager)
-        renderSceneManager();
+    if (_showWorldManager)
+        renderWorldManager();
+
+    if (_showInspector)
+        renderInspector();
 
     renderPlayButton();
 
@@ -204,6 +199,52 @@ void ViewportUI::update()
     }
 }
 
+void ViewportUI::renderScene()
+{
+    _showScene = true;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("Scene");
+    ImGui::PopStyleVar(3);
+
+    ImVec2 origin = ImGui::GetCursorScreenPos();
+    ImGui::SetNextWindowPos(ImVec2(origin.x + 20, origin.y + 20));
+    renderGuizmoManager();
+
+    RenderSystem *renderSystem = RenderSystem::getInstance();
+    if (renderSystem)
+    {
+        VkDescriptorSet descriptorSet =
+            renderSystem->getSamplerDescriptorSet(renderSystem->getSamplerDescriptorSetID()).operator VkDescriptorSet();
+
+        _sceneViewportSize = ImGui::GetContentRegionAvail();
+        ImGui::BeginChild("SceneViewport", _sceneViewportSize, false);
+        ImGui::Image((ImTextureID)descriptorSet, ImVec2(_sceneViewportSize.x, _sceneViewportSize.y));
+        _isHoveringSceneViewport = ImGui::IsItemHovered();
+
+        if (_inspectedActor)
+        {
+            ImGuizmo::BeginFrame();
+            ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+
+            ImVec2 size = ImGui::GetWindowSize();
+            ImGuizmo::SetRect(origin.x, origin.y, size.x, size.y);
+            _inspectedActor->Transformable::editor(Editor::getInstance()->getViewportActor()->getCamera().get());
+        }
+
+        ImGui::EndChild();
+    }
+
+    ImGui::End();
+}
+
+ImVec2 ViewportUI::getSceneViewportSize()
+{
+    return _sceneViewportSize;
+}
+
 void ViewportUI::renderDockSpace()
 {
     ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -211,36 +252,43 @@ void ViewportUI::renderDockSpace()
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
 
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking |
-                                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-                                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar |
+                                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                                     ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
+    ImGui::SetNextWindowPos(ImVec2(0, _playBarHeight));
     ImGui::Begin("DockSpace Window", nullptr, window_flags);
     ImGui::PopStyleVar(3);
-    ImGui::PopStyleColor(1);
 
     ImGuiID dockspace_id = ImGui::GetID("GlobalDockspace");
-    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f),
-                     ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingOverCentralNode);
+    ImGui::DockSpace(dockspace_id, ImVec2(0, 0));
+
     ImGui::End();
 
     static bool doneAlready{false};
 
     if (!doneAlready)
     {
-        // Remove old layout and create a new dockspace
         ImGui::DockBuilderRemoveNode(dockspace_id);
+        ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
-        ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_PassthruCentralNode);
-        ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
+        ImGuiID dock_main_id = dockspace_id;
+        ImGuiID left_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.2f, nullptr, &dock_main_id);
+        ImGuiID left_bottom_id = ImGui::DockBuilderSplitNode(left_id, ImGuiDir_Down, 0.2f, nullptr, &left_id);
+        ImGuiID right_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.2f, nullptr, &dock_main_id);
+        ImGuiID bottom_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.3f, nullptr, &dock_main_id);
 
-        // Finalize layout
+        ImGui::DockBuilderDockWindow("Scene Tree", left_id);
+        ImGui::DockBuilderDockWindow("Graphics Manager", left_bottom_id);
+        ImGui::DockBuilderDockWindow("World Manager", left_bottom_id);
+        ImGui::DockBuilderDockWindow("Inspector", right_id);
+        ImGui::DockBuilderDockWindow("Scene", dock_main_id);
+
         ImGui::DockBuilderFinish(dockspace_id);
 
         doneAlready = true;
@@ -316,11 +364,40 @@ void ViewportUI::renderTopBar()
         }
         if (ImGui::MenuItem(ICON_MS_SETTINGS " Scene Manager"))
         {
-            renderSceneManager();
+            renderWorldManager();
         }
         ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
+
+    _menuBarHeight = ImGui::GetFrameHeight();
+}
+
+void ViewportUI::renderPlayBar()
+{
+    ImGui::SetNextWindowPos(ImVec2(0, _menuBarHeight));
+    ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, _playBarHeight));
+
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings |
+                             ImGuiWindowFlags_NoCollapse;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::Begin("Toolbar", nullptr, flags);
+
+    float windowWidth = ImGui::GetContentRegionAvail().x;
+    float buttonWidth = 40.0f;
+
+    ImGui::SetCursorPosX((windowWidth - buttonWidth) * 0.5f);
+    if (ImGui::Button(ICON_MS_PLAY_ARROW "##PlayBar", ImVec2(buttonWidth, 0)))
+    {
+        Editor *editor = Editor::getInstance();
+        editor->declarePlayIntent();
+    }
+
+    ImGui::End();
+    ImGui::PopStyleVar(2);
 }
 
 void ViewportUI::renderViewportSettings()
@@ -375,7 +452,7 @@ void ViewportUI::renderProjectSettings()
     }
 }
 
-void ViewportUI::renderSceneManager()
+void ViewportUI::renderWorldManager()
 {
     if (_attachedScene == nullptr)
     {
@@ -384,9 +461,9 @@ void ViewportUI::renderSceneManager()
 
     static int activeTab = 0;
 
-    _showSceneManager = true;
+    _showWorldManager = true;
 
-    ImGui::Begin("Scene Manager", &_showSceneManager, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("World Manager", &_showWorldManager, ImGuiWindowFlags_AlwaysAutoResize);
 
     if (ImGui::BeginTabBar(""))
     {
@@ -400,9 +477,8 @@ void ViewportUI::renderSceneManager()
         }
 
         ImGui::EndTabBar();
-
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 void ViewportUI::renderSceneTree()
@@ -543,14 +619,6 @@ void ViewportUI::renderGraphicsManager()
 
 void ViewportUI::renderGuizmoManager()
 {
-    if (_centralNode != nullptr)
-    {
-        ImVec2 pos = _centralNode->Pos;
-        pos.x += 155.f;
-        pos.y += 20.f;
-        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
-    }
-
     ImGui::Begin("##2", nullptr,
                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
@@ -582,7 +650,7 @@ void ViewportUI::renderAssetsManager()
 {
     _showAssetsManager = true;
 
-    ImGui::Begin("AssetsManager", &_showInspector);
+    ImGui::Begin("Assets Manager", &_showInspector);
     if (AssetsManager *assetsManager = _attachedScene->getAssetsManager())
     {
         assetsManager->editor();

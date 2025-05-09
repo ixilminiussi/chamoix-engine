@@ -60,7 +60,7 @@ void VoidMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout()});
-    createPipeline(renderSystem->getRenderPass());
+    createPipeline(renderSystem->getGBuffer()->getRenderPass());
 }
 
 void VoidMaterial::initialize(vk::RenderPass renderPass, vk::DescriptorSetLayout shadowUboLayout)

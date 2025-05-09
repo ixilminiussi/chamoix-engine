@@ -177,15 +177,6 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
         material->bind(frameInfo, nullptr);
         frameInfo->commandBuffer.draw(6, 1, 0, 0);
     }
-
-#ifndef NDEBUG
-    if (Editor::isActive())
-    {
-        Editor *editor = Editor::getInstance();
-        editor->render(*frameInfo);
-    }
-#endif
-
     _renderSystem->endPostProcess(frameInfo);
 }
 

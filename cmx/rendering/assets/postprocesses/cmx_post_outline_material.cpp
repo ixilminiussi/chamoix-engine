@@ -22,7 +22,7 @@ void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
     {
         _pipeline->bind(frameInfo->commandBuffer);
 
-        size_t *descriptorSetIDs = _renderSystem->getSamplerDescriptorSetIDs();
+        size_t *descriptorSetIDs = _renderSystem->getGBuffer()->getSamplerDescriptorSetIDs();
         frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, 1,
                                                     &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[0])), 0,
                                                     nullptr);
@@ -104,7 +104,7 @@ void PostOutlineMaterial::initialize()
 
     createPipelineLayout({renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
                           renderSystem->getSamplerDescriptorSetLayout()});
-    createPipeline(renderSystem->getRenderer()->getSwapChainRenderPass());
+    createPipeline(renderSystem->getRenderPass());
 }
 
 void PostOutlineMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

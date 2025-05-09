@@ -71,7 +71,7 @@ void BillboardMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout()});
-    createPipeline(renderSystem->getRenderPass());
+    createPipeline(renderSystem->getGBuffer()->getRenderPass());
 }
 
 void BillboardMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

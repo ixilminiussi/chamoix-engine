@@ -144,7 +144,7 @@ void DitheredMaterial::initialize()
 
     createPipelineLayout({renderSystem->getGlobalSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
                           renderSystem->getSamplerDescriptorSetLayout()});
-    createPipeline(renderSystem->getRenderPass());
+    createPipeline(renderSystem->getGBuffer()->getRenderPass());
 }
 
 void DitheredMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

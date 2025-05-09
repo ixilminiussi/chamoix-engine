@@ -37,7 +37,7 @@ void HudMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({});
-    createPipeline(renderSystem->getRenderPass());
+    createPipeline(renderSystem->getGBuffer()->getRenderPass());
 }
 
 void HudMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

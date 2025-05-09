@@ -72,6 +72,10 @@ void Scene::loadFrom(const std::string &filepath, bool skipAssets, bool absolute
         {
             _assetsManager->load(rootElement);
         }
+        else
+        {
+            _assetsManager->loadPostProcesses(rootElement);
+        }
         _lightEnvironment->load(rootElement);
         _graphicsManager->load(rootElement, _assetsManager.get());
 
@@ -107,6 +111,10 @@ void Scene::unload(bool keepAssets)
     {
         _assetsManager->unload();
         delete _assetsManager.release();
+    }
+    else
+    {
+        _assetsManager->unloadPostProcesses();
     }
     delete _graphicsManager.release();
     delete _physicsManager.release();
@@ -345,7 +353,7 @@ tinyxml2::XMLElement &Scene::saveAs(const char *filepath, bool absolute)
 
     doc.InsertEndChild(sceneElement);
 
-    if (doc.SaveFile((std::string(GAME_FILES) + _xmlPath).c_str()) != tinyxml2::XML_SUCCESS)
+    if (doc.SaveFile(_xmlPath.c_str()) != tinyxml2::XML_SUCCESS)
     {
         spdlog::error("Scene {0}: {1}", name, doc.ErrorStr());
     };

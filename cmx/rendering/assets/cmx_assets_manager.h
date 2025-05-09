@@ -24,7 +24,15 @@ class AssetsManager final
 
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *);
     void load(tinyxml2::XMLElement *);
+    void loadModels(tinyxml2::XMLElement *);
+    void loadTextures(tinyxml2::XMLElement *);
+    void loadMaterials(tinyxml2::XMLElement *);
+    void loadPostProcesses(tinyxml2::XMLElement *);
     void unload();
+    void unloadModels();
+    void unloadTextures();
+    void unloadMaterials();
+    void unloadPostProcesses();
 
     void editor();
 

@@ -105,7 +105,7 @@ AssetsManager::~AssetsManager()
 {
 }
 
-void AssetsManager::load(tinyxml2::XMLElement *parentElement)
+void AssetsManager::loadModels(tinyxml2::XMLElement *parentElement)
 {
     if (tinyxml2::XMLElement *assetsElement = parentElement->FirstChildElement("assets"))
     {
@@ -116,7 +116,12 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 
             modelElement = modelElement->NextSiblingElement("model");
         }
-
+    }
+}
+void AssetsManager::loadTextures(tinyxml2::XMLElement *parentElement)
+{
+    if (tinyxml2::XMLElement *assetsElement = parentElement->FirstChildElement("assets"))
+    {
         tinyxml2::XMLElement *textureElement = assetsElement->FirstChildElement("texture");
         while (textureElement)
         {
@@ -139,7 +144,12 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 
             textureElement = textureElement->NextSiblingElement("texture");
         }
-
+    }
+}
+void AssetsManager::loadMaterials(tinyxml2::XMLElement *parentElement)
+{
+    if (tinyxml2::XMLElement *assetsElement = parentElement->FirstChildElement("assets"))
+    {
         tinyxml2::XMLElement *materialElement = assetsElement->FirstChildElement("material");
         while (materialElement)
         {
@@ -168,7 +178,12 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 
             materialElement = materialElement->NextSiblingElement("material");
         }
-
+    }
+}
+void AssetsManager::loadPostProcesses(tinyxml2::XMLElement *parentElement)
+{
+    if (tinyxml2::XMLElement *assetsElement = parentElement->FirstChildElement("assets"))
+    {
         tinyxml2::XMLElement *postProcessElement = assetsElement->FirstChildElement("postProcess");
         while (postProcessElement)
         {
@@ -200,22 +215,30 @@ void AssetsManager::load(tinyxml2::XMLElement *parentElement)
     }
 }
 
-void AssetsManager::unload()
+void AssetsManager::load(tinyxml2::XMLElement *parentElement)
 {
-    spdlog::info("AssetsManager: Unloading assets manager...");
+    loadModels(parentElement);
+    loadTextures(parentElement);
+    loadMaterials(parentElement);
+    loadPostProcesses(parentElement);
+}
+
+void AssetsManager::unloadModels()
+{
+    auto it = _models.begin();
+
+    while (it != _models.end())
     {
-        auto it = _models.begin();
-
-        while (it != _models.end())
-        {
-            (*it).second->free();
-            spdlog::info("AssetsManager: Unloaded model [{0}]", (*it).first);
-            it++;
-        }
-
-        _models.clear();
+        (*it).second->free();
+        spdlog::info("AssetsManager: Unloaded model [{0}]", (*it).first);
+        it++;
     }
 
+    _models.clear();
+}
+
+void AssetsManager::unloadTextures()
+{
     {
         auto it = _textures2D.begin();
 
@@ -241,34 +264,47 @@ void AssetsManager::unload()
 
         _textures3D.clear();
     }
+}
 
+void AssetsManager::unloadMaterials()
+{
+    auto it = _materials.begin();
+
+    while (it != _materials.end())
     {
-        auto it = _materials.begin();
-
-        while (it != _materials.end())
-        {
-            (*it).second->free();
-            delete (*it).second;
-            spdlog::info("AssetsManager: Unloaded material [{0}]", (*it).first);
-            it++;
-        }
-
-        _materials.clear();
+        (*it).second->free();
+        delete (*it).second;
+        spdlog::info("AssetsManager: Unloaded material [{0}]", (*it).first);
+        it++;
     }
 
+    _materials.clear();
+}
+
+void AssetsManager::unloadPostProcesses()
+{
+    auto it = _postProcesses.begin();
+
+    while (it != _postProcesses.end())
     {
-        auto it = _postProcesses.begin();
-
-        while (it != _postProcesses.end())
-        {
-            (*it).second->free();
-            delete (*it).second;
-            spdlog::info("AssetsManager: Unloaded postProcess [{0}]", (*it).first);
-            it++;
-        }
-
-        _postProcesses.clear();
+        (*it).second->free();
+        delete (*it).second;
+        spdlog::info("AssetsManager: Unloaded postProcess [{0}]", (*it).first);
+        it++;
     }
+
+    _postProcesses.clear();
+}
+
+void AssetsManager::unload()
+{
+    spdlog::info("AssetsManager: Unloading assets manager...");
+
+    unloadMaterials();
+    unloadTextures();
+    unloadMaterials();
+    unloadPostProcesses();
+
     spdlog::info("AssetsManager: Successfully unloaded assets manager!");
 }
 

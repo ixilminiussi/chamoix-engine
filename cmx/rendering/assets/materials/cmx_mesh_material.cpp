@@ -74,7 +74,7 @@ void MeshMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({renderSystem->getGlobalSetLayout()});
-    createPipeline(renderSystem->getRenderPass());
+    createPipeline(renderSystem->getGBuffer()->getRenderPass());
 }
 
 void MeshMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)

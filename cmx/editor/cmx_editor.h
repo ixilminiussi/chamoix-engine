@@ -2,6 +2,7 @@
 #define CMX_EDITOR
 
 // lib
+#include <glm/ext/vector_float2.hpp>
 #include <vulkan/vulkan_core.h>
 
 // std
@@ -18,7 +19,8 @@ class Editor
 
     void load(class Window &);
     void attachScene(class Scene *);
-    void toggle(float dt, int);
+    void declarePlayIntent();
+    void leave(float dt, int);
     void update(float dt);
     void render(const struct FrameInfo &);
 
@@ -33,6 +35,9 @@ class Editor
     {
         return _viewportActor.get();
     }
+    glm::vec2 getSceneViewportSize();
+    bool isViewportActorSelected();
+    bool isViewportActorHovered();
 
     static bool isActive()
     {
@@ -40,6 +45,9 @@ class Editor
     }
 
   protected:
+    void play();
+    bool _playIntent{false};
+
     Editor();
 
     static Editor *_instance;

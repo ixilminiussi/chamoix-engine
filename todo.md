@@ -12,19 +12,21 @@
 - [ ] compute shaders
 - [ ] ssao post process
 - [ ] shadow buffer, DYNAMIC vs STATIC and editor auto refresh mode
-- [ ] clouds
-- [ ] propper sky texture
+- [ ] clouds port from openGl
+- [ ] propper sky rendering
 - [ ] point light n2..?
 
 ### Physics
-- [ ] import Bullet physics
+- [ ] implement Bullet physics
 
 ### editor
 - [x] graphics manager
-- [ ] default window placement
-- [ ] Play, pause buttons
+- [x] default window placement
+- [x] Play, pause buttons
 - [x] Save as, load from bug fix
-- [ ] Separate editor window
+- [x] Separate editor window
+- [ ] Debug, now Build
+- [ ] Terminal tab
 - [ ] file explorer
 
 ### fix

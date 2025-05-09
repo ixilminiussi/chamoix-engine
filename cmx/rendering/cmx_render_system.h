@@ -3,6 +3,7 @@
 
 // cmx
 #include "cmx_descriptors.h"
+#include "cmx_g_buffer.h"
 #include "cmx_light_environment.h"
 #include "cmx_viewport_ui.h"
 
@@ -80,45 +81,48 @@ class RenderSystem
     {
         return _renderer.get();
     };
-    vk::RenderPass getRenderPass()
+    vk::RenderPass getRenderPass();
+    size_t getSamplerDescriptorSetID()
     {
-        return _renderPass;
-    };
-    size_t *getSamplerDescriptorSetIDs()
+        return _samplerDescriptorSetID;
+    }
+    class GBuffer *getGBuffer()
     {
-        return _samplerDescriptorSetIDs;
+        return _gBuffer.get();
+    }
+    vk::Extent2D getResolution() const
+    {
+        return _resolution;
     }
 
   private:
     RenderSystem();
     void initializeUbo();
 
-    void initializeScreenTextures();
-    void createImages();
-    void createImageViews();
+    void createGBuffer();
+
+#ifndef NDEBUG
+    void createTexture();
+    void createImage();
+    void createImageView();
     void createRenderPass();
     void createFrameBuffer();
-    void createSamplers();
+    void createSampler();
 
-    void freeImages();
-
-    vk::Format _colorFormat;
-    vk::Image _colorImage;
-    vk::ImageView _colorImageView;
-    vk::Sampler _colorSampler;
-    size_t _samplerDescriptorSetIDs[3];
-    vk::DeviceMemory _colorImageMemory;
-    vk::Image _normalImage;
-    vk::ImageView _normalImageView;
-    vk::Sampler _normalSampler;
-    vk::DeviceMemory _normalImageMemory;
-    vk::Image _depthImage;
-    vk::ImageView _depthImageView;
-    vk::Sampler _depthSampler;
-    vk::DeviceMemory _depthImageMemory;
-    vk::Extent2D _imageResolution;
+    size_t _samplerDescriptorSetID;
+    vk::Format _format;
+    vk::Image _image;
+    vk::ImageView _imageView;
+    vk::Sampler _sampler;
+    vk::DeviceMemory _imageMemory;
+    vk::Extent2D _resolution;
     vk::RenderPass _renderPass;
     vk::Framebuffer _framebuffer;
+
+    void freeImages();
+#endif
+
+    std::unique_ptr<class GBuffer> _gBuffer;
 
     std::unique_ptr<class DescriptorPool> _globalPool{};
 

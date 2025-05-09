@@ -1,16 +1,17 @@
 #include "cmx_input_action.h"
 
 // cmx
+#include "cmx_editor.h"
 #include "cmx_input_manager.h"
 #include "cmx_inputs.h"
 #include "cmx_window.h"
-#include "imgui.h"
 
 // lib
 #include <GLFW/glfw3.h>
 #include <IconsMaterialSymbols.h>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/geometric.hpp>
+#include <imgui.h>
 #include <spdlog/spdlog.h>
 
 // std
@@ -91,49 +92,27 @@ void ButtonAction::poll(const Window &window, float dt)
         switch (button.source)
         {
         case InputSource::KEYBOARD:
-#ifndef NDEBUG
-            if (!ImGui::GetIO().WantCaptureKeyboard)
-            {
-#endif
-                button.status = glfwGetKey(window.getGLFWwindow(), button.code);
+            button.status = glfwGetKey(window.getGLFWwindow(), button.code);
 
-                if (_buttonType == Type::SHORTCUT)
-                {
-                    newStatus &= button.status;
-                }
-                else
-                {
-                    newStatus |= button.status;
-                }
-#ifndef NDEBUG
+            if (_buttonType == Type::SHORTCUT)
+            {
+                newStatus &= button.status;
             }
             else
             {
-                newStatus = 0;
+                newStatus |= button.status;
             }
-#endif
             break;
         case InputSource::MOUSE:
-#ifndef NDEBUG
-            if (!ImGui::GetIO().WantCaptureMouse)
+            button.status = glfwGetMouseButton(window.getGLFWwindow(), button.code);
+            if (_buttonType == Type::SHORTCUT)
             {
-#endif
-                button.status = glfwGetMouseButton(window.getGLFWwindow(), button.code);
-                if (_buttonType == Type::SHORTCUT)
-                {
-                    newStatus &= button.status;
-                }
-                else
-                {
-                    newStatus |= button.status;
-                }
-#ifndef NDEBUG
+                newStatus &= button.status;
             }
             else
             {
-                newStatus = 0;
+                newStatus |= button.status;
             }
-#endif
             break;
         case InputSource::GAMEPAD:
             // TODO: Gamepad support
@@ -199,16 +178,10 @@ void AxisAction::poll(const Window &window, float dt)
             switch (_buttons[i].source)
             {
             case InputSource::KEYBOARD:
-#ifndef NDEBUG
-                if (!ImGui::GetIO().WantCaptureKeyboard)
-#endif
-                    _buttons[i].status = glfwGetKey(window.getGLFWwindow(), _buttons[i].code);
+                _buttons[i].status = glfwGetKey(window.getGLFWwindow(), _buttons[i].code);
                 break;
             case InputSource::MOUSE:
-#ifndef NDEBUG
-                if (!ImGui::GetIO().WantCaptureMouse)
-#endif
-                    _buttons[i].status = glfwGetMouseButton(window.getGLFWwindow(), _buttons[i].code);
+                _buttons[i].status = glfwGetMouseButton(window.getGLFWwindow(), _buttons[i].code);
                 break;
             case InputSource::GAMEPAD:
                 // TODO: Gamepad support

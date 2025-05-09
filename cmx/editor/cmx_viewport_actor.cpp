@@ -79,8 +79,11 @@ void ViewportActor::onMouseMovement(float dt, glm::vec2 mousePosition)
 
 void ViewportActor::select(float dt, int val)
 {
-    if (_locked)
+    if (_locked || !Editor::getInstance()->isViewportActorHovered())
+    {
         return;
+        _selected = false;
+    }
 
     if (val == 1)
     {

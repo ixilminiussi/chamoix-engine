@@ -2,6 +2,7 @@
 
 // cmx
 #include "cmx_camera.h"
+#include "cmx_editor.h"
 #include "cmx_scene.h"
 
 // lib
@@ -203,6 +204,7 @@ void Transformable::setScale(const glm::vec3 &scale)
     _transform.scale = scale;
 }
 
+#ifndef NDEBUG
 void Transformable::editor(class Camera *camera)
 {
     if (camera == nullptr)
@@ -210,12 +212,8 @@ void Transformable::editor(class Camera *camera)
 
     static ImGuizmo::MODE currentGuizmoMode{ImGuizmo::WORLD};
 
-    ImGuiIO &io = ImGui::GetIO();
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
     glm::mat4 localMat = _transform.mat4();
 
-    ImGuizmo::BeginFrame();
     glm::mat4 projection = camera->getProjection();
     projection[1][1] *= -1;
 
@@ -228,5 +226,6 @@ void Transformable::editor(class Camera *camera)
 
     _transform.fromMat4(localMat);
 }
+#endif
 
 } // namespace cmx
