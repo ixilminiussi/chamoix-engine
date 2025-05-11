@@ -1,3 +1,7 @@
+#include "cmx_sink.h"
+#include <spdlog/common.h>
+#include <spdlog/sinks/ansicolor_sink.h>
+#ifndef NDEBUG
 #include "cmx_viewport_ui.h"
 
 // cmx
@@ -148,6 +152,9 @@ void ViewportUI::render(const struct FrameInfo &frameInfo)
     if (_showProjectSettings)
         renderProjectSettings();
 
+    if (_showLogger)
+        renderLogger();
+
     if (_showViewportSettings)
         renderViewportSettings();
 
@@ -199,52 +206,6 @@ void ViewportUI::update()
     }
 }
 
-void ViewportUI::renderScene()
-{
-    _showScene = true;
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("Scene");
-    ImGui::PopStyleVar(3);
-
-    ImVec2 origin = ImGui::GetCursorScreenPos();
-    ImGui::SetNextWindowPos(ImVec2(origin.x + 20, origin.y + 20));
-    renderGuizmoManager();
-
-    RenderSystem *renderSystem = RenderSystem::getInstance();
-    if (renderSystem)
-    {
-        VkDescriptorSet descriptorSet =
-            renderSystem->getSamplerDescriptorSet(renderSystem->getSamplerDescriptorSetID()).operator VkDescriptorSet();
-
-        _sceneViewportSize = ImGui::GetContentRegionAvail();
-        ImGui::BeginChild("SceneViewport", _sceneViewportSize, false);
-        ImGui::Image((ImTextureID)descriptorSet, ImVec2(_sceneViewportSize.x, _sceneViewportSize.y));
-        _isHoveringSceneViewport = ImGui::IsItemHovered();
-
-        if (_inspectedActor)
-        {
-            ImGuizmo::BeginFrame();
-            ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-
-            ImVec2 size = ImGui::GetWindowSize();
-            ImGuizmo::SetRect(origin.x, origin.y, size.x, size.y);
-            _inspectedActor->Transformable::editor(Editor::getInstance()->getViewportActor()->getCamera().get());
-        }
-
-        ImGui::EndChild();
-    }
-
-    ImGui::End();
-}
-
-ImVec2 ViewportUI::getSceneViewportSize()
-{
-    return _sceneViewportSize;
-}
-
 void ViewportUI::renderDockSpace()
 {
     ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -287,6 +248,7 @@ void ViewportUI::renderDockSpace()
         ImGui::DockBuilderDockWindow("Graphics Manager", left_bottom_id);
         ImGui::DockBuilderDockWindow("World Manager", left_bottom_id);
         ImGui::DockBuilderDockWindow("Inspector", right_id);
+        ImGui::DockBuilderDockWindow("Logger", bottom_id);
         ImGui::DockBuilderDockWindow("Scene", dock_main_id);
 
         ImGui::DockBuilderFinish(dockspace_id);
@@ -371,6 +333,52 @@ void ViewportUI::renderTopBar()
     ImGui::EndMainMenuBar();
 
     _menuBarHeight = ImGui::GetFrameHeight();
+}
+
+void ViewportUI::renderScene()
+{
+    _showScene = true;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("Scene");
+    ImGui::PopStyleVar(3);
+
+    ImVec2 origin = ImGui::GetCursorScreenPos();
+    ImGui::SetNextWindowPos(ImVec2(origin.x + 20, origin.y + 20));
+    renderGuizmoManager();
+
+    RenderSystem *renderSystem = RenderSystem::getInstance();
+    if (renderSystem)
+    {
+        VkDescriptorSet descriptorSet =
+            renderSystem->getSamplerDescriptorSet(renderSystem->getSamplerDescriptorSetID()).operator VkDescriptorSet();
+
+        _sceneViewportSize = ImGui::GetContentRegionAvail();
+        ImGui::BeginChild("SceneViewport", _sceneViewportSize, false);
+        ImGui::Image((ImTextureID)descriptorSet, ImVec2(_sceneViewportSize.x, _sceneViewportSize.y));
+        _isHoveringSceneViewport = ImGui::IsItemHovered();
+
+        if (_inspectedActor)
+        {
+            ImGuizmo::BeginFrame();
+            ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+
+            ImVec2 size = ImGui::GetWindowSize();
+            ImGuizmo::SetRect(origin.x, origin.y, size.x, size.y);
+            _inspectedActor->Transformable::editor(Editor::getInstance()->getViewportActor()->getCamera().get());
+        }
+
+        ImGui::EndChild();
+    }
+
+    ImGui::End();
+}
+
+ImVec2 ViewportUI::getSceneViewportSize()
+{
+    return _sceneViewportSize;
 }
 
 void ViewportUI::renderPlayBar()
@@ -658,6 +666,62 @@ void ViewportUI::renderAssetsManager()
     ImGui::End();
 }
 
+void ViewportUI::renderLogger()
+{
+    static bool bOneTime{true};
+    static std::shared_ptr<EditorSink<std::mutex>> editorSink = std::make_shared<EditorSink<std::mutex>>();
+    if (bOneTime)
+    {
+        auto terminalSink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
+        std::vector<spdlog::sink_ptr> sinks{terminalSink, editorSink};
+
+        std::shared_ptr<spdlog::logger> editorLogger = std::make_shared<spdlog::logger>("", sinks.begin(), sinks.end());
+        spdlog::set_default_logger(editorLogger);
+        bOneTime = false;
+    }
+
+    _showLogger = true;
+
+    if (ImGui::Begin("Logger"))
+    {
+        ImGui::BeginChild("LogRegion", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);
+
+        for (const auto &[string, logLevel] : editorSink->getLines())
+        {
+            ImVec4 color;
+            switch (logLevel)
+            {
+            case spdlog::level::level_enum::err:
+                color = {255.f, 85.f, 85.f, 255.f};
+                break;
+            case spdlog::level::level_enum::warn:
+                color = {241.f, 250.f, 140.f, 255.f};
+                break;
+            case spdlog::level::level_enum::critical:
+                color = {255.f, 121.f, 198.f, 255.f};
+                break;
+            case spdlog::level::level_enum::debug:
+                color = {139.f, 233.f, 253.f, 255.f};
+                break;
+            default:
+                color = {80.f, 250.f, 123.f, 255.0f};
+                break;
+            }
+            color.x /= 255.f;
+            color.y /= 255.f;
+            color.z /= 255.f;
+            color.w /= 255.f;
+
+            ImGui::PushStyleColor(ImGuiCol_Text, color);
+            ImGui::TextUnformatted(string.c_str());
+            ImGui::PopStyleColor();
+        }
+
+        ImGui::EndChild();
+        ImGui::End();
+    }
+}
+
 void ViewportUI::renderPlayButton()
 {
     //     ImGuiIO &io = ImGui::GetIO();
@@ -724,3 +788,4 @@ void ViewportUI::duplicateSelected(float, int)
 }
 
 } // namespace cmx
+#endif

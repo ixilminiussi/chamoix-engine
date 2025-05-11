@@ -104,9 +104,6 @@ void GBuffer::createTextures(vk::Extent2D resolution, Device *device)
     createRenderPass(device);
     createFrameBuffer(device);
     createSamplers(device);
-
-    spdlog::info("GBuffer: GBuffer RenderPass reloaded with x: {0}, y: {1} resolution", _resolution.width,
-                 _resolution.height);
 }
 
 void GBuffer::createImages(Device *device)

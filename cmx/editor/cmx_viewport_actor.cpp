@@ -1,9 +1,9 @@
+#ifndef NDEBUG
 #include "cmx_viewport_actor.h"
 
 // cmx
 #include "cmx_camera.h"
 #include "cmx_editor.h"
-#include "cmx_game.h"
 #include "cmx_input_manager.h"
 
 // lib
@@ -109,3 +109,4 @@ void ViewportActor::editor()
 }
 
 } // namespace cmx
+#endif

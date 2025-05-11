@@ -1,3 +1,4 @@
+#ifndef NDEBUG
 #ifndef CMX_VIEWPORT_UI
 #define CMX_VIEWPORT_UI
 
@@ -56,6 +57,7 @@ class ViewportUI
     void renderDockSpace();
     void renderTopBar();
     void renderPlayBar();
+    void renderLogger();
     void renderViewportSettings();
     void renderProjectSettings();
     void renderWorldManager();
@@ -77,6 +79,7 @@ class ViewportUI
     bool _initialized{false};
     std::unique_ptr<class DescriptorPool> _imguiPool;
 
+    bool _showLogger{true};
     bool _showScene{true};
     bool _showViewportSettings{false};
     bool _showProjectSettings{false};
@@ -96,4 +99,5 @@ class ViewportUI
 
 } // namespace cmx
 
+#endif
 #endif

@@ -382,9 +382,6 @@ void RenderSystem::createTexture()
     createRenderPass();
     createFrameBuffer();
     createSampler();
-
-    spdlog::info("RenderSystem: GBuffer RenderPass reloaded with x: {0}, y: {1} resolution", _resolution.width,
-                 _resolution.height);
 }
 
 void RenderSystem::createImage()

@@ -18,3 +18,7 @@ target_link_libraries(cmx PRIVATE tinyxml2 imgui imguizmo imgui_gradient tinyobj
 if(UNIX AND NOT APPLE)
   target_link_libraries(cmx PRIVATE dl pthread X11 Xxf86vm Xrandr Xi)
 endif()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    target_compile_options(cmx PRIVATE -Wno-cpp)
+endif()

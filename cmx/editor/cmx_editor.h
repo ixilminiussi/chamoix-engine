@@ -1,3 +1,4 @@
+#ifndef NDEBUG
 #ifndef CMX_EDITOR
 #define CMX_EDITOR
 
@@ -63,4 +64,5 @@ class Editor
 
 } // namespace cmx
 
+#endif
 #endif

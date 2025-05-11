@@ -1,3 +1,4 @@
+#ifndef NDEBUG
 #ifndef CMX_VIEWPORT_ACTOR
 #define CMX_VIEWPORT_ACTOR
 
@@ -66,4 +67,5 @@ class ViewportActor
 
 } // namespace cmx
 
+#endif
 #endif

@@ -4,6 +4,7 @@
 #include "cmx_actor.h"
 #include "cmx_input_manager.h"
 #include "cmx_scene.h"
+#include "cmx_sink.h"
 #include "cmx_window.h"
 
 // lib
@@ -11,6 +12,7 @@
 #include <exception>
 #include <glm/ext/scalar_constants.hpp>
 #include <spdlog/common.h>
+#include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <string>

@@ -26,7 +26,7 @@
 - [x] Save as, load from bug fix
 - [x] Separate editor window
 - [ ] Debug, now Build
-- [ ] Terminal tab
+- [x] Terminal tab
 - [ ] file explorer
 
 ### fix
