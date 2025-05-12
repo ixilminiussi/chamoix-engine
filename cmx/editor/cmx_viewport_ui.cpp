@@ -1,6 +1,3 @@
-#include "cmx_sink.h"
-#include <spdlog/common.h>
-#include <spdlog/sinks/ansicolor_sink.h>
 #ifndef NDEBUG
 #include "cmx_viewport_ui.h"
 
@@ -18,6 +15,7 @@
 #include "cmx_register.h"
 #include "cmx_render_system.h"
 #include "cmx_renderer.h"
+#include "cmx_sink.h"
 #include "cmx_transform.h"
 #include "cmx_viewport_actor.h"
 
@@ -28,6 +26,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 #include <imgui_internal.h>
+#include <spdlog/common.h>
+#include <spdlog/sinks/ansicolor_sink.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -97,18 +97,25 @@ void ViewportUI::initImGUI()
 
     ImGui_ImplGlfw_InitForVulkan(cmxWindow.getGLFWwindow(), true);
 
-    ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = cmxDevice.instance();
-    init_info.PhysicalDevice = cmxDevice.physicalDevice();
-    init_info.Device = cmxDevice.device();
-    init_info.Queue = cmxDevice.graphicsQueue();
-    init_info.DescriptorPool = _imguiPool->getDescriptorPool().operator VkDescriptorPool();
-    init_info.MinImageCount = 3;
-    init_info.ImageCount = 3;
-    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.RenderPass = renderSystem->_renderer->getSwapChainRenderPass().operator VkRenderPass();
+    static VkFormat format = VK_FORMAT_B8G8R8A8_UNORM;
+    VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
+    pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    pipelineRenderingCreateInfo.colorAttachmentCount = 1;
+    pipelineRenderingCreateInfo.pColorAttachmentFormats = &format;
 
-    ImGui_ImplVulkan_Init(&init_info);
+    ImGui_ImplVulkan_InitInfo initInfo = {};
+    initInfo.Instance = cmxDevice.instance();
+    initInfo.PhysicalDevice = cmxDevice.physicalDevice();
+    initInfo.Device = cmxDevice.device();
+    initInfo.Queue = cmxDevice.graphicsQueue();
+    initInfo.DescriptorPool = _imguiPool->getDescriptorPool().operator VkDescriptorPool();
+    initInfo.MinImageCount = 3;
+    initInfo.ImageCount = 3;
+    initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    initInfo.RenderPass = renderSystem->_renderer->getSwapChainRenderPass().operator VkRenderPass();
+    initInfo.PipelineRenderingCreateInfo = pipelineRenderingCreateInfo;
+
+    ImGui_ImplVulkan_Init(&initInfo);
 
     ImGuiIO &io = ImGui::GetIO();
     io.Fonts->AddFontFromFileTTF((std::string(EDITOR_FILES) + std::string("JetBrainsMonoNL-Regular.ttf")).c_str(),
@@ -128,6 +135,113 @@ void ViewportUI::initImGUI()
     _saveFileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
     _openFileDialog = ImGui::FileBrowser(ImGuiFileBrowserFlags_CreateNewDir);
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+
+    applyTheme();
+}
+
+// used because of issues with color formatting from srgb to unorm
+inline float Decode_sRGB(float c)
+{
+    if (c <= 0.04045f)
+        return c * (1.0f / 12.92f);
+    else
+        return powf((c + 0.055f) / 1.055f, 2.4f);
+}
+
+inline ImVec4 Decode_sRGB(const ImVec4 &srgb)
+{
+    return ImVec4(Decode_sRGB(srgb.x), Decode_sRGB(srgb.y), Decode_sRGB(srgb.z), srgb.w);
+}
+
+void ViewportUI::applyTheme()
+{
+    ImGui::StyleColorsDark();
+
+    ImGuiStyle &style = ImGui::GetStyle();
+    ImVec4 *colors = style.Colors;
+    style.Alpha = 1.0f;
+
+    style.FrameRounding = 2;
+
+    const ImVec4 dracula_background{0.157f, 0.165f, 0.212f, 1.f};
+    const ImVec4 dracula_currentLine{0.267f, 0.278f, 0.353f, 1.f};
+    const ImVec4 dracula_foreground{0.973f, 0.973f, 0.949f, 1.f};
+    const ImVec4 dracula_comment{0.384f, 0.447f, 0.643f, 1.f};
+    const ImVec4 dracula_cyan{0.545f, 0.914f, 0.992f, 1.f};
+    const ImVec4 dracula_green{0.314f, 0.98f, 0.482f, 1.f};
+    const ImVec4 dracula_orange{1.f, 0.722f, 0.424f, 1.f};
+    const ImVec4 dracula_pink{1.f, 0.475f, 0.776f, 1.f};
+    const ImVec4 dracula_purple{0.741f, 0.576f, 0.976f, 1.f};
+    const ImVec4 dracula_red{1.f, 0.333f, 0.333f, 1.f};
+    const ImVec4 dracula_yellow{0.945f, 0.98f, 0.549f, 1.f};
+    const ImVec4 transparent{0.f, 0.f, 0.f, 0.f};
+    const ImVec4 dracula_comment_highlight{0.53f, 0.58f, 0.74f, 1.f};
+    colors[ImGuiCol_Text] = dracula_foreground;
+    colors[ImGuiCol_TextDisabled] = dracula_comment;
+    colors[ImGuiCol_WindowBg] = dracula_background;
+    colors[ImGuiCol_ChildBg] = transparent;
+    colors[ImGuiCol_PopupBg] = dracula_background;
+    colors[ImGuiCol_Border] = dracula_purple;
+    colors[ImGuiCol_BorderShadow] = transparent;
+    colors[ImGuiCol_FrameBg] = dracula_currentLine;
+    colors[ImGuiCol_FrameBgHovered] = dracula_comment;
+    colors[ImGuiCol_FrameBgActive] = dracula_comment_highlight;
+    colors[ImGuiCol_TitleBg] = dracula_comment;
+    colors[ImGuiCol_TitleBgActive] = dracula_purple;
+    colors[ImGuiCol_TitleBgCollapsed] = dracula_comment;
+    colors[ImGuiCol_MenuBarBg] = dracula_currentLine;
+    colors[ImGuiCol_ScrollbarBg] = {0.02f, 0.02f, 0.02f, 0.5f};
+    colors[ImGuiCol_ScrollbarGrab] = dracula_currentLine;
+    colors[ImGuiCol_ScrollbarGrabActive] = dracula_comment;
+    colors[ImGuiCol_ScrollbarGrabHovered] = dracula_comment;
+    colors[ImGuiCol_CheckMark] = dracula_green;
+    colors[ImGuiCol_SliderGrab] = dracula_pink;
+    colors[ImGuiCol_SliderGrabActive] = dracula_pink;
+    colors[ImGuiCol_Button] = dracula_comment;
+    colors[ImGuiCol_ButtonActive] = dracula_comment_highlight;
+    colors[ImGuiCol_ButtonHovered] = dracula_comment_highlight;
+    colors[ImGuiCol_Header] = dracula_comment;
+    colors[ImGuiCol_HeaderActive] = dracula_comment_highlight;
+    colors[ImGuiCol_HeaderHovered] = dracula_comment_highlight;
+    colors[ImGuiCol_Separator] = dracula_purple;
+    colors[ImGuiCol_SeparatorActive] = dracula_purple;
+    colors[ImGuiCol_SeparatorHovered] = dracula_purple;
+    colors[ImGuiCol_ResizeGrip] = dracula_comment;
+    colors[ImGuiCol_ResizeGripActive] = dracula_comment_highlight;
+    colors[ImGuiCol_ResizeGripHovered] = dracula_comment_highlight;
+    colors[ImGuiCol_Tab] = dracula_comment;
+    colors[ImGuiCol_TabHovered] = dracula_comment_highlight;
+    colors[ImGuiCol_TabSelected] = dracula_pink;
+    colors[ImGuiCol_TabSelectedOverline] = dracula_pink;
+    colors[ImGuiCol_TabDimmed] = dracula_background;
+    colors[ImGuiCol_TabDimmedSelected] = dracula_currentLine;
+    colors[ImGuiCol_TabDimmedSelectedOverline] = transparent;
+    colors[ImGuiCol_PlotLines] = dracula_cyan;
+    colors[ImGuiCol_PlotLinesHovered] = dracula_red;
+    colors[ImGuiCol_PlotHistogram] = dracula_yellow;
+    colors[ImGuiCol_PlotHistogramHovered] = dracula_orange;
+    colors[ImGuiCol_TableBorderLight] = transparent;
+    colors[ImGuiCol_TableBorderStrong] = dracula_red;
+    colors[ImGuiCol_TableHeaderBg] = dracula_red;
+    colors[ImGuiCol_TableRowBg] = transparent;
+    colors[ImGuiCol_TableRowBgAlt] = {1.f, 1.f, 1.f, 0.06f};
+    colors[ImGuiCol_TextLink] = dracula_yellow;
+    colors[ImGuiCol_TextSelectedBg] = dracula_comment_highlight;
+    colors[ImGuiCol_DragDropTarget] = dracula_yellow;
+    colors[ImGuiCol_NavCursor] = dracula_cyan;
+    colors[ImGuiCol_DockingEmptyBg] = dracula_background;
+    colors[ImGuiCol_DockingPreview] = dracula_cyan;
+    colors[ImGuiCol_ModalWindowDimBg] = transparent;
+    colors[ImGuiCol_TabActive] = dracula_pink;
+    colors[ImGuiCol_TabUnfocused] = dracula_comment_highlight;
+    colors[ImGuiCol_TabUnfocusedActive] = dracula_comment_highlight;
+
+    colors[ImGuiCol_NavHighlight] = transparent;
+    colors[ImGuiCol_NavWindowingDimBg] = transparent;
+    colors[ImGuiCol_NavWindowingHighlight] = transparent;
+
+    for (int i = 0; i < ImGuiCol_COUNT; ++i)
+        style.Colors[i] = Decode_sRGB(style.Colors[i]);
 }
 
 void ViewportUI::render(const struct FrameInfo &frameInfo)
@@ -711,6 +825,7 @@ void ViewportUI::renderLogger()
             color.y /= 255.f;
             color.z /= 255.f;
             color.w /= 255.f;
+            color = Decode_sRGB(color);
 
             ImGui::PushStyleColor(ImGuiCol_Text, color);
             ImGui::TextUnformatted(string.c_str());

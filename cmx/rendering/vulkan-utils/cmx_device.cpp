@@ -20,8 +20,9 @@ namespace cmx
 
 // local callback functions
 static VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData)
+                                                      VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                      void *pUserData)
 {
     switch (messageSeverity)
     {

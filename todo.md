@@ -28,6 +28,7 @@
 - [ ] Debug, now Build
 - [x] Terminal tab
 - [ ] file explorer
+- [x] Dracula color theme
 
 ### fix
 - [ ] duplication not working correctly when passing over shapes, models and materials

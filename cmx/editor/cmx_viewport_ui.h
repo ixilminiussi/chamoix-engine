@@ -38,6 +38,8 @@ class ViewportUI
     void guizmoToTranslate(float, int);
     void duplicateSelected(float, int);
 
+    void applyTheme();
+
     void initImGUI();
 
     void attachScene(class Scene *scene)
