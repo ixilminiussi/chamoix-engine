@@ -6,7 +6,7 @@ layout(set = 0, binding = 0) uniform sampler2D sColor;
 layout(set = 1, binding = 0) uniform sampler2D sNormal;
 layout(set = 2, binding = 0) uniform sampler2D sDepth;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedo;
 
 layout(push_constant) uniform Push
 {
@@ -90,14 +90,14 @@ void main()
     if (push.depthEdgeThickness > 0. &&
         isDepthEdge(inUV, push.depthEdgeThreshold * depth * push.depthDepthFactor, push.depthEdgeThickness))
     {
-        outColor = vec4(push.edgeColor, 1.0);
+        outAlbedo = vec4(push.edgeColor, 1.0);
         return;
     }
     if (push.normalEdgeThickness > 0. &&
         isNormalEdge(inUV, push.normalEdgeThreshold * depth * push.depthDepthFactor,
                      push.normalEdgeThickness / max(1.0, (depth * push.normalDepthFactor))))
     {
-        outColor = vec4(push.edgeColor, 1.0);
+        outAlbedo = vec4(push.edgeColor, 1.0);
         return;
     }
 

@@ -5,8 +5,9 @@ layout(location = 1) in vec2 inUV;
 
 layout(set = 1, binding = 0) uniform sampler2D textureSampler;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outNormal;
+layout(location = 2) out vec4 outShadow;
 
 struct DirectionalLight
 {
@@ -44,6 +45,7 @@ push;
 
 void main()
 {
-    outColor = vec4(push.color.rgb, 1.0) * texture(textureSampler, inUV);
+    outAlbedo = vec4(push.color.rgb, 1.0) * texture(textureSampler, inUV);
     outNormal = vec4(0.0);
+    outShadow = vec4(1.0);
 }

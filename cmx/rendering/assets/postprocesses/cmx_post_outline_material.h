@@ -30,7 +30,7 @@ class PostOutlineMaterial : public Material
     struct PushConstantData
     {
         glm::vec3 edgeColor;
-        float colorEdgeThickness, colorEdgeThreshold, colorDepthFactor;
+        float albedoEdgeThickness, albedoEdgeThreshold, albedoDepthFactor;
         float normalEdgeThickness, normalEdgeThreshold, normalDepthFactor;
         float depthEdgeThickness, depthEdgeThreshold, depthDepthFactor;
         float nearPlane, farPlane;
@@ -42,7 +42,7 @@ class PostOutlineMaterial : public Material
     glm::vec3 _edgeColor{1.f};
     float _depthEdgeThickness{3.f}, _depthEdgeThreshold{0.5f}, _depthDepthFactor{0.51f};
     float _normalEdgeThickness{3.f}, _normalEdgeThreshold{0.04f}, _normalDepthFactor{0.04f};
-    float _colorEdgeThickness, _colorEdgeThreshold, _colorDepthFactor;
+    float _albedoEdgeThickness, _albedoEdgeThreshold, _albedoDepthFactor;
 };
 
 } // namespace cmx

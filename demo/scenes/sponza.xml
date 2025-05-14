@@ -7,7 +7,6 @@
             <darkColor r="0" g="0" b="0"/>
         </material>
         <material type="cmx::DitheredTexturedMaterial" vertex="dithered_t.vert.spv" fragment="dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="4.1999998" threshold="0.80000001" m="0.2" name="dithered_textured_material"/>
-        <material type="cmx::HudMaterial" vertex="hud.vert.spv" fragment="hud.frag.spv" editorOnly="false" name="hud_material"/>
         <material type="cmx::MeshMaterial" vertex="mesh.vert.spv" fragment="mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
         <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>

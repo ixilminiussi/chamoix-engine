@@ -4,10 +4,8 @@
 #include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
-#include "cmx_graphics_manager.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_system.h"
-#include "cmx_renderer.h"
 #include "imgui.h"
 
 // lib
@@ -33,6 +31,9 @@ void PostPassthroughMaterial::bind(FrameInfo *frameInfo, const Drawable *)
         frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 2, 1,
                                                     &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[2])), 0,
                                                     nullptr);
+        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 3, 1,
+                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[3])), 0,
+                                                    nullptr);
 
         _boundID = _id;
     }
@@ -51,7 +52,8 @@ void PostPassthroughMaterial::editor()
 {
     Material::editor();
 
-    static std::map<int, std::string> options{{0, "albedo"}, {1, "normals"}, {2, "depth"}};
+    static std::map<int, std::string> options{
+        {0, "combined"}, {1, "albedo"}, {2, "shadow"}, {3, "normal"}, {4, "depth"}};
 
     const char *selected;
 
@@ -114,6 +116,7 @@ void PostPassthroughMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
+                          renderSystem->getSamplerDescriptorSetLayout(),
                           renderSystem->getSamplerDescriptorSetLayout()});
     createPipeline(renderSystem->getRenderPass());
 }

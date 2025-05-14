@@ -10,8 +10,9 @@ layout(set = 1, binding = 0) uniform sampler3D ditheringSampler;
 layout(set = 2, binding = 0) uniform sampler2D textureSampler;
 layout(set = 3, binding = 0) uniform sampler2D shadowMapSampler;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outNormal;
+layout(location = 2) out vec4 outShadow;
 
 struct DirectionalLight
 {
@@ -203,10 +204,11 @@ void main()
     const float m = push.normalMatrix[3][2];
     const float PI_third = 2.0 * PI / 3.0;
 
-    outColor = getColor(combinedColor, vec3(1.0, 0.0, 0.0), m * vec2(cos(PI_third), sin(PI_third)));
-    outColor += getColor(combinedColor, vec3(0.0, 1.0, 0.0), m * vec2(cos(2 * PI_third), sin(2 * PI_third)));
-    outColor += getColor(combinedColor, vec3(0.0, 0.0, 1.0), m * vec2(1.0, 0.0));
+    outAlbedo = getColor(combinedColor, vec3(1.0, 0.0, 0.0), m * vec2(cos(PI_third), sin(PI_third)));
+    outAlbedo += getColor(combinedColor, vec3(0.0, 1.0, 0.0), m * vec2(cos(2 * PI_third), sin(2 * PI_third)));
+    outAlbedo += getColor(combinedColor, vec3(0.0, 0.0, 1.0), m * vec2(1.0, 0.0));
 
-    outColor.a = 1.0;
+    outAlbedo.a = 1.0;
     outNormal = vec4(inNormalWorld, 1.0);
+    outShadow = vec4(1.0);
 }

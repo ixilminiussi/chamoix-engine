@@ -8,6 +8,7 @@
 ### Materials
     - [ ] point light n2..?
     - [ ] ssao post process
+    - [x] g_buffer separate pass
     - [ ] compute shaders
     - [ ] shadow buffer, DYNAMIC vs STATIC and editor auto refresh mode
 - [x] adapt existing scenes

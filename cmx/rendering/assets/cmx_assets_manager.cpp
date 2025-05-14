@@ -5,7 +5,6 @@
 #include "cmx_billboard_material.h"
 #include "cmx_dithered_material.h"
 #include "cmx_dithered_textured_material.h"
-#include "cmx_hud_material.h"
 #include "cmx_material.h"
 #include "cmx_mesh_material.h"
 #include "cmx_model.h"
@@ -47,7 +46,6 @@ AssetsManager::AssetsManager(class Scene *parent)
     addMaterial(new MeshMaterial(), "mesh_material");
     addMaterial(new DitheredMaterial(), "dithered_material");
     addMaterial(new DitheredTexturedMaterial(), "dithered_textured_material");
-    addMaterial(new HudMaterial(), "hud_material");
     addMaterial(new BillboardMaterial(), "billboard_material");
     addMaterial(new ParallaxMaterial(), "parallax_material");
     addPostProcess(new PostPassthroughMaterial(), "passthrough_postprocess");

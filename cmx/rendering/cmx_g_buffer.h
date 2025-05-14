@@ -45,16 +45,20 @@ class GBuffer
     void createFrameBuffer(class Device *);
     void createSamplers(class Device *);
 
-    size_t _samplerDescriptorSetIDs[3];
-    vk::Format _colorFormat;
-    vk::Image _colorImage;
-    vk::ImageView _colorImageView;
-    vk::Sampler _colorSampler;
-    vk::DeviceMemory _colorImageMemory;
+    size_t _samplerDescriptorSetIDs[4];
+    vk::Format _albedoFormat;
+    vk::Image _albedoImage;
+    vk::ImageView _albedoImageView;
+    vk::Sampler _albedoSampler;
+    vk::DeviceMemory _albedoImageMemory;
     vk::Image _normalImage;
     vk::ImageView _normalImageView;
     vk::Sampler _normalSampler;
     vk::DeviceMemory _normalImageMemory;
+    vk::Image _shadowImage;
+    vk::ImageView _shadowImageView;
+    vk::Sampler _shadowSampler;
+    vk::DeviceMemory _shadowImageMemory;
     vk::Image _depthImage;
     vk::ImageView _depthImageView;
     vk::Sampler _depthSampler;

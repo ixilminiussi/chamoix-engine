@@ -7,7 +7,6 @@
             <darkColor r="0.153" g="0.15700001" b="0.22"/>
         </material>
         <material type="cmx::DitheredTexturedMaterial" vertex="dithered_t.vert.spv" fragment="dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="5" threshold="1" m="0.2" name="dithered_textured_material"/>
-        <material type="cmx::HudMaterial" vertex="hud.vert.spv" fragment="hud.frag.spv" editorOnly="false" name="hud_material"/>
         <material type="cmx::MeshMaterial" vertex="mesh.vert.spv" fragment="mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
         <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
@@ -467,13 +466,6 @@
             <rendering>
                 <option index="0" material="mesh_material(2)" model="cmx_camera"/>
             </rendering>
-        </component>
-        <component type="cmx::HudComponent" name="cmx::HudComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
         </component>
         <component type="ShipCameraComponent" name="ShipCameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="false">
             <transform>

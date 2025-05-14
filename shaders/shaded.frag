@@ -9,8 +9,9 @@ layout(location = 4) in vec4 inPositionLightSpace;
 layout(set = 1, binding = 0) uniform sampler2D sColor;
 layout(set = 2, binding = 0) uniform sampler2D sShadowMap;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outNormal;
+layout(location = 2) out vec4 outShadow;
 
 struct DirectionalLight
 {
@@ -110,18 +111,17 @@ vec3 getDiffuseLight()
 
 void main()
 {
-    vec3 diffuseLight = getDiffuseLight();
-
     // if we have push.normalMatrix[3][3] != 100, then we should be using vertex color
     if (push.normalMatrix[3][3] == 100)
     {
-        outColor = vec4(diffuseLight * push.normalMatrix[3].xyz * inColor, 1.0f);
+        outAlbedo = vec4(push.normalMatrix[3].xyz * inColor, 1.0f);
     }
     else
     {
-        outColor = vec4(diffuseLight * push.normalMatrix[3].xyz, 1.0f) * texture(sColor, inUV);
+        outAlbedo = vec4(push.normalMatrix[3].xyz, 1.0f) * texture(sColor, inUV);
     }
 
-    outColor.a = 1.0f;
+    outAlbedo.a = 1.0f;
     outNormal = vec4(normalize(inNormalWorld).rgb, 1.0);
+    outShadow = vec4(getDiffuseLight(), 1.0);
 }

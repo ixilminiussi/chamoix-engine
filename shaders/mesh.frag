@@ -4,8 +4,9 @@ layout(location = 0) in vec3 inColor;
 layout(location = 1) in vec3 inPositionWorld;
 layout(location = 2) in vec3 inNormalWorld;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outNormal;
+layout(location = 2) out vec4 outShadow;
 
 struct PointLight
 {
@@ -34,5 +35,6 @@ void main()
 {
     outNormal = vec4(normalize(inNormalWorld), 1.0);
 
-    outColor = vec4(push.color, 1.0f);
+    outAlbedo = vec4(push.color, 1.0f);
+    outShadow = vec4(1.0);
 }

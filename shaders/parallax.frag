@@ -14,8 +14,9 @@ layout(set = 1, binding = 0) uniform sampler2D sColor;
 layout(set = 2, binding = 0) uniform sampler2D sNormalHeight;
 layout(set = 3, binding = 0) uniform sampler2D sShadowMap;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outNormal;
+layout(location = 2) out vec4 outShadow;
 
 struct DirectionalLight
 {
@@ -148,10 +149,10 @@ void main()
     normalTangent = normalTangent * 2.0 - 1.0;
     normalTangent = normalize(normalTangent);
 
-    vec3 diffuseLight = getDiffuseLight(normalTangent);
+    outShadow = vec4(getDiffuseLight(normalTangent), 1.0);
 
-    outColor = vec4(diffuseLight, 1.0) * texture(sColor, uv);
+    outAlbedo = texture(sColor, uv);
 
-    outColor.a = 1.0;
+    outAlbedo.a = 1.0;
     outNormal = vec4(normalize(mix(inNormalWorld, mat3(push.normalMatrix) * normalSample.xyz, 0.5)), 1.0);
 }

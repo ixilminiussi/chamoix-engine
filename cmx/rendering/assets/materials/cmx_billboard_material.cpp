@@ -113,6 +113,9 @@ void BillboardMaterial::createPipeline(vk::RenderPass renderPass)
     pipelineConfig.colorBlendAttachments[1].blendEnable = vk::True;
     pipelineConfig.colorBlendAttachments[1].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
     pipelineConfig.colorBlendAttachments[1].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    pipelineConfig.colorBlendAttachments[2].blendEnable = vk::True;
+    pipelineConfig.colorBlendAttachments[2].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    pipelineConfig.colorBlendAttachments[2].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
 
     _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig,
                                            "billboard material pipeline");

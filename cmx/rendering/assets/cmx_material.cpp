@@ -172,7 +172,6 @@ void Material::loadBindings(const std::string &filename)
         }
     }
 
-    // Clean up
     spvReflectDestroyShaderModule(&module);
 }
 

@@ -10,7 +10,6 @@ set(SHADER_FILES
     mesh.vert mesh.frag
     billboard.vert billboard.frag
     parallax.vert parallax.frag
-    hud.vert hud.frag
     postprocess.vert
     post_passthrough.frag
     post_outline.frag

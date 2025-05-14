@@ -32,15 +32,18 @@ void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
         frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 2, 1,
                                                     &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[2])), 0,
                                                     nullptr);
+        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 3, 1,
+                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[3])), 0,
+                                                    nullptr);
 
         _boundID = _id;
     }
 
     PushConstantData push{};
     push.edgeColor = _edgeColor;
-    push.colorEdgeThickness = _colorEdgeThickness;
-    push.colorEdgeThreshold = _colorEdgeThreshold;
-    push.colorDepthFactor = _colorDepthFactor;
+    push.albedoEdgeThickness = _albedoEdgeThickness;
+    push.albedoEdgeThreshold = _albedoEdgeThreshold;
+    push.albedoDepthFactor = _albedoDepthFactor;
     push.normalEdgeThickness = _normalEdgeThickness;
     push.normalEdgeThreshold = _normalEdgeThreshold;
     push.normalDepthFactor = _normalDepthFactor;
@@ -61,11 +64,11 @@ void PostOutlineMaterial::editor()
 
     ImGui::ColorEdit3("Edge Color##Outline", (float *)&_edgeColor);
 
-    if (ImGui::TreeNode("Color"))
+    if (ImGui::TreeNode("Albedo"))
     {
-        ImGui::DragFloat("Line thickness##Color", &_colorEdgeThickness, 1.f, 0.f, 20.f);
-        ImGui::DragFloat("Edge threshold##Color", &_colorEdgeThreshold, 0.05f, 0.f, 1.f);
-        ImGui::DragFloat("Depth factor##Color", &_colorDepthFactor, 0.05f, 0.f, 5.f);
+        ImGui::DragFloat("Line thickness##Color", &_albedoEdgeThickness, 1.f, 0.f, 20.f);
+        ImGui::DragFloat("Edge threshold##Color", &_albedoEdgeThreshold, 0.05f, 0.f, 1.f);
+        ImGui::DragFloat("Depth factor##Color", &_albedoDepthFactor, 0.05f, 0.f, 5.f);
         ImGui::TreePop();
     }
 
@@ -103,6 +106,7 @@ void PostOutlineMaterial::initialize()
     loadBindings();
 
     createPipelineLayout({renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
+                          renderSystem->getSamplerDescriptorSetLayout(),
                           renderSystem->getSamplerDescriptorSetLayout()});
     createPipeline(renderSystem->getRenderPass());
 }

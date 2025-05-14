@@ -12,8 +12,9 @@ layout(location = 6) in vec3 inLightColor;
 layout(set = 1, binding = 0) uniform sampler3D sDitheringPattern;
 layout(set = 2, binding = 0) uniform sampler2D sShadowMap;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outNormal;
+layout(location = 2) out vec4 outShadow;
 
 struct DirectionalLight
 {
@@ -165,15 +166,16 @@ void main()
     // push.normalMatrix[3][1] is our specified threshold
     if (dotToggle)
     {
-        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(inLightColor, 1.0)
-                                                                                : vec4(inDarkColor, 1.0);
+        outAlbedo = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(inLightColor, 1.0)
+                                                                                 : vec4(inDarkColor, 1.0);
     }
     else
     {
-        outColor = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(inDarkColor, 1.0)
-                                                                                : vec4(inLightColor, 1.0);
+        outAlbedo = brightness * push.normalMatrix[3][1] < 1 - ditheringSample.x ? vec4(inDarkColor, 1.0)
+                                                                                 : vec4(inLightColor, 1.0);
     }
 
-    outColor.a = 1.0;
+    outAlbedo.a = 1.0;
     outNormal = vec4(inNormalWorld, 1.0);
+    outShadow = vec4(1.0);
 }
