@@ -69,10 +69,18 @@ class RenderPass
         return _renderTargets;
     }
 
-    vk::RenderPass getRenderPass()
+    vk::RenderPass getRenderPass() const
     {
         return _renderPass;
     };
+    vk::Framebuffer getFrameBuffer() const
+    {
+        return _framebuffer;
+    }
+    const vk::Extent2D &getResolution() const
+    {
+        return _resolution;
+    }
 
   private:
     std::vector<RenderTarget> _renderTargets;

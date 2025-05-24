@@ -179,6 +179,13 @@ RenderPass::~RenderPass()
 
 void RenderPass::updateAspectRatio(Device *device, const vk::Extent2D &resolution)
 {
+    if (resolution == _resolution)
+    {
+        return;
+    }
+
+    _resolution = resolution;
+
     device->device().destroyFramebuffer(_framebuffer);
     device->device().destroyRenderPass(_renderPass);
 

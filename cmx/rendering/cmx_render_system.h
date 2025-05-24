@@ -80,19 +80,20 @@ class RenderSystem
     {
         return _renderer.get();
     };
-    vk::RenderPass getRenderPass();
-    size_t getSamplerDescriptorSetID()
-    {
-        return _samplerDescriptorSetID;
-    }
+    vk::RenderPass getRenderPass() const;
+
+    vk::Extent2D getResolution() const;
+
     class RenderPass *getGBuffer()
     {
         return _gBuffer.get();
     }
-    vk::Extent2D getResolution() const
+#ifndef NDEBUG
+    class RenderPass *getViewportRenderPass()
     {
-        return _resolution;
+        return _viewportRenderPass.get();
     }
+#endif
 
   private:
     RenderSystem();
@@ -101,24 +102,9 @@ class RenderSystem
     void createGBuffer();
 
 #ifndef NDEBUG
-    void createTexture();
-    void createImage();
-    void createImageView();
-    void createRenderPass();
-    void createFrameBuffer();
-    void createSampler();
+    void createViewportRenderPass();
 
-    size_t _samplerDescriptorSetID;
-    vk::Format _format;
-    vk::Image _image;
-    vk::ImageView _imageView;
-    vk::Sampler _sampler;
-    vk::DeviceMemory _imageMemory;
-    vk::Extent2D _resolution;
-    vk::RenderPass _renderPass;
-    vk::Framebuffer _framebuffer;
-
-    void freeImages();
+    std::unique_ptr<class RenderPass> _viewportRenderPass;
 #endif
 
     std::unique_ptr<class RenderPass> _gBuffer;

@@ -37,7 +37,7 @@ RenderSystem *RenderSystem::getInstance()
         _instance = new RenderSystem();
 
 #ifndef NDEBUG
-        _instance->createTexture();
+        _instance->createViewportRenderPass();
 #endif
         _instance->createGBuffer();
     }
@@ -50,21 +50,6 @@ RenderSystem::RenderSystem()
     _commandBuffer = (VkCommandBuffer_T *)(0);
 
     _window = &Game::getWindow();
-#ifndef NDEBUG
-    if (Editor::isActive())
-    {
-        Editor *editor = Editor::getInstance();
-        glm::vec2 size = editor->getSceneViewportSize();
-        _resolution.width = size.x;
-        _resolution.height = size.y;
-    }
-    else
-    {
-#endif
-        _resolution = _window->getExtent();
-#ifndef NDEBUG
-    }
-#endif
     _device = std::make_unique<Device>(*_window);
     _renderer = std::make_unique<Renderer>(*_window, *_device.get());
 
@@ -125,7 +110,7 @@ void RenderSystem::closeWindow()
     spdlog::info("global release");
 
 #ifndef NDEBUG
-    freeImages();
+    _viewportRenderPass->free(_device.get());
 #endif
     _gBuffer->free(_device.get());
     _globalPool->free();
@@ -196,42 +181,15 @@ vk::DescriptorSet &RenderSystem::getSamplerDescriptorSet(size_t index)
 
 void RenderSystem::checkAspectRatio(Camera *camera)
 {
-    vk::Extent2D newResolution{};
+    vk::Extent2D resolution = getResolution();
 #ifndef NDEBUG
-    if (Editor::isActive())
-    {
-        Editor *editor = Editor::getInstance();
-        glm::vec2 size = editor->getSceneViewportSize();
-        newResolution.width = size.x;
-        newResolution.height = size.y;
-    }
-    else
-    {
-#endif
-        newResolution = _window->getExtent();
-#ifndef NDEBUG
-    }
+    _viewportRenderPass->updateAspectRatio(_device.get(), resolution);
 #endif
 
-    if (newResolution == _resolution)
-    {
-        return;
-    }
-
-    _resolution = newResolution;
-
-    float aspect = static_cast<float>(_resolution.width) / static_cast<float>(_resolution.height);
+    float aspect = static_cast<float>(resolution.width) / static_cast<float>(resolution.height);
     camera->updateAspectRatio(aspect);
 
-    _gBuffer->updateAspectRatio(_device.get(), _resolution);
-    _device->device().destroyFramebuffer(_framebuffer);
-    _device->device().destroyRenderPass(_renderPass);
-    freeSamplerDescriptor(_samplerDescriptorSetID);
-    _device->device().destroyImageView(_imageView);
-    _device->device().destroyImage(_image);
-    _device->device().freeMemory(_imageMemory);
-
-    createTexture();
+    _gBuffer->updateAspectRatio(_device.get(), resolution);
 }
 
 FrameInfo *RenderSystem::beginCommandBuffer()
@@ -262,15 +220,18 @@ void RenderSystem::beginPostProcess(FrameInfo *frameInfo) const
 #ifndef NDEBUG
     if (Editor::isActive())
     {
+        vk::RenderPass renderPass = _viewportRenderPass->getRenderPass();
+        vk::Framebuffer framebuffer = _viewportRenderPass->getFrameBuffer();
+        vk::Extent2D resolution = _viewportRenderPass->getResolution();
         static std::array<vk::ClearValue, 3> clearValues{};
         clearValues[0].color = {1.0f, 1.0f, 1.0f, 1.0f};
         clearValues[1].color = {1.0f, 1.0f, 1.0f, 1.0f};
         clearValues[2].depthStencil = vk::ClearDepthStencilValue{1.0f, 0};
 
         vk::RenderPassBeginInfo renderPassBeginInfo{};
-        renderPassBeginInfo.renderPass = _renderPass;
-        renderPassBeginInfo.framebuffer = _framebuffer;
-        renderPassBeginInfo.renderArea.extent = _resolution;
+        renderPassBeginInfo.renderPass = renderPass;
+        renderPassBeginInfo.framebuffer = framebuffer;
+        renderPassBeginInfo.renderArea.extent = resolution;
         renderPassBeginInfo.clearValueCount = 3;
         renderPassBeginInfo.pClearValues = clearValues.data();
 
@@ -279,12 +240,12 @@ void RenderSystem::beginPostProcess(FrameInfo *frameInfo) const
         static vk::Viewport viewport;
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)_resolution.width;
-        viewport.height = (float)_resolution.height;
+        viewport.width = (float)resolution.width;
+        viewport.height = (float)resolution.height;
         viewport.minDepth = 0.f;
         viewport.maxDepth = 1.f;
 
-        vk::Rect2D scissor{vk::Offset2D{0, 0}, _resolution};
+        vk::Rect2D scissor{vk::Offset2D{0, 0}, resolution};
         frameInfo->commandBuffer.setViewport(0, 1, &viewport);
         frameInfo->commandBuffer.setScissor(0, 1, &scissor);
     }
@@ -317,41 +278,67 @@ void RenderSystem::endPostProcess(struct FrameInfo *frameInfo) const
     _device->device().waitIdle();
 }
 
-vk::RenderPass RenderSystem::getRenderPass()
+vk::Extent2D RenderSystem::getResolution() const
 {
-#ifndef NDEBUG
-    if (Editor::isActive())
-    {
-        return _renderPass;
-    }
-#endif
-    return _renderer->getSwapChainRenderPass();
-}
-
-void RenderSystem::createGBuffer()
-{
+    vk::Extent2D resolution;
 #ifndef NDEBUG
     if (Editor::isActive())
     {
         Editor *editor = Editor::getInstance();
         glm::vec2 size = editor->getSceneViewportSize();
-        _resolution.width = size.x;
-        _resolution.height = size.y;
+        resolution.width = size.x;
+        resolution.height = size.y;
     }
     else
     {
 #endif
-        _resolution = _window->getExtent();
+        resolution = _window->getExtent();
 #ifndef NDEBUG
     }
 #endif
+    return resolution;
+}
+
+vk::RenderPass RenderSystem::getRenderPass() const
+{
+#ifndef NDEBUG
+    if (Editor::isActive())
+    {
+        return _viewportRenderPass->getRenderPass();
+    }
+#endif
+    return _renderer->getSwapChainRenderPass();
+}
+
+#ifndef NDEBUG
+void RenderSystem::createViewportRenderPass()
+{
+    vk::Extent2D resolution = getResolution();
+
+    SwapChainSupportDetails swapChainSupport = _device->getSwapChainSupport();
+    vk::SurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport.formats);
+    surfaceFormat = vk::Format::eR16G16B16A16Snorm;
+
+    _viewportRenderPass =
+        std::make_unique<RenderPass>(_device.get(), resolution,
+                                     std::vector<AttachmentInfo>{{.format = surfaceFormat.format,
+                                                                  .usage = vk::ImageUsageFlagBits::eColorAttachment |
+                                                                           vk::ImageUsageFlagBits::eSampled,
+                                                                  .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
+                                     std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
+}
+#endif
+
+void RenderSystem::createGBuffer()
+{
+    vk::Extent2D resolution = getResolution();
 
     SwapChainSupportDetails swapChainSupport = _device->getSwapChainSupport();
     vk::SurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport.formats);
     surfaceFormat = vk::Format::eR16G16B16A16Snorm;
 
     _gBuffer = std::make_unique<RenderPass>(
-        _device.get(), _resolution,
+        _device.get(), resolution,
         std::vector<AttachmentInfo>{
             {.format = surfaceFormat.format,
              .usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
@@ -380,147 +367,5 @@ Device *RenderSystem::getDevice()
 {
     return _device.get();
 }
-
-#ifndef NDEBUG
-void RenderSystem::createTexture()
-{
-    if (Editor::isActive())
-    {
-        Editor *editor = Editor::getInstance();
-        glm::vec2 size = editor->getSceneViewportSize();
-        _resolution.width = size.x;
-        _resolution.height = size.y;
-    }
-
-    SwapChainSupportDetails swapChainSupport = _device->getSwapChainSupport();
-    vk::SurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport.formats);
-
-    _format = surfaceFormat.format;
-
-    createImage();
-    createImageView();
-    createRenderPass();
-    createFrameBuffer();
-    createSampler();
-}
-
-void RenderSystem::createImage()
-{
-    vk::ImageCreateInfo imageInfo{};
-
-    imageInfo.sType = vk::StructureType::eImageCreateInfo;
-    imageInfo.imageType = vk::ImageType::e2D;
-    imageInfo.extent = vk::Extent3D{_resolution.width, _resolution.height, 1u};
-    imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
-    imageInfo.samples = vk::SampleCountFlagBits::e1;
-    imageInfo.format = _format;
-    imageInfo.tiling = vk::ImageTiling::eOptimal;
-    imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-    imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-
-    _device->createImageWithInfo(imageInfo, {vk::MemoryPropertyFlagBits::eDeviceLocal}, _image, _imageMemory);
-}
-
-void RenderSystem::createImageView()
-{
-    vk::ImageViewCreateInfo viewInfo{};
-    viewInfo.image = _image; // The color texture image
-    viewInfo.viewType = vk::ImageViewType::e2D;
-    viewInfo.format = _format;
-    viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-    viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = 1;
-    viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = 1;
-
-    if (_device->device().createImageView(&viewInfo, nullptr, &_imageView) != vk::Result::eSuccess)
-    {
-        throw std::runtime_error("RenderSystem: failed to create imageView!");
-    }
-}
-
-void RenderSystem::createRenderPass()
-{
-    vk::AttachmentDescription attachment; // color, normal, depth
-
-    // Color
-    attachment.format = _format;
-    attachment.loadOp = vk::AttachmentLoadOp::eClear;
-    attachment.storeOp = vk::AttachmentStoreOp::eStore;
-    attachment.initialLayout = vk::ImageLayout::eUndefined;
-    attachment.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-
-    vk::AttachmentReference attachmentRef = {0, vk::ImageLayout::eColorAttachmentOptimal};
-
-    vk::SubpassDescription subpass{};
-    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-    subpass.pDepthStencilAttachment = nullptr;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &attachmentRef;
-
-    vk::RenderPassCreateInfo renderPassInfo{};
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments = &attachment;
-    renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
-
-    if (_device->device().createRenderPass(&renderPassInfo, nullptr, &_renderPass) != vk::Result::eSuccess)
-    {
-        throw std::runtime_error("failed to create depth render pass");
-    }
-
-    DebugUtil::nameObject(_renderPass, vk::ObjectType::eRenderPass, "Final RenderPass");
-}
-
-void RenderSystem::createFrameBuffer()
-{
-    vk::ImageView attachment = _imageView;
-
-    vk::FramebufferCreateInfo framebufferInfo{};
-    framebufferInfo.renderPass = _renderPass;
-    framebufferInfo.attachmentCount = 1;
-    framebufferInfo.pAttachments = &attachment;
-    framebufferInfo.width = _resolution.width;
-    framebufferInfo.height = _resolution.height;
-    framebufferInfo.layers = 1;
-
-    if (_device->device().createFramebuffer(&framebufferInfo, nullptr, &_framebuffer) != vk::Result::eSuccess)
-    {
-        throw std::runtime_error("failed to create frame buffer");
-    }
-}
-
-void RenderSystem::createSampler()
-{
-    if (!_sampler)
-    {
-        vk::SamplerCreateInfo samplerCreateInfo{};
-        samplerCreateInfo.magFilter = vk::Filter::eLinear;
-        samplerCreateInfo.minFilter = vk::Filter::eLinear;
-        samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-        samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-        samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-        samplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
-        samplerCreateInfo.unnormalizedCoordinates = false;
-        samplerCreateInfo.compareEnable = true;
-
-        _sampler = _device->device().createSampler(samplerCreateInfo);
-    }
-
-    _samplerDescriptorSetID = createSamplerDescriptor(_imageView, _sampler);
-}
-
-void RenderSystem::freeImages()
-{
-    _device->device().destroyFramebuffer(_framebuffer);
-    _device->device().destroyRenderPass(_renderPass);
-    freeSamplerDescriptor(_samplerDescriptorSetID);
-    _device->device().destroySampler(_sampler);
-    _device->device().destroyImageView(_imageView);
-    _device->device().destroyImage(_image);
-    _device->device().freeMemory(_imageMemory);
-}
-#endif
 
 } // namespace cmx

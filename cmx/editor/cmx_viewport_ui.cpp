@@ -1,3 +1,4 @@
+#include "cmx_render_pass.h"
 #ifndef NDEBUG
 #include "cmx_viewport_ui.h"
 
@@ -467,7 +468,9 @@ void ViewportUI::renderScene()
     if (renderSystem)
     {
         VkDescriptorSet descriptorSet =
-            renderSystem->getSamplerDescriptorSet(renderSystem->getSamplerDescriptorSetID()).operator VkDescriptorSet();
+            renderSystem
+                ->getSamplerDescriptorSet(renderSystem->getViewportRenderPass()->getRenderTargets()[0].descriptorSetID)
+                .operator VkDescriptorSet();
 
         _sceneViewportSize = ImGui::GetContentRegionAvail();
         ImGui::BeginChild("SceneViewport", _sceneViewportSize, false);
