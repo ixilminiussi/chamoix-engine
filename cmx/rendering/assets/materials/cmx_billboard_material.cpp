@@ -3,8 +3,10 @@
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
+#include "cmx_render_pass.h"
 #include "cmx_render_system.h"
-#include "cmx_renderer.h"
+
+// lib
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>

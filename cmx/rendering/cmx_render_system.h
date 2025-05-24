@@ -3,7 +3,6 @@
 
 // cmx
 #include "cmx_descriptors.h"
-#include "cmx_g_buffer.h"
 #include "cmx_light_environment.h"
 #include "cmx_viewport_ui.h"
 
@@ -86,7 +85,7 @@ class RenderSystem
     {
         return _samplerDescriptorSetID;
     }
-    class GBuffer *getGBuffer()
+    class RenderPass *getGBuffer()
     {
         return _gBuffer.get();
     }
@@ -122,7 +121,7 @@ class RenderSystem
     void freeImages();
 #endif
 
-    std::unique_ptr<class GBuffer> _gBuffer;
+    std::unique_ptr<class RenderPass> _gBuffer;
 
     std::unique_ptr<class DescriptorPool> _globalPool{};
 

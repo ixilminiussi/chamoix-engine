@@ -8,9 +8,9 @@
 #include "cmx_device.h"
 #include "cmx_editor.h"
 #include "cmx_frame_info.h"
-#include "cmx_g_buffer.h"
 #include "cmx_game.h"
 #include "cmx_light_environment.h"
+#include "cmx_render_pass.h"
 #include "cmx_renderer.h"
 #include "cmx_swap_chain.h"
 
@@ -249,12 +249,12 @@ FrameInfo *RenderSystem::beginCommandBuffer()
 
 void RenderSystem::beginRender(FrameInfo *frameInfo, const LightEnvironment *lightEnvironment) const
 {
-    _gBuffer->beginRender(frameInfo, lightEnvironment);
+    _gBuffer->beginRender(frameInfo->commandBuffer);
 }
 
 void RenderSystem::endRender(FrameInfo *frameInfo) const
 {
-    _gBuffer->endRender(frameInfo);
+    _gBuffer->endRender(frameInfo->commandBuffer);
 }
 
 void RenderSystem::beginPostProcess(FrameInfo *frameInfo) const
@@ -346,8 +346,28 @@ void RenderSystem::createGBuffer()
     }
 #endif
 
-    _gBuffer = std::make_unique<GBuffer>();
-    _gBuffer->createTextures(_resolution, _device.get());
+    SwapChainSupportDetails swapChainSupport = _device->getSwapChainSupport();
+    vk::SurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport.formats);
+    surfaceFormat = vk::Format::eR16G16B16A16Snorm;
+
+    _gBuffer = std::make_unique<RenderPass>(
+        _device.get(), _resolution,
+        std::vector<AttachmentInfo>{
+            {.format = surfaceFormat.format,
+             .usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+             .final = vk::ImageLayout::eShaderReadOnlyOptimal},
+            {.format = vk::Format::eR16G16B16A16Snorm,
+             .usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+             .final = vk::ImageLayout::eShaderReadOnlyOptimal},
+            {.format = vk::Format::eR16G16B16A16Snorm,
+             .usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+             .final = vk::ImageLayout::eShaderReadOnlyOptimal},
+            {.aspect = vk::ImageAspectFlagBits::eDepth,
+             .clearValue = {vk::ClearDepthStencilValue{1.f, 0}},
+             .format = vk::Format::eD32Sfloat,
+             .usage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
+             .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
+        std::vector<SubpassInfo>{{.colorAttachmentIndices = {0, 1, 2}, .depthAttachmentIndex = 3}});
 }
 
 void RenderSystem::writeUbo(FrameInfo *frameInfo, GlobalUbo *ubo)

@@ -13,6 +13,7 @@ set(SHADER_FILES
     postprocess.vert
     post_passthrough.frag
     post_outline.frag
+    post_ssao.frag
 )
 
 set(COMPILED_SHADERS)

@@ -13,6 +13,7 @@
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(1)"/>
         <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" name="outline_postprocess"/>
         <postProcess type="cmx::PostPassthroughMaterial" vertex="postprocess.vert.spv" fragment="post_passthrough.frag.spv" editorOnly="false" status="88" name="passthrough_postprocess"/>
+        <postProcess type="cmx::PostSSAOMaterial" vertex="postprocess.vert.spv" fragment="post_ssao.frag.spv" editorOnly="false" name="ssao_postprocess"/>
         <model filepath=".cmx_assets/camera.obj" name="cmx_camera"/>
         <model filepath=".cmx_assets/cube.obj" name="cmx_cube"/>
         <model filepath=".cmx_assets/cylinder.obj" name="cmx_cylinder"/>
@@ -108,12 +109,12 @@
             </gradient>
         </sun>
     </lightEnvironment>
-    <graphicsManager/>
-    <actor type="cmx::MeshActor" name="Penguin" id="11" visible="true">
+    <graphicsManager pp1="ssao_postprocess"/>
+    <actor type="cmx::Actor" name="cmx::MeshActor(4)" id="17" visible="true">
         <transform>
-            <position x="3" y="-4" z="-1"/>
-            <rotation pitch="0.98325491" yaw="7.9658919e-09" roll="0.18223551" w="-4.2979703e-08"/>
-            <scale x="0.99999881" y="0.99998748" z="0.99999952"/>
+            <position x="-2" y="-1" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="2" z="3"/>
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
@@ -122,39 +123,15 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="dithered_material" model="cmx_cube" t0="cmx_radial_dithering_hd"/>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
             </rendering>
         </component>
     </actor>
-    <actor type="FirstPersonActor" name="FirstPersonActor" id="9" visible="true">
+    <actor type="cmx::Actor" name="cmx::MeshActor(3)" id="16" visible="true">
         <transform>
-            <position x="0" y="-1" z="0"/>
+            <position x="0" y="-1" z="2"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
-        </transform>
-        <component type="cmx::CameraComponent" name="cmx::CameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="true">
-            <transform>
-                <position x="0" y="-2" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="mesh_material(1)" model="cmx_camera"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Dynamic" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="RigidBodyActor" name="BallActor" id="7" visible="true">
-        <transform>
-            <position x="0" y="-3" z="-3"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
+            <scale x="1" y="2" z="1"/>
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
@@ -163,22 +140,49 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="dithered_material" model="cmx_sphere" t0="cmx_radial_dithering_hd"/>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
             </rendering>
         </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Rigid" gravityX="0" gravityY="10" gravityZ="0" inverseMass="1" bounciness="0.5" friction="0.5">
+    </actor>
+    <actor type="cmx::Actor" name="cmx::MeshActor(2)" id="15" visible="true">
+        <transform>
+            <position x="0" y="-1" z="-2"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="2" z="1"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
                 <scale x="1" y="1" z="1"/>
             </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
+            </rendering>
         </component>
     </actor>
-    <actor type="StaticBodyActor" name="FloorActor" id="5" visible="true">
+    <actor type="cmx::Actor" name="cmx::MeshActor(1)" id="14" visible="true">
+        <transform>
+            <position x="2" y="-1" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="2" z="3"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="cmx::MeshActor" name="cmx::MeshActor" id="13" visible="true">
         <transform>
             <position x="0" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="10" y="1" z="10"/>
+            <scale x="1" y="1" z="1"/>
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
@@ -187,48 +191,7 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="parallax_material" model="cmx_plane" t0="rocks_color" t1="rocks_normal_height"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_plane" physicsMode="Static" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="cmx::Actor" name="Penguin(1)" id="3" visible="true">
-        <transform>
-            <position x="-3" y="0" z="7"/>
-            <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
-            <scale x="3" y="3" z="3"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="dithered_material" model="penguin" t0="cmx_radial_dithering_hd"/>
-            </rendering>
-        </component>
-    </actor>
-    <actor type="cmx::Actor" name="Penguin(2)" id="1" visible="true">
-        <transform>
-            <position x="3" y="0" z="7"/>
-            <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
-            <scale x="3" y="3" z="3"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="dithered_material" model="penguin" t0="cmx_radial_dithering_hd"/>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
             </rendering>
         </component>
     </actor>

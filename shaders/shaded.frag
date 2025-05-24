@@ -81,7 +81,7 @@ float getPCFShadow(vec3 projCoords)
 vec3 getDiffuseLight()
 {
     // ambient light
-    vec3 diffuseLight = ubo.ambientLight.xyz * ubo.ambientLight.w;
+    vec3 diffuseLight = vec3(0.);
     vec3 surfaceNormal = normalize(inNormalWorld);
 
     // point lights

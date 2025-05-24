@@ -43,8 +43,8 @@ class Texture
 
     void editor();
 
-    void bind(vk::CommandBuffer, vk::PipelineLayout);
-    static void bindMany(vk::CommandBuffer, vk::PipelineLayout, std::vector<Texture *> textures);
+    void bind(vk::CommandBuffer, vk::PipelineLayout, int bindPoint = 1);
+    static void bindMany(vk::CommandBuffer, vk::PipelineLayout, std::vector<Texture *> textures, int bindPoint = 1);
 
     static Texture *create2DTextureFromFile(class Device *, const char *filepath, const char *name);
     static Texture *create3DTextureFromFile(class Device *, const std::vector<std::string> &filepaths,

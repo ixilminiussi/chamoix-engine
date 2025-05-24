@@ -2,7 +2,6 @@
 #include "cmx_debug_util.h"
 
 // lib
-#include <cmath>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <vulkan/vulkan.hpp>
@@ -126,7 +125,9 @@ void Device::createInstance()
         createInfo.ppEnabledLayerNames = _validationLayers.data();
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
+
+        debugCreateInfo.pNext = nullptr;
+        createInfo.pNext = &debugCreateInfo;
     }
     else
     {
@@ -266,8 +267,9 @@ void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT
 {
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity =
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
@@ -395,7 +397,7 @@ vk::SampleCountFlagBits Device::getSampleCount()
     return msaaSamples;
 }
 
-QueueFamilyIndices Device::findQueueFamilies(vk::PhysicalDevice device)
+QueueFamilyIndices Device::findQueueFamilies(vk::PhysicalDevice device) const
 {
     QueueFamilyIndices indices;
 
@@ -457,7 +459,7 @@ vk::Format Device::findSupportedFormat(const std::vector<vk::Format> &candidates
     throw std::runtime_error("failed to find supported format!");
 }
 
-uint32_t Device::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+uint32_t Device::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) const
 {
     vk::PhysicalDeviceMemoryProperties memProperties = _physicalDevice.getMemoryProperties();
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
@@ -580,7 +582,7 @@ void Device::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t widt
 }
 
 void Device::createImageWithInfo(const vk::ImageCreateInfo &imageInfo, vk::MemoryPropertyFlags properties,
-                                 vk::Image &image, vk::DeviceMemory &imageMemory)
+                                 vk::Image &image, vk::DeviceMemory &imageMemory) const
 {
     if (_device.createImage(&imageInfo, nullptr, &image) != vk::Result::eSuccess)
     {

@@ -1,22 +1,24 @@
-#include "cmx_post_outline_material.h"
+#include "cmx_post_ssao_material.h"
 
 // cmx
 #include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
+#include "cmx_game.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_pass.h"
 #include "cmx_render_system.h"
+#include "cmx_texture.h"
 
 // lib
-#include <imgui.h>
+#include <glm/matrix.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
 namespace cmx
 {
 
-void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
+void PostSSAOMaterial::bind(FrameInfo *frameInfo, const Drawable *)
 {
     if (_boundID != _id)
     {
@@ -35,83 +37,60 @@ void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
         frameInfo->commandBuffer.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics, _pipelineLayout, 3, 1,
             &(_renderSystem->getSamplerDescriptorSet(renderTargets[3].descriptorSetID)), 0, nullptr);
+        noiseTexture->bind(frameInfo->commandBuffer, _pipelineLayout, 4);
 
         _boundID = _id;
     }
 
     PushConstantData push{};
-    push.edgeColor = _edgeColor;
-    push.albedoEdgeThickness = _albedoEdgeThickness;
-    push.albedoEdgeThreshold = _albedoEdgeThreshold;
-    push.albedoDepthFactor = _albedoDepthFactor;
-    push.normalEdgeThickness = _normalEdgeThickness;
-    push.normalEdgeThreshold = _normalEdgeThreshold;
-    push.normalDepthFactor = _normalDepthFactor;
-    push.depthEdgeThickness = _depthEdgeThickness;
-    push.depthEdgeThreshold = _depthEdgeThreshold;
-    push.depthDepthFactor = _depthDepthFactor;
-    push.nearPlane = frameInfo->camera->getNearPlane();
-    push.farPlane = frameInfo->camera->getFarPlane();
+    push.projection = frameInfo->camera->getProjection();
+    push.view = frameInfo->camera->getView();
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
                                            sizeof(PushConstantData), &push);
 }
 
-void PostOutlineMaterial::editor()
+void PostSSAOMaterial::editor()
 {
     Material::editor();
-
-    ImGui::ColorEdit3("Edge Color##Outline", (float *)&_edgeColor);
-
-    if (ImGui::TreeNode("Albedo"))
-    {
-        ImGui::DragFloat("Line thickness##Color", &_albedoEdgeThickness, 1.f, 0.f, 20.f);
-        ImGui::DragFloat("Edge threshold##Color", &_albedoEdgeThreshold, 0.05f, 0.f, 1.f);
-        ImGui::DragFloat("Depth factor##Color", &_albedoDepthFactor, 0.05f, 0.f, 5.f);
-        ImGui::TreePop();
-    }
-
-    if (ImGui::TreeNode("Normal"))
-    {
-        ImGui::DragFloat("Line thickness##Normal", &_normalEdgeThickness, 1.f, 0.f, 20.f);
-        ImGui::DragFloat("Edge threshold##Normal", &_normalEdgeThreshold, 0.01f, 0.f, 1.f);
-        ImGui::DragFloat("Depth factor##Depth", &_normalDepthFactor, 0.01f, 0.01f, .5f);
-        ImGui::TreePop();
-    }
-
-    if (ImGui::TreeNode("Depth"))
-    {
-        ImGui::DragFloat("Line thickness##Depth", &_depthEdgeThickness, 1.f, 0.f, 20.f);
-        ImGui::DragFloat("Edge threshold##Depth", &_depthEdgeThreshold, 0.05f, 0.f, 10.f);
-        ImGui::DragFloat("Depth factor##Depth", &_depthDepthFactor, 0.01f, 0.01f, .5f);
-        ImGui::TreePop();
-    }
 }
 
-tinyxml2::XMLElement *PostOutlineMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
+tinyxml2::XMLElement *PostSSAOMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     return Material::save(doc, parentElement);
 }
 
-void PostOutlineMaterial::load(tinyxml2::XMLElement *materialElement)
+void PostSSAOMaterial::load(tinyxml2::XMLElement *materialElement)
 {
     Material::load(materialElement);
 }
 
-void PostOutlineMaterial::initialize()
+void PostSSAOMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
 
     loadBindings();
 
     createPipelineLayout({renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
-                          renderSystem->getSamplerDescriptorSetLayout(),
+                          renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
                           renderSystem->getSamplerDescriptorSetLayout()});
+
+    noiseTexture = Texture::create2DTextureFromFile(RenderSystem::getInstance()->getDevice(),
+                                                    ".cmx_assets/noise/noise.png", "noise");
+
     createPipeline(renderSystem->getRenderPass());
 }
 
-void PostOutlineMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
+void PostSSAOMaterial::free()
+{
+    Material::free();
+
+    noiseTexture->free();
+    delete noiseTexture;
+}
+
+void PostSSAOMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
@@ -134,7 +113,7 @@ void PostOutlineMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayo
     _requestedSamplerCount -= 1;
 }
 
-void PostOutlineMaterial::createPipeline(vk::RenderPass renderPass)
+void PostSSAOMaterial::createPipeline(vk::RenderPass renderPass)
 {
     assert(_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 

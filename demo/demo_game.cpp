@@ -31,7 +31,6 @@
 
 // std
 #include <algorithm>
-#include <cstdlib>
 
 Demo::Demo() : mainScene{"scenes/demo-scene.xml", this, "sponza"}
 {

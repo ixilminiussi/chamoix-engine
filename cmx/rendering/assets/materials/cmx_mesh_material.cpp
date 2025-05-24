@@ -1,12 +1,11 @@
 #include "cmx_mesh_material.h"
 
 // cmx
-#include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
+#include "cmx_render_pass.h"
 #include "cmx_render_system.h"
-#include "cmx_renderer.h"
 
 // lib
 #include <imgui.h>

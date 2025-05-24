@@ -5,10 +5,11 @@
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
 #include "cmx_pipeline.h"
+#include "cmx_render_pass.h"
 #include "cmx_render_system.h"
-#include "imgui.h"
 
 // lib
+#include <imgui.h>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
@@ -21,19 +22,19 @@ void PostPassthroughMaterial::bind(FrameInfo *frameInfo, const Drawable *)
     {
         _pipeline->bind(frameInfo->commandBuffer);
 
-        size_t *descriptorSetIDs = _renderSystem->getGBuffer()->getSamplerDescriptorSetIDs();
-        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, 1,
-                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[0])), 0,
-                                                    nullptr);
-        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 1, 1,
-                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[1])), 0,
-                                                    nullptr);
-        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 2, 1,
-                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[2])), 0,
-                                                    nullptr);
-        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 3, 1,
-                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[3])), 0,
-                                                    nullptr);
+        const std::vector<RenderTarget> &renderTargets = _renderSystem->getGBuffer()->getRenderTargets();
+        frameInfo->commandBuffer.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, 1,
+            &(_renderSystem->getSamplerDescriptorSet(renderTargets[0].descriptorSetID)), 0, nullptr);
+        frameInfo->commandBuffer.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, _pipelineLayout, 1, 1,
+            &(_renderSystem->getSamplerDescriptorSet(renderTargets[1].descriptorSetID)), 0, nullptr);
+        frameInfo->commandBuffer.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, _pipelineLayout, 2, 1,
+            &(_renderSystem->getSamplerDescriptorSet(renderTargets[2].descriptorSetID)), 0, nullptr);
+        frameInfo->commandBuffer.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, _pipelineLayout, 3, 1,
+            &(_renderSystem->getSamplerDescriptorSet(renderTargets[3].descriptorSetID)), 0, nullptr);
 
         _boundID = _id;
     }

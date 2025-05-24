@@ -1,0 +1,292 @@
+#include "cmx_render_pass.h"
+
+// cmx
+#include "cmx_render_system.h"
+
+// lib
+#include <spdlog/spdlog.h>
+#include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_handles.hpp>
+#include <vulkan/vulkan_structs.hpp>
+
+// std
+
+namespace cmx
+{
+
+RenderPass::RenderPass(Device *device, const vk::Extent2D &resolution,
+                       const std::vector<vk::AttachmentDescription> &attachmentDescriptions,
+                       const std::vector<SubpassDescription> &subpassDescriptions)
+{
+    for (const vk::AttachmentDescription &attachmentDescription : attachmentDescriptions)
+    {
+        RenderTarget renderTarget{.clearValue = attachmentDescription.clearValue,
+                                  .format = attachmentDescription.format};
+
+        vk::Image image;
+        vk::DeviceMemory deviceMemory;
+        vk::ImageCreateInfo imageInfo{};
+
+        imageInfo.sType = vk::StructureType::eImageCreateInfo;
+        imageInfo.imageType = vk::ImageType::e2D;
+        imageInfo.extent = vk::Extent3D{_resolution.width, _resolution.height, 1u};
+        imageInfo.mipLevels = 1;
+        imageInfo.arrayLayers = 1;
+        imageInfo.samples = vk::SampleCountFlagBits::e1;
+        imageInfo.format = attachmentDescription.format;
+        imageInfo.tiling = vk::ImageTiling::eOptimal;
+        imageInfo.initialLayout = attachmentDescription.initial;
+        imageInfo.usage = attachmentDescription.usage;
+
+        device->createImageWithInfo(imageInfo, {vk::MemoryPropertyFlagBits::eDeviceLocal}, renderTarget.image,
+                                    renderTarget.deviceMemory);
+
+        vk::ImageViewCreateInfo viewInfo{};
+        viewInfo.image = renderTarget.image;
+        viewInfo.viewType = vk::ImageViewType::e2D;
+        viewInfo.format = renderTarget.format;
+        viewInfo.subresourceRange.aspectMask = attachmentDescription.aspect;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        if (device->device().createImageView(&viewInfo, nullptr, &renderTarget.imageView) != vk::Result::eSuccess)
+        {
+            throw("RenderPass: Failed to create imageView");
+        }
+
+        renderTarget.attachment.format = attachmentDescription.format;
+        renderTarget.attachment.samples = vk::SampleCountFlagBits::e1;
+        renderTarget.attachment.loadOp = attachmentDescription.loadOp;
+        renderTarget.attachment.storeOp = attachmentDescription.storeOp;
+        renderTarget.attachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+        renderTarget.attachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+        renderTarget.attachment.initialLayout = attachmentDescription.initial;
+        renderTarget.attachment.finalLayout = attachmentDescription.final;
+
+        _renderTargets.emplace_back(renderTarget);
+    }
+
+    vk::AttachmentReference depthAttachmentRef{};
+    depthAttachmentRef.attachment = subpassDescriptions.;
+    depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+    vk::AttachmentReference albedoAttachmentRefs[3] = {{0, vk::ImageLayout::eColorAttachmentOptimal},
+                                                       {1, vk::ImageLayout::eColorAttachmentOptimal},
+                                                       {2, vk::ImageLayout::eColorAttachmentOptimal}};
+
+    vk::SubpassDescription subpass{};
+    subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    subpass.colorAttachmentCount = 3;
+    subpass.pColorAttachments = albedoAttachmentRefs;
+
+    vk::RenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.attachmentCount = 4;
+    renderPassInfo.pAttachments = attachments;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    if (device->device().createRenderPass(&renderPassInfo, nullptr, &_renderPass) != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("failed to create depth render pass");
+    }
+    // DebugUtil::nameObject(_renderPass, vk::ObjectType::eRenderPass, "Gbuffer RenderPass");
+}
+
+RenderPass::~RenderPass()
+{
+    if (!_freed)
+    {
+        spdlog::error("RenderPass: forgot to free before deletion");
+    }
+}
+
+void RenderPass::updateAspectRatio(Device *device, const vk::Extent2D &resolution)
+{
+    RenderSystem *renderSystem = RenderSystem::getInstance();
+    device->device().destroyFramebuffer(_framebuffer);
+    device->device().destroyRenderPass(_renderPass);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[0]);
+    device->device().destroyImageView(_albedoImageView);
+    device->device().destroyImage(_albedoImage);
+    device->device().freeMemory(_albedoImageMemory);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[1]);
+    device->device().destroyImageView(_normalImageView);
+    device->device().destroyImage(_normalImage);
+    device->device().freeMemory(_normalImageMemory);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[2]);
+    device->device().destroyImageView(_shadowImageView);
+    device->device().destroyImage(_shadowImage);
+    device->device().freeMemory(_shadowImageMemory);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[3]);
+    device->device().destroyImageView(_depthImageView);
+    device->device().destroyImage(_depthImage);
+    device->device().freeMemory(_depthImageMemory);
+
+    createTextures(resolution, device);
+}
+
+void RenderPass::beginRender(vk::CommandBuffer commandBuffer) const
+{
+    std::vector<vk::ClearValue> clearValues{};
+
+    for (const RenderTarget &renderTarget : _renderTargets)
+    {
+        clearValues.push_back(renderTarget.clearValue);
+    }
+
+    vk::RenderPassBeginInfo renderPassBeginInfo{};
+    renderPassBeginInfo.renderPass = _renderPass;
+    renderPassBeginInfo.framebuffer = _framebuffer;
+    renderPassBeginInfo.renderArea.extent = _resolution;
+    renderPassBeginInfo.clearValueCount = clearValues.size();
+    renderPassBeginInfo.pClearValues = clearValues.data();
+
+    commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
+
+    static vk::Viewport viewport;
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)_resolution.width;
+    viewport.height = (float)_resolution.height;
+    viewport.minDepth = 0.f;
+    viewport.maxDepth = 1.f;
+
+    vk::Rect2D scissor{vk::Offset2D{0, 0}, _resolution};
+    commandBuffer.setViewport(0, 1, &viewport);
+    commandBuffer.setScissor(0, 1, &scissor);
+}
+
+void RenderPass::endRender(vk::CommandBuffer commandBuffer) const
+{
+    commandBuffer.endRenderPass();
+}
+
+void RenderPass::createRenderPass(Device *device)
+{
+}
+
+void RenderPass::createFrameBuffer(Device *device)
+{
+    vk::ImageView attachments[4] = {_albedoImageView, _normalImageView, _shadowImageView, _depthImageView};
+
+    vk::FramebufferCreateInfo framebufferInfo{};
+    framebufferInfo.renderPass = _renderPass;
+    framebufferInfo.attachmentCount = 4;
+    framebufferInfo.pAttachments = attachments;
+    framebufferInfo.width = _resolution.width;
+    framebufferInfo.height = _resolution.height;
+    framebufferInfo.layers = 1;
+
+    if (device->device().createFramebuffer(&framebufferInfo, nullptr, &_framebuffer) != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("failed to create frame buffer");
+    }
+}
+
+void RenderPass::createSamplers(Device *device)
+{
+    RenderSystem *renderSystem = RenderSystem::getInstance();
+
+    if (!_albedoSampler)
+    {
+        vk::SamplerCreateInfo albedoSamplerCreateInfo{};
+        albedoSamplerCreateInfo.magFilter = vk::Filter::eLinear;
+        albedoSamplerCreateInfo.minFilter = vk::Filter::eLinear;
+        albedoSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        albedoSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        albedoSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        albedoSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        albedoSamplerCreateInfo.unnormalizedCoordinates = false;
+        albedoSamplerCreateInfo.compareEnable = true;
+
+        _albedoSampler = device->device().createSampler(albedoSamplerCreateInfo);
+    }
+
+    _samplerDescriptorSetIDs[0] = renderSystem->createSamplerDescriptor(_albedoImageView, _albedoSampler);
+
+    if (!_normalSampler)
+    {
+        vk::SamplerCreateInfo normalSamplerCreateInfo{};
+        normalSamplerCreateInfo.magFilter = vk::Filter::eLinear;
+        normalSamplerCreateInfo.minFilter = vk::Filter::eLinear;
+        normalSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        normalSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        normalSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        normalSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        normalSamplerCreateInfo.unnormalizedCoordinates = false;
+        normalSamplerCreateInfo.compareEnable = true;
+
+        _normalSampler = device->device().createSampler(normalSamplerCreateInfo);
+    }
+
+    _samplerDescriptorSetIDs[1] = renderSystem->createSamplerDescriptor(_normalImageView, _normalSampler);
+
+    if (!_shadowSampler)
+    {
+        vk::SamplerCreateInfo shadowSamplerCreateInfo{};
+        shadowSamplerCreateInfo.magFilter = vk::Filter::eLinear;
+        shadowSamplerCreateInfo.minFilter = vk::Filter::eLinear;
+        shadowSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        shadowSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        shadowSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        shadowSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        shadowSamplerCreateInfo.unnormalizedCoordinates = false;
+        shadowSamplerCreateInfo.compareEnable = true;
+
+        _shadowSampler = device->device().createSampler(shadowSamplerCreateInfo);
+    }
+
+    _samplerDescriptorSetIDs[2] = renderSystem->createSamplerDescriptor(_shadowImageView, _shadowSampler);
+
+    if (!_depthSampler)
+    {
+        vk::SamplerCreateInfo depthSamplerCreateInfo{};
+        depthSamplerCreateInfo.magFilter = vk::Filter::eLinear;
+        depthSamplerCreateInfo.minFilter = vk::Filter::eLinear;
+        depthSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        depthSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        depthSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        depthSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        depthSamplerCreateInfo.unnormalizedCoordinates = false;
+        depthSamplerCreateInfo.compareEnable = true;
+
+        _depthSampler = device->device().createSampler(depthSamplerCreateInfo);
+    }
+
+    _samplerDescriptorSetIDs[3] = renderSystem->createSamplerDescriptor(_depthImageView, _depthSampler);
+}
+
+void RenderPass::free(Device *device)
+{
+    _freed = true;
+
+    RenderSystem *renderSystem = RenderSystem::getInstance();
+
+    device->device().destroyFramebuffer(_framebuffer);
+    device->device().destroyRenderPass(_renderPass);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[0]);
+    device->device().destroySampler(_albedoSampler);
+    device->device().destroyImageView(_albedoImageView);
+    device->device().destroyImage(_albedoImage);
+    device->device().freeMemory(_albedoImageMemory);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[1]);
+    device->device().destroySampler(_normalSampler);
+    device->device().destroyImageView(_normalImageView);
+    device->device().destroyImage(_normalImage);
+    device->device().freeMemory(_normalImageMemory);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[2]);
+    device->device().destroySampler(_shadowSampler);
+    device->device().destroyImageView(_shadowImageView);
+    device->device().destroyImage(_shadowImage);
+    device->device().freeMemory(_shadowImageMemory);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[3]);
+    device->device().destroySampler(_depthSampler);
+    device->device().destroyImageView(_depthImageView);
+    device->device().destroyImage(_depthImage);
+    device->device().freeMemory(_depthImageMemory);
+}
+
+} // namespace cmx

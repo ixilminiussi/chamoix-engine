@@ -333,11 +333,11 @@ void Texture::generateMipmaps(class Device *device, const Builder &builder)
     device->endSingleTimeCommands(commandBuffer);
 }
 
-void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout)
+void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout, int bindPoint)
 {
     if (_boundID != _descriptorSetID)
     {
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, 1,
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, bindPoint, 1,
                                          &(_renderSystem->getSamplerDescriptorSet(_descriptorSetID)), 0, nullptr);
 
         _boundID = _descriptorSetID;
@@ -345,7 +345,7 @@ void Texture::bind(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineL
 }
 
 void Texture::bindMany(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipelineLayout,
-                       std::vector<Texture *> textures)
+                       std::vector<Texture *> textures, int bindPoint)
 {
     std::vector<vk::DescriptorSet> descriptorSets{};
 
@@ -355,7 +355,7 @@ void Texture::bindMany(vk::CommandBuffer commandBuffer, vk::PipelineLayout pipel
         descriptorSets.push_back(RenderSystem::getInstance()->getSamplerDescriptorSet(texture->_descriptorSetID));
     }
 
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, descriptorSets.size(),
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, bindPoint, descriptorSets.size(),
                                      descriptorSets.data(), 0, nullptr);
 }
 

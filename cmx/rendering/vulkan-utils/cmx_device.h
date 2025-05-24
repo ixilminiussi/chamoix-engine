@@ -9,6 +9,7 @@
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
+#include <vulkan/vulkan_structs.hpp>
 
 namespace cmx
 {
@@ -81,8 +82,8 @@ class Device
     {
         return querySwapChainSupport(_physicalDevice);
     }
-    uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags);
-    QueueFamilyIndices findPhysicalQueueFamilies()
+    uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags) const;
+    QueueFamilyIndices findPhysicalQueueFamilies() const
     {
         return findQueueFamilies(_physicalDevice);
     }
@@ -96,7 +97,8 @@ class Device
     void copyBufferToImage(vk::Buffer, vk::Image, uint32_t width, uint32_t height, uint32_t depth = 1,
                            uint32_t layerCount = 1);
 
-    void createImageWithInfo(const vk::ImageCreateInfo &, vk::MemoryPropertyFlags, vk::Image &, vk::DeviceMemory &);
+    void createImageWithInfo(const vk::ImageCreateInfo &, vk::MemoryPropertyFlags, vk::Image &,
+                             vk::DeviceMemory &) const;
     void transitionImageLayout(vk::Image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t mipLevels);
 
     vk::PhysicalDeviceProperties _properties;
@@ -118,7 +120,7 @@ class Device
     bool isDeviceSuitable(vk::PhysicalDevice);
     std::vector<const char *> getRequiredExtensions();
     bool checkValidationLayerSupport();
-    QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice);
+    QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice) const;
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &);
     void hasGflwRequiredInstanceExtensions();
     bool checkDeviceExtensionSupport(vk::PhysicalDevice);
