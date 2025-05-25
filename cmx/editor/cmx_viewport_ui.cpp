@@ -468,8 +468,7 @@ void ViewportUI::renderScene()
     if (renderSystem)
     {
         VkDescriptorSet descriptorSet =
-            renderSystem
-                ->getSamplerDescriptorSet(renderSystem->getViewportRenderPass()->getRenderTargets()[0].descriptorSetID)
+            renderSystem->getSamplerDescriptorSet(renderSystem->getViewport()->getRenderTargets()[0].descriptorSetID)
                 .operator VkDescriptorSet();
 
         _sceneViewportSize = ImGui::GetContentRegionAvail();

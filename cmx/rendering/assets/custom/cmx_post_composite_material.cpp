@@ -1,9 +1,10 @@
-#include "cmx_post_passthrough_material.h"
+#include "cmx_post_composite_material.h"
 
 // cmx
-#include "cmx_camera.h"
 #include "cmx_drawable.h"
 #include "cmx_frame_info.h"
+#include "cmx_game.h"
+#include "cmx_material.h"
 #include "cmx_pipeline.h"
 #include "cmx_render_pass.h"
 #include "cmx_render_system.h"
@@ -16,13 +17,14 @@
 namespace cmx
 {
 
-void PostPassthroughMaterial::bind(FrameInfo *frameInfo, const Drawable *)
+void PostCompositeMaterial::bind(FrameInfo *frameInfo, const Drawable *)
 {
     if (_boundID != _id)
     {
         _pipeline->bind(frameInfo->commandBuffer);
 
         const std::vector<RenderTarget> &renderTargets = _renderSystem->getGBuffer()->getRenderTargets();
+        const RenderTarget &ssaoRenderTarget = _renderSystem->getSSAOBuffer()[1]->getRenderTargets()[0];
         frameInfo->commandBuffer.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics, _pipelineLayout, 0, 1,
             &(_renderSystem->getSamplerDescriptorSet(renderTargets[0].descriptorSetID)), 0, nullptr);
@@ -35,94 +37,56 @@ void PostPassthroughMaterial::bind(FrameInfo *frameInfo, const Drawable *)
         frameInfo->commandBuffer.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics, _pipelineLayout, 3, 1,
             &(_renderSystem->getSamplerDescriptorSet(renderTargets[3].descriptorSetID)), 0, nullptr);
+        frameInfo->commandBuffer.bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, _pipelineLayout, 4, 1,
+            &(_renderSystem->getSamplerDescriptorSet(ssaoRenderTarget.descriptorSetID)), 0, nullptr);
 
         _boundID = _id;
     }
 
     PushConstantData push{};
-    push.status = _status;
-    push.nearPlane = frameInfo->camera->getNearPlane();
-    push.farPlane = frameInfo->camera->getFarPlane();
+    push.useSSAO = _ssaoToggle;
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
                                            sizeof(PushConstantData), &push);
 }
 
-void PostPassthroughMaterial::editor()
+void PostCompositeMaterial::editor()
 {
     Material::editor();
 
-    static std::map<int, std::string> options{
-        {0, "combined"}, {1, "albedo"}, {2, "shadow"}, {3, "normal"}, {4, "depth"}};
-
-    const char *selected;
-
-    if (options.find(_status) != options.end())
-    {
-        selected = options[_status].c_str();
-    }
-    else
-    {
-        _status = 0;
-        selected = options[_status].c_str();
-    }
-
-    if (ImGui::BeginCombo("Visualizing", selected))
-    {
-        for (auto [status, name] : options)
-        {
-            bool isSelected = (strcmp(selected, name.c_str()) == 0);
-            if (ImGui::Selectable(name.c_str(), isSelected) && !isSelected)
-            {
-                selected = name.c_str();
-                _status = status;
-                spdlog::info("{0}", _status);
-                isSelected = true;
-            }
-
-            if (isSelected)
-            {
-                ImGui::SetItemDefaultFocus();
-            }
-        }
-
-        ImGui::EndCombo();
-    }
+    ImGui::Checkbox("use SSAO", &_ssaoToggle);
 }
 
-tinyxml2::XMLElement *PostPassthroughMaterial::save(tinyxml2::XMLDocument &doc,
-                                                    tinyxml2::XMLElement *parentElement) const
+tinyxml2::XMLElement *PostCompositeMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
     tinyxml2::XMLElement *materialElement = Material::save(doc, parentElement);
-
-    materialElement->SetAttribute("status", _status);
+    materialElement->SetAttribute("useSSAO", _ssaoToggle);
 
     return materialElement;
 }
 
-void PostPassthroughMaterial::load(tinyxml2::XMLElement *materialElement)
+void PostCompositeMaterial::load(tinyxml2::XMLElement *materialElement)
 {
     Material::load(materialElement);
 
-    _status = materialElement->IntAttribute("status", 0);
+    _ssaoToggle = materialElement->BoolAttribute("useSSAO", true);
 }
 
-void PostPassthroughMaterial::initialize()
+void PostCompositeMaterial::initialize()
 {
     RenderSystem *renderSystem = RenderSystem::getInstance();
-
-    _status = 0;
 
     loadBindings();
 
     createPipelineLayout({renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
-                          renderSystem->getSamplerDescriptorSetLayout(),
+                          renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
                           renderSystem->getSamplerDescriptorSetLayout()});
     createPipeline(renderSystem->getRenderPass());
 }
 
-void PostPassthroughMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
+void PostCompositeMaterial::createPipelineLayout(std::vector<vk::DescriptorSetLayout> descriptorSetLayouts)
 {
     vk::PushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
@@ -145,7 +109,7 @@ void PostPassthroughMaterial::createPipelineLayout(std::vector<vk::DescriptorSet
     _requestedSamplerCount -= 1;
 }
 
-void PostPassthroughMaterial::createPipeline(vk::RenderPass renderPass)
+void PostCompositeMaterial::createPipeline(vk::RenderPass renderPass)
 {
     assert(_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 

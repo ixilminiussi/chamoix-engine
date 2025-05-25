@@ -1,5 +1,5 @@
-#ifndef CMX_POST_PASSTHROUGH_MATERIAL
-#define CMX_POST_PASSTHROUGH_MATERIAL
+#ifndef CMX_POST_BLUR_MATERIAL
+#define CMX_POST_BLUR_MATERIAL
 
 // cmx
 #include "cmx_material.h"
@@ -12,12 +12,12 @@
 namespace cmx
 {
 
-class PostPassthroughMaterial : public Material
+class PostBlurMaterial : public Material
 {
   public:
-    PostPassthroughMaterial() : Material{"postprocess.vert.spv", "post_passthrough.frag.spv", false, ePostProcess} {};
+    PostBlurMaterial() : Material{"postprocess.vert.spv", "post_blur.frag.spv", false, ePostProcess} {};
 
-    CLONEABLE_MATERIAL(PostPassthroughMaterial)
+    CLONEABLE_MATERIAL(PostBlurMaterial)
 
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
@@ -25,22 +25,23 @@ class PostPassthroughMaterial : public Material
     void load(tinyxml2::XMLElement *materialElement) override;
 
     void initialize() override;
+    void free() override;
 
   protected:
     struct PushConstantData
     {
-        int status;
-        float nearPlane, farPlane;
+        float nearPlane;
+        float farPlane;
     };
 
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
 
-    int _status; // 0 for color, 1 for normals, 2 for depth
+    class Texture *noiseTexture{nullptr};
 };
 
 } // namespace cmx
 
-REGISTER_MATERIAL(cmx::PostPassthroughMaterial)
+REGISTER_MATERIAL(cmx::PostBlurMaterial)
 
 #endif

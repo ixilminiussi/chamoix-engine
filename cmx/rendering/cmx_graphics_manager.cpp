@@ -8,15 +8,13 @@
 #include "cmx_frame_info.h"
 #include "cmx_light_environment.h"
 #include "cmx_material.h"
-#include "cmx_post_outline_material.h"
-#include "cmx_post_passthrough_material.h"
+#include "cmx_post_composite_material.h"
 #include "cmx_render_system.h"
 #include "cmx_texture.h"
-#include "cmx_utils.h"
-#include "imgui.h"
 
 // lib
 #include <IconsMaterialSymbols.h>
+#include <imgui.h>
 #include <immintrin.h>
 #include <spdlog/spdlog.h>
 
@@ -28,7 +26,7 @@ std::vector<size_t> GraphicsManager::_shadowMapDescriptorSetIDs{};
 GraphicsManager::GraphicsManager() : _drawableRenderQueue{}
 {
     _renderSystem = RenderSystem::getInstance();
-    _postProcessMaterials = {new PostPassthroughMaterial()};
+    _postProcessMaterials = {new PostCompositeMaterial()};
 
     for (Material *material : _postProcessMaterials)
     {
@@ -170,6 +168,10 @@ void GraphicsManager::drawRenderQueue(std::weak_ptr<Camera> cameraWk, LightEnvir
 
     _renderSystem->endRender(frameInfo);
 
+    // draw ssao
+    _renderSystem->drawSSAO(frameInfo);
+    // draw combination
+
     _renderSystem->beginPostProcess(frameInfo);
 
     for (Material *material : _postProcessMaterials)
@@ -207,6 +209,8 @@ void GraphicsManager::editor(AssetsManager *assetsManager)
 
         it++;
         ImGui::PopID();
+
+        ImGui::Separator();
     }
 
     // add new post process material
@@ -268,6 +272,7 @@ tinyxml2::XMLElement &GraphicsManager::save(tinyxml2::XMLDocument &doc, tinyxml2
 
 void GraphicsManager::load(tinyxml2::XMLElement *parentElement, AssetsManager *assetsManager)
 {
+    return;
     if (tinyxml2::XMLElement *graphicsManagerElement = parentElement->FirstChildElement("graphicsManager"))
     {
         int i = 0;

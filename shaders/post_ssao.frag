@@ -22,7 +22,7 @@ const vec3 SSAO_DIRECTIONS[16] = {{0.35, 0.20, 0.85},  {-0.30, -0.20, 0.90}, {0.
                                   {0.65, 0.40, 0.55},  {-0.70, 0.30, 0.50},  {0.25, -0.70, 0.45}, {-0.75, -0.35, 0.40},
                                   {0.80, 0.10, 0.35},  {-0.20, 0.75, 0.30},  {0.10, -0.80, 0.25}, {-0.85, 0.00, 0.20}};
 
-const float SSAO_RADIUS = 0.2;
+const float SSAO_RADIUS = 0.5;
 
 void main()
 {
@@ -40,7 +40,9 @@ void main()
     vec3 w_centerNormal = normalize(texture(sNormal, inUV).rgb * 2.0 - 1.0);
     vec3 v_centerNormal = mat3(push.view) * w_centerNormal;
 
-    vec3 randomVec = texture(sNoise, inUV).xyz * 2.0 - 1.0;
+    vec2 screenSize = textureSize(sNormal, 0);
+    vec2 noiseSize = textureSize(sNoise, 0);
+    vec3 randomVec = texture(sNoise, inUV * (screenSize) / noiseSize).xyz * 2.0 - 1.0;
 
     vec3 v_tangent = normalize(randomVec - v_centerNormal * dot(randomVec, v_centerNormal));
     vec3 v_bitangent = cross(v_tangent, v_centerNormal);

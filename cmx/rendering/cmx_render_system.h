@@ -80,6 +80,14 @@ class RenderSystem
     {
         return _renderer.get();
     };
+    const class GraphicsManager *getActiveGraphicsManager() const
+    {
+        return _activeGraphicsManager;
+    }
+    void setActiveGraphicsManager(const class GraphicsManager *graphicsManager)
+    {
+        _activeGraphicsManager = graphicsManager;
+    }
     vk::RenderPass getRenderPass() const;
 
     vk::Extent2D getResolution() const;
@@ -88,10 +96,15 @@ class RenderSystem
     {
         return _gBuffer.get();
     }
-#ifndef NDEBUG
-    class RenderPass *getViewportRenderPass()
+    std::array<class RenderPass *, 2> getSSAOBuffer()
     {
-        return _viewportRenderPass.get();
+        return _ssaoBuffers;
+    }
+    void drawSSAO(struct FrameInfo *frameInfo) const;
+#ifndef NDEBUG
+    class RenderPass *getViewport()
+    {
+        return _viewport.get();
     }
 #endif
 
@@ -100,19 +113,22 @@ class RenderSystem
     void initializeUbo();
 
     void createGBuffer();
+    std::unique_ptr<class RenderPass> _gBuffer;
+
+    void createSSAOBuffers();
+    std::array<class Material *, 2> _ssaoMaterials;
+    std::array<class RenderPass *, 2> _ssaoBuffers;
+    const class GraphicsManager *_activeGraphicsManager;
 
 #ifndef NDEBUG
-    void createViewportRenderPass();
+    void createViewport();
 
-    std::unique_ptr<class RenderPass> _viewportRenderPass;
+    std::unique_ptr<class RenderPass> _viewport;
 #endif
-
-    std::unique_ptr<class RenderPass> _gBuffer;
 
     std::unique_ptr<class DescriptorPool> _globalPool{};
 
     bool _visible{true};
-    bool _freed{false};
 
     std::unique_ptr<class Renderer> _renderer;
     std::unique_ptr<class Device> _device;

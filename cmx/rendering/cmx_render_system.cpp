@@ -10,6 +10,9 @@
 #include "cmx_frame_info.h"
 #include "cmx_game.h"
 #include "cmx_light_environment.h"
+#include "cmx_material.h"
+#include "cmx_post_blur_material.h"
+#include "cmx_post_ssao_material.h"
 #include "cmx_render_pass.h"
 #include "cmx_renderer.h"
 #include "cmx_swap_chain.h"
@@ -37,9 +40,10 @@ RenderSystem *RenderSystem::getInstance()
         _instance = new RenderSystem();
 
 #ifndef NDEBUG
-        _instance->createViewportRenderPass();
+        _instance->createViewport();
 #endif
         _instance->createGBuffer();
+        _instance->createSSAOBuffers();
     }
 
     return _instance;
@@ -110,9 +114,13 @@ void RenderSystem::closeWindow()
     spdlog::info("global release");
 
 #ifndef NDEBUG
-    _viewportRenderPass->free(_device.get());
+    _viewport->free(_device.get());
 #endif
     _gBuffer->free(_device.get());
+    _ssaoMaterials[0]->free();
+    _ssaoMaterials[1]->free();
+    _ssaoBuffers[0]->free(_device.get());
+    _ssaoBuffers[1]->free(_device.get());
     _globalPool->free();
     _samplerDescriptorPool->free();
     _device->device().destroyDescriptorSetLayout(_samplerDescriptorSetLayout->getDescriptorSetLayout());
@@ -183,13 +191,15 @@ void RenderSystem::checkAspectRatio(Camera *camera)
 {
     vk::Extent2D resolution = getResolution();
 #ifndef NDEBUG
-    _viewportRenderPass->updateAspectRatio(_device.get(), resolution);
+    _viewport->updateAspectRatio(_device.get(), resolution);
 #endif
 
     float aspect = static_cast<float>(resolution.width) / static_cast<float>(resolution.height);
     camera->updateAspectRatio(aspect);
 
     _gBuffer->updateAspectRatio(_device.get(), resolution);
+    _ssaoBuffers[0]->updateAspectRatio(_device.get(), resolution);
+    _ssaoBuffers[1]->updateAspectRatio(_device.get(), resolution);
 }
 
 FrameInfo *RenderSystem::beginCommandBuffer()
@@ -220,9 +230,9 @@ void RenderSystem::beginPostProcess(FrameInfo *frameInfo) const
 #ifndef NDEBUG
     if (Editor::isActive())
     {
-        vk::RenderPass renderPass = _viewportRenderPass->getRenderPass();
-        vk::Framebuffer framebuffer = _viewportRenderPass->getFrameBuffer();
-        vk::Extent2D resolution = _viewportRenderPass->getResolution();
+        vk::RenderPass renderPass = _viewport->getRenderPass();
+        vk::Framebuffer framebuffer = _viewport->getFrameBuffer();
+        vk::Extent2D resolution = _viewport->getResolution();
         static std::array<vk::ClearValue, 3> clearValues{};
         clearValues[0].color = {1.0f, 1.0f, 1.0f, 1.0f};
         clearValues[1].color = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -304,14 +314,14 @@ vk::RenderPass RenderSystem::getRenderPass() const
 #ifndef NDEBUG
     if (Editor::isActive())
     {
-        return _viewportRenderPass->getRenderPass();
+        return _viewport->getRenderPass();
     }
 #endif
     return _renderer->getSwapChainRenderPass();
 }
 
 #ifndef NDEBUG
-void RenderSystem::createViewportRenderPass()
+void RenderSystem::createViewport()
 {
     vk::Extent2D resolution = getResolution();
 
@@ -319,7 +329,7 @@ void RenderSystem::createViewportRenderPass()
     vk::SurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport.formats);
     surfaceFormat = vk::Format::eR16G16B16A16Snorm;
 
-    _viewportRenderPass =
+    _viewport =
         std::make_unique<RenderPass>(_device.get(), resolution,
                                      std::vector<AttachmentInfo>{{.format = surfaceFormat.format,
                                                                   .usage = vk::ImageUsageFlagBits::eColorAttachment |
@@ -328,6 +338,43 @@ void RenderSystem::createViewportRenderPass()
                                      std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
 }
 #endif
+
+void RenderSystem::createSSAOBuffers()
+{
+    vk::Extent2D resolution = getResolution();
+
+    _ssaoBuffers[0] = new RenderPass(_device.get(), resolution,
+                                     std::vector<AttachmentInfo>{{.format = vk::Format::eR16Snorm,
+                                                                  .usage = vk::ImageUsageFlagBits::eColorAttachment |
+                                                                           vk::ImageUsageFlagBits::eSampled,
+                                                                  .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
+                                     std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
+    _ssaoBuffers[1] = new RenderPass(_device.get(), resolution,
+                                     std::vector<AttachmentInfo>{{.format = vk::Format::eR16Snorm,
+                                                                  .usage = vk::ImageUsageFlagBits::eColorAttachment |
+                                                                           vk::ImageUsageFlagBits::eSampled,
+                                                                  .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
+                                     std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
+
+    _ssaoMaterials[0] = new PostSSAOMaterial();
+    _ssaoMaterials[0]->initialize();
+    _ssaoMaterials[1] = new PostBlurMaterial();
+    _ssaoMaterials[1]->initialize();
+}
+
+void RenderSystem::drawSSAO(FrameInfo *frameInfo) const
+{
+    _ssaoBuffers[0]->beginRender(frameInfo->commandBuffer);
+    _ssaoMaterials[0]->bind(frameInfo, nullptr);
+    frameInfo->commandBuffer.draw(6, 1, 0, 0);
+    _ssaoBuffers[0]->endRender(frameInfo->commandBuffer);
+
+    // blur pass 1
+    _ssaoBuffers[1]->beginRender(frameInfo->commandBuffer);
+    _ssaoMaterials[1]->bind(frameInfo, nullptr);
+    frameInfo->commandBuffer.draw(6, 1, 0, 0);
+    _ssaoBuffers[1]->endRender(frameInfo->commandBuffer);
+}
 
 void RenderSystem::createGBuffer()
 {

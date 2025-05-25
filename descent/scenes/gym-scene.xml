@@ -11,7 +11,6 @@
         <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
         <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" name="outline_postprocess"/>
-        <postProcess type="cmx::PostPassthroughMaterial" vertex="postprocess.vert.spv" fragment="post_passthrough.frag.spv" editorOnly="false" status="0" name="passthrough_postprocess"/>
         <model filepath=".cmx_assets/camera.obj" name="cmx_camera"/>
         <model filepath="assets/models/container.obj" name="cmx_container"/>
         <model filepath=".cmx_assets/cube.obj" name="cmx_cube"/>

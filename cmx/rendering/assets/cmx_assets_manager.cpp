@@ -9,8 +9,8 @@
 #include "cmx_mesh_material.h"
 #include "cmx_model.h"
 #include "cmx_parallax_material.h"
+#include "cmx_post_inspector_material.h"
 #include "cmx_post_outline_material.h"
-#include "cmx_post_passthrough_material.h"
 #include "cmx_post_ssao_material.h"
 #include "cmx_primitives.h"
 #include "cmx_register.h"
@@ -50,7 +50,7 @@ AssetsManager::AssetsManager(class Scene *parent)
     addMaterial(new DitheredTexturedMaterial(), "dithered_textured_material");
     addMaterial(new BillboardMaterial(), "billboard_material");
     addMaterial(new ParallaxMaterial(), "parallax_material");
-    addPostProcess(new PostPassthroughMaterial(), "passthrough_postprocess");
+    addPostProcess(new PostInspectorMaterial(), "inspector_postprocess");
     addPostProcess(new PostOutlineMaterial(), "outline_postprocess");
     addPostProcess(new PostSSAOMaterial(), "ssao_postprocess");
 };
@@ -303,7 +303,7 @@ void AssetsManager::unload()
 
     unloadMaterials();
     unloadTextures();
-    unloadMaterials();
+    unloadModels();
     unloadPostProcesses();
 
     spdlog::info("AssetsManager: Successfully unloaded assets manager!");

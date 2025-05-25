@@ -79,7 +79,7 @@ Scene *Game::newScene()
     return _scenes.at(index);
 }
 
-Scene *Game::getScene()
+Scene *Game::getScene() const
 {
     if (!_activeScene)
     {

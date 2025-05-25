@@ -98,6 +98,7 @@ class LightEnvironment
 
     void populateUbo(struct GlobalUbo *) const;
 
+    glm::vec4 getAmbientLighting() const;
     void drawShadowMaps(struct FrameInfo *,
                         const std::map<uint8_t, std::vector<std::pair<class Drawable *, struct DrawOption *>>> &,
                         std::vector<size_t> &descriptorSetIDs);

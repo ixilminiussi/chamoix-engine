@@ -79,7 +79,7 @@ void PostSSAOMaterial::initialize()
     noiseTexture = Texture::create2DTextureFromFile(RenderSystem::getInstance()->getDevice(),
                                                     ".cmx_assets/noise/noise.png", "noise");
 
-    createPipeline(renderSystem->getRenderPass());
+    createPipeline(renderSystem->getSSAOBuffer()[0]->getRenderPass());
 }
 
 void PostSSAOMaterial::free()

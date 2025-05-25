@@ -307,6 +307,15 @@ void LightEnvironment::drawShadowMaps(
     }
 }
 
+glm::vec4 LightEnvironment::getAmbientLighting() const
+{
+    if (_hasSun)
+    {
+        return glm::vec4(_sun.color.x, _sun.color.y, _sun.color.z, _sun.intensity * .1f + .05f);
+    }
+    return _ambientLighting;
+}
+
 void LightEnvironment::populateUbo(GlobalUbo *ubo) const
 {
     PointLight pointLights[MAX_POINT_LIGHTS];

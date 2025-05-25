@@ -11,9 +11,11 @@ set(SHADER_FILES
     billboard.vert billboard.frag
     parallax.vert parallax.frag
     postprocess.vert
-    post_passthrough.frag
+    post_composite.frag
+    post_inspector.frag
     post_outline.frag
     post_ssao.frag
+    post_blur.frag
 )
 
 set(COMPILED_SHADERS)

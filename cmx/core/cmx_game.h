@@ -32,7 +32,7 @@ class Game
     virtual void run() {};
 
     // getters and setters :: begin
-    class Scene *getScene();
+    class Scene *getScene() const;
     void setScene(size_t i);
 
     class Scene *newScene();
