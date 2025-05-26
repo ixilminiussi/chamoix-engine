@@ -40,12 +40,14 @@ void PostCompositeMaterial::bind(FrameInfo *frameInfo, const Drawable *)
         frameInfo->commandBuffer.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics, _pipelineLayout, 4, 1,
             &(_renderSystem->getSamplerDescriptorSet(ssaoRenderTarget.descriptorSetID)), 0, nullptr);
+        frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 5, 1,
+                                                    &frameInfo->globalDescriptorSet, 0, nullptr);
 
         _boundID = _id;
     }
 
     PushConstantData push{};
-    push.useSSAO = _ssaoToggle;
+    push.useSSAO = _ssaoToggle ? 1 : 0;
 
     frameInfo->commandBuffer.pushConstants(_pipelineLayout,
                                            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0,
@@ -82,7 +84,7 @@ void PostCompositeMaterial::initialize()
 
     createPipelineLayout({renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
                           renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getSamplerDescriptorSetLayout(),
-                          renderSystem->getSamplerDescriptorSetLayout()});
+                          renderSystem->getSamplerDescriptorSetLayout(), renderSystem->getGlobalSetLayout()});
     createPipeline(renderSystem->getRenderPass());
 }
 

@@ -16,6 +16,7 @@ set(SHADER_FILES
     post_outline.frag
     post_ssao.frag
     post_blur.frag
+    post_sky.frag
 )
 
 set(COMPILED_SHADERS)

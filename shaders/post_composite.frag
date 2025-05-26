@@ -10,10 +10,35 @@ layout(set = 4, binding = 0) uniform sampler2D sSSAO;
 
 layout(location = 0) out vec4 outColor;
 
+struct DirectionalLight
+{
+    mat4 projectionMatrix;
+    mat4 viewMatrix;
+    vec4 color;
+    vec4 direction;
+};
+
+struct PointLight
+{
+    vec4 position;
+    vec4 color;
+};
+
+layout(set = 5, binding = 0) uniform GlobalUbo
+{
+    mat4 projectionMatrix;
+    mat4 viewMatrix;
+    vec4 ambientLight;
+    vec4 cameraPosition;
+    DirectionalLight sun;
+    PointLight pointLights[10];
+    int numPointLights;
+}
+ubo;
+
 layout(push_constant) uniform Push
 {
-    vec3 ambient;
-    bool ssao;
+    int ssao;
 }
 push;
 
@@ -33,12 +58,15 @@ void main()
     vec4 shadow = texture(sShadow, inUV);
     vec4 albedo = texture(sAlbedo, inUV);
 
-    if (push.ssao)
+    vec3 ambient = ubo.ambientLight.xyz * ubo.ambientLight.w;
+
+    if (push.ssao == 1)
     {
         float ssao = texture(sSSAO, inUV).r;
-        vec3 ambient = push.ambient * ssao;
-        shadow += vec4(ambient, 1.0);
+        ambient *= ssao;
     }
+
+    shadow += vec4(ambient, 1.0);
 
     outColor = albedo * shadow;
 

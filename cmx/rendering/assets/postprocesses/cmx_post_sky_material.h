@@ -1,5 +1,5 @@
-#ifndef CMX_POST_COMPOSITE_MATERIAL
-#define CMX_POST_COMPOSITE_MATERIAL
+#ifndef CMX_POST_SKY_MATERIAL
+#define CMX_POST_SKY_MATERIAL
 
 // cmx
 #include "cmx_material.h"
@@ -12,12 +12,12 @@
 namespace cmx
 {
 
-class PostCompositeMaterial : public Material
+class PostSkyMaterial : public Material
 {
   public:
-    PostCompositeMaterial() : Material{"postprocess.vert.spv", "post_composite.frag.spv", false, ePostProcess} {};
+    PostSkyMaterial() : Material{"postprocess.vert.spv", "post_sky.frag.spv", false, ePostProcess} {};
 
-    CLONEABLE_MATERIAL(PostCompositeMaterial)
+    CLONEABLE_MATERIAL(PostSkyMaterial)
 
     void bind(struct FrameInfo *, const class Drawable *) override;
     void editor() override;
@@ -27,19 +27,12 @@ class PostCompositeMaterial : public Material
     void initialize() override;
 
   protected:
-    struct PushConstantData
-    {
-        int useSSAO{0};
-    };
-
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;
-
-    bool _ssaoToggle;
 };
 
 } // namespace cmx
 
-REGISTER_MATERIAL(cmx::PostCompositeMaterial)
+REGISTER_MATERIAL(cmx::PostSkyMaterial)
 
 #endif

@@ -11,6 +11,7 @@
 #include "cmx_parallax_material.h"
 #include "cmx_post_inspector_material.h"
 #include "cmx_post_outline_material.h"
+#include "cmx_post_sky_material.h"
 #include "cmx_post_ssao_material.h"
 #include "cmx_primitives.h"
 #include "cmx_register.h"
@@ -52,7 +53,7 @@ AssetsManager::AssetsManager(class Scene *parent)
     addMaterial(new ParallaxMaterial(), "parallax_material");
     addPostProcess(new PostInspectorMaterial(), "inspector_postprocess");
     addPostProcess(new PostOutlineMaterial(), "outline_postprocess");
-    addPostProcess(new PostSSAOMaterial(), "ssao_postprocess");
+    addPostProcess(new PostSkyMaterial(), "sky_postprocess");
 };
 
 tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement)
