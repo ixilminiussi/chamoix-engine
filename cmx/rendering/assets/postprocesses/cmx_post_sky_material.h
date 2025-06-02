@@ -15,7 +15,7 @@ namespace cmx
 class PostSkyMaterial : public Material
 {
   public:
-    PostSkyMaterial() : Material{"postprocess.vert.spv", "post_sky.frag.spv", false, ePostProcess} {};
+    PostSkyMaterial() : Material{"postprocess_ubo.vert.spv", "post_sky.frag.spv", false, ePostProcess} {};
 
     CLONEABLE_MATERIAL(PostSkyMaterial)
 

@@ -272,7 +272,6 @@ tinyxml2::XMLElement &GraphicsManager::save(tinyxml2::XMLDocument &doc, tinyxml2
 
 void GraphicsManager::load(tinyxml2::XMLElement *parentElement, AssetsManager *assetsManager)
 {
-    return;
     if (tinyxml2::XMLElement *graphicsManagerElement = parentElement->FirstChildElement("graphicsManager"))
     {
         int i = 0;

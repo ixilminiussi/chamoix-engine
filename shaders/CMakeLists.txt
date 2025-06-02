@@ -11,6 +11,7 @@ set(SHADER_FILES
     billboard.vert billboard.frag
     parallax.vert parallax.frag
     postprocess.vert
+    postprocess_ubo.vert
     post_composite.frag
     post_inspector.frag
     post_outline.frag

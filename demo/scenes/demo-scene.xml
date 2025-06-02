@@ -11,7 +11,9 @@
         <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.02" occlusionMapping="true" layerCount="12" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(1)"/>
+        <postProcess type="cmx::PostInspectorMaterial" vertex="postprocess.vert.spv" fragment="post_inspector.frag.spv" editorOnly="false" status="0" name="inspector_postprocess"/>
         <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" name="outline_postprocess"/>
+        <postProcess type="cmx::PostSkyMaterial" vertex="postprocess_ubo.vert.spv" fragment="post_sky.frag.spv" editorOnly="false" name="sky_postprocess"/>
         <postProcess type="cmx::PostSSAOMaterial" vertex="postprocess.vert.spv" fragment="post_ssao.frag.spv" editorOnly="false" name="ssao_postprocess"/>
         <model filepath=".cmx_assets/camera.obj" name="cmx_camera"/>
         <model filepath=".cmx_assets/cube.obj" name="cmx_cube"/>
@@ -108,12 +110,12 @@
             </gradient>
         </sun>
     </lightEnvironment>
-    <graphicsManager pp1="ssao_postprocess"/>
-    <actor type="cmx::Actor" name="cmx::MeshActor(4)" id="17" visible="true">
+    <graphicsManager pp1="sky_postprocess"/>
+    <actor type="cmx::MeshActor" name="cmx::MeshActor" id="9" visible="true">
         <transform>
-            <position x="-2" y="-1" z="0"/>
+            <position x="0" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="2" z="3"/>
+            <scale x="1" y="1" z="1"/>
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
@@ -126,41 +128,7 @@
             </rendering>
         </component>
     </actor>
-    <actor type="cmx::Actor" name="cmx::MeshActor(3)" id="16" visible="true">
-        <transform>
-            <position x="0" y="-1" z="2"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="2" z="1"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
-            </rendering>
-        </component>
-    </actor>
-    <actor type="cmx::Actor" name="cmx::MeshActor(2)" id="15" visible="true">
-        <transform>
-            <position x="0" y="-1" z="-2"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="2" z="1"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
-            </rendering>
-        </component>
-    </actor>
-    <actor type="cmx::Actor" name="cmx::MeshActor(1)" id="14" visible="true">
+    <actor type="cmx::Actor" name="cmx::MeshActor(1)" id="7" visible="true">
         <transform>
             <position x="2" y="-1" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -177,11 +145,45 @@
             </rendering>
         </component>
     </actor>
-    <actor type="cmx::MeshActor" name="cmx::MeshActor" id="13" visible="true">
+    <actor type="cmx::Actor" name="cmx::MeshActor(2)" id="5" visible="true">
         <transform>
-            <position x="0" y="0" z="0"/>
+            <position x="0" y="-1" z="-2"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
+            <scale x="1" y="2" z="1"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="cmx::MeshActor(3)" id="3" visible="true">
+        <transform>
+            <position x="0" y="-1" z="2"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="2" z="1"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="cmx_missing"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="cmx::MeshActor(4)" id="1" visible="true">
+        <transform>
+            <position x="-2" y="-1" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="2" z="3"/>
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
