@@ -1,6 +1,7 @@
 #ifndef CMX_POINT_LIGHT_COMPONENT
 #define CMX_POINT_LIGHT_COMPONENT
 
+#include "cmx_billboard_component.h"
 #include "cmx_component.h"
 #include "cmx_register.h"
 
@@ -10,7 +11,7 @@
 namespace cmx
 {
 
-class PointLightComponent : public Component
+class PointLightComponent : public BillboardComponent
 {
   public:
     PointLightComponent();
@@ -21,7 +22,7 @@ class PointLightComponent : public Component
     void onAttach() override;
     void onDetach() override;
 
-    void render(const struct FrameInfo &, vk::PipelineLayout) override;
+    void update(float dt) override;
 
     void editor(int i) override;
     void load(tinyxml2::XMLElement *componentElement) override;
@@ -46,8 +47,6 @@ class PointLightComponent : public Component
     }
 
   private:
-    class Texture *_texture{nullptr};
-
     float _lightIntensity{1.0f};
     glm::vec3 _lightColor{1.0f};
 

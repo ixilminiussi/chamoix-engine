@@ -73,7 +73,7 @@ void PostCompositeMaterial::load(tinyxml2::XMLElement *materialElement)
 {
     Material::load(materialElement);
 
-    _ssaoToggle = materialElement->BoolAttribute("useSSAO", true);
+    _ssaoToggle = materialElement->BoolAttribute("useSSAO", false);
 }
 
 void PostCompositeMaterial::initialize()

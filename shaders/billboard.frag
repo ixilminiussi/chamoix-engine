@@ -47,5 +47,5 @@ void main()
 {
     outAlbedo = vec4(push.color.rgb, 1.0) * texture(textureSampler, inUV);
     outNormal = vec4(0.0);
-    outShadow = vec4(1.0);
+    outShadow = vec4(1.0, 1.0, 1.0, outAlbedo.a);
 }
