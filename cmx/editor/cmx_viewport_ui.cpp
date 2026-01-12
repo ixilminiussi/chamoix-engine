@@ -1,10 +1,9 @@
-#include "cmx_render_pass.h"
 #ifndef NDEBUG
 #include "cmx_viewport_ui.h"
 
 // cmx
-#include "ImGuizmo.h"
 #include "cmx_actor.h"
+#include "cmx_render_pass.h"
 #include "cmx_assets_manager.h"
 #include "cmx_component.h"
 #include "cmx_descriptors.h"
@@ -21,6 +20,7 @@
 #include "cmx_viewport_actor.h"
 
 // lib
+#include "ImGuizmo.h"
 #include <IconsMaterialSymbols.h>
 #include <glm/fwd.hpp>
 #include <imgui.h>
@@ -28,7 +28,11 @@
 #include <imgui_impl_vulkan.h>
 #include <imgui_internal.h>
 #include <spdlog/common.h>
+#ifdef _WIN32
+#include <spdlog/sinks/stdout_color_sinks.h>
+#else
 #include <spdlog/sinks/ansicolor_sink.h>
+#endif
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -788,7 +792,11 @@ void ViewportUI::renderLogger()
     static std::shared_ptr<EditorSink<std::mutex>> editorSink = std::make_shared<EditorSink<std::mutex>>();
     if (bOneTime)
     {
+#ifdef _WIN32
+        auto terminalSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+#else
         auto terminalSink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
+#endif
         std::vector<spdlog::sink_ptr> sinks{terminalSink, editorSink};
 
         std::shared_ptr<spdlog::logger> editorLogger = std::make_shared<spdlog::logger>("", sinks.begin(), sinks.end());

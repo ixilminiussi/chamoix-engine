@@ -66,7 +66,7 @@ if(NOT spdlog_FOUND)
   FetchContent_Declare(
     spdlog
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG v1.12.0
+    GIT_TAG v1.17.0
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/spdlog
   )
   FetchContent_MakeAvailable(spdlog)

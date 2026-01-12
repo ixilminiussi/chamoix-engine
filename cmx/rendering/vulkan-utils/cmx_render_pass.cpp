@@ -32,7 +32,9 @@ void RenderPass::buildRenderTargets(class Device *device, const vk::Extent2D &re
     static int i = 0;
     for (const AttachmentInfo &attachmentInfo : attachmentInfos)
     {
-        RenderTarget renderTarget{.clearValue = attachmentInfo.clearValue, .format = attachmentInfo.format};
+        RenderTarget renderTarget{};
+		renderTarget.clearValue = attachmentInfo.clearValue;
+        renderTarget.format = attachmentInfo.format;
 
         vk::Image image;
         vk::DeviceMemory deviceMemory;

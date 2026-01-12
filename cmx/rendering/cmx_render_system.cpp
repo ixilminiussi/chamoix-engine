@@ -329,13 +329,19 @@ void RenderSystem::createViewport()
     vk::SurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport.formats);
     surfaceFormat = vk::Format::eR16G16B16A16Snorm;
 
+    AttachmentInfo attachmentInfo{};
+    attachmentInfo.format = surfaceFormat.format;
+    attachmentInfo.usage = vk::ImageUsageFlagBits::eColorAttachment |
+        vk::ImageUsageFlagBits::eSampled,
+        attachmentInfo.final = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    SubpassInfo subpassInfo{};
+    subpassInfo.colorAttachmentIndices = { 0 };
+
     _viewport =
         std::make_unique<RenderPass>(_device.get(), resolution,
-                                     std::vector<AttachmentInfo>{{.format = surfaceFormat.format,
-                                                                  .usage = vk::ImageUsageFlagBits::eColorAttachment |
-                                                                           vk::ImageUsageFlagBits::eSampled,
-                                                                  .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
-                                     std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
+                                     std::vector<AttachmentInfo>{attachmentInfo},
+            std::vector<SubpassInfo>{subpassInfo});
 }
 #endif
 
@@ -343,18 +349,21 @@ void RenderSystem::createSSAOBuffers()
 {
     vk::Extent2D resolution = getResolution();
 
+    AttachmentInfo attachmentInfo{};
+    attachmentInfo.format = vk::Format::eR16Snorm;
+    attachmentInfo.usage = vk::ImageUsageFlagBits::eColorAttachment |
+        vk::ImageUsageFlagBits::eSampled,
+        attachmentInfo.final = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    SubpassInfo subpassInfo{};
+    subpassInfo.colorAttachmentIndices = { 0 };
+
     _ssaoBuffers[0] = new RenderPass(_device.get(), resolution,
-                                     std::vector<AttachmentInfo>{{.format = vk::Format::eR16Snorm,
-                                                                  .usage = vk::ImageUsageFlagBits::eColorAttachment |
-                                                                           vk::ImageUsageFlagBits::eSampled,
-                                                                  .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
-                                     std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
+        std::vector<AttachmentInfo>{attachmentInfo},
+                                     std::vector<SubpassInfo>{subpassInfo});
     _ssaoBuffers[1] = new RenderPass(_device.get(), resolution,
-                                     std::vector<AttachmentInfo>{{.format = vk::Format::eR16Snorm,
-                                                                  .usage = vk::ImageUsageFlagBits::eColorAttachment |
-                                                                           vk::ImageUsageFlagBits::eSampled,
-                                                                  .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
-                                     std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
+        std::vector<AttachmentInfo>{attachmentInfo},
+                                     std::vector<SubpassInfo>{subpassInfo});
 
     _ssaoMaterials[0] = new PostSSAOMaterial();
     _ssaoMaterials[0]->initialize();
@@ -384,24 +393,36 @@ void RenderSystem::createGBuffer()
     vk::SurfaceFormatKHR surfaceFormat = SwapChain::chooseSwapSurfaceFormat(swapChainSupport.formats);
     surfaceFormat = vk::Format::eR16G16B16A16Snorm;
 
+    AttachmentInfo attachmentInfo1{};
+    attachmentInfo1.format = surfaceFormat.format;
+    attachmentInfo1.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+    attachmentInfo1.final = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    AttachmentInfo attachmentInfo2{};
+    attachmentInfo2.format = vk::Format::eR16G16B16A16Snorm,
+        attachmentInfo2.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+    attachmentInfo2.final = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    AttachmentInfo attachmentInfo3{};
+    attachmentInfo3.format = vk::Format::eR16G16B16A16Snorm;
+    attachmentInfo3.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+    attachmentInfo3.final = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    AttachmentInfo attachmentInfo4{};
+    attachmentInfo4.aspect = vk::ImageAspectFlagBits::eDepth;
+    attachmentInfo4.clearValue = { vk::ClearDepthStencilValue{1.f, 0} };
+    attachmentInfo4.format = vk::Format::eD32Sfloat;
+    attachmentInfo4.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+    attachmentInfo4.final = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+    SubpassInfo subpassInfo{};
+    subpassInfo.colorAttachmentIndices = { 0, 1, 2 };
+    subpassInfo.depthAttachmentIndex = 3;
+
     _gBuffer = std::make_unique<RenderPass>(
         _device.get(), resolution,
-        std::vector<AttachmentInfo>{
-            {.format = surfaceFormat.format,
-             .usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-             .final = vk::ImageLayout::eShaderReadOnlyOptimal},
-            {.format = vk::Format::eR16G16B16A16Snorm,
-             .usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-             .final = vk::ImageLayout::eShaderReadOnlyOptimal},
-            {.format = vk::Format::eR16G16B16A16Snorm,
-             .usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
-             .final = vk::ImageLayout::eShaderReadOnlyOptimal},
-            {.aspect = vk::ImageAspectFlagBits::eDepth,
-             .clearValue = {vk::ClearDepthStencilValue{1.f, 0}},
-             .format = vk::Format::eD32Sfloat,
-             .usage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled,
-             .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
-        std::vector<SubpassInfo>{{.colorAttachmentIndices = {0, 1, 2}, .depthAttachmentIndex = 3}});
+        std::vector<AttachmentInfo>{attachmentInfo1, attachmentInfo2, attachmentInfo3, attachmentInfo4},
+        std::vector<SubpassInfo>{subpassInfo});
 }
 
 void RenderSystem::writeUbo(FrameInfo *frameInfo, GlobalUbo *ubo)

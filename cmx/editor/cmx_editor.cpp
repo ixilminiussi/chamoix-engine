@@ -11,7 +11,6 @@
 #include "ImGuizmo.h"
 #include <immintrin.h>
 #include <memory>
-#include <spdlog/fmt/bundled/base.h>
 
 namespace cmx
 {
