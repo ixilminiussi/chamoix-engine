@@ -1,0 +1,6 @@
+D:\chamoix-engine\.external\imgui\imgui.cpp;D:\chamoix-engine\out\.external\imgui.dir\Debug\imgui.obj
+D:\chamoix-engine\.external\imgui\imgui_draw.cpp;D:\chamoix-engine\out\.external\imgui.dir\Debug\imgui_draw.obj
+D:\chamoix-engine\.external\imgui\imgui_widgets.cpp;D:\chamoix-engine\out\.external\imgui.dir\Debug\imgui_widgets.obj
+D:\chamoix-engine\.external\imgui\imgui_tables.cpp;D:\chamoix-engine\out\.external\imgui.dir\Debug\imgui_tables.obj
+D:\chamoix-engine\.external\imgui\backends\imgui_impl_glfw.cpp;D:\chamoix-engine\out\.external\imgui.dir\Debug\imgui_impl_glfw.obj
+D:\chamoix-engine\.external\imgui\backends\imgui_impl_vulkan.cpp;D:\chamoix-engine\out\.external\imgui.dir\Debug\imgui_impl_vulkan.obj

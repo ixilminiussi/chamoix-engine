@@ -1,0 +1,10 @@
+^D:\CHAMOIX-ENGINE\OUT\CMAKEFILES\9B28D6FBB18EAE4CD199E46819FC8344\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/chamoix-engine -BD:/chamoix-engine/out --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/chamoix-engine/out/VulkanTest.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

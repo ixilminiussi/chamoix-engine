@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\chamoix-engine\out\CMakeFiles\fbd7461e7eb39a40be356ad678785feb\update_mappings.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\chamoix-engine\.external\glfw\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\chamoix-engine\.external\glfw\src\mappings.h.in">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="D:\chamoix-engine\.external\glfw\CMake\GenerateMappings.cmake" />
+    <None Include="D:\chamoix-engine\out\.external\glfw\src\CMakeFiles\update_mappings" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{347E7131-CCD2-3CB3-84B6-2FDF34D5F6F8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{F71F9F01-F5E7-3922-8475-734A46E61554}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -12,6 +12,35 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 endif()
 
+# -- Vulkan detection (done here so Vulkan::Vulkan is available to all subdirectories)
+if(WIN32)
+    find_package(Vulkan QUIET)
+    if(NOT Vulkan_FOUND)
+        set(VULKAN_SDK "$ENV{VULKAN_SDK}")
+        if(NOT VULKAN_SDK)
+            set(VULKAN_SDK "$ENV{VK_SDK_PATH}")
+        endif()
+        if(VULKAN_SDK)
+            set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK}/Include")
+            set(Vulkan_LIBRARIES "${VULKAN_SDK}/Lib/vulkan-1.lib")
+            set(Vulkan_FOUND TRUE)
+            message(STATUS "Using Vulkan from VULKAN_SDK: ${VULKAN_SDK}")
+        else()
+            message(FATAL_ERROR "Vulkan SDK not found! Install it and set VULKAN_SDK.")
+        endif()
+    endif()
+else()
+    find_package(Vulkan REQUIRED)
+endif()
+
+if(NOT TARGET Vulkan::Vulkan)
+    add_library(Vulkan::Vulkan UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(Vulkan::Vulkan PROPERTIES
+        IMPORTED_LOCATION "${Vulkan_LIBRARIES}"
+        INTERFACE_INCLUDE_DIRECTORIES "${Vulkan_INCLUDE_DIRS}"
+    )
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(.external)

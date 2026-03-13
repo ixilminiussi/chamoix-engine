@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git show-branch:*)",
+      "Bash(cmake -S . -B out -G \"Visual Studio 17 2022\")",
+      "Bash(cmake --version)",
+      "Bash(echo $VULKAN_SDK)",
+      "Bash(echo $VK_SDK_PATH)",
+      "Bash(cmake --build out --config Debug --parallel)"
+    ]
+  }
+}

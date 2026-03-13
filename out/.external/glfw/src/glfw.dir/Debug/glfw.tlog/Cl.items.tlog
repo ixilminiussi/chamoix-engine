@@ -1,0 +1,15 @@
+D:\chamoix-engine\.external\glfw\src\context.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\context.obj
+D:\chamoix-engine\.external\glfw\src\init.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\init.obj
+D:\chamoix-engine\.external\glfw\src\input.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\input.obj
+D:\chamoix-engine\.external\glfw\src\monitor.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\monitor.obj
+D:\chamoix-engine\.external\glfw\src\vulkan.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\vulkan.obj
+D:\chamoix-engine\.external\glfw\src\window.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\window.obj
+D:\chamoix-engine\.external\glfw\src\win32_init.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\win32_init.obj
+D:\chamoix-engine\.external\glfw\src\win32_joystick.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\win32_joystick.obj
+D:\chamoix-engine\.external\glfw\src\win32_monitor.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\win32_monitor.obj
+D:\chamoix-engine\.external\glfw\src\win32_time.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\win32_time.obj
+D:\chamoix-engine\.external\glfw\src\win32_thread.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\win32_thread.obj
+D:\chamoix-engine\.external\glfw\src\win32_window.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\win32_window.obj
+D:\chamoix-engine\.external\glfw\src\wgl_context.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\wgl_context.obj
+D:\chamoix-engine\.external\glfw\src\egl_context.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\egl_context.obj
+D:\chamoix-engine\.external\glfw\src\osmesa_context.c;D:\chamoix-engine\out\.external\glfw\src\glfw.dir\Debug\osmesa_context.obj

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\chamoix-engine\out\CMakeFiles\81c8f4f63be8bd4141366565358d552e\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{347E7131-CCD2-3CB3-84B6-2FDF34D5F6F8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
