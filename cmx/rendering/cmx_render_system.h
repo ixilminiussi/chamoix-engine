@@ -48,8 +48,8 @@ class RenderSystem
     static RenderSystem *getInstance();
     ~RenderSystem();
 
-    RenderSystem(const RenderSystem &) = delete;
-    RenderSystem &operator=(const RenderSystem &) = delete;
+    RenderSystem(RenderSystem const &) = delete;
+    RenderSystem &operator=(RenderSystem const &) = delete;
 
     void checkAspectRatio(class Camera *);
     struct FrameInfo *beginCommandBuffer();

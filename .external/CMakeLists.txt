@@ -20,29 +20,17 @@ cmake_policy(SET CMP0135 NEW)
 cmake_policy(SET CMP0169 NEW)
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS  TRUE)
 
-# -- Vulkan: Try to use system Vulkan first
-find_package(Vulkan REQUIRED)
-if(NOT Vulkan_FOUND) 
-  message(STATUS "System Vulkan not found, fetching from GitHub")
-  FetchContent_Declare(
-    VulkanHeaders
-    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
-    GIT_TAG        v1.3.296    # match your desired version
-    GIT_SHALLOW    TRUE
-  )
-  FetchContent_MakeAvailable(VulkanHeaders)
-
-  FetchContent_Declare(
-    VulkanLoader
-    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Loader.git
-    GIT_TAG        v1.3.296
-    GIT_SHALLOW    TRUE
-  )
-  set(VULKAN_HEADERS_INSTALL_DIR ${vulkanheaders_SOURCE_DIR}/include CACHE PATH "" FORCE)
-  FetchContent_MakeAvailable(VulkanLoader)
-else()
-  message(STATUS "Found system Vulkan")
-endif()
+# -- Vulkan: vendored headers + system loader
+find_library(Vulkan_LIBRARY NAMES vulkan
+  HINTS /usr/lib64 /usr/lib/x86_64-linux-gnu
+  REQUIRED
+)
+add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
+set_target_properties(Vulkan::Vulkan PROPERTIES
+  IMPORTED_LOCATION "${Vulkan_LIBRARY}"
+  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/vulkan-headers"
+)
+message(STATUS "Vulkan library: ${Vulkan_LIBRARY}")
 
 # -- GLFW: Try to use system glfw3 first
 find_package(glfw3 QUIET)

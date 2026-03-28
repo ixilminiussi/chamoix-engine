@@ -2,6 +2,7 @@
 
 // cmx
 #include <cmx_mesh_component.h>
+#include <cmx_physics_body.h>
 #include <cmx_physics_component.h>
 #include <cmx_point_light_component.h>
 #include <cmx_primitives.h>
@@ -24,7 +25,7 @@ void BouleActor::onBegin()
     attachComponent(_meshComponent);
     _meshComponent->setModel("boule-de-petanque");
     _meshComponent->setScale(glm::vec3{2.6f});
-    _meshComponent->setTexture("sand");
+    _meshComponent->setTextures({"sand"});
 
     _physicsComponent->setShape(PRIMITIVE_SPHERE);
     _physicsComponent->setMask(0b10000000);
@@ -53,7 +54,6 @@ void BouleActor::setTeam(Team team)
     case Team::COCHONET:
         setScale({0.05f, 0.05f, 0.05f});
         _physicsComponent->setMass(.1f);
-        _meshComponent->setColor({1.f, 1.f, .4f});
         pointLight->setLightIntensity(0.1f);
         pointLight->setLightColor({1.f, 1.f, .4f});
         attachComponent(pointLight);
@@ -61,11 +61,9 @@ void BouleActor::setTeam(Team team)
         break;
     case Team::BLUE:
         _physicsComponent->setMass(.5f);
-        _meshComponent->setColor({0.4f, 0.4f, 1.f});
         break;
     case Team::RED:
         _physicsComponent->setMass(.5f);
-        _meshComponent->setColor({1.f, 0.4f, 0.4f});
         break;
     }
 }

@@ -6,6 +6,7 @@
 #include <cmx_game.h>
 #include <cmx_input_manager.h>
 #include <cmx_math.h>
+#include <cmx_physics_body.h>
 #include <cmx_physics_component.h>
 #include <cmx_point_light_actor.h>
 #include <cmx_primitives.h>
@@ -48,8 +49,8 @@ void FirstPersonActor::update(float dt)
     updateTurnIndicator();
 }
 
-void FirstPersonActor::onContinuousOverlap(class cmx::PhysicsComponent *ownedComponent,
-                                           class cmx::PhysicsComponent *overlappingComponent,
+void FirstPersonActor::onContinuousOverlap(class cmx::PhysicsBody *ownedComponent,
+                                           class cmx::PhysicsBody *overlappingComponent,
                                            cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
 {
     _transform.position -= (hitInfo.depth + glm::epsilon<float>()) * hitInfo.normal;

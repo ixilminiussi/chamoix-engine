@@ -3,6 +3,13 @@
 
 #include <vulkan/vulkan.hpp>
 
+// Vulkan SDK 1.4+ moved DispatchLoaderDynamic into vk::detail
+#if VK_HEADER_VERSION >= 290
+using CmxDispatchLoaderDynamic = vk::detail::DispatchLoaderDynamic;
+#else
+using CmxDispatchLoaderDynamic = vk::DispatchLoaderDynamic;
+#endif
+
 namespace cmx
 {
 
@@ -12,7 +19,7 @@ class DebugUtil
     static void initialize(vk::Device device, vk::Instance instance)
     {
         _device = device;
-        _dispatch = vk::DispatchLoaderDynamic(instance, vkGetInstanceProcAddr);
+        _dispatch = CmxDispatchLoaderDynamic(instance, vkGetInstanceProcAddr);
     }
 
     static void setObjectName(uint64_t handle, vk::ObjectType objectType, const std::string &name)
@@ -32,7 +39,7 @@ class DebugUtil
 
   private:
     static inline vk::Device _device;
-    static inline vk::DispatchLoaderDynamic _dispatch;
+    static inline CmxDispatchLoaderDynamic _dispatch;
 };
 
 } // namespace cmx

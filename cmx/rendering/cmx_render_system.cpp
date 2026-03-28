@@ -142,7 +142,6 @@ void RenderSystem::closeWindow()
     _uboBuffers.clear();
 
     delete _device.release();
-    delete _window;
 }
 
 size_t RenderSystem::createSamplerDescriptor(vk::ImageView imageView, vk::Sampler sampler)
@@ -247,7 +246,7 @@ FrameInfo *RenderSystem::beginCommandBuffer()
     return frameInfo;
 }
 
-void RenderSystem::beginRender(FrameInfo *frameInfo, const LightEnvironment *lightEnvironment) const
+void RenderSystem::beginRender(FrameInfo *frameInfo, LightEnvironment const *lightEnvironment) const
 {
     _gBuffer->beginRender(frameInfo, lightEnvironment);
 }

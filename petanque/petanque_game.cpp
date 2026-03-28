@@ -31,7 +31,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-Petanque::Petanque()
+Petanque::Petanque() : mainScene{"scenes/field.xml", this, "field"}
 {
     cmx::Register &cmxRegister = cmx::Register::getInstance();
 }
@@ -65,18 +65,13 @@ void Petanque::run()
 
     getScene()->unload();
 
-    for (auto &[key, renderSystem] : _renderSystems)
-    {
-        renderSystem->free();
-    }
-    _renderSystems.clear();
-    cmx::RenderSystem::closeWindow();
+    cmx::RenderSystem::getInstance()->closeWindow();
 }
 
 void Petanque::load()
 {
     _inputManager->load();
 
-    _scenes.emplace_back(new cmx::Scene("scenes/field.xml", this, "field"));
+    _scenes.push_back(&mainScene);
     setScene(0);
 }

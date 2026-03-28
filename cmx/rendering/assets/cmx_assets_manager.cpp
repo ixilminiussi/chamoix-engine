@@ -58,7 +58,7 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
 {
     tinyxml2::XMLElement *assetsElement = doc.NewElement("assets");
 
-    for (const auto &pair : _materials)
+    for (auto const &pair : _materials)
     {
         tinyxml2::XMLElement *materialElement = pair.second->save(doc, assetsElement);
         if (materialElement != nullptr)
@@ -67,7 +67,7 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
         }
     }
 
-    for (const auto &pair : _postProcesses)
+    for (auto const &pair : _postProcesses)
     {
         tinyxml2::XMLElement *postProcessElement = pair.second->save(doc, assetsElement);
         if (postProcessElement != nullptr)
@@ -76,19 +76,19 @@ tinyxml2::XMLElement &AssetsManager::save(tinyxml2::XMLDocument &doc, tinyxml2::
         }
     }
 
-    for (const auto &pair : _models)
+    for (auto const &pair : _models)
     {
         tinyxml2::XMLElement &modelElement = pair.second->save(doc, assetsElement);
         modelElement.SetAttribute("name", pair.first.c_str());
     }
 
-    for (const auto &pair : _textures2D)
+    for (auto const &pair : _textures2D)
     {
         tinyxml2::XMLElement &textureElement = pair.second->save(doc, assetsElement);
         textureElement.SetAttribute("name", pair.first.c_str());
     }
 
-    for (const auto &pair : _textures3D)
+    for (auto const &pair : _textures3D)
     {
         tinyxml2::XMLElement &textureElement = pair.second->save(doc, assetsElement);
         textureElement.SetAttribute("name", pair.first.c_str());
@@ -154,7 +154,7 @@ void AssetsManager::loadMaterials(tinyxml2::XMLElement *parentElement)
         while (materialElement)
         {
             Material *material = Register::getInstance().getMaterial(materialElement->Attribute("type"));
-            const char *name = materialElement->Attribute("name");
+            char const *name = materialElement->Attribute("name");
 
             if (!addMaterial(material, materialElement->Attribute(
                                            "name"))) // could be incorrect role, could be already existing actor
@@ -188,7 +188,7 @@ void AssetsManager::loadPostProcesses(tinyxml2::XMLElement *parentElement)
         while (postProcessElement)
         {
             Material *postProcess = Register::getInstance().getMaterial(postProcessElement->Attribute("type"));
-            const char *name = postProcessElement->Attribute("name");
+            char const *name = postProcessElement->Attribute("name");
 
             if (!addPostProcess(postProcess, postProcessElement->Attribute(
                                                  "name"))) // could be incorrect role, could be already existing actor
@@ -304,6 +304,7 @@ void AssetsManager::unload()
     unloadTextures();
     unloadMaterials();
     unloadPostProcesses();
+    unloadModels();
 
     spdlog::info("AssetsManager: Successfully unloaded assets manager!");
 }
@@ -364,7 +365,7 @@ void AssetsManager::editor()
     }
 }
 
-bool AssetsManager::addMaterial(Material *material, const char *name)
+bool AssetsManager::addMaterial(Material *material, char const *name)
 {
     if (material->getRole() == Material::ePostProcess)
     {
@@ -394,7 +395,7 @@ bool AssetsManager::addMaterial(Material *material, const char *name)
     return true;
 }
 
-Material *AssetsManager::makeUnique(const char *name, bool doNotSave)
+Material *AssetsManager::makeUnique(char const *name, bool doNotSave)
 {
     if (_materials.find(std::string(name)) == _materials.end())
     {
@@ -413,7 +414,7 @@ Material *AssetsManager::makeUnique(const char *name, bool doNotSave)
     return duplicate;
 }
 
-Material *AssetsManager::getMaterial(const char *name)
+Material *AssetsManager::getMaterial(char const *name)
 {
     if (_materials.find(std::string(name)) == _materials.end())
     {
@@ -424,7 +425,7 @@ Material *AssetsManager::getMaterial(const char *name)
     return _materials[name];
 }
 
-bool AssetsManager::addPostProcess(Material *postProcess, const char *name)
+bool AssetsManager::addPostProcess(Material *postProcess, char const *name)
 {
     if (postProcess->getRole() == Material::eMaterial)
     {
@@ -454,7 +455,7 @@ bool AssetsManager::addPostProcess(Material *postProcess, const char *name)
     return true;
 }
 
-Material *AssetsManager::getPostProcess(const char *name)
+Material *AssetsManager::getPostProcess(char const *name)
 {
     if (_postProcesses.find(std::string(name)) == _postProcesses.end())
     {
@@ -465,7 +466,7 @@ Material *AssetsManager::getPostProcess(const char *name)
     return _postProcesses[name];
 }
 
-void AssetsManager::addModel(const char *filepath, const char *name)
+void AssetsManager::addModel(char const *filepath, char const *name)
 {
     if (_models.find(std::string(name)) != _models.end())
     {
@@ -481,12 +482,12 @@ void AssetsManager::addModel(const char *filepath, const char *name)
     }
 }
 
-void AssetsManager::removeModel(const char *name)
+void AssetsManager::removeModel(char const *name)
 {
     // TODO: implement
 }
 
-Model *AssetsManager::getModel(const char *name)
+Model *AssetsManager::getModel(char const *name)
 {
     if (_models.find(std::string(name)) == _models.end())
     {
@@ -497,7 +498,7 @@ Model *AssetsManager::getModel(const char *name)
     return _models[name].get();
 }
 
-void AssetsManager::add2DTexture(const char *filepath, const char *name)
+void AssetsManager::add2DTexture(char const *filepath, char const *name)
 {
     if (_textures2D.find(std::string(name)) != _textures2D.end())
     {
@@ -513,7 +514,7 @@ void AssetsManager::add2DTexture(const char *filepath, const char *name)
     }
 }
 
-void AssetsManager::add3DTexture(const std::vector<std::string> &filepaths, const char *name)
+void AssetsManager::add3DTexture(std::vector<std::string> const &filepaths, char const *name)
 {
     if (filepaths.size() <= 1)
     {
@@ -534,12 +535,12 @@ void AssetsManager::add3DTexture(const std::vector<std::string> &filepaths, cons
     }
 }
 
-void AssetsManager::removeTexture(const char *name)
+void AssetsManager::removeTexture(char const *name)
 {
     // TODO: implement
 }
 
-Texture *AssetsManager::get2DTexture(const char *name)
+Texture *AssetsManager::get2DTexture(char const *name)
 {
     if (_textures2D.find(std::string(name)) == _textures2D.end())
     {
@@ -550,7 +551,7 @@ Texture *AssetsManager::get2DTexture(const char *name)
     return _textures2D[name].get();
 }
 
-Texture *AssetsManager::get3DTexture(const char *name)
+Texture *AssetsManager::get3DTexture(char const *name)
 {
     if (_textures3D.find(std::string(name)) == _textures3D.end())
     {
@@ -561,7 +562,7 @@ Texture *AssetsManager::get3DTexture(const char *name)
     return _textures3D[name].get();
 }
 
-Texture *AssetsManager::getAnyTexture(const char *name)
+Texture *AssetsManager::getAnyTexture(char const *name)
 {
     if (_textures2D.find(std::string(name)) == _textures2D.end())
     {

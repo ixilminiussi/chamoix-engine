@@ -21,7 +21,7 @@ namespace cmx
 // local callback functions
 static VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                       VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                      VkDebugUtilsMessengerCallbackDataEXT const *pCallbackData,
                                                       void *pUserData)
 {
     switch (messageSeverity)
@@ -44,8 +44,8 @@ static VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverit
 }
 
 VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance,
-                                              const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-                                              const VkAllocationCallbacks *pAllocator,
+                                              VkDebugUtilsMessengerCreateInfoEXT const *pCreateInfo,
+                                              VkAllocationCallbacks const *pAllocator,
                                               VkDebugUtilsMessengerEXT *pDebugMessenger)
 {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -60,7 +60,7 @@ VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance,
 }
 
 void Device::destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-                                           const VkAllocationCallbacks *pAllocator)
+                                           VkAllocationCallbacks const *pAllocator)
 {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr)
@@ -98,11 +98,6 @@ Device::~Device()
 
 void Device::createInstance()
 {
-    if (_enableValidationLayers && !checkValidationLayerSupport())
-    {
-        throw std::runtime_error("validation layers requested, but not available!");
-    }
-
     vk::ApplicationInfo appInfo = {};
     appInfo.sType = vk::StructureType::eApplicationInfo;
     appInfo.pApplicationName = "LittleVulkanEngine App";
@@ -115,12 +110,17 @@ void Device::createInstance()
     createInfo.sType = vk::StructureType::eInstanceCreateInfo;
     createInfo.pApplicationInfo = &appInfo;
 
-    std::vector<const char *> extensions = getRequiredExtensions();
+    std::vector<char const *> extensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-    if (_enableValidationLayers)
+
+    if (_enableValidationLayers && !checkValidationLayerSupport())
+    {
+        spdlog::warn("validation layers requested, but not available!");
+    }
+    if (_enableValidationLayers && checkValidationLayerSupport())
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(_validationLayers.size());
         createInfo.ppEnabledLayerNames = _validationLayers.data();
@@ -151,7 +151,7 @@ void Device::pickPhysicalDevice()
         throw std::runtime_error("failed to find GPUs with Vulkan support!");
     }
 
-    for (const auto &device : devices)
+    for (auto const &device : devices)
     {
         if (isDeviceSuitable(device))
         {
@@ -292,11 +292,11 @@ bool Device::checkValidationLayerSupport()
 {
     std::vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
 
-    for (const char *layerName : _validationLayers)
+    for (char const *layerName : _validationLayers)
     {
         bool layerFound = false;
 
-        for (const auto &layerProperties : availableLayers)
+        for (auto const &layerProperties : availableLayers)
         {
             if (strcmp(layerName, layerProperties.layerName) == 0)
             {
@@ -314,13 +314,13 @@ bool Device::checkValidationLayerSupport()
     return true;
 }
 
-std::vector<const char *> Device::getRequiredExtensions()
+std::vector<char const *> Device::getRequiredExtensions()
 {
     uint32_t glfwExtensionCount = 0;
-    const char **glfwExtensions;
+    char const **glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    std::vector<char const *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
     if (_enableValidationLayers)
     {
@@ -336,15 +336,15 @@ void Device::hasGflwRequiredInstanceExtensions()
 
     std::cout << "available extensions:" << std::endl;
     std::unordered_set<std::string> available;
-    for (const auto &extension : extensions)
+    for (auto const &extension : extensions)
     {
         std::cout << "\t" << extension.extensionName << std::endl;
         available.insert(extension.extensionName);
     }
 
     std::cout << "required extensions:" << std::endl;
-    std::vector<const char *> requiredExtensions = getRequiredExtensions();
-    for (const auto &required : requiredExtensions)
+    std::vector<char const *> requiredExtensions = getRequiredExtensions();
+    for (auto const &required : requiredExtensions)
     {
         std::cout << "\t" << required << std::endl;
         if (available.find(required) == available.end())
@@ -360,7 +360,7 @@ bool Device::checkDeviceExtensionSupport(vk::PhysicalDevice device)
 
     std::set<std::string> requiredExtensions(_deviceExtensions.begin(), _deviceExtensions.end());
 
-    for (const auto &extension : availableExtensions)
+    for (auto const &extension : availableExtensions)
     {
         requiredExtensions.erase(extension.extensionName);
     }
@@ -402,7 +402,7 @@ QueueFamilyIndices Device::findQueueFamilies(vk::PhysicalDevice device)
     std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
 
     int i = 0;
-    for (const auto &queueFamily : queueFamilies)
+    for (auto const &queueFamily : queueFamilies)
     {
         if (queueFamily.queueCount > 0 && queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
         {
@@ -438,7 +438,7 @@ SwapChainSupportDetails Device::querySwapChainSupport(vk::PhysicalDevice device)
     return details;
 }
 
-vk::Format Device::findSupportedFormat(const std::vector<vk::Format> &candidates, vk::ImageTiling tiling,
+vk::Format Device::findSupportedFormat(std::vector<vk::Format> const &candidates, vk::ImageTiling tiling,
                                        vk::FormatFeatureFlags features)
 {
     for (vk::Format format : candidates)
@@ -579,7 +579,7 @@ void Device::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t widt
     endSingleTimeCommands(commandBuffer);
 }
 
-void Device::createImageWithInfo(const vk::ImageCreateInfo &imageInfo, vk::MemoryPropertyFlags properties,
+void Device::createImageWithInfo(vk::ImageCreateInfo const &imageInfo, vk::MemoryPropertyFlags properties,
                                  vk::Image &image, vk::DeviceMemory &imageMemory)
 {
     if (_device.createImage(&imageInfo, nullptr, &image) != vk::Result::eSuccess)

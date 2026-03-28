@@ -20,6 +20,9 @@ class Petanque : public cmx::Game
     void load() override;
     void run() override;
     void closeWindow(float dt, int val);
+
+  protected:
+    cmx::Scene mainScene;
 };
 
 #endif
