@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(VulkanTest CXX)
+project(game-bin CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -40,9 +40,9 @@ add_subdirectory(${GAME})
 add_subdirectory(shaders)
 
 # Executable
-add_executable(VulkanTest ${GAME}/main.cpp)
+add_executable(game-bin ${GAME}/main.cpp)
 
-target_link_libraries(VulkanTest PRIVATE
+target_link_libraries(game-bin PRIVATE
     cmx
     ${GAME}
 )
@@ -56,6 +56,6 @@ message(STATUS "Copied cmx assets into game directory")
 
 # Clean target
 add_custom_target(clean_all
-    COMMAND ${CMAKE_COMMAND} -E remove VulkanTest
-    COMMENT "Cleaning up VulkanTest"
+    COMMAND ${CMAKE_COMMAND} -E remove game-bin
+    COMMENT "Cleaning up game-bin"
 )

@@ -2,7 +2,7 @@
 <scene name="sponza">
     <assets>
         <material type="cmx::BillboardMaterial" vertex="billboard.vert.spv" fragment="billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
-        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" scale="3.5" threshold="1.4630001" dotsToggle="true" name="dithered_material">
+        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" worldSpaceUV="false" scale="3.5" threshold="1.4630001" dotsToggle="true" name="dithered_material">
             <lightColor r="1" g="1" b="1"/>
             <darkColor r="0" g="0" b="0"/>
         </material>
@@ -11,6 +11,8 @@
         <material type="cmx::MeshMaterial" vertex="mesh.vert.spv" fragment="mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
         <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
+        <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" name="outline_postprocess"/>
+        <postProcess type="cmx::PostPassthroughMaterial" vertex="postprocess.vert.spv" fragment="post_passthrough.frag.spv" editorOnly="false" status="0" name="passthrough_postprocess"/>
         <model filepath="assets/models_sponza/arch_stones_01.obj" name="arch_stones_01"/>
         <model filepath="assets/models_sponza/arch_wall_2ndfloor.obj" name="arch_wall_2ndfloor"/>
         <model filepath="assets/models_sponza/ceiling_2ndfloor.obj" name="ceiling_2ndfloor"/>
@@ -131,7 +133,8 @@
             </gradient>
         </sun>
     </lightEnvironment>
-    <actor type="cmx::MeshActor" name="Sponza" id="1" visible="true">
+    <graphicsManager/>
+    <actor type="cmx::MeshActor" name="Sponza" id="13" visible="true">
         <transform>
             <position x="0" y="0" z="7"/>
             <rotation pitch="0.9953962" yaw="-4.1895727e-09" roll="-0.095845744" w="-4.3510351e-08"/>

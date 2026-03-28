@@ -1,4 +1,5 @@
 build/
+bin/
 CMakeFiles/
 .cache/
 */.cmx_assets/

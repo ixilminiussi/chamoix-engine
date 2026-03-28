@@ -88,12 +88,42 @@ void PostOutlineMaterial::editor()
 
 tinyxml2::XMLElement *PostOutlineMaterial::save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const
 {
-    return Material::save(doc, parentElement);
+    tinyxml2::XMLElement *element = Material::save(doc, parentElement);
+    if (element == nullptr)
+        return nullptr;
+
+    element->SetAttribute("edgeColorR", _edgeColor.r);
+    element->SetAttribute("edgeColorG", _edgeColor.g);
+    element->SetAttribute("edgeColorB", _edgeColor.b);
+    element->SetAttribute("colorEdgeThickness", _colorEdgeThickness);
+    element->SetAttribute("colorEdgeThreshold", _colorEdgeThreshold);
+    element->SetAttribute("colorDepthFactor", _colorDepthFactor);
+    element->SetAttribute("normalEdgeThickness", _normalEdgeThickness);
+    element->SetAttribute("normalEdgeThreshold", _normalEdgeThreshold);
+    element->SetAttribute("normalDepthFactor", _normalDepthFactor);
+    element->SetAttribute("depthEdgeThickness", _depthEdgeThickness);
+    element->SetAttribute("depthEdgeThreshold", _depthEdgeThreshold);
+    element->SetAttribute("depthDepthFactor", _depthDepthFactor);
+
+    return element;
 }
 
 void PostOutlineMaterial::load(tinyxml2::XMLElement *materialElement)
 {
     Material::load(materialElement);
+
+    _edgeColor.r = materialElement->FloatAttribute("edgeColorR", 1.f);
+    _edgeColor.g = materialElement->FloatAttribute("edgeColorG", 1.f);
+    _edgeColor.b = materialElement->FloatAttribute("edgeColorB", 1.f);
+    _colorEdgeThickness = materialElement->FloatAttribute("colorEdgeThickness", 0.f);
+    _colorEdgeThreshold = materialElement->FloatAttribute("colorEdgeThreshold", 0.f);
+    _colorDepthFactor = materialElement->FloatAttribute("colorDepthFactor", 0.f);
+    _normalEdgeThickness = materialElement->FloatAttribute("normalEdgeThickness", 3.f);
+    _normalEdgeThreshold = materialElement->FloatAttribute("normalEdgeThreshold", 0.04f);
+    _normalDepthFactor = materialElement->FloatAttribute("normalDepthFactor", 0.04f);
+    _depthEdgeThickness = materialElement->FloatAttribute("depthEdgeThickness", 3.f);
+    _depthEdgeThreshold = materialElement->FloatAttribute("depthEdgeThreshold", 0.5f);
+    _depthDepthFactor = materialElement->FloatAttribute("depthDepthFactor", 0.51f);
 }
 
 void PostOutlineMaterial::initialize()
