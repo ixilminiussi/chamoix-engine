@@ -18,7 +18,7 @@ void BillboardComponent::onAttach()
 {
     AssetsManager *assetsManager = getScene()->getAssetsManager();
 
-    Material *material = assetsManager->getMaterial("billboard_material");
+    Material *material = assetsManager->makeUnique("billboard_material");
     setDrawOption({material, nullptr, {}});
 
     _material = static_cast<BillboardMaterial *>(material);
@@ -30,7 +30,7 @@ void BillboardComponent::editor(int i)
     Drawable::editor(i);
 }
 
-void BillboardComponent::setHue(const glm::vec4 hue)
+void BillboardComponent::setHue(glm::vec4 const hue)
 {
     _material->setHue(hue);
 }

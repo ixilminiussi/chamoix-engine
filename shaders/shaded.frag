@@ -87,7 +87,7 @@ vec3 getDiffuseLight()
     for (int i = 0; i < ubo.numPointLights; i++)
     {
         PointLight light = ubo.pointLights[i];
-        vec3 directionToLight = light.position.xyz - inPositionWorld;
+        vec3 directionToLight = inPositionWorld - light.position.xyz;
 
         float attenuation = 1.0f / dot(directionToLight, directionToLight);
         vec3 intensity = light.color.xyz * light.color.w * attenuation;

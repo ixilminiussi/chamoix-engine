@@ -36,19 +36,20 @@ enum State
 class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 {
   public:
-    template <class T> static T *spawn(class Scene *, const char *name, const Transform &transform = Transform{});
+    template <class T> static T *spawn(class Scene *, char const *name, Transform const &transform = Transform{});
     static Actor *duplicate(class Scene *, Actor *actor);
 
     void despawn();
 
     Actor() = delete;
     virtual ~Actor();
-    Actor(const Actor &) = default;
-    Actor &operator=(const Actor &) = delete;
+    Actor(Actor const &) = default;
+    Actor &operator=(Actor const &) = delete;
 
     std::string getType() const;
 
     virtual void onBegin() {};
+    void onTransformEdit() override;
     virtual void update(float dt) {};
 
     virtual tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
@@ -57,10 +58,10 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 
     std::shared_ptr<class Component> attachComponent(std::shared_ptr<class Component>, std::string name = "",
                                                      bool force = false);
-    void detachComponent(const std::string &name);
+    void detachComponent(std::string const &name);
 
     template <typename T> std::weak_ptr<T> getComponentByType();
-    std::weak_ptr<class Component> getComponentByName(const std::string &name);
+    std::weak_ptr<class Component> getComponentByName(std::string const &name);
     std::unordered_map<std::string, std::shared_ptr<Component>> &getComponents()
     {
         return _components;
@@ -93,7 +94,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     }
 
     Transform getWorldSpaceTransform() const override;
-    const Transform &getLocalSpaceTransform() const override
+    Transform const &getLocalSpaceTransform() const override
     {
         return _transform;
     }
@@ -107,7 +108,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
     // friend functions
     friend void Scene::addActor(Actor *);
     friend void Scene::removeActor(Actor *);
-    friend Actor *Scene::getActorByName(const std::string &);
+    friend Actor *Scene::getActorByName(std::string const &);
 
     std::string name;
 
@@ -116,7 +117,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
   protected:
     State _state{State::LIVING};
 
-    Actor(Scene *, uint32_t id, const std::string &name, const Transform &);
+    Actor(Scene *, uint32_t id, std::string const &name, Transform const &);
     std::weak_ptr<Actor> _parent;
 
     Scene *_scene;
@@ -130,7 +131,7 @@ class Actor : public std::enable_shared_from_this<Actor>, public Transformable
 
 inline uint32_t Actor::_idProvider = 0;
 
-template <typename T> inline T *Actor::spawn(Scene *scene, const char *name, const Transform &transform)
+template <typename T> inline T *Actor::spawn(Scene *scene, char const *name, Transform const &transform)
 {
     if constexpr (!std::is_base_of<Actor, T>::value)
     {
@@ -157,7 +158,7 @@ template <typename T> inline std::weak_ptr<T> Actor::getComponentByType()
         return std::weak_ptr<T>();
     }
 
-    for (const auto &component : _components)
+    for (auto const &component : _components)
     {
         if (auto castedComponent = std::dynamic_pointer_cast<T>(component.second))
         {

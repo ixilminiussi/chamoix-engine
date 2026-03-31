@@ -58,6 +58,13 @@ void PointLightComponent::editor(int i)
     BillboardComponent::editor(i);
 }
 
+void PointLightComponent::onTransformEdit()
+{
+    Transform absoluteTransform = getWorldSpaceTransform();
+    _absolutePosition = absoluteTransform.position;
+    _absoluteScaleXY = glm::vec2(absoluteTransform.scale.x, absoluteTransform.scale.y);
+}
+
 void PointLightComponent::load(tinyxml2::XMLElement *componentElement)
 {
     BillboardComponent::load(componentElement);
@@ -66,6 +73,7 @@ void PointLightComponent::load(tinyxml2::XMLElement *componentElement)
     _lightColor.r = componentElement->FloatAttribute("r");
     _lightColor.g = componentElement->FloatAttribute("g");
     _lightColor.b = componentElement->FloatAttribute("b");
+    _material->setHue(glm::vec4(_lightColor, 1.0));
 
     Transform absoluteTransform = getWorldSpaceTransform();
     _absolutePosition = absoluteTransform.position;

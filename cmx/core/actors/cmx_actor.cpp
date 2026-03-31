@@ -129,6 +129,14 @@ Transform Actor::getWorldSpaceTransform() const
     return _transform;
 }
 
+void Actor::onTransformEdit()
+{
+    for (auto &[name, component] : _components)
+    {
+        component->onTransformEdit();
+    }
+}
+
 void Actor::editor()
 {
     ImGui::Checkbox("is visible", &_isVisible);

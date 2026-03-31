@@ -28,6 +28,8 @@ class PointLightComponent : public BillboardComponent
     void load(tinyxml2::XMLElement *componentElement) override;
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &doc, tinyxml2::XMLElement *parentElement) const override;
 
+    void onTransformEdit() override;
+
     float getLightIntensity() const
     {
         return _lightIntensity;
@@ -37,11 +39,11 @@ class PointLightComponent : public BillboardComponent
         _lightIntensity = lightIntensity;
     }
 
-    const glm::vec3 &getLightColor()
+    glm::vec3 const &getLightColor()
     {
         return _lightColor;
     }
-    void setLightColor(const glm::vec3 &lightColor)
+    void setLightColor(glm::vec3 const &lightColor)
     {
         _lightColor = lightColor;
     }

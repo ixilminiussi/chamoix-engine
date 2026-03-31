@@ -24,7 +24,7 @@ struct Transform
     glm::quat rotation{glm::vec3{0.f}};
 
     glm::mat4 mat4() const;
-    void fromMat4(const glm::mat4 &);
+    void fromMat4(glm::mat4 const &);
     glm::mat4 mat4_noScale() const;
     glm::mat3 normalMatrix() const;
     glm::vec3 forward() const;
@@ -37,7 +37,7 @@ struct Transform
 
     static Transform ONE;
 
-    friend Transform operator+(const Transform &a, const Transform &b);
+    friend Transform operator+(Transform const &a, Transform const &b);
 
   private:
     glm::vec3 _euler{glm::vec3{0.f}};
@@ -50,18 +50,20 @@ class Transformable
 {
   public:
     Transformable() = default;
-    Transformable(const Transform &transform) : _transform{transform} {};
+    Transformable(Transform const &transform) : _transform{transform} {};
     virtual ~Transformable() = default;
 
-    virtual const Transform &getLocalSpaceTransform() const = 0;
+    virtual Transform const &getLocalSpaceTransform() const = 0;
     virtual Transform getWorldSpaceTransform() const = 0;
 
     void editor(class Camera *camera);
 
-    void setPosition(const glm::vec3 &position);
-    void setRotation(const glm::quat &rotation);
-    void setRotation(const glm::vec3 &euler);
-    void setScale(const glm::vec3 &scale);
+    virtual void onTransformEdit() {};
+
+    void setPosition(glm::vec3 const &position);
+    void setRotation(glm::quat const &rotation);
+    void setRotation(glm::vec3 const &euler);
+    void setScale(glm::vec3 const &scale);
 
     glm::vec3 getWorldSpaceForward()
     {
@@ -84,7 +86,7 @@ class Transformable
     Transform _transform{Transform::ONE};
 };
 
-Transform operator+(const Transform &a, const Transform &b);
+Transform operator+(Transform const &a, Transform const &b);
 
 } // namespace cmx
 

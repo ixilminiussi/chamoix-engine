@@ -12,7 +12,7 @@
 namespace cmx
 {
 
-void BillboardMaterial::bind(FrameInfo *frameInfo, const Drawable *drawable)
+void BillboardMaterial::bind(FrameInfo *frameInfo, Drawable const *drawable)
 {
     if (_boundID != _id)
     {
@@ -46,12 +46,17 @@ tinyxml2::XMLElement *BillboardMaterial::save(tinyxml2::XMLDocument &doc, tinyxm
 {
     tinyxml2::XMLElement *materialElement = Material::save(doc, parentElement);
 
-    materialElement->SetAttribute("r", _hue.r);
-    materialElement->SetAttribute("g", _hue.g);
-    materialElement->SetAttribute("b", _hue.b);
-    materialElement->SetAttribute("a", _hue.a);
+    if (materialElement)
+    {
+        materialElement->SetAttribute("r", _hue.r);
+        materialElement->SetAttribute("g", _hue.g);
+        materialElement->SetAttribute("b", _hue.b);
+        materialElement->SetAttribute("a", _hue.a);
 
-    return materialElement;
+        return materialElement;
+    }
+
+    return nullptr;
 }
 
 void BillboardMaterial::load(tinyxml2::XMLElement *materialElement)

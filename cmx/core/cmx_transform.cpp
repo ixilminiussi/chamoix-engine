@@ -26,7 +26,7 @@ glm::mat4 Transform::mat4() const
     return translationMatrix * rotationMatrix * scaleMatrix; // Combine transformations
 }
 
-void Transform::fromMat4(const glm::mat4 &mat4)
+void Transform::fromMat4(glm::mat4 const &mat4)
 {
     position = mat4[3];
 
@@ -73,7 +73,7 @@ glm::vec3 Transform::right() const
     return glm::normalize(rotation * glm::vec3(1.0f, 0.0f, 0.0f)); // Default right is +X
 }
 
-Transform operator+(const Transform &a, const Transform &b)
+Transform operator+(Transform const &a, Transform const &b)
 {
     Transform c{};
     glm::mat4 matA = a.mat4();
@@ -183,23 +183,23 @@ ImGuizmo::OPERATION Transformable::currentGuizmoOperation{ImGuizmo::ROTATE};
 bool Transformable::guizmoSnap{true};
 float Transformable::guizmoSnapTo{1.0f};
 
-void Transformable::setPosition(const glm::vec3 &position)
+void Transformable::setPosition(glm::vec3 const &position)
 {
     _transform.position = position;
 }
 
-void Transformable::setRotation(const glm::quat &rotation)
+void Transformable::setRotation(glm::quat const &rotation)
 {
     _transform.rotation = rotation;
     _transform.rotation = glm::normalize(_transform.rotation);
 }
 
-void Transformable::setRotation(const glm::vec3 &euler)
+void Transformable::setRotation(glm::vec3 const &euler)
 {
     _transform.rotation = glm::quat{euler};
 }
 
-void Transformable::setScale(const glm::vec3 &scale)
+void Transformable::setScale(glm::vec3 const &scale)
 {
     _transform.scale = scale;
 }
@@ -221,10 +221,12 @@ void Transformable::editor(class Camera *camera)
 
     float snap[3] = {guizmoSnapTo, guizmoSnapTo, guizmoSnapTo};
 
-    ImGuizmo::Manipulate((float *)&camera->getView(), (float *)&projection, currentGuizmoOperation, currentGuizmoMode,
-                         (float *)&localMat, NULL, (guizmoSnap) ? snap : defaultSnap);
-
-    _transform.fromMat4(localMat);
+    if (ImGuizmo::Manipulate((float *)&camera->getView(), (float *)&projection, currentGuizmoOperation,
+                             currentGuizmoMode, (float *)&localMat, NULL, (guizmoSnap) ? snap : defaultSnap))
+    {
+        _transform.fromMat4(localMat);
+        onTransformEdit();
+    }
 }
 #endif
 

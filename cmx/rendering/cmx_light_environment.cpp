@@ -34,7 +34,7 @@ DirectionalLight::DirectionalLight()
     _imageResolution = vk::Extent2D{4096, 4096};
 }
 
-DirectionalLight::DirectionalLight(const glm::vec4 &direction_, const glm::vec4 &color_, const float &intensity_)
+DirectionalLight::DirectionalLight(glm::vec4 const &direction_, glm::vec4 const &color_, float const &intensity_)
     : direction(direction_), color(color_), intensity(intensity_)
 {
     _cameraView = std::make_unique<Camera>();
@@ -270,7 +270,7 @@ LightEnvironment::~LightEnvironment()
 
 void LightEnvironment::drawShadowMaps(
     struct FrameInfo *frameInfo,
-    const std::map<uint8_t, std::vector<std::pair<Drawable *, DrawOption *>>> &drawableRenderQueue,
+    std::map<uint8_t, std::vector<std::pair<Drawable *, DrawOption *>>> const &drawableRenderQueue,
     std::vector<size_t> &descriptorSetIDs)
 {
     // if (_updateShadowMap) // TODO: only update shadow map on dynamic objects, or during editor mode
@@ -349,7 +349,7 @@ void LightEnvironment::calculateSun()
     _sun.intensity = sunIntensity;
 }
 
-void LightEnvironment::addPointLight(uint32_t id, const PointLight &pointLight)
+void LightEnvironment::addPointLight(uint32_t id, PointLight const &pointLight)
 {
     if (_pointLightsMap.size() < MAX_POINT_LIGHTS)
     {
@@ -378,7 +378,7 @@ tinyxml2::XMLElement &LightEnvironment::save(tinyxml2::XMLDocument &doc, tinyxml
 
         tinyxml2::XMLElement *gradientElement = doc.NewElement("gradient");
 
-        for (const auto &mark : atmosphereWidget.gradient().get_marks())
+        for (auto const &mark : atmosphereWidget.gradient().get_marks())
         {
             tinyxml2::XMLElement *markElement = doc.NewElement("mark");
             markElement->SetAttribute("position", mark.position.get());
@@ -485,7 +485,7 @@ void LightEnvironment::editor()
 {
     ImGui::Checkbox("has sun", &_hasSun);
 
-    const float pre =
+    float const pre =
         _timeOfDay + _sunAxis + _ambientLighting.x + _ambientLighting.y + _ambientLighting.z + _sun._boundingDimension;
 
     if (_hasSun)
@@ -503,7 +503,7 @@ void LightEnvironment::editor()
                             ImGuiColorEditFlags_Float && ImGuiColorEditFlags_InputRGB);
     }
 
-    const float post =
+    float const post =
         _timeOfDay + _sunAxis + _ambientLighting.x + _ambientLighting.y + _ambientLighting.z + _sun._boundingDimension;
 
     if (pre != post)
