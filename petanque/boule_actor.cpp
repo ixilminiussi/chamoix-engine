@@ -54,6 +54,7 @@ void BouleActor::setTeam(Team team)
     case Team::COCHONET:
         setScale({0.05f, 0.05f, 0.05f});
         _physicsComponent->setMass(.1f);
+        _meshComponent->setColor({1.f, 1.f, .4f});
         pointLight->setLightIntensity(0.1f);
         pointLight->setLightColor({1.f, 1.f, .4f});
         attachComponent(pointLight);
@@ -61,9 +62,11 @@ void BouleActor::setTeam(Team team)
         break;
     case Team::BLUE:
         _physicsComponent->setMass(.5f);
+        _meshComponent->setColor({0.4f, 0.4f, 1.f});
         break;
     case Team::RED:
         _physicsComponent->setMass(.5f);
+        _meshComponent->setColor({1.f, 0.4f, 0.4f});
         break;
     }
 }

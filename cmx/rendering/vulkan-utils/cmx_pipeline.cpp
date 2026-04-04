@@ -18,8 +18,8 @@
 namespace cmx
 {
 
-Pipeline::Pipeline(Device &device, const std::string &vertFilepath, const std::string &fragFilepath,
-                   const PipelineConfigInfo &configInfo, const std::string &debugName)
+Pipeline::Pipeline(Device &device, std::string const &vertFilepath, std::string const &fragFilepath,
+                   PipelineConfigInfo const &configInfo, std::string const &debugName)
     : _device{device}
 {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
@@ -48,7 +48,7 @@ void Pipeline::bind(vk::CommandBuffer commandBuffer)
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, _graphicsPipeline);
 }
 
-std::vector<char> Pipeline::readFile(const std::string &filepath)
+std::vector<char> Pipeline::readFile(std::string const &filepath)
 {
     std::ifstream file{std::string(SHADER_FILES) + filepath, std::ios::ate | std::ios::binary};
     if (!file.is_open())
@@ -66,8 +66,8 @@ std::vector<char> Pipeline::readFile(const std::string &filepath)
     return buffer;
 }
 
-void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
-                                      const PipelineConfigInfo &configInfo)
+void Pipeline::createGraphicsPipeline(std::string const &vertFilepath, std::string const &fragFilepath,
+                                      PipelineConfigInfo const &configInfo)
 {
     assert(configInfo.pipelineLayout != nullptr &&
            "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
@@ -95,8 +95,8 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std
     shaderStages[1].pNext = nullptr;
     shaderStages[1].pSpecializationInfo = nullptr;
 
-    const std::vector<vk::VertexInputBindingDescription> &bindingDescriptions = configInfo.bindingDescriptions;
-    const std::vector<vk::VertexInputAttributeDescription> &attributeDescriptions = configInfo.attributeDescriptions;
+    std::vector<vk::VertexInputBindingDescription> const &bindingDescriptions = configInfo.bindingDescriptions;
+    std::vector<vk::VertexInputAttributeDescription> const &attributeDescriptions = configInfo.attributeDescriptions;
 
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = vk::StructureType::ePipelineVertexInputStateCreateInfo;
@@ -132,12 +132,12 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std
     }
 }
 
-void Pipeline::createShaderModule(const std::vector<char> &code, vk::ShaderModule *shaderModule)
+void Pipeline::createShaderModule(std::vector<char> const &code, vk::ShaderModule *shaderModule)
 {
     vk::ShaderModuleCreateInfo createInfo{};
     createInfo.sType = vk::StructureType::eShaderModuleCreateInfo;
     createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+    createInfo.pCode = reinterpret_cast<uint32_t const *>(code.data());
 
     if (_device.device().createShaderModule(&createInfo, nullptr, shaderModule) != vk::Result::eSuccess)
     {

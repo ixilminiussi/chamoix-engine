@@ -33,8 +33,8 @@ class Model
 
         bool operator==(const Vertex &other) const
         {
-            return position == other.position && color == other.color && normal == other.normal && uv == other.uv &&
-                   tangent == other.tangent;
+            return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+            // tangent is excluded: it's derived and accumulated, not an identity key
         }
     };
     struct Builder

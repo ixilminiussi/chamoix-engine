@@ -28,7 +28,7 @@ template <> struct std::hash<cmx::Model::Vertex>
     size_t operator()(cmx::Model::Vertex const &vertex) const
     {
         size_t seed = 0;
-        cmx::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv, vertex.tangent);
+        cmx::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
         return seed;
     }
 };
@@ -239,9 +239,20 @@ void Model::Builder::loadModel(const std::string &filepath)
             glm::vec2 deltaUV1 = triVerts[1].uv - triVerts[0].uv;
             glm::vec2 deltaUV2 = triVerts[2].uv - triVerts[0].uv;
 
-            float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-
-            glm::vec3 tangent = f * (edge1 * deltaUV2.y - edge2 * deltaUV1.y);
+            float det = deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y;
+            glm::vec3 tangent;
+            if (std::abs(det) > 1e-6f)
+            {
+                float f = 1.0f / det;
+                tangent = f * (edge1 * deltaUV2.y - edge2 * deltaUV1.y);
+            }
+            else
+            {
+                // Degenerate UVs: compute a fallback tangent from the face normal
+                glm::vec3 n = glm::normalize(triVerts[0].normal);
+                glm::vec3 up = std::abs(n.z) < 0.999f ? glm::vec3(0.f, 0.f, 1.f) : glm::vec3(1.f, 0.f, 0.f);
+                tangent = glm::normalize(glm::cross(n, up));
+            }
 
             for (int j = 0; j < 3; ++j)
             {

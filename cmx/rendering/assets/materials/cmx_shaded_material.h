@@ -27,6 +27,8 @@ class ShadedMaterial : public Material
 
     void initialize() override;
 
+    void setColor(glm::vec3 const &color) { _color = color; }
+
   protected:
     void createPipelineLayout(std::vector<vk::DescriptorSetLayout>) override;
     void createPipeline(vk::RenderPass) override;

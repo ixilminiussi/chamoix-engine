@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene name="temp">
+    <assets>
+        <material type="cmx::BillboardMaterial" vertex="billboard.vert.spv" fragment="billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
+        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" worldSpaceUV="false" scale="5" threshold="1" dotsToggle="true" name="dithered_material">
+            <lightColor r="0.59600002" g="0.62400001" b="0.80800003"/>
+            <darkColor r="0.153" g="0.15700001" b="0.22"/>
+        </material>
+        <material type="cmx::DitheredTexturedMaterial" vertex="dithered_t.vert.spv" fragment="dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="5" threshold="1" m="0.2" name="dithered_textured_material"/>
+        <material type="cmx::HudMaterial" vertex="hud.vert.spv" fragment="hud.frag.spv" editorOnly="false" name="hud_material"/>
+        <material type="cmx::MeshMaterial" vertex="mesh.vert.spv" fragment="mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
+        <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
+        <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="true" UVoffsetX="0" UVoffsetY="0" UVscale="3" UVrotate="90" r="1" g="1" b="1" name="shaded_material"/>
+        <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" edgeColorR="0" edgeColorG="0" edgeColorB="0" colorEdgeThickness="6.7262326e-44" colorEdgeThreshold="0" colorDepthFactor="0" normalEdgeThickness="3" normalEdgeThreshold="0.039999999" normalDepthFactor="0.039999999" depthEdgeThickness="3" depthEdgeThreshold="0.5" depthDepthFactor="0.50999999" name="outline_postprocess"/>
+        <postProcess type="cmx::PostPassthroughMaterial" vertex="postprocess.vert.spv" fragment="post_passthrough.frag.spv" editorOnly="false" status="0" name="passthrough_postprocess"/>
+        <model filepath="assets/models/boule-de-petanque.obj" name="boule-de-petanque"/>
+        <model filepath=".cmx_assets/camera.obj" name="cmx_camera"/>
+        <model filepath=".cmx_assets/cube.obj" name="cmx_cube"/>
+        <model filepath=".cmx_assets/cylinder.obj" name="cmx_cylinder"/>
+        <model filepath=".cmx_assets/plane.obj" name="cmx_plane"/>
+        <model filepath=".cmx_assets/sphere.obj" name="cmx_sphere"/>
+        <model filepath=".cmx_assets/torus.obj" name="cmx_torus"/>
+        <texture filepath=".cmx_assets/missing-texture.png" name="cmx_missing"/>
+        <texture filepath=".cmx_assets/point-light.png" name="cmx_point_light"/>
+        <texture filepath="assets/textures/cherry_planks.png" name="planks"/>
+        <texture filepath="assets/textures/sand.png" name="sand"/>
+    </assets>
+    <lightEnvironment timeOfDay="17">
+        <sun axis="0">
+            <gradient>
+                <mark position="0.352" r="0.55000001" g="0.5" b="1"/>
+                <mark position="0.52999997" r="1" g="0.55000001" b="35"/>
+                <mark position="0.61000001" r="1" g="0.86000001" b="0.52999997"/>
+                <mark position="0.77999997" r="0.77999997" g="0.85000002" b="0.94999999"/>
+            </gradient>
+        </sun>
+    </lightEnvironment>
+    <graphicsManager pp1="outline_postprocess"/>
+    <actor type="cmx::PointLightActor" name="Turn Indicator" id="13" visible="true">
+        <transform>
+            <position x="0" y="-5" z="-7"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="20" r="1" g="1" b="1">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="Floor(4)" id="11" visible="true">
+        <transform>
+            <position x="0" y="0.69999999" z="15.5"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="4" y="0.30000001" z="0.5"/>
+        </transform>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="planks"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="Floor(3)" id="9" visible="true">
+        <transform>
+            <position x="-4.5" y="0.69999999" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="0.5" y="0.30000001" z="16"/>
+        </transform>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="planks"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="Floor(2)" id="7" visible="true">
+        <transform>
+            <position x="4.5" y="0.69999999" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="0.5" y="0.30000001" z="16"/>
+        </transform>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="planks"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="StaticBodyActor" name="Floor" id="5" visible="true">
+        <transform>
+            <position x="0" y="0.69999999" z="-15.5"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="4" y="0.30000001" z="0.5"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="planks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="Floor(5)" id="3" visible="true">
+        <transform>
+            <position x="0" y="1.5" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="20" y="0.5" z="37.5"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="sand"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="FirstPersonActor" name="Player" id="1" visible="true">
+        <transform>
+            <position x="0" y="0" z="13"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::CameraComponent" name="cmx::CameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="true">
+            <transform>
+                <position x="0" y="-2" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="mesh_material(1)" model="cmx_camera"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Dynamic" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+</scene>

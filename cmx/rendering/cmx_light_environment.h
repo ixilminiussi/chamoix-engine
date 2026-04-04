@@ -43,7 +43,7 @@ class DirectionalLight
 {
   public:
     DirectionalLight();
-    DirectionalLight(const glm::vec4 &direction_, const glm::vec4 &color_, const float &intensity_);
+    DirectionalLight(glm::vec4 const &direction_, glm::vec4 const &color_, float const &intensity_);
 
     glm::vec4 direction{1.f};
     glm::vec4 color{0.f};
@@ -74,7 +74,7 @@ class DirectionalLight
     vk::RenderPass _renderPass;
     vk::Framebuffer _framebuffer;
 
-    float _boundingDimension = 10.f;
+    float _boundingDimension = 200.f;
 
     class VoidMaterial *_voidMaterial;
     std::unique_ptr<class DescriptorPool> _shadowDescriptorPool;
@@ -93,13 +93,13 @@ class LightEnvironment
     LightEnvironment();
     ~LightEnvironment();
 
-    void addPointLight(uint32_t, const PointLight &);
+    void addPointLight(uint32_t, PointLight const &);
     void removePointLight(uint32_t);
 
     void populateUbo(struct GlobalUbo *) const;
 
     void drawShadowMaps(struct FrameInfo *,
-                        const std::map<uint8_t, std::vector<std::pair<class Drawable *, struct DrawOption *>>> &,
+                        std::map<uint8_t, std::vector<std::pair<class Drawable *, struct DrawOption *>>> const &,
                         std::vector<size_t> &descriptorSetIDs);
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const;
     void load(tinyxml2::XMLElement *);

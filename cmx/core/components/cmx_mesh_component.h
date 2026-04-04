@@ -35,6 +35,8 @@ class MeshComponent : public Component, public virtual Drawable
 
     void onAttach() override;
 
+    void setColor(glm::vec3 const &color, size_t index = 0);
+
     tinyxml2::XMLElement &save(tinyxml2::XMLDocument &, tinyxml2::XMLElement *) const override;
     void load(tinyxml2::XMLElement *) override;
     void editor(int i) override;
