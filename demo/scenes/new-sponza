@@ -2,17 +2,18 @@
 <scene name="sponza">
     <assets>
         <material type="cmx::BillboardMaterial" vertex="billboard.vert.spv" fragment="billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
-        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" worldSpaceUV="false" scale="3.5" threshold="1.4630001" dotsToggle="true" name="dithered_material">
-            <lightColor r="1" g="1" b="1"/>
-            <darkColor r="0" g="0" b="0"/>
+        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" worldSpaceUV="false" scale="3.7" threshold="0.86199999" dotsToggle="true" name="dithered_material">
+            <lightColor r="0.88223034" g="0.85232067" b="1"/>
+            <darkColor r="0.025316477" g="0.012177546" b="0.012177546"/>
         </material>
         <material type="cmx::DitheredTexturedMaterial" vertex="dithered_t.vert.spv" fragment="dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="4.1999998" threshold="0.80000001" m="0.2" name="dithered_textured_material"/>
         <material type="cmx::HudMaterial" vertex="hud.vert.spv" fragment="hud.frag.spv" editorOnly="false" name="hud_material"/>
         <material type="cmx::MeshMaterial" vertex="mesh.vert.spv" fragment="mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
         <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
-        <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" name="outline_postprocess"/>
+        <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" edgeColorR="0.88235295" edgeColorG="0.8509804" edgeColorB="1" colorEdgeThickness="0" colorEdgeThreshold="0" colorDepthFactor="0" normalEdgeThickness="1" normalEdgeThreshold="0.02" normalDepthFactor="0.039999999" depthEdgeThickness="1" depthEdgeThreshold="0.1" depthDepthFactor="0.34" name="outline_postprocess"/>
         <postProcess type="cmx::PostPassthroughMaterial" vertex="postprocess.vert.spv" fragment="post_passthrough.frag.spv" editorOnly="false" status="0" name="passthrough_postprocess"/>
+        <postProcess type="cmx::PostSSAOMaterial" vertex="postprocess.vert.spv" fragment="post_ssao.frag.spv" editorOnly="false" name="ssao_postprocess"/>
         <model filepath="assets/models_sponza/arch_stones_01.obj" name="arch_stones_01"/>
         <model filepath="assets/models_sponza/arch_wall_2ndfloor.obj" name="arch_wall_2ndfloor"/>
         <model filepath="assets/models_sponza/ceiling_2ndfloor.obj" name="ceiling_2ndfloor"/>
@@ -39,8 +40,6 @@
         <model filepath="assets/models_sponza/walls_floor_03.obj" name="walls_floor_03"/>
         <model filepath="assets/models_sponza/wood_door.obj" name="wood_door"/>
         <model filepath="assets/models_sponza/wooden_parts.obj" name="wooden_parts"/>
-        <texture filepath="assets/textures/rocks_color_rgba.png" name="rocks_color"/>
-        <texture filepath="assets/textures/rocks_normal_height_rgba.png" name="rocks_normal_height"/>
         <texture filepath="assets/textures_sponza/arch_stone_wall_01_BaseColor.png" name="arch_stone_wall_01"/>
         <texture filepath="assets/textures_sponza/brickwall_01_BaseColor.png" name="brickwall_01"/>
         <texture filepath="assets/textures_sponza/brickwall_02_BaseColor.png" name="brickwall_02"/>
@@ -66,6 +65,8 @@
         <texture filepath="assets/textures_sponza/lionhead_01_BaseColor.png" name="lionhead_01"/>
         <texture filepath="assets/textures_sponza/metal_door_01_BaseColor.png" name="metal_door_01"/>
         <texture filepath="assets/textures_sponza/ornament_01_BaseColor.png" name="ornament_01"/>
+        <texture filepath="assets/textures/rocks_color_rgba.png" name="rocks_color"/>
+        <texture filepath="assets/textures/rocks_normal_height_rgba.png" name="rocks_normal_height"/>
         <texture filepath="assets/textures_sponza/roof_tiles_01_BaseColor.png" name="roof_tiles_01"/>
         <texture filepath="assets/textures_sponza/stone_01_tile_BaseColor.png" name="stone_01_tile"/>
         <texture filepath="assets/textures_sponza/stone_trims_01_BaseColor.png" name="stone_trims_01"/>
@@ -135,7 +136,45 @@
             </gradient>
         </sun>
     </lightEnvironment>
-    <graphicsManager/>
+    <graphicsManager pp1="outline_postprocess"/>
+    <actor type="FirstPersonActor" name="FirstPersonActor" id="17" visible="true">
+        <transform>
+            <position x="0" y="-1" z="7"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::CameraComponent" name="cmx::CameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="true">
+            <transform>
+                <position x="0" y="-2.4000001" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="mesh_material(1)" model="cmx_camera"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Dynamic" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="StaticBodyActor" name="StaticBodyActor" id="15" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_plane" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="200" y="200" z="200"/>
+            </transform>
+        </component>
+    </actor>
     <actor type="cmx::MeshActor" name="Sponza" id="13" visible="true">
         <transform>
             <position x="0" y="0" z="7"/>

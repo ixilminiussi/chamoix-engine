@@ -49,6 +49,10 @@ void GBuffer::updateAspectRatio(Device *device, vk::Extent2D const &resolution)
     device->device().destroyImage(_normalImage);
     device->device().freeMemory(_normalImageMemory);
     renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[2]);
+    device->device().destroyImageView(_shadowImageView);
+    device->device().destroyImage(_shadowImage);
+    device->device().freeMemory(_shadowImageMemory);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[3]);
     device->device().destroyImageView(_depthImageView);
     device->device().destroyImage(_depthImage);
     device->device().freeMemory(_depthImageMemory);
@@ -58,16 +62,17 @@ void GBuffer::updateAspectRatio(Device *device, vk::Extent2D const &resolution)
 
 void GBuffer::beginRender(FrameInfo *frameInfo, LightEnvironment const *lightEnvironment) const
 {
-    static std::array<vk::ClearValue, 3> clearValues{};
-    clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
-    clearValues[1].color = {0.1f, 0.1f, 0.1f, 1.0f};
-    clearValues[2].depthStencil = vk::ClearDepthStencilValue{1.0f, 0};
+    static std::array<vk::ClearValue, 4> clearValues{};
+    clearValues[0].color = {1.0f, 1.0f, 1.0f, 1.0f};
+    clearValues[1].color = {1.0f, 1.0f, 1.0f, 1.0f};
+    clearValues[2].color = {1.0f, 1.0f, 1.0f, 1.0f};
+    clearValues[3].depthStencil = vk::ClearDepthStencilValue{1.0f, 0};
 
     vk::RenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.renderPass = _renderPass;
     renderPassBeginInfo.framebuffer = _framebuffer;
     renderPassBeginInfo.renderArea.extent = _resolution;
-    renderPassBeginInfo.clearValueCount = 3;
+    renderPassBeginInfo.clearValueCount = 4;
     renderPassBeginInfo.pClearValues = clearValues.data();
 
     frameInfo->commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
@@ -140,6 +145,22 @@ void GBuffer::createImages(Device *device)
     device->createImageWithInfo(normalImageInfo, {vk::MemoryPropertyFlagBits::eDeviceLocal}, _normalImage,
                                 _normalImageMemory);
 
+    vk::ImageCreateInfo shadowImageInfo{};
+
+    shadowImageInfo.sType = vk::StructureType::eImageCreateInfo;
+    shadowImageInfo.imageType = vk::ImageType::e2D;
+    shadowImageInfo.extent = vk::Extent3D{_resolution.width, _resolution.height, 1u};
+    shadowImageInfo.mipLevels = 1;
+    shadowImageInfo.arrayLayers = 1;
+    shadowImageInfo.samples = vk::SampleCountFlagBits::e1;
+    shadowImageInfo.format = vk::Format::eR16G16B16A16Snorm;
+    shadowImageInfo.tiling = vk::ImageTiling::eOptimal;
+    shadowImageInfo.initialLayout = vk::ImageLayout::eUndefined;
+    shadowImageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+
+    device->createImageWithInfo(shadowImageInfo, {vk::MemoryPropertyFlagBits::eDeviceLocal}, _shadowImage,
+                                _shadowImageMemory);
+
     vk::ImageCreateInfo depthImageInfo{};
 
     depthImageInfo.sType = vk::StructureType::eImageCreateInfo;
@@ -186,7 +207,22 @@ void GBuffer::createImageViews(Device *device)
 
     if (device->device().createImageView(&normalViewInfo, nullptr, &_normalImageView) != vk::Result::eSuccess)
     {
-        throw std::runtime_error("GBuffer: failed to create depth image depthView!");
+        throw std::runtime_error("GBuffer: failed to create normal image view!");
+    }
+
+    vk::ImageViewCreateInfo shadowViewInfo{};
+    shadowViewInfo.image = _shadowImage;
+    shadowViewInfo.viewType = vk::ImageViewType::e2D;
+    shadowViewInfo.format = vk::Format::eR16G16B16A16Snorm;
+    shadowViewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    shadowViewInfo.subresourceRange.baseMipLevel = 0;
+    shadowViewInfo.subresourceRange.levelCount = 1;
+    shadowViewInfo.subresourceRange.baseArrayLayer = 0;
+    shadowViewInfo.subresourceRange.layerCount = 1;
+
+    if (device->device().createImageView(&shadowViewInfo, nullptr, &_shadowImageView) != vk::Result::eSuccess)
+    {
+        throw std::runtime_error("GBuffer: failed to create shadow image view!");
     }
 
     vk::ImageViewCreateInfo depthViewInfo{};
@@ -207,7 +243,7 @@ void GBuffer::createImageViews(Device *device)
 
 void GBuffer::createRenderPass(Device *device)
 {
-    vk::AttachmentDescription attachments[3]; // color, normal, depth
+    vk::AttachmentDescription attachments[4]; // color, normal, shadow, depth
 
     // Color
     attachments[0].format = _colorFormat;
@@ -221,31 +257,38 @@ void GBuffer::createRenderPass(Device *device)
     attachments[1].storeOp = vk::AttachmentStoreOp::eStore;
     attachments[1].initialLayout = vk::ImageLayout::eUndefined;
     attachments[1].finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-    // Depth
-    attachments[2].format = vk::Format::eD32Sfloat;
-    attachments[2].samples = vk::SampleCountFlagBits::e1;
+    // Shadow
+    attachments[2].format = vk::Format::eR16G16B16A16Snorm;
     attachments[2].loadOp = vk::AttachmentLoadOp::eClear;
     attachments[2].storeOp = vk::AttachmentStoreOp::eStore;
-    attachments[2].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
-    attachments[2].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
     attachments[2].initialLayout = vk::ImageLayout::eUndefined;
     attachments[2].finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    // Depth
+    attachments[3].format = vk::Format::eD32Sfloat;
+    attachments[3].samples = vk::SampleCountFlagBits::e1;
+    attachments[3].loadOp = vk::AttachmentLoadOp::eClear;
+    attachments[3].storeOp = vk::AttachmentStoreOp::eStore;
+    attachments[3].stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+    attachments[3].stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+    attachments[3].initialLayout = vk::ImageLayout::eUndefined;
+    attachments[3].finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
     vk::AttachmentReference depthAttachmentRef{};
-    depthAttachmentRef.attachment = 2;
+    depthAttachmentRef.attachment = 3;
     depthAttachmentRef.layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
-    vk::AttachmentReference colorAttachmentRefs[2] = {{0, vk::ImageLayout::eColorAttachmentOptimal},
-                                                      {1, vk::ImageLayout::eColorAttachmentOptimal}};
+    vk::AttachmentReference colorAttachmentRefs[3] = {{0, vk::ImageLayout::eColorAttachmentOptimal},
+                                                      {1, vk::ImageLayout::eColorAttachmentOptimal},
+                                                      {2, vk::ImageLayout::eColorAttachmentOptimal}};
 
     vk::SubpassDescription subpass{};
     subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
-    subpass.colorAttachmentCount = 2;
+    subpass.colorAttachmentCount = 3;
     subpass.pColorAttachments = colorAttachmentRefs;
 
     vk::RenderPassCreateInfo renderPassInfo{};
-    renderPassInfo.attachmentCount = 3;
+    renderPassInfo.attachmentCount = 4;
     renderPassInfo.pAttachments = attachments;
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
@@ -260,11 +303,11 @@ void GBuffer::createRenderPass(Device *device)
 
 void GBuffer::createFrameBuffer(Device *device)
 {
-    vk::ImageView attachments[3] = {_colorImageView, _normalImageView, _depthImageView};
+    vk::ImageView attachments[4] = {_colorImageView, _normalImageView, _shadowImageView, _depthImageView};
 
     vk::FramebufferCreateInfo framebufferInfo{};
     framebufferInfo.renderPass = _renderPass;
-    framebufferInfo.attachmentCount = 3;
+    framebufferInfo.attachmentCount = 4;
     framebufferInfo.pAttachments = attachments;
     framebufferInfo.width = _resolution.width;
     framebufferInfo.height = _resolution.height;
@@ -314,6 +357,23 @@ void GBuffer::createSamplers(Device *device)
 
     _samplerDescriptorSetIDs[1] = renderSystem->createSamplerDescriptor(_normalImageView, _normalSampler);
 
+    if (!_shadowSampler)
+    {
+        vk::SamplerCreateInfo shadowSamplerCreateInfo{};
+        shadowSamplerCreateInfo.magFilter = vk::Filter::eLinear;
+        shadowSamplerCreateInfo.minFilter = vk::Filter::eLinear;
+        shadowSamplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        shadowSamplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        shadowSamplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        shadowSamplerCreateInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
+        shadowSamplerCreateInfo.unnormalizedCoordinates = false;
+        shadowSamplerCreateInfo.compareEnable = true;
+
+        _shadowSampler = device->device().createSampler(shadowSamplerCreateInfo);
+    }
+
+    _samplerDescriptorSetIDs[2] = renderSystem->createSamplerDescriptor(_shadowImageView, _shadowSampler);
+
     if (!_depthSampler)
     {
         vk::SamplerCreateInfo depthSamplerCreateInfo{};
@@ -329,7 +389,7 @@ void GBuffer::createSamplers(Device *device)
         _depthSampler = device->device().createSampler(depthSamplerCreateInfo);
     }
 
-    _samplerDescriptorSetIDs[2] = renderSystem->createSamplerDescriptor(_depthImageView, _depthSampler);
+    _samplerDescriptorSetIDs[3] = renderSystem->createSamplerDescriptor(_depthImageView, _depthSampler);
 }
 
 void GBuffer::free(Device *device)
@@ -351,6 +411,11 @@ void GBuffer::free(Device *device)
     device->device().destroyImage(_normalImage);
     device->device().freeMemory(_normalImageMemory);
     renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[2]);
+    device->device().destroySampler(_shadowSampler);
+    device->device().destroyImageView(_shadowImageView);
+    device->device().destroyImage(_shadowImage);
+    device->device().freeMemory(_shadowImageMemory);
+    renderSystem->freeSamplerDescriptor(_samplerDescriptorSetIDs[3]);
     device->device().destroySampler(_depthSampler);
     device->device().destroyImageView(_depthImageView);
     device->device().destroyImage(_depthImage);

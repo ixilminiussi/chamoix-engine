@@ -46,7 +46,19 @@ ViewportUI::ViewportUI()
 
 ViewportUI::~ViewportUI()
 {
+    if (!_freed)
+    {
+        spdlog::error("ViewportUI: forgot to call free() before destruction");
+    }
+}
+
+void ViewportUI::free()
+{
     ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    _imguiPool->free();
+    _freed = true;
 }
 
 std::string inspectedName;
@@ -796,7 +808,7 @@ void ViewportUI::renderLogger()
 
     _showLogger = true;
 
-    if (ImGui::Begin("Logger"))
+    if (ImGui::Begin("Logger", &_showLogger))
     {
         ImGui::BeginChild("LogRegion", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);
 
@@ -833,8 +845,8 @@ void ViewportUI::renderLogger()
         }
 
         ImGui::EndChild();
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 void ViewportUI::renderPlayButton()

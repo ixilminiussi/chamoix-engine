@@ -66,6 +66,7 @@ void HudMaterial::createPipeline(vk::RenderPass renderPass)
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = _pipelineLayout;
 
+    pipelineConfig.depthStencilInfo.depthTestEnable = vk::False;
     pipelineConfig.depthStencilInfo.depthWriteEnable = vk::False;
     pipelineConfig.colorBlendAttachments[0].blendEnable = vk::True;
     pipelineConfig.colorBlendAttachments[0].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
@@ -73,6 +74,9 @@ void HudMaterial::createPipeline(vk::RenderPass renderPass)
     pipelineConfig.colorBlendAttachments[1].blendEnable = vk::True;
     pipelineConfig.colorBlendAttachments[1].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
     pipelineConfig.colorBlendAttachments[1].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    pipelineConfig.colorBlendAttachments[2].blendEnable = vk::True;
+    pipelineConfig.colorBlendAttachments[2].srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    pipelineConfig.colorBlendAttachments[2].dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
 
     _pipeline = std::make_unique<Pipeline>(*_renderSystem->getDevice(), _vertFilepath, _fragFilepath, pipelineConfig,
                                            "HUD material pipeline");

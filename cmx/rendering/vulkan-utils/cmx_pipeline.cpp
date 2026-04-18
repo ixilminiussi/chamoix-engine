@@ -199,7 +199,18 @@ void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo)
     normalColorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero; // Optional
     normalColorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;             // Optional
 
-    configInfo.colorBlendAttachments = {colorColorBlendAttachment, normalColorBlendAttachment};
+    vk::PipelineColorBlendAttachmentState shadowColorBlendAttachment;
+    shadowColorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                                                vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    shadowColorBlendAttachment.blendEnable = vk::False;
+    shadowColorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eOne;
+    shadowColorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eZero;
+    shadowColorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+    shadowColorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    shadowColorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    shadowColorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+
+    configInfo.colorBlendAttachments = {colorColorBlendAttachment, normalColorBlendAttachment, shadowColorBlendAttachment};
 
     configInfo.colorBlendInfo.sType = vk::StructureType::ePipelineColorBlendStateCreateInfo;
     configInfo.colorBlendInfo.logicOpEnable = vk::False;

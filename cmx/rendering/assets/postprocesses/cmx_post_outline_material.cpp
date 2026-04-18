@@ -30,7 +30,7 @@ void PostOutlineMaterial::bind(FrameInfo *frameInfo, const Drawable *)
                                                     &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[1])), 0,
                                                     nullptr);
         frameInfo->commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _pipelineLayout, 2, 1,
-                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[2])), 0,
+                                                    &(_renderSystem->getSamplerDescriptorSet(descriptorSetIDs[3])), 0,
                                                     nullptr);
 
         _boundID = _id;

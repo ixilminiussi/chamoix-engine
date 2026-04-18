@@ -256,6 +256,11 @@ void Scene::updateActors(float dt)
         if ((*it).second->markedForDeletion())
         {
             spdlog::info("Scene {0}: Removed actor <{1}>", name, (*it).second->name);
+            for (auto [componentName, component] : (*it).second->getComponents())
+            {
+                removeComponent(component);
+            }
+            delete (*it).second;
         erase:
             it = _actors.erase(it);
             continue;
@@ -327,7 +332,7 @@ void Scene::updateComponents(float dt)
 
 tinyxml2::XMLElement &Scene::save()
 {
-    return saveAs(_xmlPath.c_str());
+    return saveAs(_xmlPath.c_str(), true);
 }
 
 tinyxml2::XMLElement &Scene::saveAs(const char *filepath, bool absolute)

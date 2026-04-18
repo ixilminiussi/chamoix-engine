@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene name="first scene">
+    <assets>
+        <material type="cmx::BillboardMaterial" vertex="billboard.vert.spv" fragment="billboard.frag.spv" editorOnly="false" r="1" g="1" b="1" a="1" name="billboard_material"/>
+        <material type="cmx::DitheredMaterial" vertex="dithered.vert.spv" fragment="dithered.frag.spv" editorOnly="false" worldSpaceUV="false" scale="5" threshold="0.85600001" dotsToggle="true" name="dithered_material">
+            <lightColor r="1" g="1" b="1"/>
+            <darkColor r="0" g="0" b="0"/>
+        </material>
+        <material type="cmx::DitheredTexturedMaterial" vertex="dithered_t.vert.spv" fragment="dithered_t.frag.spv" editorOnly="false" worldSpaceUV="false" scale="4.1999998" threshold="0.80000001" m="0.2" name="dithered_textured_material"/>
+        <material type="cmx::HudMaterial" vertex="hud.vert.spv" fragment="hud.frag.spv" editorOnly="false" name="hud_material"/>
+        <material type="cmx::MeshMaterial" vertex="mesh.vert.spv" fragment="mesh.frag.spv" editorOnly="true" r="0" g="0" b="1" name="mesh_material"/>
+        <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.02" occlusionMapping="true" layerCount="12" name="parallax_material"/>
+        <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material"/>
+        <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(1)"/>
+        <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" edgeColorR="1" edgeColorG="1" edgeColorB="1" colorEdgeThickness="0" colorEdgeThreshold="0" colorDepthFactor="0" normalEdgeThickness="3" normalEdgeThreshold="0.039999999" normalDepthFactor="0.039999999" depthEdgeThickness="3" depthEdgeThreshold="0.5" depthDepthFactor="0.50999999" name="outline_postprocess"/>
+        <postProcess type="cmx::PostPassthroughMaterial" vertex="postprocess.vert.spv" fragment="post_passthrough.frag.spv" editorOnly="false" status="88" name="passthrough_postprocess"/>
+        <postProcess type="cmx::PostSSAOMaterial" vertex="postprocess.vert.spv" fragment="post_ssao.frag.spv" editorOnly="false" name="ssao_postprocess"/>
+        <model filepath=".cmx_assets/camera.obj" name="cmx_camera"/>
+        <model filepath=".cmx_assets/cube.obj" name="cmx_cube"/>
+        <model filepath=".cmx_assets/cylinder.obj" name="cmx_cylinder"/>
+        <model filepath=".cmx_assets/plane.obj" name="cmx_plane"/>
+        <model filepath=".cmx_assets/sphere.obj" name="cmx_sphere"/>
+        <model filepath=".cmx_assets/torus.obj" name="cmx_torus"/>
+        <model filepath=".cmx_assets/uv-sphere.obj" name="cmx_uv_sphere"/>
+        <model filepath="assets/models/penguin.obj" name="penguin"/>
+        <texture filepath="assets/textures/acacia_planks.png" name="acacia_planks"/>
+        <texture filepath="assets/textures/chiseled_bookshelf_occupied.png" name="chiseled_bookshelf_occupied"/>
+        <texture filepath=".cmx_assets/missing-texture.png" name="cmx_missing"/>
+        <texture filepath=".cmx_assets/point-light.png" name="cmx_point_light"/>
+        <texture filepath="assets/textures/penguin.png" name="penguin"/>
+        <texture filepath="assets/textures/rocks_color_rgba.png" name="rocks_color"/>
+        <texture filepath="assets/textures/rocks_normal_height_rgba.png" name="rocks_normal_height"/>
+        <texture filepath="assets/textures/stone_bricks.png" name="stone_bricks"/>
+        <texture name="cmx_radial_dithering">
+            <layer filepath=".cmx_assets/dithering/radial5.png"/>
+            <layer filepath=".cmx_assets/dithering/radial6.png"/>
+            <layer filepath=".cmx_assets/dithering/radial7.png"/>
+            <layer filepath=".cmx_assets/dithering/radial8.png"/>
+            <layer filepath=".cmx_assets/dithering/radial9.png"/>
+            <layer filepath=".cmx_assets/dithering/radial10.png"/>
+            <layer filepath=".cmx_assets/dithering/radial11.png"/>
+            <layer filepath=".cmx_assets/dithering/radial12.png"/>
+            <layer filepath=".cmx_assets/dithering/radial13.png"/>
+            <layer filepath=".cmx_assets/dithering/radial14.png"/>
+            <layer filepath=".cmx_assets/dithering/radial15.png"/>
+            <layer filepath=".cmx_assets/dithering/radial16.png"/>
+        </texture>
+        <texture name="cmx_radial_dithering_hd">
+            <layer filepath=".cmx_assets/dithering/radial17.png"/>
+            <layer filepath=".cmx_assets/dithering/radial18.png"/>
+            <layer filepath=".cmx_assets/dithering/radial19.png"/>
+            <layer filepath=".cmx_assets/dithering/radial20.png"/>
+            <layer filepath=".cmx_assets/dithering/radial21.png"/>
+            <layer filepath=".cmx_assets/dithering/radial22.png"/>
+            <layer filepath=".cmx_assets/dithering/radial23.png"/>
+            <layer filepath=".cmx_assets/dithering/radial24.png"/>
+            <layer filepath=".cmx_assets/dithering/radial25.png"/>
+            <layer filepath=".cmx_assets/dithering/radial26.png"/>
+            <layer filepath=".cmx_assets/dithering/radial27.png"/>
+            <layer filepath=".cmx_assets/dithering/radial28.png"/>
+            <layer filepath=".cmx_assets/dithering/radial29.png"/>
+            <layer filepath=".cmx_assets/dithering/radial30.png"/>
+            <layer filepath=".cmx_assets/dithering/radial31.png"/>
+            <layer filepath=".cmx_assets/dithering/radial32.png"/>
+            <layer filepath=".cmx_assets/dithering/radial33.png"/>
+            <layer filepath=".cmx_assets/dithering/radial34.png"/>
+            <layer filepath=".cmx_assets/dithering/radial35.png"/>
+            <layer filepath=".cmx_assets/dithering/radial36.png"/>
+            <layer filepath=".cmx_assets/dithering/radial37.png"/>
+            <layer filepath=".cmx_assets/dithering/radial38.png"/>
+            <layer filepath=".cmx_assets/dithering/radial39.png"/>
+            <layer filepath=".cmx_assets/dithering/radial40.png"/>
+            <layer filepath=".cmx_assets/dithering/radial41.png"/>
+            <layer filepath=".cmx_assets/dithering/radial42.png"/>
+            <layer filepath=".cmx_assets/dithering/radial43.png"/>
+            <layer filepath=".cmx_assets/dithering/radial44.png"/>
+            <layer filepath=".cmx_assets/dithering/radial45.png"/>
+            <layer filepath=".cmx_assets/dithering/radial46.png"/>
+            <layer filepath=".cmx_assets/dithering/radial47.png"/>
+            <layer filepath=".cmx_assets/dithering/radial48.png"/>
+            <layer filepath=".cmx_assets/dithering/radial49.png"/>
+            <layer filepath=".cmx_assets/dithering/radial50.png"/>
+            <layer filepath=".cmx_assets/dithering/radial51.png"/>
+            <layer filepath=".cmx_assets/dithering/radial52.png"/>
+            <layer filepath=".cmx_assets/dithering/radial53.png"/>
+            <layer filepath=".cmx_assets/dithering/radial54.png"/>
+            <layer filepath=".cmx_assets/dithering/radial55.png"/>
+            <layer filepath=".cmx_assets/dithering/radial56.png"/>
+            <layer filepath=".cmx_assets/dithering/radial57.png"/>
+            <layer filepath=".cmx_assets/dithering/radial58.png"/>
+            <layer filepath=".cmx_assets/dithering/radial59.png"/>
+            <layer filepath=".cmx_assets/dithering/radial60.png"/>
+            <layer filepath=".cmx_assets/dithering/radial61.png"/>
+            <layer filepath=".cmx_assets/dithering/radial62.png"/>
+            <layer filepath=".cmx_assets/dithering/radial63.png"/>
+            <layer filepath=".cmx_assets/dithering/radial64.png"/>
+        </texture>
+        <texture name="cmx_radial_dithering_test">
+            <layer filepath=".cmx_assets/dithering/radial5.png"/>
+            <layer filepath=".cmx_assets/dithering/radial5.png"/>
+        </texture>
+    </assets>
+    <lightEnvironment timeOfDay="14.75">
+        <sun axis="0">
+            <gradient>
+                <mark position="0.352" r="0.55000001" g="0.5" b="1"/>
+                <mark position="0.53399998" r="1" g="0.55055285" b="0.35443038"/>
+                <mark position="0.60600001" r="1" g="0.86118674" b="0.52320671"/>
+                <mark position="0.78399998" r="0.84810126" g="0.95443052" b="1"/>
+            </gradient>
+        </sun>
+    </lightEnvironment>
+    <graphicsManager/>
+    <actor type="cmx::MeshActor" name="Penguin" id="23" visible="true">
+        <transform>
+            <position x="3" y="-4" z="-1"/>
+            <rotation pitch="0.98325491" yaw="7.9658919e-09" roll="0.18223551" w="-4.2979703e-08"/>
+            <scale x="0.99999881" y="0.99998748" z="0.99999952"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="dithered_material" model="cmx_cube" t0="cmx_radial_dithering_hd"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="FirstPersonActor" name="FirstPersonActor" id="21" visible="true">
+        <transform>
+            <position x="0" y="-1" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::CameraComponent" name="cmx::CameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="true">
+            <transform>
+                <position x="0" y="-2" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="mesh_material(1)" model="cmx_camera"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Dynamic" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="RigidBodyActor" name="BallActor" id="19" visible="true">
+        <transform>
+            <position x="0" y="-3" z="-3"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="dithered_material" model="cmx_sphere" t0="cmx_radial_dithering_hd"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Rigid" gravityX="0" gravityY="10" gravityZ="0" inverseMass="1" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="StaticBodyActor" name="FloorActor" id="17" visible="true">
+        <transform>
+            <position x="0" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="10" y="1" z="10"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="dithered_material" model="cmx_plane" t0="cmx_radial_dithering_hd"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_plane" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="Penguin(1)" id="15" visible="true">
+        <transform>
+            <position x="-3" y="0" z="7"/>
+            <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
+            <scale x="3" y="3" z="3"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="dithered_material" model="penguin" t0="cmx_radial_dithering_hd"/>
+            </rendering>
+        </component>
+    </actor>
+    <actor type="cmx::Actor" name="Penguin(2)" id="13" visible="true">
+        <transform>
+            <position x="3" y="0" z="7"/>
+            <rotation pitch="1" yaw="0" roll="0" w="-4.3711385e-08"/>
+            <scale x="3" y="3" z="3"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="dithered_material" model="penguin" t0="cmx_radial_dithering_hd"/>
+            </rendering>
+        </component>
+    </actor>
+</scene>

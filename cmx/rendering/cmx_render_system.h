@@ -5,6 +5,7 @@
 #include "cmx_descriptors.h"
 #include "cmx_g_buffer.h"
 #include "cmx_light_environment.h"
+#include "cmx_render_pass.h"
 #include "cmx_viewport_ui.h"
 
 // lib
@@ -90,6 +91,11 @@ class RenderSystem
     {
         return _gBuffer.get();
     }
+    std::array<class RenderPass *, 2> getSSAOBuffers()
+    {
+        return _ssaoBuffers;
+    }
+    void drawSSAO(struct FrameInfo *frameInfo) const;
     vk::Extent2D getResolution() const
     {
         return _resolution;
@@ -100,6 +106,9 @@ class RenderSystem
     void initializeUbo();
 
     void createGBuffer();
+    void createSSAOBuffers();
+    std::array<class Material *, 2> _ssaoMaterials;
+    std::array<class RenderPass *, 2> _ssaoBuffers;
 
 #ifndef NDEBUG
     void createTexture();

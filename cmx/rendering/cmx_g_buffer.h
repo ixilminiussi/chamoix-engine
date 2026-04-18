@@ -20,10 +20,10 @@ class GBuffer
 
     void free(class Device *);
 
-    GBuffer(const GBuffer &) = delete;
-    GBuffer &operator=(const GBuffer &) = delete;
+    GBuffer(GBuffer const &) = delete;
+    GBuffer &operator=(GBuffer const &) = delete;
 
-    void updateAspectRatio(class Device *device, const vk::Extent2D &);
+    void updateAspectRatio(class Device *device, vk::Extent2D const &);
     void beginRender(struct FrameInfo *, const class LightEnvironment *) const;
     void endRender(struct FrameInfo *) const;
 
@@ -45,7 +45,7 @@ class GBuffer
     void createFrameBuffer(class Device *);
     void createSamplers(class Device *);
 
-    size_t _samplerDescriptorSetIDs[3];
+    size_t _samplerDescriptorSetIDs[4];
     vk::Format _colorFormat;
     vk::Image _colorImage;
     vk::ImageView _colorImageView;
@@ -55,6 +55,10 @@ class GBuffer
     vk::ImageView _normalImageView;
     vk::Sampler _normalSampler;
     vk::DeviceMemory _normalImageMemory;
+    vk::Image _shadowImage;
+    vk::ImageView _shadowImageView;
+    vk::Sampler _shadowSampler;
+    vk::DeviceMemory _shadowImageMemory;
     vk::Image _depthImage;
     vk::ImageView _depthImageView;
     vk::Sampler _depthSampler;

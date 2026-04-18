@@ -24,6 +24,8 @@ class ViewportUI
     ViewportUI();
     ~ViewportUI();
 
+    void free();
+
     void render(const struct FrameInfo &);
     void update();
 
@@ -79,6 +81,7 @@ class ViewportUI
     ImGuiDockNode *_centralNode{nullptr};
 
     bool _initialized{false};
+    bool _freed{false};
     std::unique_ptr<class DescriptorPool> _imguiPool;
 
     bool _showLogger{true};

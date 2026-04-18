@@ -15,7 +15,7 @@ class FirstPersonActor : public DynamicBodyActor
     virtual void update(float dt) override;
 
     void onContinuousOverlap(class cmx::PhysicsBody *ownedComponent, class cmx::PhysicsBody *overlappingComponent,
-                             cmx::Actor *overlappingActor, const cmx::HitInfo &) override;
+                             cmx::Actor *overlappingActor, cmx::HitInfo const &) override;
 
     void onMovementInput(float dt, glm::vec2 movement);
     void onMouseMovement(float dt, glm::vec2 mousePosition);
@@ -25,7 +25,7 @@ class FirstPersonActor : public DynamicBodyActor
 
     glm::vec3 _oldPosition{0.f};
     float _falling{0.f};
-    float _moveSpeed{3.f};
+    float _moveSpeed{1.f};
     float _mouseSensitivity{0.02f};
 };
 

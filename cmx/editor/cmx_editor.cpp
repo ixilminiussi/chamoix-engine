@@ -59,6 +59,14 @@ void Editor::load(Window &cmxWindow)
     _inputManager->bindAxis("movement speed update", &ViewportActor::updateMoveSpeed, _viewportActor.get());
 }
 
+void Editor::close()
+{
+    if (_viewportUI)
+    {
+        _viewportUI->free();
+    }
+}
+
 void Editor::attachScene(Scene *scene)
 {
     _scene = scene;

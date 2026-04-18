@@ -19,6 +19,7 @@ class Editor
     static Editor *getInstance();
 
     void load(class Window &);
+    void close();
     void attachScene(class Scene *);
     void declarePlayIntent();
     void leave(float dt, int);

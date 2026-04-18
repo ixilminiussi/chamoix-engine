@@ -11,6 +11,9 @@
 #include "cmx_g_buffer.h"
 #include "cmx_game.h"
 #include "cmx_light_environment.h"
+#include "cmx_post_blur_material.h"
+#include "cmx_post_ssao_material.h"
+#include "cmx_render_pass.h"
 #include "cmx_renderer.h"
 #include "cmx_swap_chain.h"
 
@@ -40,6 +43,7 @@ RenderSystem *RenderSystem::getInstance()
         _instance->createTexture();
 #endif
         _instance->createGBuffer();
+        _instance->createSSAOBuffers();
     }
 
     return _instance;
@@ -124,13 +128,25 @@ void RenderSystem::closeWindow()
 {
     spdlog::info("global release");
 
+    _device->device().waitIdle();
+
 #ifndef NDEBUG
+    Editor::getInstance()->close();
     freeImages();
 #endif
+    _ssaoMaterials[0]->free();
+    delete _ssaoMaterials[0];
+    _ssaoMaterials[1]->free();
+    delete _ssaoMaterials[1];
+    _ssaoBuffers[0]->free(_device.get());
+    _ssaoBuffers[1]->free(_device.get());
+    delete _ssaoBuffers[0];
+    delete _ssaoBuffers[1];
     _gBuffer->free(_device.get());
     _globalPool->free();
     _samplerDescriptorPool->free();
-    _device->device().destroyDescriptorSetLayout(_samplerDescriptorSetLayout->getDescriptorSetLayout());
+    _samplerDescriptorSetLayout.reset();
+    _globalSetLayout.reset();
 
     _renderer->free();
     delete _renderer.release();
@@ -223,6 +239,8 @@ void RenderSystem::checkAspectRatio(Camera *camera)
     camera->updateAspectRatio(aspect);
 
     _gBuffer->updateAspectRatio(_device.get(), _resolution);
+    _ssaoBuffers[0]->updateAspectRatio(_device.get(), _resolution);
+    _ssaoBuffers[1]->updateAspectRatio(_device.get(), _resolution);
     _device->device().destroyFramebuffer(_framebuffer);
     _device->device().destroyRenderPass(_renderPass);
     freeSamplerDescriptor(_samplerDescriptorSetID);
@@ -347,6 +365,43 @@ void RenderSystem::createGBuffer()
 
     _gBuffer = std::make_unique<GBuffer>();
     _gBuffer->createTextures(_resolution, _device.get());
+}
+
+void RenderSystem::createSSAOBuffers()
+{
+    vk::Extent2D resolution = getResolution();
+
+    _ssaoBuffers[0] = new RenderPass(_device.get(), resolution,
+                                     std::vector<AttachmentInfo>{{.format = vk::Format::eR16Sfloat,
+                                                                  .usage = vk::ImageUsageFlagBits::eColorAttachment |
+                                                                           vk::ImageUsageFlagBits::eSampled,
+                                                                  .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
+                                     std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
+
+    _ssaoBuffers[1] = new RenderPass(_device.get(), resolution,
+                                     std::vector<AttachmentInfo>{{.format = vk::Format::eR16Sfloat,
+                                                                  .usage = vk::ImageUsageFlagBits::eColorAttachment |
+                                                                           vk::ImageUsageFlagBits::eSampled,
+                                                                  .final = vk::ImageLayout::eShaderReadOnlyOptimal}},
+                                     std::vector<SubpassInfo>{{.colorAttachmentIndices = {0}}});
+
+    _ssaoMaterials[0] = new PostSSAOMaterial();
+    _ssaoMaterials[0]->initialize();
+    _ssaoMaterials[1] = new PostBlurMaterial();
+    _ssaoMaterials[1]->initialize();
+}
+
+void RenderSystem::drawSSAO(FrameInfo *frameInfo) const
+{
+    _ssaoBuffers[0]->beginRender(frameInfo->commandBuffer);
+    _ssaoMaterials[0]->bind(frameInfo, nullptr);
+    frameInfo->commandBuffer.draw(6, 1, 0, 0);
+    _ssaoBuffers[0]->endRender(frameInfo->commandBuffer);
+
+    _ssaoBuffers[1]->beginRender(frameInfo->commandBuffer);
+    _ssaoMaterials[1]->bind(frameInfo, nullptr);
+    frameInfo->commandBuffer.draw(6, 1, 0, 0);
+    _ssaoBuffers[1]->endRender(frameInfo->commandBuffer);
 }
 
 void RenderSystem::writeUbo(FrameInfo *frameInfo, GlobalUbo *ubo)

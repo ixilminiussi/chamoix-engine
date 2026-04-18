@@ -3,6 +3,7 @@
 // cmx
 #include <cmx_billboard_component.h>
 #include <cmx_physics.h>
+#include <cmx_physics_actor.h>
 #include <cmx_physics_component.h>
 #include <cmx_shapes.h>
 
@@ -26,7 +27,7 @@ void BulletActor::update(float dt)
     _transform.position += _direction * _bulletSpeed * dt;
 }
 
-void BulletActor::setBulletInfo(const BulletInfo &info)
+void BulletActor::setBulletInfo(BulletInfo const &info)
 {
     _bulletSpeed = info.speed;
     _scale = info.speed;
@@ -39,8 +40,14 @@ void BulletActor::setBulletInfo(const BulletInfo &info)
 }
 
 void BulletActor::onBeginOverlap(cmx::PhysicsBody *ownedBody, cmx::PhysicsBody *overlappingBody,
-                                 cmx::Actor *overlappingActor, const cmx::HitInfo &hitInfo)
+                                 cmx::Actor *overlappingActor, cmx::HitInfo const &hitInfo)
 {
+    if (dynamic_cast<cmx::PhysicsActor *>(overlappingActor))
+    {
+        despawn();
+        return;
+    }
+
     if (_bounceCount <= 0)
     {
         despawn();

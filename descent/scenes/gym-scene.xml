@@ -12,7 +12,9 @@
         <material type="cmx::ParallaxMaterial" vertex="parallax.vert.spv" fragment="parallax.frag.spv" editorOnly="false" worldSpaceUV="false" parallaxDepth="0.2" occlusionMapping="false" name="parallax_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="true" UVoffsetX="0" UVoffsetY="0" UVscale="10" UVrotate="90" r="1" g="1" b="1" name="shaded_material"/>
         <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(1)"/>
-        <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" name="outline_postprocess"/>
+        <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(2)"/>
+        <material type="cmx::ShadedMaterial" vertex="shaded.vert.spv" fragment="shaded.frag.spv" editorOnly="false" textured="true" worldSpaceUV="false" r="1" g="1" b="1" name="shaded_material(3)"/>
+        <postProcess type="cmx::PostOutlineMaterial" vertex="postprocess.vert.spv" fragment="post_outline.frag.spv" editorOnly="false" edgeColorR="0" edgeColorG="0" edgeColorB="0" colorEdgeThickness="0" colorEdgeThreshold="0" colorDepthFactor="0" normalEdgeThickness="3" normalEdgeThreshold="0.0099999998" normalDepthFactor="0.0099999998" depthEdgeThickness="3" depthEdgeThreshold="0.40000001" depthDepthFactor="0.5" name="outline_postprocess"/>
         <postProcess type="cmx::PostPassthroughMaterial" vertex="postprocess.vert.spv" fragment="post_passthrough.frag.spv" editorOnly="false" status="0" name="passthrough_postprocess"/>
         <model filepath=".cmx_assets/camera.obj" name="cmx_camera"/>
         <model filepath="assets/models/container.obj" name="cmx_container"/>
@@ -97,145 +99,21 @@
     <lightEnvironment timeOfDay="14.25">
         <ambientLight r="1" g="1" b="1" a="0.2"/>
     </lightEnvironment>
-    <graphicsManager/>
-    <actor type="WallActor" name="Cube3" id="37" visible="true">
+    <graphicsManager pp1="outline_postprocess"/>
+    <actor type="EnemyShipActor" name="EnemyShipActor" id="41" visible="true">
         <transform>
-            <position x="40" y="0" z="-10"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="20" y="20" z="30"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="chiseled_stone_bricks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="cmx::PointLightActor" name="GreenLight" id="35" visible="true">
-        <transform>
-            <position x="36" y="0" z="-68.799995"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
-        </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="0.39215687" g="1" b="0.39215687">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="WallActor" name="Cube4" id="33" visible="true">
-        <transform>
-            <position x="-10" y="10" z="50"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="10" y="10" z="5"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="bricks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="WallActor" name="Cube5" id="31" visible="true">
-        <transform>
-            <position x="30" y="0" z="50"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="30" y="20" z="5"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="bricks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="WallActor" name="Cube6" id="29" visible="true">
-        <transform>
-            <position x="-40" y="0" z="50"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="20" y="20" z="5"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="bricks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="cmx::PointLightActor" name="YellowLight" id="27" visible="true">
-        <transform>
-            <position x="29" y="0" z="33.399998"/>
-            <rotation pitch="0" yaw="0" roll="0.89493471" w="-0.44619736"/>
-            <scale x="0.99999511" y="0.99999511" z="1"/>
-        </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="1" g="1" b="0.39215687">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="EnemyShipActor" name="Enemy2" id="1" visible="true">
-        <transform>
-            <position x="-35" y="0" z="78.519997"/>
+            <position x="0" y="-7" z="-76"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="0.60000002" y="0.60000002" z="0.60000002"/>
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
                 <position x="0" y="0" z="0"/>
-                <rotation pitch="0.70710683" yaw="-3.0908623e-08" roll="-0.70710683" w="-3.0908623e-08"/>
+                <rotation pitch="0.70710677" yaw="-3.090862e-08" roll="-0.70710677" w="-3.090862e-08"/>
                 <scale x="50" y="50" z="50"/>
             </transform>
             <rendering>
-                <option index="0" material="shaded_material(1)" model="enemy-ship" t0="enemy-ship"/>
+                <option index="0" material="shaded_material(3)" model="enemy-ship" t0="enemy-ship"/>
             </rendering>
         </component>
         <component type="GunComponent" name="GunComponent">
@@ -253,7 +131,141 @@
             </transform>
         </component>
     </actor>
-    <actor type="RoomActor" name="Room" id="3" visible="true">
+    <actor type="WallActor" name="Pillar2" id="39" visible="true">
+        <transform>
+            <position x="23" y="0" z="76.740005"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="5" y="20" z="5"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="planks_big_oak"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="WallActor" name="Cube8" id="37" visible="true">
+        <transform>
+            <position x="-32" y="-5.1445999" z="21.629999"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="5" y="5" z="5"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="jungle_planks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="WallActor" name="Cube7" id="35" visible="true">
+        <transform>
+            <position x="-43" y="2.751564" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="5" y="5" z="5"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="oak_planks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::PointLightActor" name="CyanLight" id="33" visible="true">
+        <transform>
+            <position x="0" y="0" z="79.769997"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="0.39215687" g="1" b="1">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="ShipActor" name="Ship" id="31" visible="true">
+        <transform>
+            <position x="10.000001" y="0" z="0"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="GunComponent" name="GunComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="cmx::CameraComponent" name="cmx::CameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="false">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="mesh_material(2)" model="cmx_camera"/>
+            </rendering>
+        </component>
+        <component type="cmx::HudComponent" name="cmx::HudComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+        <component type="ShipCameraComponent" name="ShipCameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="false">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="mesh_material(1)" model="cmx_camera"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Dynamic" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="RoomActor" name="Room" id="29" visible="true">
         <transform>
             <position x="0" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -312,12 +324,22 @@
             </transform>
         </component>
     </actor>
-    <actor type="ShipActor" name="Ship" id="5" visible="true">
+    <actor type="EnemyShipActor" name="Enemy2" id="27" visible="true">
         <transform>
-            <position x="10.000001" y="0" z="0"/>
+            <position x="-35" y="0" z="78.519997"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
+            <scale x="0.60000002" y="0.60000002" z="0.60000002"/>
         </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0.70710683" yaw="-3.0908623e-08" roll="-0.70710683" w="-3.0908623e-08"/>
+                <scale x="50" y="50" z="50"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material(1)" model="enemy-ship" t0="enemy-ship"/>
+            </rendering>
+        </component>
         <component type="GunComponent" name="GunComponent">
             <transform>
                 <position x="0" y="0" z="0"/>
@@ -325,106 +347,17 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
         </component>
-        <component type="cmx::CameraComponent" name="cmx::CameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="false">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="mesh_material(2)" model="cmx_camera"/>
-            </rendering>
-        </component>
-        <component type="cmx::HudComponent" name="cmx::HudComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-        <component type="ShipCameraComponent" name="ShipCameraComponent" fov="80" nearPlane="0.1" farPlane="1000" isMain="false">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="mesh_material(1)" model="cmx_camera"/>
-            </rendering>
-        </component>
         <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_sphere" physicsMode="Dynamic" bounciness="0.5" friction="0.5">
             <transform>
-                <position x="0" y="0" z="0"/>
+                <position x="0" y="-0.40000001" z="0.30000001"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
+                <scale x="3.3" y="3.3" z="3.3"/>
             </transform>
         </component>
     </actor>
-    <actor type="cmx::PointLightActor" name="CyanLight" id="7" visible="true">
+    <actor type="WallActor" name="Pillar" id="3" visible="true">
         <transform>
-            <position x="0" y="0" z="79.769997"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
-        </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="0.39215687" g="1" b="1">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="WallActor" name="Cube7" id="9" visible="true">
-        <transform>
-            <position x="-43" y="2.751564" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="5" y="5" z="5"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="oak_planks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="WallActor" name="Cube8" id="11" visible="true">
-        <transform>
-            <position x="-32" y="-5.1445999" z="21.629999"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="5" y="5" z="5"/>
-        </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="jungle_planks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="WallActor" name="Pillar2" id="13" visible="true">
-        <transform>
-            <position x="23" y="0" z="76.740005"/>
+            <position x="0" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
             <scale x="5" y="20" z="5"/>
         </transform>
@@ -435,7 +368,7 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="planks_big_oak"/>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="stone_bricks"/>
             </rendering>
         </component>
         <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
@@ -446,23 +379,13 @@
             </transform>
         </component>
     </actor>
-    <actor type="WallActor" name="Cube2" id="15" visible="true">
+    <actor type="cmx::PointLightActor" name="BlueLight" id="5" visible="true">
         <transform>
-            <position x="-20" y="0" z="-29.65"/>
+            <position x="-23" y="-13.196898" z="-60.239998"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="40" y="5" z="5"/>
+            <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="cherry_planks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="0.2532751" g="0.25327528" b="1">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -470,23 +393,13 @@
             </transform>
         </component>
     </actor>
-    <actor type="WallActor" name="Cube1" id="17" visible="true">
+    <actor type="cmx::PointLightActor" name="RedLight" id="7" visible="true">
         <transform>
-            <position x="-20" y="10" z="-82"/>
+            <position x="-24" y="0.52008247" z="8"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="40" y="10" z="18"/>
+            <scale x="1" y="1" z="1"/>
         </transform>
-        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-            <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="birch_planks"/>
-            </rendering>
-        </component>
-        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="1" g="0.39215687" b="0.39215687">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -494,7 +407,7 @@
             </transform>
         </component>
     </actor>
-    <actor type="EnemyShipActor" name="Enemy" id="19" visible="true">
+    <actor type="EnemyShipActor" name="Enemy" id="9" visible="true">
         <transform>
             <position x="-12" y="0" z="0"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
@@ -525,39 +438,11 @@
             </transform>
         </component>
     </actor>
-    <actor type="cmx::PointLightActor" name="RedLight" id="21" visible="true">
+    <actor type="WallActor" name="Cube1" id="11" visible="true">
         <transform>
-            <position x="-24" y="0.52008247" z="8"/>
+            <position x="-20" y="10" z="-82"/>
             <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
-        </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="1" g="0.39215687" b="0.39215687">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="cmx::PointLightActor" name="BlueLight" id="23" visible="true">
-        <transform>
-            <position x="-23" y="-15.196898" z="-60.239998"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="1" y="1" z="1"/>
-        </transform>
-        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="0.39215687" g="0.39215687" b="1">
-            <transform>
-                <position x="0" y="0" z="0"/>
-                <rotation pitch="0" yaw="0" roll="0" w="1"/>
-                <scale x="1" y="1" z="1"/>
-            </transform>
-        </component>
-    </actor>
-    <actor type="WallActor" name="Pillar" id="25" visible="true">
-        <transform>
-            <position x="0" y="0" z="0"/>
-            <rotation pitch="0" yaw="0" roll="0" w="1"/>
-            <scale x="5" y="20" z="5"/>
+            <scale x="40" y="10" z="18"/>
         </transform>
         <component type="cmx::MeshComponent" name="cmx::MeshComponent">
             <transform>
@@ -566,10 +451,158 @@
                 <scale x="1" y="1" z="1"/>
             </transform>
             <rendering>
-                <option index="0" material="shaded_material" model="cmx_cube" t0="stone_bricks"/>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="birch_planks"/>
             </rendering>
         </component>
         <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="WallActor" name="Cube2" id="13" visible="true">
+        <transform>
+            <position x="-20" y="0" z="-29.65"/>
+            <rotation pitch="-0.060595322" yaw="-0.0074251536" roll="-0.12140021" w="0.9907245"/>
+            <scale x="80.000038" y="4.9999995" z="4.999999"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="cherry_planks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="WallActor" name="Cube3" id="15" visible="true">
+        <transform>
+            <position x="40" y="0" z="-10"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="20" y="20" z="30"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="chiseled_stone_bricks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::PointLightActor" name="GreenLight" id="17" visible="true">
+        <transform>
+            <position x="36" y="0" z="-68.799995"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="1" y="1" z="1"/>
+        </transform>
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="0.39215687" g="1" b="0.39215687">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="WallActor" name="Cube4" id="19" visible="true">
+        <transform>
+            <position x="-10" y="10" z="50"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="10" y="10" z="5"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="bricks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="WallActor" name="Cube5" id="21" visible="true">
+        <transform>
+            <position x="30" y="0" z="50"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="30" y="20" z="5"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="bricks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="WallActor" name="Cube6" id="23" visible="true">
+        <transform>
+            <position x="-40" y="0" z="50"/>
+            <rotation pitch="0" yaw="0" roll="0" w="1"/>
+            <scale x="20" y="20" z="5"/>
+        </transform>
+        <component type="cmx::MeshComponent" name="cmx::MeshComponent">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+            <rendering>
+                <option index="0" material="shaded_material" model="cmx_cube" t0="bricks"/>
+            </rendering>
+        </component>
+        <component type="cmx::PhysicsComponent" name="cmx::PhysicsComponent" shape="cmx_cube" physicsMode="Static" bounciness="0.5" friction="0.5">
+            <transform>
+                <position x="0" y="0" z="0"/>
+                <rotation pitch="0" yaw="0" roll="0" w="1"/>
+                <scale x="1" y="1" z="1"/>
+            </transform>
+        </component>
+    </actor>
+    <actor type="cmx::PointLightActor" name="YellowLight" id="25" visible="true">
+        <transform>
+            <position x="29" y="0" z="33.399998"/>
+            <rotation pitch="0" yaw="0" roll="0.89493471" w="-0.44619736"/>
+            <scale x="0.99999511" y="0.99999511" z="1"/>
+        </transform>
+        <component type="cmx::PointLightComponent" name="cmx::PointLightComponent" lightIntensity="100" r="1" g="1" b="0.39215687">
             <transform>
                 <position x="0" y="0" z="0"/>
                 <rotation pitch="0" yaw="0" roll="0" w="1"/>

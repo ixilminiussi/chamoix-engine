@@ -39,11 +39,6 @@ Actor::~Actor()
 void Actor::despawn()
 {
     _state = State::DEAD;
-
-    for (auto &pair : _components)
-    {
-        pair.second->setParent(nullptr);
-    }
 }
 
 std::shared_ptr<Component> Actor::attachComponent(std::shared_ptr<Component> component, std::string componentName,
