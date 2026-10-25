@@ -4,3 +4,4 @@ CMakeFiles/
 .cache/
 */.cmx_assets/
 .external/*/
+!.external/vulkan-headers/

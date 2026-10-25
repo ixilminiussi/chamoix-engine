@@ -15,16 +15,24 @@ or clone using
 git clone --recurse-submodules https://github.com/ixilminiussi/chamoix-engine.git
 ```
 
+### Dependencies
+
+- CMake (3.21+) and Ninja (or make)
+- A C++17 compiler
+- The Vulkan loader (e.g. `vulkan-loader-devel` on Fedora, `libvulkan-dev` on Debian/Ubuntu). Vulkan headers are vendored in `.external/vulkan-headers`
+- `glslc` on your `PATH` (from `shaderc` / the Vulkan SDK), used to compile shaders at build time
+- *Optional:* system `glfw3` and `spdlog`. If they aren't found, CMake fetches them from GitHub (GLFW then needs the X11/Wayland development headers)
+
 ### Compilation
 
-#### For Editor:
+Use `-DGAME` to pick the game directory to build (`demo`, `descent` or `petanque`, defaults to `demo`). Using one build directory per game keeps them separate.
+
+#### For Editor (Debug):
 
 ``` bash
-mkdir build
-cd build
-cmake -GNinja -DCMAKE_BUILD_TYPE=Debug .. -DGAME=demo # use -DGAME to specify the game directory you intend to build
-ninja # or make if using make
-./VulkanTest
+cmake -S . -B build/demo -GNinja -DCMAKE_BUILD_TYPE=Debug -DGAME=demo
+cmake --build build/demo
+./build/demo/game-bin
 ```
 
 *Once in editor, use the mouse to move around, and the various editors to test out different situations*
@@ -34,12 +42,19 @@ ninja # or make if using make
 #### For Release:
 
 ``` bash
-mkdir build
-cd build
-cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. -DGAME=demo
-ninja
-./VulkanTest
+cmake -S . -B build/petanque-release -GNinja -DCMAKE_BUILD_TYPE=Release -DGAME=petanque
+cmake --build build/petanque-release
+./build/petanque-release/game-bin
 ```
 
-*Release mode essentially takes you straight to the petanque game. Use WASD to move around, Mouse to look. Press Space/Left-Mouse to throw cochonet / boule, long press to throw further* 
+*Release mode skips the editor and takes you straight into the game. In petanque, use WASD to move around, Mouse to look. Press Space/Left-Mouse to throw cochonet / boule, long press to throw further*
 
+#### Presets
+
+A `linux` preset (Debug, Ninja, default game) is also available:
+
+``` bash
+cmake --preset linux
+cmake --build --preset linux
+./build/linux/game-bin
+```
